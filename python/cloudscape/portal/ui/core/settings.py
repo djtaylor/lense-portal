@@ -1,8 +1,10 @@
 import os
 
-"""
-CloudScape Portal UI Django Settings
-"""
+# CloudScape Libraries
+import cloudscape.common.config as config
+
+# Configuration
+CONFIG           = config.parse()
 
 # Project base directory
 BASE_DIR         = os.path.dirname(os.path.dirname(__file__))
@@ -15,17 +17,7 @@ TEMPLATE_DEBUG   = True
 ALLOWED_HOSTS    = []
 
 # Secret key
-SECRET_KEY       = ''
-
-# API settings
-API_HOST         = 'host.example.com'
-API_PROTO        = 'http'
-API_PORT         = '10550'
-
-# Socket.IO server
-SIO_HOST         = 'host.example.com'
-SIO_PROTO        = 'http'
-SIO_PORT         = '10551'
+SECRET_KEY       = CONFIG.portal.secret
 
 # Internationalization settings
 LANGUAGE_CODE    = 'en-us'
@@ -53,18 +45,18 @@ DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape',
-        'USER':     'cloudscape',
-        'PASSWORD': 'secret',
-        'HOST':     'host.example.com',
-        'PORT':     '3306'
+        'USER':     CONFIG.db.user,
+        'PASSWORD': CONFIG.db.password,
+        'HOST':     CONFIG.db.host,
+        'PORT':     CONFIG.db.port
     },
     'host_resource': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape_host_resource',
-        'USER':     'cloudscape',
-        'PASSWORD': 'secret',
-        'HOST':     'host.example.com',
-        'PORT':     '3306'
+        'USER':     CONFIG.db.user,
+        'PASSWORD': CONFIG.db.password,
+        'HOST':     CONFIG.db.host,
+        'PORT':     CONFIG.db.port
     }
 }
 
@@ -101,4 +93,4 @@ MIDDLEWARE_CLASSES = (
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # Session timeout in minutes
-SESSION_TIMEOUT = 60
+SESSION_TIMEOUT = CONFIG.portal.timeout

@@ -1,8 +1,10 @@
 import os
 
-"""
-CloudScape Server API Django Settings
-"""
+# CloudScape Libraries
+import cloudscape.common.config as config
+
+# Configuration
+CONFIG           = config.parse()
 
 # Project base directory
 BASE_DIR         = os.path.dirname(os.path.dirname(__file__))
@@ -15,7 +17,7 @@ TEMPLATE_DEBUG   = True
 ALLOWED_HOSTS    = []
 
 # Secret key
-SECRET_KEY       = ''
+SECRET_KEY       = CONFIG.server.secret
 
 # Internationalization settings
 LANGUAGE_CODE    = 'en-us'
@@ -46,7 +48,7 @@ TEMPLATE_DIRS = (
 )
 
 # SMTP backend
-EMAIL_HOST       = '172.16.100.10'
+EMAIL_HOST       = CONFIG.email.smtp_host
 
 # Database encryption keys
 ENCRYPTED_FIELDS_KEYDIR = os.path.expandvars('$CLOUDSCAPE_BASE/dbkey')
@@ -56,18 +58,18 @@ DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape',
-        'USER':     'cloudscape',
-        'PASSWORD': 'secret',
-        'HOST':     'host.example.com',
-        'PORT':     '3306'
+        'USER':     CONFIG.db.user,
+        'PASSWORD': CONFIG.db.password,
+        'HOST':     CONFIG.db.host,
+        'PORT':     CONFIG.db.port
     },
     'host_stats': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape_host_stats',
-        'USER':     'cloudscape',
-        'PASSWORD': 'secret',
-        'HOST':     'host.example.com',
-        'PORT':     '3306'
+        'USER':     CONFIG.db.user,
+        'PASSWORD': CONFIG.db.password,
+        'HOST':     CONFIG.db.host,
+        'PORT':     CONFIG.db.port
     }
 }
 

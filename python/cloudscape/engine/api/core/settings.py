@@ -15,7 +15,7 @@ TEMPLATE_DEBUG   = True
 ALLOWED_HOSTS    = []
 
 # Secret key
-SECRET_KEY       = 'n6@*+!@t^-2o)()jt566%n9!p$57&us4)47%9(gye)w)+4nszu'
+SECRET_KEY       = ''
 
 # Internationalization settings
 LANGUAGE_CODE    = 'en-us'
@@ -57,16 +57,16 @@ DATABASES = {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape',
         'USER':     'cloudscape',
-        'PASSWORD': 'bG28FgH1809FuJtY',
-        'HOST':     'cloudscape.bkk3.vpls.local',
+        'PASSWORD': 'secret',
+        'HOST':     'host.example.com',
         'PORT':     '3306'
     },
     'host_stats': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape_host_stats',
         'USER':     'cloudscape',
-        'PASSWORD': 'bG28FgH1809FuJtY',
-        'HOST':     'cloudscape.bkk3.vpls.local',
+        'PASSWORD': 'secret',
+        'HOST':     'host.example.com',
         'PORT':     '3306'
     }
 }

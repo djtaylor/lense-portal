@@ -15,15 +15,15 @@ TEMPLATE_DEBUG   = True
 ALLOWED_HOSTS    = []
 
 # Secret key
-SECRET_KEY       = 'qa*%5vm7mty*c4nw+5y=#xso5r8+u&q#-ln^#t#iu8m=+hu6gj'
+SECRET_KEY       = ''
 
 # API settings
-API_HOST         = 'localhost'
+API_HOST         = 'host.example.com'
 API_PROTO        = 'http'
 API_PORT         = '10550'
 
 # Socket.IO server
-SIO_HOST         = '192.168.218.130'
+SIO_HOST         = 'host.example.com'
 SIO_PROTO        = 'http'
 SIO_PORT         = '10551'
 
@@ -35,7 +35,7 @@ USE_L10N         = True
 USE_TZ           = True
 
 # Static files
-STATIC_URL       = '/portal/static/'
+STATIC_URL       = '/static/'
 
 # URL processor
 ROOT_URLCONF     = 'cloudscape.portal.ui.core.urls'
@@ -54,16 +54,16 @@ DATABASES = {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape',
         'USER':     'cloudscape',
-        'PASSWORD': 'bG28FgH1809FuJtY',
-        'HOST':     'cloudscape.bkk3.vpls.local',
+        'PASSWORD': 'secret',
+        'HOST':     'host.example.com',
         'PORT':     '3306'
     },
     'host_resource': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape_host_resource',
         'USER':     'cloudscape',
-        'PASSWORD': 'bG28FgH1809FuJtY',
-        'HOST':     'cloudscape.bkk3.vpls.local',
+        'PASSWORD': 'secret',
+        'HOST':     'host.example.com',
         'PORT':     '3306'
     }
 }

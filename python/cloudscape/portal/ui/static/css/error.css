@@ -1,0 +1,31 @@
+.error_window {
+	width: 500px;
+	height: 100px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 100px;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.error_title {
+	font-size: 1.1em;
+	padding: 0 0 5px 0;
+	margin: 0 0 5px 0;
+	border-bottom: solid 1px #eee;
+	overflow: auto;
+	height: 25px;
+	line-height: 25px;
+}
+
+.error_title_txt {
+	float: left;
+}
+
+.error_title_icon {
+	float: right;
+	background-image: url(/portal/static/images/error.png);
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	width: 25px;
+	height: 25px;
+}

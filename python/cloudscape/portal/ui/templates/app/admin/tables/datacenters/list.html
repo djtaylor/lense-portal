@@ -1,0 +1,29 @@
+<div class="table" type="table" target="datacenters">
+	<div class="table_title">
+		<div class="table_title_label">Datacenters</div>
+		<div class="table_actions">
+			<div class="table_action" type="button" action="popup" target="datacenter.create">Create</div>
+			<div class="table_action" type="button" action="popup" target="datacenter.delete" require="input[type='radio'][name='datacenter_uuid']:checked">Delete</div>
+		</div>
+	</div>
+	<div class="table_panel_tmpl" style="height:1px;"></div>
+	<div class="table_headers">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="datacenter_name">Name</div>
+		<div class="table_header table_header_md" col="datacenter_label" >Label</div>
+		<div class="table_header table_header_md" col="datacenter_uuid">UUID</div>
+	</div>
+	<input type="hidden" name="datacenter_uuid">
+	<div type="rows" target="datacenters">
+		{% for datacenter in datacenters.all %}
+			<div class="table_row" type="row" target="datacenter" datacenter="{{ datacenter.uuid }}">
+				<div class="table_select_col">
+					<input type="radio" name="datacenter_uuid" value="{{ datacenter.uuid }}" action="update">
+				</div>
+				<div class="table_col table_link" type="button" action="link" target="admin?panel=datacenters&datacenter={{ datacenter.uuid }}" col="datacenter_name">{{ datacenter.name }}</div>
+				<div class="table_col" col="datacenter_label">{{ datacenter.label }}</div>
+				<div class="table_col" col="datacenter_uuid">{{ datacenter.uuid }}</div>
+			</div>
+		{% endfor %}
+	</div>
+</div>

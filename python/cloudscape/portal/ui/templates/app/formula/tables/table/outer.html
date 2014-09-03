@@ -1,0 +1,17 @@
+<div class="table_50">
+	<div class="table_title_inner">
+		{% block title_inner %}{% endblock %}
+	</div>
+	<div class="table_headers">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="formula_name">Name</div>
+		<div class="table_header table_header_md" col="formula_label">Label</div>
+		<div class="table_header table_header_md" col="formula_requires">Requires</div>
+		<div class="table_header table_header_md" col="formula_edit_lock">Edit Lock</div>
+		<div class="table_header table_header_md" col="formula_type">Type</div>
+		<div class="table_header table_header_md" col="formula_internal">Internal</div>
+	</div>
+	<div type="rows" target="formula" f_type="{{ f_type }}">
+		{% block formula_rows %}{% endblock %}
+	</div>
+</div>

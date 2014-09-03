@@ -1,0 +1,49 @@
+<div class="table_50">
+	<div class="table_title">
+		<div class="table_title_label">Formulas</div>
+		<div class="table_actions">
+			<div class="table_action" type="button" action="popup" target="host.remove_formula" require="input[type$='radio'][name$='formula']:checked">Remove</div>
+		</div>
+	</div>
+	<div class="table_headers">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="formula_name">Name</div>
+		<div class="table_header table_header_md" col="formula_status">Status</div>
+		<div class="table_header table_header_md" col="formula_runtime">Runtime</div>
+		<div class="table_header table_header_md" col="formula_params">Parameters</div>
+		<div class="table_header table_header_md" col="formula_log">Log</div>
+		<div class="table_header table_header_md" col="formula_history">History</div>
+	</div>
+	<div>
+		{% for formula in host.formulas %}
+			<div class="table_row" uuid="{{ host.details.uuid }}" formula="{{ formula.formula }}">
+				<div class="table_select_col">
+					<input type="radio" name="formula" value="{{ formula.formula }}" action="update">
+				</div>
+				<div class="table_col table_link" type="button" action="link" target="formula?panel=details&formula={{ formula.formula }}" col="formula_name">{{ formula.name }}</div>
+				<div class="table_col" col="formula_status">{{ formula.exit_status }}</div>
+				<div class="table_col" col="formula_runtime">{{ formula.created }}</div>
+				<div class="table_col table_link" type="button" action="popup" target="{{ formula.formula }}_params" col="formula_params">Show</div>
+				<div class="table_col table_link" type="button" action="popup" target="{{ formula.formula }}_log" col="formula_log">Show</div>
+				{% if formula.history %}
+					<div class="table_col table_link" type="button" action="toggle" target="{{ formula.formula }}_history" col="formula_history">Show</div>
+				{% else %}
+					<div class="table_col" col="formula_history"></div>
+				{% endif %}
+			</div>
+			<div class="table_row_group" uuid="{{ host.details.uuid}}" formula="{{ formula.formula }}" style="display:none;" type="toggle" name="{{ formula.formula }}_history">
+			{% for fh in formula.history %}
+				<div class="table_row table_row_sub" uuid="{{ host.details.uuid }}" formula="{{ fh.formula }}">
+					<div class="table_select_col"></div>
+					<div class="table_col table_link" type="button" action="link" target="formula?panel=details&formula={{ fh.formula }}" col="formula_name">-</div>
+					<div class="table_col" col="formula_status">{{ fh.exit_status }}</div>
+					<div class="table_col" col="formula_runtime">{{ fh.created }}</div>
+					<div class="table_col table_link" type="button" action="popup" target="{{ fh.formula }}_params_{{ forloop.counter }}" col="formula_params">Show</div>
+					<div class="table_col table_link" type="button" action="popup" target="{{ fh.formula }}_log_{{ forloop.counter }}" col="formula_log">Show</div>
+					<div class="table_col" col="formula_history"></div>
+				</div>
+			{% endfor %}
+			</div>
+		{% endfor %}
+	</div>
+</div>

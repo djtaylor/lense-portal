@@ -1,0 +1,77 @@
+<div class="table_panel" type="table_panel" target="hosts">
+	<div class="table_panel_group">
+		<div class="table_panel_group_title">System Type</div>
+		<div class="table_panel_group_content">
+			<div class="table_panel_checkbox">
+				<div class="table_panel_checkbox_input">
+					<input target="hosts.filter" type="checkbox" key="sys" value="linux" checked>
+				</div>
+				<div class="table_panel_checkbox_label">Linux</div>
+			</div>
+			<div class="table_panel_checkbox">
+				<div class="table_panel_checkbox_input">
+					<input target="hosts.filter" type="checkbox" key="sys" value="windows" checked>
+				</div>
+				<div class="table_panel_checkbox_label">Windows</div>
+			</div>
+		</div>
+	</div>
+	<div class="table_panel_group">
+		<div class="table_panel_group_title">Datacenter</div>
+		<div class="table_panel_group_content">
+			{% for datacenter in datacenters %}
+				<div class="table_panel_checkbox">
+					<div class="table_panel_checkbox_input">
+						<input target="hosts.filter" type="checkbox" key="datacenter" value="{{ datacenter.uuid }}" checked>
+					</div>
+					<div class="table_panel_checkbox_label">{{ datacenter.name }}</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+	<div class="table_panel_group">
+		<div class="table_panel_group_title">Agent Status</div>
+		<div class="table_panel_group_content">
+			<div class="table_panel_checkbox">
+				<div class="table_panel_checkbox_input">
+					<input target="hosts.filter" type="checkbox" key="agent_status" value="RUNNING" checked>
+				</div>
+				<div class="table_panel_checkbox_label">Running</div>
+			</div>
+			<div class="table_panel_checkbox">
+				<div class="table_panel_checkbox_input">
+					<input target="hosts.filter" type="checkbox" key="agent_status" value="STOPPED" checked>
+				</div>
+				<div class="table_panel_checkbox_label">Stopped</div>
+			</div>
+			<div class="table_panel_checkbox">
+				<div class="table_panel_checkbox_input">
+					<input target="hosts.filter" type="checkbox" key="agent_status" value="ERROR" checked>
+				</div>
+				<div class="table_panel_checkbox_label">Error</div>
+			</div>
+		</div>
+	</div>
+	<div class="table_panel_group">
+		<div class="table_panel_group_title">IP Address</div>
+		<div class="table_panel_group_content">
+			<div class="table_panel_searchbox">
+				<div class="table_panel_searchbox_input">
+					<input target="hosts.filter" type="text" key="ip.search">
+				</div>
+			</div>
+			<div class="table_panel_checkbox">
+				<div class="table_panel_checkbox_input">
+					<input target="hosts.filter" type="checkbox" key="ip" value="public" checked>
+				</div>
+				<div class="table_panel_checkbox_label">Public</div>
+			</div>
+			<div class="table_panel_checkbox">
+				<div class="table_panel_checkbox_input">
+					<input target="hosts.filter" type="checkbox" key="ip" value="private" checked>
+				</div>
+				<div class="table_panel_checkbox_label">Private</div>
+			</div>
+		</div>
+	</div>
+</div>

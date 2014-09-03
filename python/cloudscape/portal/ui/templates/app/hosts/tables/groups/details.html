@@ -1,0 +1,173 @@
+{# Host Group Overview #}
+<div class="table_50">
+	<div class="table_title">
+		<div class="table_title_label">Host Group: {{ hgroups.detail.name }}</div>
+		<div class="table_actions">
+			<div class="table_action" type="button" action="link" target="hosts?panel=groups&group={{ hgroups.detail.uuid }}&edit">Edit</div>
+			<div class="table_actions_jump">
+				<div class="table_actions_jump_select">
+					<select name="hgroup_jump">
+						{% for hg in hgroups.all %}
+							{% if hg.uuid == hgroups.detail.uuid %}
+								<option value="{{ hg.uuid }}" selected="selected">{{ hg.name }}</option>
+							{% else %}
+								<option value="{{ hg.uuid }}" >{{ hg.name }}</option>
+							{% endif %}
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	{# Host Group Details #}
+	<div class="table_window">
+		<div class="table_row">
+			<div class="table_row_label">Name</div>
+			<div class="table_row_text">{{ hgroups.detail.name }}</div>
+		</div>
+		<div class="table_row">
+			<div class="table_row_label">Formula</div>
+			<div class="table_row_text">{{ hgroups.detail.formula }}</div>
+		</div>
+		<div class="table_row">
+			<div class="table_row_label">UUID</div>
+			<div class="table_row_text">{{ hgroups.detail.uuid }}</div>
+		</div>
+	</div>
+	
+	{# Host Group Members #}
+	<div style="height:20px;"></div>
+	<div class="table_title">
+		<div class="table_title_label">Member Hosts</div>
+	</div>
+	<div class="table_headers">
+		<div class="table_header table_header_md" col="host_name">Name</div>
+		<div class="table_header table_header_md" col="host_ip">IP</div>
+		<div class="table_header table_header_md" col="host_distro">Distro</div>
+		<div class="table_header table_header_md" col="host_type">Type</div>
+		<div class="table_header table_header_md" col="host_agent">Agent Status</div>
+		<div class="table_header table_header_md" col="host_agent_control">Control</div>
+	</div>
+	<div type="rows" target="hosts">
+		{% for host in hgroups.detail.members.details %}
+		<div class="table_row" type="row" target="hosts" host="{{ host.uuid }}">
+			<div class="table_col table_link" col="host_name" type="button" action="link" target="hosts?panel=details&host={{ host.uuid }}">{{ host.name }}</div>
+			<div class="table_col" col="host_ip">{{ host.ip }}</div>
+			<div class="table_col" col="host_distro">{{ host.distro }} {{ host.version}} {{ host.arch }}</div>
+			<div class="table_col" col="host_type">
+				<img src="/portal/static/images/os_{{ host.os_type }}.png"/>
+			</div>
+			<div class="table_col" col="host_agent" type="agent.status" host="{{ host.uuid }}" state="{{ host.agent_status }}">{{ host.agent_status }}</div>
+			<div class="table_col" col="host_agent_control" type="agent.control" host="{{ host.uuid }}" state="{{ host.agent_status }}">
+				{% if host.agent_status == 'RUNNING' %}
+					<div class="agent_control" action="start" active="no" host="{{ host.uuid }}"></div>
+					<div class="agent_control" action="stop" active="yes" host="{{ host.uuid }}"></div>
+					<div class="agent_control" action="restart" active="yes" host="{{ host.uuid }}"></div>
+				{% else %}
+					<div class="agent_control" action="start" active="yes" host="{{ host.uuid }}"></div>
+					<div class="agent_control" action="stop" active="no" host="{{ host.uuid }}"></div>
+					<div class="agent_control" action="restart" active="no" host="{{ host.uuid }}"></div>
+				{% endif %}
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+
+{# Host Group Resource Usage #}
+<div class="table_50" type="table" target="hgroup_resources">
+	<div class="table_title">
+		<div class="table_actions">
+			<div class="table_action_active" type="button" action="grouptoggle" group="hgroup_stats" target="hgroup_resource">Resource Usage</div>
+			<div class="table_action" type="button" action="grouptoggle" group="hgroup_stats" target="hgroup_io">Realtime I/O</div>
+		</div>
+	</div>
+	<div class="table_panel_tmpl" style="height:1px;"></div>
+	
+	{# Resoure I/O: Network, Disk #}
+	<div class="table_window" type="grouptoggle" group="hgroup_stats" name="hgroup_io" style="display:none;">
+		<div class="table_row">
+			<div class="table_row_title table_title_link" type="button" action="toggle" target="hgroup_netio">Network I/O</div>
+			<div class="table_row_contents" type="toggle" name="hgroup_netio">
+				<div class="table_line_chart" type="line_chart" name="hgroup_netio">
+					<div class="table_line_chart_info" name="hgroup_netio">
+						<div type="svg" name="hgroup_netio" id="hgroup_netio"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="table_row">
+			<div class="table_row_title table_title_link" type="button" action="toggle" target="hgroup_diskio">Disk I/O</div>
+			<div class="table_row_contents" type="toggle" name="hgroup_diskio">
+				<div class="table_line_chart" type="line_chart" name="hgroup_diskio">
+					<div class="table_line_chart_info" name="hgroup_diskio">
+						<div type="svg" name="hgroup_diskio" id="hgroup_diskio"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	{# Resource Usage: Memory, Disk, CPU #}
+	<div class="table_window" type="grouptoggle" group="hgroup_stats" name="hgroup_resource">
+		<div class="table_row">
+			<div class="table_row_title table_title_link" type="button" action="toggle" target="hgroup_mem">Total Memory</div>
+			<div class="table_row_contents" type="toggle" name="hgroup_mem">
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">MB (Total)</div>
+					<div class="table_row_inner_text" type="summary" name="mem_mbtotal">0</div>
+				</div>
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">MB (Used)</div>
+					<div class="table_row_inner_text" type="summary" name="mem_mbused">0</div>
+				</div>
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">MB (Free)</div>
+					<div class="table_row_inner_text" type="summary" name="mem_mbfree">0</div>
+				</div>
+				<div type="svg" class="table_cluster_stat_vis" name="hgroup_mem"></div>
+			</div>
+		</div>
+		<div class="table_row">
+			<div class="table_row_title table_title_link" type="button" action="toggle" target="hgroup_disk">Total Disk</div>
+			<div class="table_row_contents" type="toggle" name="hgroup_disk">
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">GB (Total)</div>
+					<div class="table_row_inner_text" type="summary" name="disk_gbtotal">0</div>
+				</div>
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">GB (Used)</div>
+					<div class="table_row_inner_text" type="summary" name="disk_gbused">0</div>
+				</div>
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">GB (Free)</div>
+					<div class="table_row_inner_text" type="summary" name="disk_gbfree">0</div>
+				</div>
+				<div type="svg" class="table_cluster_stat_vis" name="hgroup_disk"></div>
+			</div>
+		</div>
+		<div class="table_row">
+			<div class="table_row_title table_title_link" type="button" action="toggle" target="hgroup_cpu">Total CPU</div>
+			<div class="table_row_contents" type="toggle" name="hgroup_cpu">
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">Cores (Total)</div>
+					<div class="table_row_inner_text" type="summary" name="cpu_cores">0</div>
+				</div>
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">GHz (Total)</div>
+					<div class="table_row_inner_text" type="summary" name="cpu_ghztotal">0</div>
+				</div>
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">GHz (Used)</div>
+					<div class="table_row_inner_text" type="summary" name="cpu_ghzused">0</div>
+				</div>
+				<div class="table_row_inner">
+					<div class="table_row_inner_label">GHz (Free)</div>
+					<div class="table_row_inner_text" type="summary" name="cpu_ghzfree">0</div>
+				</div>
+				<div type="svg" class="table_cluster_stat_vis" name="hgroup_cpu"></div>
+			</div>
+		</div>
+	</div>
+</div>

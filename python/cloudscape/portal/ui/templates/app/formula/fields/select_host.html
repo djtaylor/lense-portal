@@ -1,0 +1,22 @@
+{% if field_obj.type == 'select_host' %}
+	<div class="formula_field">
+		<div class="formula_field_label">{{ field_obj.label }}</div>
+		<div class="formula_field_desc">{{ field_obj.desc }}</div>
+		<div class="formula_field_input">
+			<div class="dropdown_menu" type="dropdown" target="menu" name="{{ field_obj.name }}">
+				<div class="dropdown_action">
+					<div class="dropdown_button" type="button" action="toggle" target="{{ field_obj.name }}"></div>
+					<div class="dropdown_value" type="dropdown" target="{{ field_obj.name }}">Please select a host...</div>
+				</div>
+				<div class="form_input_icon_def" type="icon" form="run_formula" name="{{ field_obj.name }}"></div>
+			</div>
+			<div class="dropdown_items" type="toggle" name="{{ field_obj.name }}">
+				{% for uuid, obj in managed_hosts.items %}
+					<option value="{{ uuid }}" class="formula_select_option">{{ obj.label }}</option>
+					<div class="dropdown_item" type="button" action="dropdown" value="{{ uuid }}" label="{{ obj.label }}" target="{{ field_obj.name }}">{{ obj.label }}</div>
+				{% endfor %}
+			</div>
+			<input type="hidden" form="run_formula" name="{{ field_obj.name }}" value="" required />
+		</div>
+	</div>
+{% endif %}

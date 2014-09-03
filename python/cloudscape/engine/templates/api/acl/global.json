@@ -1,0 +1,91 @@
+[
+    {
+    	"name": "host.add",
+    	"desc": "Add a new managed host.",
+    	"endpoints": [
+			{
+				"path": "host",
+				"action": "add",
+				"desc": "Add a new managed host."
+			}              
+    	]
+    },
+    {
+    	"name": "user.create",
+    	"desc": "Create a new API user.",
+    	"endpoints": [
+			{
+				"path": "user",
+				"action": "create",
+				"desc": "Create a new API user."
+			}              
+    	]
+    },
+    {
+    	"name": "group.create",
+    	"desc": "Create a new API user group.",
+    	"endpoints": [
+			{
+				"path": "group",
+				"action": "create",
+				"desc": "Create a new API user group."
+			}              
+    	]
+    },
+    {
+    	"name": "formula.create",
+    	"desc": "Create a new formula.",
+    	"endpoints": [
+			{
+				"path": "formula",
+				"action": "create",
+				"desc": "Create a new formula."
+			}              
+    	]
+    },
+    {
+    	"name": "cluster.stats",
+    	"desc": "Retrieve cluster statistics for managed hosts.",
+    	"endpoints": [
+			{
+				"path": "cluster",
+				"action": "stats",
+				"desc": "Retrieve cluster statistics for managed hosts."
+			}              
+    	]
+    },
+    {
+    	"name": "auth.get",
+    	"desc": "Retrieve an API authentication token.",
+    	"endpoints": [
+			{
+				"path": "auth",
+				"action": "get",
+				"desc": "Retrieve an API authentication token."
+			}              
+    	]
+    },
+    {
+    	"name": "auth.acl.get",
+    	"desc": "Retrieve ACL details.",
+    	"endpoints": [
+			{
+				"path": "auth/acl",
+				"action": "get",
+				"desc": "Retrieve ACL details."
+			}              
+    	]
+    },
+    {
+    	"name": "auth.acl.sync",
+    	"desc": "Synchronize ACL details.",
+    	"endpoints": [
+			{
+				"name": "auth.acl.sync",
+				"path": "auth/acl",
+				"action": "sync",
+				"desc": "Synchronize ACL details."
+			}              
+    	]
+    } 
+]

@@ -1,0 +1,32 @@
+<div class="table" type="table" target="host_groups">
+	<div class="table_title">
+		<div class="table_actions">
+			<div class="table_action" type="button" action="popup" target="hgroup.delete" require="input[type='radio'][name='hgroup_uuid']:checked">Delete</div>
+			<div class="table_action" type="button" action="link" target="hosts?panel=groups&group=[require]&edit" require="input[type='radio'][name='hgroup_uuid']:checked">Edit</div>
+			<div class="table_action" type="button" action="popup" target="hgroup.create">Create</div>
+		</div>
+	</div>
+	<div class="table_headers">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="hgroup_name">Name</div>
+		<div class="table_header table_header_md" col="hgroup_uuid">UUID</div>
+		<div class="table_header table_header_md" col="hgroup_formula">Formula</div>
+	</div>
+	<div type="rows" target="hgroups">
+		<input type="hidden" name="hgroup_uuid">
+		{% for hgroup in hgroups.all %}
+		<div class="table_row" type="row" target="hgroups" hgroup="{{ hgroup.uuid }}">
+			<div class="table_select_col">
+				<input type="radio" name="hgroup_uuid" value="{{ hgroup.uuid }}" action="update">
+			</div>
+			<div class="table_col table_link" col="hgroup_name" type="button" action="link" target="hosts?panel=groups&group={{ hgroup.uuid }}">{{ hgroup.name }}</div>
+			<div class="table_col" col="hgroup_uuid">{{ hgroup.uuid }}</div>
+			{% if hgroup.formula %}
+				<div class="table_col table_link" col="hgroup_formula" type="button" action="link" target="formula?panel=details&formula={{ hgroup.formula }}">{{ hgroup.formula }}</div>
+			{% else %}
+				<div class="table_col" col="hgroup_formula"></div>
+			{% endif %}
+		</div>
+		{% endfor %}
+	</div>
+</div>

@@ -1,0 +1,122 @@
+<script id="formula_load" type="text/javascript">
+	var formula  = {
+		manifest:  {{ formula.manifest|safe }},
+		templates: {{ formula.templates|safe }},
+		state:     {{ formula.state|safe }},
+		name:      "{{ formula.name|safe }}",
+		uuid:      "{{ formula.uuid|safe }}"
+	};
+	var template = {
+		encoded:   {{ template.encoded|safe }}
+	};
+</script>
+<div class="formula_edit">
+	<div class="page_header_box">
+		<div class="page_title_actions">
+			<div class="page_title_jump">
+				<div class="page_jump_select">
+					<select name="formula_jump">
+						{% for f_obj in formula.all %}
+							{% if f_obj.uuid == formula.uuid %}
+								<option value="{{ f_obj.uuid }}" selected="selected">{{ f_obj.name }}</option>
+							{% else %}
+								<option value="{{ f_obj.uuid }}" >{{ f_obj.name }}</option>
+							{% endif %}
+						{% endfor %}
+					</select>
+				</div>
+				<div class="page_jump_label">Change Formula</div>
+			</div>
+		</div>
+		<div class="page_title">{{ formula.name }} - Edit Formula</div>
+	</div>
+	<div class="formula_edit_menu">
+		<div class="formula_edit_menu_item">
+			<div class="formula_edit_menu_button">
+				<div class="formula_edit_menu_button_inactive" type="button" action="method" target="editor.validate" active="no">Validate</div>
+			</div>
+		</div>
+		<div class="formula_edit_menu_item">
+			<div class="formula_edit_menu_button">
+				<div class="formula_edit_menu_button_inactive" type="button" action="method" target="editor.save" button="save" active="no">Save</div>
+			</div>
+		</div>
+		<div class="formula_edit_menu_item">
+			<div class="formula_edit_menu_button">
+				<div id="edit_toggle" class="formula_edit_menu_button_active" type="button" action="method" target="editor.open" active="yes">Edit</div>
+			</div>
+		</div>
+		<div class="formula_edit_menu_info">There are currently no changes to the formula</div>
+	</div>
+	<div class="editor_frame">
+		<div class="editor" editor type="formula" name="{{ formula.uuid }}" id="edit_0"></div>
+		{% for name in edit.templates %}
+			<div class="editor" editor type="template" name="{{ name }}" id="edit_{{ forloop.counter }}" style="display:none;"></div>
+		{% endfor %}
+		<div class="sidebar">
+			<div class="sidebar_group">
+				<div class="sidebar_group_title"  type="button" action="toggle" target="formula_details">Formula Details</div>
+				<div class="sidebar_group_content" type="toggle" name="formula_details">
+					<div class="sidebar_group_detail">
+						<div class="sidebar_group_detail_label">UUID:</div>
+						<div class="sidebar_group_detail_text">{{ formula.uuid }}</div>
+					</div>
+					<div class="sidebar_group_detail">
+						<div class="sidebar_group_detail_label">Name:</div>
+						<div class="sidebar_group_detail_text">{{ formula.name }}</div>
+					</div>
+					<div class="sidebar_group_detail">
+						<div class="sidebar_group_detail_label">Label:</div>
+						<div class="sidebar_group_detail_text">{{ formula.label }}</div>
+					</div>
+					<div class="sidebar_group_detail">
+						<div class="sidebar_group_detail_label">Description:</div>
+						<div class="sidebar_group_detail_text">{{ formula.desc }}</div>
+					</div>
+				</div>
+			</div>
+			<div class="sidebar_group">
+				<div class="sidebar_group_title" type="button" action="toggle" target="formula_resources">Resources</div>
+				<div class="sidebar_group_content" type="toggle" name="formula_resources">
+					<div class="sidebar_link_active" type="resource" active="yes" name="{{ formula.uuid }}">Formula Manifest</div>
+						{% for name in edit.templates %}
+							{% if name == 'main.template' or name == 'uninstall.template' %}
+								<div class="sidebar_link_inactive" type="resource" active="no" name="{{ name }}">Template: {{ name }}</div>
+							{% endif %}
+						{% endfor %}
+					<div type="group" name="templates">
+						{% for name in edit.templates %}
+							{% if name != 'main.template' and name != 'uninstall.template' %}
+								<div class="sidebar_link_optional">
+									<div class="sidebar_link_inactive sidebar_link_optional_text" type="resource" optional active="no" name="{{ name }}">Template: {{ name }}</div>
+									<div class="sidebar_link_optional_check">
+										<input type="radio" name="template" value="{{ name }}">
+									</div>
+								</div>
+							{% endif %}
+						{% endfor %}
+					</div>
+					<div class="sidebar_group_buttons" id="edit_only" style="display:none;">
+						<div class="sidebar_group_button" type="button" action="popup" target="editor.add_template">Add Template</div>
+						<div class="sidebar_group_button" type="button" action="method" target="editor.delete_template" arg="input[type$='radio'][name$='template']:checked">Delete Template</div>
+					</div>
+				</div>
+			</div>
+			<div class="sidebar_group">
+				<div class="sidebar_group_title" type="button" action="toggle" target="formula_variables">Template Variables</div>
+				<div class="sidebar_group_content" type="toggle" name="formula_variables">
+					{% for key, value in template.vars.iteritems %}
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">{{ key }}</div>
+							<div class="sidebar_group_detail_text">{{ value }}</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<input type="hidden" name="uuid" value="{{ formula.uuid }}">
+<input type="hidden" name="edit" value="{{ formula.edit }}">
+<input type="hidden" name="validated" value="yes">
+<input type="hidden" name="saved" value="">

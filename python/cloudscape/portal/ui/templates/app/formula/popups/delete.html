@@ -1,0 +1,26 @@
+{# Delete Formula #}
+<div class="popup_content" type="popup" target="formula.delete">
+	<div class="popup_title">Delete Formula</div>
+	<div class="popup_body">
+		<div class="popup_desc">
+			Please confirm that you want to permanently delete the formula. This action cannot be undone.
+		</div>
+		<form id="delete_formula">
+		
+			{# API Action / Path / Method #}
+			<input type="hidden" form="delete_formula" name="action" value="delete" noreset>
+			<input type="hidden" form="delete_formula" name="path" value="formula" noreset>
+			<input type="hidden" form="delete_formula" name="method" value="post" noreset>
+			<input type="hidden" form="delete_formula" name="callback" value="formula.delete" noreset>
+			
+			{# Formula ID #}
+			<input type="hidden" form="delete_formula" name="formula_uuid" data_map="uuid" value="">
+			
+			{# Form Validation Response #}
+			<div class="form_response" type="response" target="#delete_formula"></div>
+		</form>
+		
+		{# Submit API Request #}
+		<div class="popup_submit" type="button" action="method" target="api.submit" arg="delete_formula">Delete Formula</div>
+	</div>
+</div>

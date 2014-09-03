@@ -1,0 +1,96 @@
+#!/usr/bin/python
+import os
+import sys
+import time
+
+# CloudScape Agent Library
+from cloudscape.agent.linux.base import AgentHandler
+from cloudscape.common.feedback import Feedback
+
+# Service Commands
+S_COMMANDS = ['start', 'stop', 'restart', 'status']
+
+""" Agent Service Handler """
+class AgentService:
+    def __init__(self):
+        
+        # Service action mapper
+        self.map     = self._mapper()
+        
+        # Agent handler
+        self.agent   = AgentHandler()
+
+        # Available actions
+        self.actions = ['start', 'stop', 'restart', 'status']
+
+        # Feedback handler
+        self.fb      = Feedback()
+
+    """ Start Agent """
+    def _start(self):
+        if not self.agent._is_running():
+            pid = os.fork()
+            if pid == 0:
+                self.agent._start()
+            else:
+                time.sleep(1)
+                if self.agent._is_running():
+                    self.fb.show('Started CloudScape agent [PID %s]...' % self.agent._get_pid()).success()
+                    sys.exit(0)
+                else:
+                    self.fb.show('Failed to start CloudScape agent...').error()
+                    sys.exit(1)
+        self.fb.show('CloudScape agent already running [PID %s]...' % self.agent._get_pid()).info()
+        
+    """ Stop Agent """
+    def _stop(self):
+        if self.agent._is_running():
+            if not self.agent._stop():
+                self.fb.show('Failed to stop CloudScape agent...').error()
+                sys.exit(1)
+            self.fb.show('Stopped CloudScape agent...').success()
+            sys.exit(0)
+        self.fb.show('CloudScape agent already stopped...').info()
+        
+    """ Restart Agent """
+    def _restart(self):
+        self.agent._restart()
+        sys.exit(0)
+        
+    """ Agent Status """
+    def _status(self):
+        self.agent._status()
+        sys.exit(0)
+
+    """ Service Action Mapper """
+    def _mapper(self):
+        return {
+            'start':   self._start,
+            'stop':    self._stop,
+            'restart': self._restart,
+            'status':  self._status
+        }
+
+    """ Service Usage """
+    def usage(self):
+        print 'USAGE: service cloudscape-agent {%s}' % '|'.join(self.actions)
+        sys.exit(1)
+
+    """ Service Action Handler """
+    def handler(self, action):
+        if not action in self.actions:
+            self.usage()
+        else:
+            self.map[action]()
+
+# Run the CloudScape agent utility
+if __name__ == '__main__':
+    
+    # Handle service commands
+    if (len(sys.argv) == 2) and (sys.argv[1] in S_COMMANDS):
+        AgentService().handler(sys.argv[1])
+        
+    # Handle internal commands
+    else:
+        AgentHandler(sys.argv).main()
+        

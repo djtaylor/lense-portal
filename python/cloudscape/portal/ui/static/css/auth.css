@@ -1,0 +1,64 @@
+.login_window {
+	padding: 10px;
+	position: fixed;
+	opacity: 0.0;
+}
+
+.login_title {
+	height: 50px;
+	overflow: auto;
+	line-height: 50px;
+	border-bottom: solid 1px #eee;
+}
+
+.login_title_txt {
+	font-size: 1.4em;
+	float: left;
+}
+
+.login_title_icon {
+	width: 50px;
+	height: 50px;
+	float: left;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	background-image: url(/portal/static/images/cloud.png);
+}
+
+.login_fields {
+	border-bottom: solid 1px #eee;
+	padding: 0 0 10px 0;
+}
+
+.login_input input {
+	width: 290px;
+	border: 0;
+	margin: 0;
+	padding: 5px;
+	margin: 10px 0 0 0;
+	font-size: 1.2em;
+	background: #f4f4f4;
+}
+
+.login_submit {
+	margin: 10px 0 0 0;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	border: solid 1px #f4f4f4;
+	text-align: center;
+	font-size: 1.4em;
+	padding: 5px;
+	background: #333;
+	color: #f4f4f4;
+	height: 30px;
+	line-height: 30px;
+}
+
+.login_state {
+	text-align: center;
+	padding: 5px 5px 0 5px;
+}
+
+.login_submit:hover {
+	cursor: pointer;
+}

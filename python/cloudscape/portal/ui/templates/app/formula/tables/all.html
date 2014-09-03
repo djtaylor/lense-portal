@@ -1,0 +1,15 @@
+{# External Table Title #}
+<div class="table_title table_title_ex">
+	<div class="table_actions">
+		<div class="table_action" type="button" action="popup" target="formula.delete" require="input[type='radio'][name='formula_uuid']:checked">Delete</div>
+		<div class="table_action" type="button" action="link" target="formula?panel=details&formula=[require]&edit=yes" require="input[type='radio'][name$='formula_uuid']:checked">Edit</div>
+		<div class="table_action" type="button" action="link" target="formula?panel=run&formula=[require]" require="input[type='radio'][name='formula_uuid']:checked">Run</div>
+		<div class="table_action" type="button" action="popup" target="formula.create">Create</div>
+	</div>
+</div>
+
+{# Service/Utility Formulas #}
+{% include "app/formula/tables/srv_util.html" with f_type='srv_util' %}
+
+{# Group Formulas #}
+{% include "app/formula/tables/group.html" with f_type='group' %}

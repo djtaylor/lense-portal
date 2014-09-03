@@ -1,0 +1,20 @@
+{% if field_obj.type == 'checkbox' or field_obj.type == 'radio' %}
+	<div class="formula_field">
+		<div class="formula_field_label">{{ field_obj.label }}</div>
+		<div class="formula_field_desc">{{ field_obj.desc }}</div>
+		<div class="formula_field_input">
+			{% for opt_set in field_obj.options %}
+				{% if opt_set.value == field_obj.default %}
+					<div class="formula_field_check_opt">
+						<input form="run_formula" class="formula_field_{{ field_obj.type }}" type="{{ field_obj.type }}" name="{{ field_obj.name }}" value="{{ opt_set.value }}" checked="checked">{{ opt_set.label }}<br />
+					</div>
+				{% else %}
+					<div class="formula_field_check_opt">
+						<input form="run_formula" class="formula_field_{{ field_obj.type }}" type="{{ field_obj.type }}" name="{{ field_obj.name }}" value="{{ opt_set.value }}">{{ opt_set.label }}<br />
+					</div>
+				{% endif %}
+			{% endfor %}
+			<div class="form_input_icon_def" type="icon" form="run_formula" name="{{ field_obj.name }}"></div>
+		</div>
+	</div>
+{% endif %}

@@ -1,0 +1,110 @@
+{# Formula Overview/Details #}
+<div class="formula_title">{{ formula.name }}</div>
+{% for label, value in formula.info.items %}
+<div class="formula_info">
+	<div class="formula_info_label">{{ label }}:</div>
+	<div class="formula_info_text">{{ value }}</div>
+</div>
+{% endfor %}
+<div class="formula_desc">{{ formula.desc }}</div>
+
+{# Main Form #}
+<form id="run_formula">
+	
+	{% comment %}
+	
+	TARGET HOST
+	Render the target host dropdown menu if running either a service or utility
+	formula. Host selection should be done internally if running a group formula
+	
+	{% endcomment %}
+	{% include "app/formula/fields/target_host.html" %}
+	
+	{% comment %}
+	
+	GROUP NAME
+	Render the group name text field if running a group formula.
+	
+	{% endcomment %}
+	{% include "app/formula/fields/group.html" %}
+	
+	{# Render Fieldset/Field Objects #}
+	{% for fieldset_obj in formula.fields %}
+		<div class="formula_fieldset">
+			<div class="formula_fieldset_label">{{ fieldset_obj.label }}</div>
+			<div class="formula_fieldset_desc">{{ fieldset_obj.desc }}</div>
+			<fieldset name="{{ fieldset_obj.name }}">
+				{% for field_obj in fieldset_obj.fields %}
+					
+					{% comment %} 
+					
+					ACTION BINDINGS 
+					Each field definition may have an action 'bind' definition, to bind
+					changes in input field values to methods defined in 'js/formula/run.js'.
+					These actions are generated dynamically from the 'actions' group in the
+					formula manifest 
+					
+					{% endcomment %}
+					{% include "app/formula/fields/bindings.html" %}
+					
+					{% comment %}
+					
+					FIELD TYPES
+					Each field type include contains a conditional to render the appropriate
+					template depending on the current field type in the loop.
+					
+					'app/formula/fields/text.html': Text or password fields
+					'app/formula/fields/select_host.html': Select host dropdown menu
+					'app/formula/fields/select.html': Select dropdown menu
+					'app/formula/fields/checkbox_radio.html': Checkbox or radio group
+					
+					{% endcomment %}
+					{% include "app/formula/fields/text.html" %}
+					{% include "app/formula/fields/select_host.html" %}
+					{% include "app/formula/fields/select_group.html" %}
+					{% include "app/formula/fields/select.html" %}
+					{% include "app/formula/fields/checkbox_radio.html" %}
+					
+					{% comment %}
+					
+					DYNAMIC FORM CONTENT
+					Each field has a dynamic form container div which is hidden by default. Action
+					bindings and any callback methods may insert or update dynamic field groups
+					in any of these containers.
+					
+					{% endcomment %}
+					<div class="formula_content_dynamic" name="{{ field_obj.name }}" style="display:none;"></div>
+					
+				{% endfor %}
+			</fieldset>
+		</div>
+	{% endfor %}
+	
+	{% comment %} 
+	
+	ACTION DEFINITIONS
+	Form actions are defined in the formula manifest in the 'actions' block, and specify
+	and action to take when updating parts of the field, for example, changing a set of
+	field groups depending on which host you select (i.e., network properties, available
+	hard disks, etc.).
+	
+	{% endcomment %}
+	{% include "app/formula/fields/actions.html" %}
+	
+	{# Form Hidden Fields#}
+	<input type="hidden" form="run_formula" name="uuid" value="{{ formula.uuid }}" />
+	<input type="hidden" form="run_formula" name="mode" value="managed" noreset>
+	<div class="formula_submit">
+	
+		{# Submit API Request #}
+		<div class="form_submit" type="button" action="method" target="api.submit" arg="run_formula">Run Formula</div>
+		
+		{# Form Validation Response #}
+		<div class="form_response" style="display:none;" type="response" target="run_formula"></div>
+	</div>
+	
+	{# API Action / Path / Method #}
+	<input type="hidden" form="run_formula" name="action" value="{{ formula.type }}" noreset>
+	<input type="hidden" form="run_formula" name="path" value="formula/run" noreset>
+	<input type="hidden" form="run_formula" name="method" value="post" noreset>
+</form>

@@ -1,0 +1,27 @@
+{% if formula.type == 'service' or formula.type == 'utility' %}
+	<div class="formula_field">
+		<div class="formula_field_label">Target Host</div>
+		<div class="formula_field_desc">Please select the managed host you want to run the formula on.</div>
+		<fieldset name="target_host">
+			<div class="formula_field_input">
+				<div class="dropdown_menu" type="dropdown" target="menu" name="target_host">
+					{% with default=field_obj.default %}
+						<div class="dropdown_action">
+							<div class="dropdown_button" type="button" action="toggle" target="target_host"></div>
+							<div class="dropdown_value" type="dropdown" target="target_host">Please select a host...</div>
+						</div>
+						<div class="form_input_icon_def" type="icon" form="run_formula" name="target_host"></div>
+						<input type="hidden" validate form="run_formula" name="target_host" value="" required>
+					{% endwith %}
+				</div>
+				<div class="dropdown_items" type="toggle" name="target_host">
+					{% for uuid, obj in managed_hosts.items %}
+						<option value="{{ uuid }}" class="formula_select_option">{{ obj.label }}</option>
+						<div class="dropdown_item" type="button" action="dropdown" value="{{ uuid }}" label="{{ obj.label }}" target="target_host" set="host_type={{ obj.type }}">{{ obj.label }}</div>
+					{% endfor %}
+				</div>
+				<input type="hidden" form="run_formula" name="host_type" value="" required />
+			</div>
+		</fieldset>
+	</div>
+{% endif %}

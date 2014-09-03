@@ -1,0 +1,69 @@
+<div class="table" float="left" type="table" target="hosts">
+	<div class="table_title">
+		<div class="table_menu">
+			<div class="table_dropdown">
+				<div class="table_dropdown_label">Sort By:</div>
+				<div class="table_dropdown_menu">
+					<select name="hosts.sort">
+						<option value="none" selected="selected">-select-</option>
+						<option value="name">Name</option>
+						<option value="ip">IP Address</option>
+						<option value="sys">System Type</option>
+						<option value="datacenter">Datacenter</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<div class="table_actions">
+			<div class="table_action" type="button" action="popup" target="host.remove" require="input[type$='radio'][name$='host_uuid']:checked">Remove</div>
+			<div class="table_action" type="button" action="popup" target="host.add">Add</div>
+		</div>
+	</div>
+	<div class="table_headers">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="host_name">Name</div>
+		<div class="table_header table_header_md" col="host_uuid">UUID</div>
+		<div class="table_header table_header_md" col="host_ip">IP</div>
+		<div class="table_header table_header_md" col="host_distro">Distro</div>
+		<div class="table_header table_header_md" col="host_type">Type</div>
+		<div class="table_header table_header_md" col="host_agent">Agent Status</div>
+		<div class="table_header table_header_md" col="host_agent_control">Control</div>
+		<div class="table_header table_header_md" col="host_datacenter">Datacenter</div>
+	</div>
+	<div type="rows" target="hosts">
+		{% for host in hosts %}
+		<div class="table_row" type="row" target="hosts" host="{{ host.uuid }}">
+			<attr uuid="{{ host.uuid }}" agent_status="{{ host.agent_status }}" datacenter="{{ host.datacenter }}" name="{{ host.name }}" ip="{{ host.ip }}" sys="{{ host.os_type }}" distro="{{ host.sys.os.distro }}" version="{{ host.sys.os.version }}" arch="{{ host.sys.os.arch }}" style="display:none;"></attr>
+			<div class="table_select_col">
+				<input type="radio" name="host_uuid" value="{{ host.uuid }}" action="update">
+			</div>
+			<div class="table_col table_link" col="host_name" type="button" action="link" target="hosts?panel=details&host={{ host.uuid }}">{{ host.name }}</div>
+			<div class="table_col" col="host_uuid">{{ host.uuid }}</div>
+			<div class="table_col" col="host_ip">{{ host.ip }}</div>
+			<div class="table_col" col="host_distro">{{ host.sys.os.distro }} {{ host.sys.os.version}} {{ host.sys.os.arch }}</div>
+			<div class="table_col" col="host_type">
+				<img src="/portal/static/images/os_{{ host.os_type }}.png"/>
+			</div>
+			<div class="table_col" col="host_agent" type="agent.status" host="{{ host.uuid }}" state="{{ host.agent_status }}">{{ host.agent_status }}</div>
+			<div class="table_col" col="host_agent_control" type="agent.control" host="{{ host.uuid }}" state="{{ host.agent_status }}">
+				{% if host.agent_status == 'RUNNING' %}
+					<div class="agent_control" action="start" active="no" host="{{ host.uuid }}"></div>
+					<div class="agent_control" action="stop" active="yes" host="{{ host.uuid }}"></div>
+					<div class="agent_control" action="restart" active="yes" host="{{ host.uuid }}"></div>
+				{% else %}
+					<div class="agent_control" action="start" active="yes" host="{{ host.uuid }}"></div>
+					<div class="agent_control" action="stop" active="no" host="{{ host.uuid }}"></div>
+					<div class="agent_control" action="restart" active="no" host="{{ host.uuid }}"></div>
+				{% endif %}
+			</div>
+			<div class="table_col" col="host_datacenter">
+				{% for datacenter in datacenters %}
+					{% if datacenter.uuid == host.datacenter %}
+						{{ datacenter.name }}
+					{% endif %}
+				{% endfor %}
+			</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>

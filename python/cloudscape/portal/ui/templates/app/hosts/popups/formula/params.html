@@ -1,0 +1,26 @@
+{% for formula in host.formulas %}
+	<div class="popup_content" type="popup" target="{{ formula.formula }}_params">
+		<div class="popup_title">Run Parameters: {{ formula.name }}</div>
+		<div class="popup_body">
+			{% for param_key, param_value in formula.run_params.iteritems %}
+				<div class="popup_row">
+					<div class="popup_row_label">{{ param_key }}</div>
+					<div class="popup_row_text">{{ param_value }}</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+	{% for fh in formula.history %}
+		<div class="popup_content" type="popup" target="{{ formula.formula }}_params_{{ forloop.counter }}">
+			<div class="popup_title">Run Parameters: {{ fh.name }}</div>
+			<div class="popup_body">
+				{% for param_key, param_value in fh.run_params.iteritems %}
+					<div class="popup_row">
+						<div class="popup_row_label">{{ param_key }}</div>
+						<div class="popup_row_text">{{ param_value }}</div>
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	{% endfor %}
+{% endfor %}

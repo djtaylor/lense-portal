@@ -1,0 +1,53 @@
+/**
+ * Host Firewall
+ */
+.fw_chain_icon {
+	width: 25px;
+	height: 25px;
+	float: right;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+}
+
+.fw_chain_title {
+	float: left;
+	overflow: auto;
+}
+
+.fw_chain_name {
+	float: left;
+}
+
+.fw_icon_INPUT { background: url(/portal/static/images/fw_input.png); }
+.fw_icon_FORWARD { background: url(/portal/static/images/fw_forward.png); }
+.fw_icon_OUTPUT { background: url(/portal/static/images/fw_output.png); }
+
+/**
+ * Host Services
+ */
+div[col="service_state"][state="running"] {
+	color: #09BA00;
+	font-weight: bold;
+}
+
+div[col="service_state"][state="stopping"],
+div[col="service_state"][state="starting"] {
+	font-weight: bold;
+}
+
+div[col="service_monitor"][state="enabled"] {
+	color: #09BA00;
+	font-weight: bold;
+}
+
+.service_control_link {
+	overflow: auto;
+	opacity: 0.5;
+	text-align: center;
+}
+
+.service_control_link:hover {
+	opacity: 1.0;
+	cursor: pointer;
+	text-decoration: underline;
+}

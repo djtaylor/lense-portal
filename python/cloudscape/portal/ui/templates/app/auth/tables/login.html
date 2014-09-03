@@ -1,0 +1,23 @@
+<div class="login_window">
+	<form id="login_form" action="{{ base_path }}/auth" method="post">
+		<div class="login_title">
+			<div class="login_title_icon"></div>
+			<div class="login_title_txt">CloudScape Portal</div>
+		</div>
+		<div class="login_fields">
+			<div class="login_username">
+				<div class="login_input"><input type="text" name="username" value="" /></div>
+			</div>
+			<div class="login_password">
+				<div class="login_input"><input type="password" name="password" value="" /></div>
+			</div>
+		</div>
+		<div class="login_state" style="display:{{ state_display }};">{{ state }}</div>
+		<div class="login_submit">Log In</div>
+		{% if next %}
+		<input type="hidden" name="next" value="{{ next }}" />
+		{% endif %}
+		{% csrf_token %}
+		<input type="hidden" name="action" value="login" />
+	</form>
+</div>

@@ -1,0 +1,194 @@
+<script id="endpoint_load" type="text/javascript">
+	var endpoint_rmap = {{ endpoints.detail.rmap|safe }};
+	var endpoint_name = "{{ endpoints.detail.name|safe }}";
+</script>
+<div class="endpoint_edit">
+	<form id="endpoint_edit">
+		<div class="page_header_box">
+			<div class="page_title_actions">
+				<div class="page_title_jump">
+					<div class="page_jump_select">
+						<select name="endpoint_jump">
+							{% for endpoint in endpoints.all %}
+								{% if endpoint.uuid == endpoints.detail.uuid %}
+									<option value="{{ endpoints.detail.uuid }}" selected="selected">{{ endpoints.detail.name }}</option>
+								{% else %}
+									<option value="{{ endpoint.uuid }}" >{{ endpoint.name }}</option>
+								{% endif %}
+							{% endfor %}
+						</select>
+					</div>
+					<div class="page_jump_label">Change Endpoint</div>
+				</div>
+			</div>
+			<div class="page_title">{{ endpoints.detail.name }} - View Endpoint</div>
+		</div>
+		<div class="edit_menu">
+			<div class="edit_menu_item">
+				<div class="edit_menu_button">
+					<div class="edit_menu_button_inactive" type="button" action="method" target="endpoint.validate" active="no">Validate</div>
+				</div>
+			</div>
+			<div class="edit_menu_item">
+				<div class="edit_menu_button">
+					<div class="edit_menu_button_inactive" type="button" action="method" target="endpoint.save" button="save" active="no">Save</div>
+				</div>
+			</div>
+			<div class="edit_menu_item">
+				<div class="edit_menu_button">
+					<div id="edit_toggle" class="edit_menu_button_active" type="button" action="method" target="endpoint.open" active="yes">Edit</div>
+				</div>
+			</div>
+			<div class="edit_menu_info">There are currently no changes to the endpoint</div>
+		</div>
+		<div class="editor_frame">
+			<div class="editor" editor type="endpoint" uuid="{{ endpoints.detail.uuid }}" id="edit_0"></div>
+			<div class="sidebar">
+				<div class="sidebar_group">
+					<div class="sidebar_group_title"  type="button" action="toggle" target="endpoint_details">Endpoint Details</div>
+					<div class="sidebar_group_content" type="toggle" name="endpoint_details">
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">UUID:</div>
+							<div class="sidebar_group_detail_text">{{ endpoints.detail.uuid }}</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Description:</div>
+							<div class="sidebar_group_detail_input">
+								<input type="text" form="edit_endpoint" name="desc" value="{{ endpoints.detail.desc }}" disabled="" noreset/>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Path:</div>
+							<div class="sidebar_group_detail_input">
+								<input type="text" form="edit_endpoint" name="path" value="{{ endpoints.detail.path }}" disabled="" noreset/>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Action:</div>
+							<div class="sidebar_group_detail_input">
+								<input type="text" form="edit_endpoint" name="action" value="{{ endpoints.detail.action }}" disabled="" noreset/>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Method:</div>
+							<div class="sidebar_group_detail_input">
+								<select name="method" form="edit_endpoint" disabled="">
+									{% for method in methods %}
+										{% if method == endpoints.detail.method %}
+											<option value="{{ method }}" selected="selected">{{ method }}</option>
+										{% else %}
+											<option value="{{ method }}">{{ method }}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Enabled:</div>
+							<div class="sidebar_group_detail_input">
+								<select name="enabled" form="edit_endpoint" disabled="">
+									{% if endpoints.detail.enabled == True %}
+										<option value="bool:true" selected="selected">Yes</option>
+										<option value="bool:false">No</option>
+									{% else %}
+										<option value="bool:true">Yes</option>
+										<option value="bool:false" selected="selected">No</option>
+									{% endif %}
+								</select>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Protected:</div>
+							<div class="sidebar_group_detail_input">
+								<select name="protected" form="edit_endpoint" disabled="">
+									{% if endpoints.detail.protected == True %}
+										<option value="bool:true" selected="selected">Yes</option>
+										<option value="bool:false">No</option>
+									{% else %}
+										<option value="bool:true">Yes</option>
+										<option value="bool:false" selected="selected">No</option>
+									{% endif %}
+								</select>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Object Type:</div>
+							<div class="sidebar_group_detail_input">
+								<select name="object" form="edit_endpoint" disabled="">
+									{% if endpoints.detail.object %}
+										<option value="">-none-</option>
+									{% else %}
+										<option value="" selected="selected">-none-</option>
+									{% endif %}
+									{% for acl_obj in acl.objects %}
+										{% if acl_obj.type == endpoints.detail.object %}
+											<option value="{{ acl_obj.type }}" selected="selected">{{ acl_obj.name }}</option>
+										{% else %}
+											<option value="{{ acl_obj.type }}">{{ acl_obj.name }}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Object Key:</div>
+							<div class="sidebar_group_detail_input">
+								{% if endpoints.detail.object_key %}
+									<input type="text" form="edit_endpoint" name="object_key" value="{{ endpoints.detail.object_key }}" disabled="" noreset/>
+								{% else %}
+									<input type="text" form="edit_endpoint" name="object_key" value="" disabled="" noreset/>
+								{% endif %}
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Module:</div>
+							<div class="sidebar_group_detail_input">
+								<select name="mod" form="edit_endpoint" disabled="">
+									{% for module in modules %}
+										{% if module == endpoints.detail.mod %}
+											<option value="{{ module }}" selected="selected">{{ module }}</option>
+										{% else %}
+											<option value="{{ module }}">{{ module }}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">Class:</div>
+							<div class="sidebar_group_detail_input">
+								<select name="cls" form="edit_endpoint" disabled="">
+									{% for util in utils %}
+										{% if util.1 == endpoints.detail.cls %}
+											<option value="{{ util.1 }}" selected="selected">{{ util.1 }}</option>
+										{% else %}
+											<option value="{{ util.1 }}">{{ util.1 }}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="sidebar_group_detail">
+							<div class="sidebar_group_detail_label">External Utilities:</div>
+							<div class="sidebar_group_detail_input">
+								<select name="utils" form="edit_endpoint" disabled="" multiple>
+									{% for util in utils %}
+										{% if util.0 in endpoints.detail.utils %}
+											<option value="{{ util.0 }}" selected="selected">{{ util.1 }}</option>
+										{% else %}
+											<option value="{{ util.0 }}">{{ util.1 }}</option>
+										{% endif %}
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<input type="hidden" form="edit_endpoint" name="uuid" value="{{ endpoints.detail.uuid }}" noreset>
+		<input type="hidden" form="edit_endpoint" name="edit" value="{{ endpoints.edit }}" noreset ignore>
+		<input type="hidden" form="edit_endpoint" name="validated" value="yes" noreset ignore>
+		<input type="hidden" form="edit_endpoint" name="saved" value="" noreset ignore>
+	</form>
+</div>

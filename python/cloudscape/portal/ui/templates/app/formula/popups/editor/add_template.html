@@ -1,0 +1,12 @@
+{# Add Template Confirmation #}
+<div class="popup_content" type="popup" target="editor.add_template">
+	<div class="popup_title">Add Template</div>
+	<div class="popup_desc">
+		Please enter a name for the new template:
+	</div>
+	<div class="popup_input_container">
+		<input class="popup_input" type="text" name="template_name">
+	</div>
+	<div class="popup_response" style="display:none;" type="response" target="editor.add_template"></div>
+	<div class="popup_submit" type="button" action="method" target="editor.add_template" arg="input[name$='template_name']">Add Template</div>
+</div>

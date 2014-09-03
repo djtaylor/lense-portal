@@ -1,0 +1,27 @@
+{# Create Host Group #}
+<div class="popup_content" type="popup" target="hgroup.create">
+	<div class="popup_title">Create Host Group</div>
+	<div class="popup_body">
+		<div class="popup_desc">
+			Create a new host group definition. This allows you to place host in logical groups and
+			manage them accordingly.
+		</div>
+		<form id="hgroup_create">
+			
+			{# Host Group Name #}
+			<div class="popup_row">
+				<div class="popup_row_label">Name</div>
+				<div class="popup_row_input">
+					<input type="text" form="hgroup_create" name="name" value="" required />
+					<div class="form_input_icon_def" type="icon" form="hgroup_create" name="name"></div>
+				</div>
+			</div>
+
+			{# Form Validation Response #}
+			<div class="form_response" type="response" target="#hgroup_create"></div>
+		</form>
+		
+		{# Submit API Request #}
+		<div class="popup_submit" type="button" action="method" target="hgroup.create">Create Host Group</div>
+	</div>
+</div>

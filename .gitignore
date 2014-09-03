@@ -1,0 +1,5 @@
+# Byte-compiled files
+*.py[cod]
+
+# Eclipse project
+.project

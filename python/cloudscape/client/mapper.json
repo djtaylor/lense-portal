@@ -1,0 +1,71 @@
+{
+	"base": "cloudscape.client.module",
+	"modules": [
+	    {
+		    "id": "host",
+		    "module": "host",
+		    "class": "HostAPI",
+		    "desc": "Manage CloudScape hosts."
+	    },
+	    {
+	    	"id": "agent",
+		    "module": "agent",
+		    "class": "AgentAPI",
+		    "desc": "Agent interface for managed hosts."
+	    },
+	    {
+	    	"id": "cluster",
+		    "module": "cluster",
+		    "class": "ClusterAPI",
+		    "desc": "Cluster operations."
+	    },
+	    {
+	    	"id": "editor",
+		    "module": "editor",
+		    "class": "EditorAPI",
+		    "desc": "Formula editing."
+	    },
+	    {
+	    	"id": "formula",
+		    "module": "formula",
+		    "class": "FormulaAPI",
+		    "desc": "Manage CloudScape formulas."
+	    },
+	    {
+	    	"id": "user",
+		    "module": "user",
+		    "class": "UserAPI",
+		    "desc": "Manage CloudScape users."
+	    },
+	    {
+	    	"id": "group",
+	    	"module": "group",
+	    	"class": "GroupAPI",
+	    	"desc": "Manage CloudScape groups."
+	    },
+	    {
+	    	"id": "vcloud",
+		    "module": "vcloud",
+		    "class": "VCloudAPI",
+		    "desc": "Experimental VCloud API support."
+	    },
+	    {
+	    	"id": "auth",
+	    	"module": "auth",
+	    	"class": "AuthAPI",
+	    	"desc": "Manage CloudScape authentication."
+	    },
+	    {
+	    	"id": "locations",
+	    	"module": "locations",
+	    	"class": "LocationsAPI",
+	    	"desc": "Manage CloudScape locations."
+	    },
+	    {
+	    	"id": "schedule",
+	    	"module": "schedule",
+	    	"class": "ScheduleAPI",
+	    	"desc": "Manage CloudScape API schedules."
+	    }
+	]
+}

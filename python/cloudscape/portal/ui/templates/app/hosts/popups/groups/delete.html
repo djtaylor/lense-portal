@@ -1,0 +1,16 @@
+{# Remove Host Group #}
+<div class="popup_content" type="popup" target="hgroup.delete">
+	<div class="popup_title">Delete Host Group</div>
+	<div class="popup_body">
+		<div class="popup_desc">
+			Please confirm that you want to remove this host group. This will delete any group metadata
+			and delete membership for any hosts in this group.
+		</div>
+		<form id="hgroup_delete">
+
+			{# Form Validation Response #}
+			<div class="form_response" type="response" target="#hgroup_delete"></div>
+		</form>
+		<div class="popup_submit" type="button" action="method" target="hgroup.delete">Delete Host Group</div>
+	</div>
+</div>

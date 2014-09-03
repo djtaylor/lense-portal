@@ -1,0 +1,22 @@
+{# Remove Formula #}
+<div class="popup_content" type="popup" target="host.remove_formula">
+	<div class="popup_title">Remove Formula</div>
+	<div class="popup_body">
+		<div class="popup_desc">
+			Please confirm that you want to remove this formula. If the formula includes an uninstall script, you can
+			click "Run Uninstaller" to completely remove all software. If you leave this box unchecked, the software
+			will remain intact but the database entry will be removed.
+		</div>
+		
+		{# Uninstaller #}
+		<div class="popup_row">
+			<div class="popup_row_label">Run Uninstaller</div>
+			<div class="popup_row_text">
+				<input type="checkbox" name="uninstall" value="bool:true">
+			</div>
+		</div>
+		
+		{# Submit API Request #}
+		<div class="popup_submit" type="button" action="method" target="host.remove_formula">Remove Formula</div>
+	</div>
+</div>

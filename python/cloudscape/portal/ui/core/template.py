@@ -110,13 +110,17 @@ class PortalTemplate(object):
         """
         
         # Set the base parameters
-        base = { 
+        base = {
             'api_params':    None if not hasattr(self.portal.api, 'params') else self.portal.api.params,
             'authenticated': self.portal.authenticated,
             'request': {
                 'current': self.portal.request.current
             }
         }
+        
+        # Replace the API URL with the Socket.IO proxy
+        if base['api_params']:
+            base['api_params']['url'] = '%s://%s:%s' % (self.conf.socket.proto, self.conf.socket.host, self.conf.socket.port)
         
         # Merge extra template parameters
         for k,v in objs.iteritems():

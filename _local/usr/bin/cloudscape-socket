@@ -1,11 +1,8 @@
-
-
 /**
  * CloudScape Socket.IO Server
  * 
  * A Node.JS/Socket.IO API proxy server to handle requests from the CloudScape web UI.
- * Loads configuration options from the $CLOUDSCAPE_BASE/conf/server.conf file. Logs
- * to $CLOUDSCAPE_BASE/home/log/socket.log.
+ * Loads configuration options from the $CLOUDSCAPE_BASE/conf/server.conf file.
  */
 function SocketProxy() {
 	self 	     = this;
@@ -23,7 +20,8 @@ function SocketProxy() {
 	this.conf    = false;
 	this.log     = false;
 	
-	// Global API URL object
+	// API URL
+	this.api_url = null;
 	
 	// Filesystem and Socket.IO modules
 	this.fs      = require('fs');
@@ -129,7 +127,7 @@ function SocketProxy() {
     		// HTTPS
         	if (self.conf.socket.proto == 'http') {
         		self.http_l = self.http_l.createServer();
-        		self.http_l.listen(self.conf.socket.port, self.conf.socket.host);
+        		self.http_l.listen(self.conf.socket.port, self.conf.socket.bind_ip);
         		self.sock = self.io.listen(self.http_l);
         	}
         	
@@ -212,7 +210,7 @@ function SocketProxy() {
 	 * Helper method to parse a client request object and generate the relevant log entries.
 	 */
 	this.crlog = function(c) {
-		self.log.info('HTTP_Request[\'' + c.socket.method + '\']: ' + self.conf.server.url + '/' + c.socket.path + '/' + c.action + (function() {
+		self.log.info('HTTP_Request[\'' + c.socket.method + '\']: ' + self.api_url + '/' + c.socket.path + '/' + c.action + (function() {
 			if (c.hasOwnProperty('_data')) {
 				return ', _data=' + JSON.stringify(c._data);
 			}
@@ -236,7 +234,7 @@ function SocketProxy() {
     	var request_options = {
     		host:   self.conf.server.host,
     	    port:   self.conf.server.port,
-    	    path:   '/api/' + client.socket.path,
+    	    path:   '/' + client.socket.path,
     	    method: client.socket.method.toUpperCase(),
     	    headers: {
     	    	'Content-Type': 'application/json',
@@ -303,6 +301,9 @@ function SocketProxy() {
 		
 		// Load configuration
 		self.conf_init();
+		
+		// Define the API url
+		self.api_url = self.conf.server.proto + '://' + self.conf.server.host + ':' + self.conf.server.port;
 		
 		// Set up the logger
 		self.log_init();

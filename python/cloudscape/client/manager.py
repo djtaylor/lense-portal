@@ -38,7 +38,7 @@ class APIConnect:
             if not self.api_token:
             
                 # Authentication URL
-                auth_url   = '%s/auth' % (self.conf.server.url)
+                auth_url   = '%s/auth' % (self.api_url)
                 
                 # Request headers
                 headers    = {'Content-type': 'application/json', 'Accept': 'text/plain'}

@@ -84,7 +84,7 @@ class PortalBase(object):
         return Collection(api_obj).get()
         
     def _set_url(self, path):
-        return '%s/%s' % (self.conf.portal.url, path)
+        return '%s://%s:%s/%s' % (self.conf.portal.proto, self.conf.portal.host, self.conf.portal.port, path)
         
     def _set_app_controllers(self):
         """

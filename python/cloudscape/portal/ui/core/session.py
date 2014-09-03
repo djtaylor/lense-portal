@@ -18,7 +18,7 @@ class SessionTimeout:
     # Log the user out when the session expires
     try:
         
-        if datetime.now() - request.session['last_touch'] > timedelta(0, settings.SESSION_TIMEOUT * 60, 0):
+        if datetime.now() - request.session['last_touch'] > timedelta(0, int(settings.SESSION_TIMEOUT) * 60, 0):
             auth.logout(request)
             del request.session['last_touch']
             return

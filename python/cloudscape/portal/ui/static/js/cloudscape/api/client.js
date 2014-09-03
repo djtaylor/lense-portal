@@ -41,7 +41,7 @@ cs.import('CSAPIClient', function() {
 		// Make sure all the required parameters are set
 		ap = function() {
 			var pv = true;
-			$.each(['user', 'token', 'host', 'proto', 'port', 'session'], function(i,k) {
+			$.each(['user', 'token', 'url', 'session', 'group'], function(i,k) {
 				if (!pr.hasOwnProperty(key) || !is_defined(pr[k])) {
 					pv = false;
 				}
@@ -60,8 +60,6 @@ cs.import('CSAPIClient', function() {
 	 * for handling future requests.
 	 */
 	this.io_connect = function() {
-		url = cs.api.client.params.proto + '://' + cs.api.client.params.host + ':' + cs.api.client.params.port
-		
 		// Options
 		//
 		// Set default transports to either 'xhr-polling' or 'jsonp-polling'. There is a bug when
@@ -78,7 +76,7 @@ cs.import('CSAPIClient', function() {
 		if (cs.api.client.params === false) { return false; } 
 		
 		// Open socket connection
-		io_connection = io.connect(url, options())
+		io_connection = io.connect(cs.api.client.params.url, options())
 		
 		// Error creating socket connection
 		io_connection.on('error', function(e) { return false; });

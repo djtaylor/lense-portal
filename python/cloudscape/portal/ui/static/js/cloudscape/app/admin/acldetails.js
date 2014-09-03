@@ -84,7 +84,7 @@ cs.import('CSAdminACLDetails', function() {
 		// Jump to another ACL
 		$('select[name="acl_jump"]').on('change', function() {
 			if (cs.admin.acl.active() != this.value) {
-				window.location = '/portal/admin?panel=acls&acl=' + this.value;
+				window.location = '/admin?panel=acls&acl=' + this.value;
 			}
 		});
 		

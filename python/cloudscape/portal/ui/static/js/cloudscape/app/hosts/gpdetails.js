@@ -17,7 +17,7 @@ cs.import('CSHostGroupDetails', function() {
 		// Jump to another host group
 		$('select[name="hgroup_jump"]').on('change', function() {
 			if (cs.url.param_get('group') != this.value) {
-				window.location = '/portal/admin?panel=groups&group=' + this.value;
+				window.location = '/admin?panel=groups&group=' + this.value;
 			}
 		});
 	}

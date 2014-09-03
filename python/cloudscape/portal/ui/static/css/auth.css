@@ -22,7 +22,7 @@
 	float: left;
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
-	background-image: url(/portal/static/images/cloud.png);
+	background-image: url(/static/images/cloud.png);
 }
 
 .login_fields {

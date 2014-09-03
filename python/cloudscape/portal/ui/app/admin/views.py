@@ -22,7 +22,7 @@ class AdminView(View):
         
         # If the user is not authenticated
         if not self.portal.authenticated:
-            return HttpResponseRedirect('/portal/auth')
+            return HttpResponseRedirect('/auth')
             
         # Render the template
         return self.portal.template

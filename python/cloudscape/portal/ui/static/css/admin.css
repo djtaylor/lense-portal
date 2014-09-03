@@ -7,9 +7,9 @@ div[col="object_enabled"] {
 }
 
 div[col="object_enabled"][enabled] {
-	background-image: url(/portal/static/images/enabled.png);
+	background-image: url(/static/images/enabled.png);
 }
 
 div[col="object_enabled"][disabled] {
-	background-image: url(/portal/static/images/disabled.png);
+	background-image: url(/static/images/disabled.png);
 }

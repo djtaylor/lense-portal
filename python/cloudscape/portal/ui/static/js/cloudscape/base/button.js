@@ -168,7 +168,7 @@ cs.import('CSBaseButton', function() {
 						window.location = a.target;
 					}
 				} else {
-					window.location = '/portal/' + a.target; 
+					window.location = '/' + a.target; 
 				}
 			}
 			

@@ -18,9 +18,9 @@
 	float: left;
 }
 
-.fw_icon_INPUT { background: url(/portal/static/images/fw_input.png); }
-.fw_icon_FORWARD { background: url(/portal/static/images/fw_forward.png); }
-.fw_icon_OUTPUT { background: url(/portal/static/images/fw_output.png); }
+.fw_icon_INPUT { background: url(/static/images/fw_input.png); }
+.fw_icon_FORWARD { background: url(/static/images/fw_forward.png); }
+.fw_icon_OUTPUT { background: url(/static/images/fw_output.png); }
 
 /**
  * Host Services

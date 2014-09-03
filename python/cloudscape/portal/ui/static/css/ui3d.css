@@ -99,8 +99,8 @@ a {
 	opacity: 0.5;
 }
 
-.icon_linux { background: url(/portal/static/images/os_linux_md_light.png); }
-.icon_windows { background: url(/portal/static/images/os_windows_md_light.png); }
+.icon_linux { background: url(/static/images/os_linux_md_light.png); }
+.icon_windows { background: url(/static/images/os_windows_md_light.png); }
 
 .host_outer {
 	position: absolute;
@@ -198,7 +198,7 @@ button:active {
 }
 
 .ui3d_host_loading_gif {
-	background-image: url(/portal/static/images/loader_md.gif);
+	background-image: url(/static/images/loader_md.gif);
 	background-repeat: no-repeat;
 	background-position: 50% 50%;
 	width: 400px;

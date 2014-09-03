@@ -42,7 +42,7 @@
 			<div class="table_col" col="host_ip">{{ host.ip }}</div>
 			<div class="table_col" col="host_distro">{{ host.sys.os.distro }} {{ host.sys.os.version}} {{ host.sys.os.arch }}</div>
 			<div class="table_col" col="host_type">
-				<img src="/portal/static/images/os_{{ host.os_type }}.png"/>
+				<img src="/static/images/os_{{ host.os_type }}.png"/>
 			</div>
 			<div class="table_col" col="host_agent" type="agent.status" host="{{ host.uuid }}" state="{{ host.agent_status }}">{{ host.agent_status }}</div>
 			<div class="table_col" col="host_agent_control" type="agent.control" host="{{ host.uuid }}" state="{{ host.agent_status }}">

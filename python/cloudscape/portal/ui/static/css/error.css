@@ -23,7 +23,7 @@
 
 .error_title_icon {
 	float: right;
-	background-image: url(/portal/static/images/error.png);
+	background-image: url(/static/images/error.png);
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
 	width: 25px;

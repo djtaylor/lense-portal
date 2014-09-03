@@ -55,15 +55,15 @@ div[type="agent.control"] {
 }
 
 .agent_control[action="start"] {
-	background-image: url(/portal/static/images/agent_start.png);
+	background-image: url(/static/images/agent_start.png);
 }
 
 .agent_control[action="stop"] {
-	background-image: url(/portal/static/images/agent_stop.png);
+	background-image: url(/static/images/agent_stop.png);
 }
 
 .agent_control[action="restart"] {
-	background-image: url(/portal/static/images/agent_restart.png);
+	background-image: url(/static/images/agent_restart.png);
 }
 
 /**
@@ -368,7 +368,7 @@ div[type="agent.control"] {
 	border: solid 1px #eee;
 	padding: 10px;
 	opacity: 0.75;
-	background-image: url(/portal/static/images/loader.gif);
+	background-image: url(/static/images/loader.gif);
 	background-repeat: no-repeat;
 	background-position: 50% 60px;
 }
@@ -491,11 +491,11 @@ div[type="agent.control"] {
 }
 
 .table_sortable_member_icon[type="linux"] {
-	background-image: url(/portal/static/images/os_linux.png);
+	background-image: url(/static/images/os_linux.png);
 }
 
 .table_sortable_member_icon[type="windows"] {
-	background-image: url(/portal/static/images/os_windows.png);
+	background-image: url(/static/images/os_windows.png);
 }
 
 .table_sortable_item {
@@ -521,11 +521,11 @@ div[class="table_sortable_icon"][icon="remove"] {
 }
 
 div[class="table_sortable_icon"][icon="remove"] {
-	background-image: url(/portal/static/images/minus.png);
+	background-image: url(/static/images/minus.png);
 }
 
 div[class="table_sortable_icon"][icon="add"] {
-	background-image: url(/portal/static/images/plus.png);
+	background-image: url(/static/images/plus.png);
 }
 
 .table_sortable_item:hover {
@@ -702,11 +702,11 @@ div[class="table_sortable_icon"][icon="add"] {
 }
 
 .table_row_select_lock[state="enabled"] {
-	background-image: url(/portal/static/images/lock.png);
+	background-image: url(/static/images/lock.png);
 }
 
 .table_row_select_lock[state="disabled"] {
-	background-image: url(/portal/static/images/unlock.png);
+	background-image: url(/static/images/unlock.png);
 }
 
 .table_title_link:hover {
@@ -825,15 +825,15 @@ div[class="table_sortable_icon"][icon="add"] {
 }
 
 .form_input_icon_def {
-	background-image: url(/portal/static/images/input_def.png);
+	background-image: url(/static/images/input_def.png);
 }
 
 .form_input_icon_err {
-	background-image: url(/portal/static/images/input_err.png);
+	background-image: url(/static/images/input_err.png);
 }
 
 .form_input_icon_ok {
-	background-image: url(/portal/static/images/input_ok.png);
+	background-image: url(/static/images/input_ok.png);
 }
 
 .form_response {
@@ -1380,7 +1380,7 @@ div[class="popup_row_toggle_button_50"][state="active"] {
 .dropdown_button {
 	width: 30px;
 	height: 30px;
-	background-image: url(/portal/static/images/dd_select.png);
+	background-image: url(/static/images/dd_select.png);
 	float: left;
 	background-repeat: none;
 	background-position: 50% 50%;
@@ -1638,35 +1638,35 @@ div[class="popup_row_toggle_button_50"][state="active"] {
 }
 
 .nav_icon_endpoints {
-	background-image: url(/portal/static/images/endpoints.png);
+	background-image: url(/static/images/endpoints.png);
 }
 
 .nav_icon_datacenters {
-	background-image: url(/portal/static/images/datacenters.png);
+	background-image: url(/static/images/datacenters.png);
 }
 
 .nav_icon_groups {
-	background-image: url(/portal/static/images/groups.png);
+	background-image: url(/static/images/groups.png);
 }
 
 .nav_icon_users {
-	background-image: url(/portal/static/images/users.png);
+	background-image: url(/static/images/users.png);
 }
 
 .nav_icon_permissions {
-	background-image: url(/portal/static/images/permissions.png);
+	background-image: url(/static/images/permissions.png);
 }
 
 .nav_icon_objects {
-	background-image: url(/portal/static/images/objects.png);
+	background-image: url(/static/images/objects.png);
 }
 
 .nav_icon_hosts_list {
-	background-image: url(/portal/static/images/hosts_list.png);
+	background-image: url(/static/images/hosts_list.png);
 }
 
 .nav_icon_hosts_groups {
-	background-image: url(/portal/static/images/hosts_groups.png);
+	background-image: url(/static/images/hosts_groups.png);
 }
 
 /**

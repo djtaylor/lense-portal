@@ -292,7 +292,7 @@ cs.import('CSHostsList', function() {
 				    	},
 				    	children: [cs.layout.create.element('img', {
 				    		attr: {
-				    			src: '/portal/static/images/os_' + d.type + '.png'
+				    			src: '/static/images/os_' + d.type + '.png'
 				    		}
 				    	})]
 				    })

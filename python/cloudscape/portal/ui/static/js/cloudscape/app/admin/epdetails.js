@@ -50,7 +50,7 @@ cs.import('CSAdminEndpointDetails', function() {
 		// Jump to another endpoint
 		$('select[name="endpoint_jump"]').on('change', function() {
 			if (cs.admin.endpoint.active() != this.value) {
-				window.location = '/portal/admin?panel=endpoints&endpoint=' + this.value;
+				window.location = '/admin?panel=endpoints&endpoint=' + this.value;
 			}
 		});
 	}
@@ -369,7 +369,7 @@ cs.import('CSAdminEndpointDetails', function() {
 	cs.register.callback('endpoint.close', function(c,m,d,a) {
 		if (c == 200) {
 			cs.admin.endpoint.state(false);
-			window.location = '/portal/admin?panel=endpoints&endpoint=' + encodeURIComponent(cs.admin.endpoint.active());
+			window.location = '/admin?panel=endpoints&endpoint=' + encodeURIComponent(cs.admin.endpoint.active());
 		} else {
 			cs.admin.endpoint.state(true);
 		}

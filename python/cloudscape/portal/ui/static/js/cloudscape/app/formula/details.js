@@ -37,7 +37,7 @@ cs.import('CSFormulaDetails', function() {
 		// Jump to another formula
 		$('select[name="formula_jump"]').on('change', function() {
 			if (cs.formula.editor.active.uuid != this.value) {
-				window.location = '/portal/formula?panel=details&formula=' + this.value;
+				window.location = '/formula?panel=details&formula=' + this.value;
 			}
 		});
 	}
@@ -315,7 +315,7 @@ cs.import('CSFormulaDetails', function() {
 		if (c == 200) {
 			$('.formula_edit_menu_info').html('Currently viewing formula');
 			cs.formula.editor.state(false);
-			window.location = '/portal/formula?panel=details&formula=' + cs.formula.editor.active.uuid;
+			window.location = '/formula?panel=details&formula=' + cs.formula.editor.active.uuid;
 		} else {
 			cs.formula.editor.state(true);
 		}

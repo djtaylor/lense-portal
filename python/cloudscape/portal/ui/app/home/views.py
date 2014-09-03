@@ -25,7 +25,7 @@ class HomeView(View):
         
         # If the user is not authenticated
         if not self.portal.authenticated:
-            return HttpResponseRedirect('/portal/auth')
+            return HttpResponseRedirect('/auth')
         
         # Render the home page
         return self.portal.template

@@ -27,7 +27,7 @@ class AuthView(View):
             self.portal = PortalBase(__name__).construct(request)
             
             # Look for a redirect parameter
-            redirect    = '/portal/home' if not hasattr(post_data, 'redirect') else post_data.redirect
+            redirect    = '/home' if not hasattr(post_data, 'redirect') else post_data.redirect
             
             # Make sure a new group is provided
             if not hasattr(post_data, 'group'):
@@ -42,7 +42,7 @@ class AuthView(View):
         # Logout the user
         if post_data.action == 'logout':
             logout(request)
-            return HttpResponseRedirect("/portal/auth")
+            return HttpResponseRedirect("/auth")
         
         # Login the user
         if post_data.action == 'login':
@@ -54,7 +54,7 @@ class AuthView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponseRedirect("/portal/home")
+                    return HttpResponseRedirect("/home")
                 else:
                     state = 'Your account is not active - please contact your administrator'
             else:
@@ -83,7 +83,7 @@ class AuthView(View):
         
         # If the user is authenticated
         if self.portal.authenticated:
-            return HttpResponseRedirect('/portal/home')
+            return HttpResponseRedirect('/home')
             
         # Render the template
         return self.portal.template

@@ -54,7 +54,7 @@
 						<div class="base_nav_right">
 							<div class="base_nav_button_right" type="button" action="submit" target="#logout_form">Logout</div>
 							<div class="base_nav_active_group">
-								<form id="change_group_form" action="/portal/auth" method="post">
+								<form id="change_group_form" action="/auth" method="post">
 									<select id="active_group" name="group">
 										{% for api_group in api_params.groups %}
 											{% if api_group.uuid == api_params.group %}
@@ -76,7 +76,7 @@
 					</div>
 					
 					{# Logout Form #}
-					<form id="logout_form" action="/portal/auth" method="post">
+					<form id="logout_form" action="/auth" method="post">
 						{% csrf_token %}
 						<input type="hidden" name="action" value="logout" />
 					</form>

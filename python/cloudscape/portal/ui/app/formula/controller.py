@@ -71,12 +71,12 @@ class AppController(PortalTemplate):
         
         # Make sure a formula ID parameter is supplied
         if not self.request_contains(self.portal.request.get, 'formula'):
-            return self.set_redirect('/portal/formula?panel=%s' % self.map['default'])
+            return self.set_redirect('/formula?panel=%s' % self.map['default'])
         
         # Check if formula details are retrievable
         ed = self.api_call('editor', 'get', {'uuid': self.portal.request.get.formula})
         if not ed:
-            return self.set_redirect('/portal/formula?panel=overview')
+            return self.set_redirect('/formula?panel=overview')
         
         # If editing the formula
         formula_edit = 'no'
@@ -153,12 +153,12 @@ class AppController(PortalTemplate):
         
         # Make sure a formula ID parameter is supplied
         if not self.request_contains(self.portal.request.get, 'formula'):
-            return self.set_redirect('/portal/formula?panel=%s' % self.map['default'])
+            return self.set_redirect('/formula?panel=%s' % self.map['default'])
         
         # Get the formula details
         fd = self.api_call('formula', 'get', {'uuid': self.portal.request.get.formula})
         if not fd:
-            return self.set_redirect('/portal/formula?panel=%s' % self.map['default'])
+            return self.set_redirect('/formula?panel=%s' % self.map['default'])
         
         # Get a list of all managed hosts
         mh = self.api_call('host', 'get')

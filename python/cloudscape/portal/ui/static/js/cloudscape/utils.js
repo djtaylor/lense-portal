@@ -105,7 +105,7 @@ function include(m,u,c) {
 		// Create the script container
 		var div = document.createElement('script');
 		div.setAttribute('type', 'text/javascript');
-		div.setAttribute('src', '/portal/static/js/cloudscape/' + f);
+		div.setAttribute('src', '/static/js/cloudscape/' + f);
 		
 		// Get the parent container and prepend
 		document.getElementById(container).appendChild(div);

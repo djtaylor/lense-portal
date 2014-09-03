@@ -14,16 +14,16 @@ cs.import('CSBaseFinder', function() {
 	
 	// Search shortcuts
 	this.shortcuts = {
-		home:        '/portal/home',
-		hosts:       '/portal/hosts?panel=list',
-		hgroups:     '/portal/hosts?panel=groups',
-		formulas:    '/portal/formula?panel=overview',
-		users:       '/portal/admin?panel=users',
-		groups:      '/portal/admin?panel=groups',
-		acls:        '/portal/admin?panel=acls',
-		endpoints:   '/portal/admin?panel=endpoints',
-		objects:     '/portal/admin?panel=objects',
-		datacenters: '/portal/admin?panel=datacenters'
+		home:        '/home',
+		hosts:       '/hosts?panel=list',
+		hgroups:     '/hosts?panel=groups',
+		formulas:    '/formula?panel=overview',
+		users:       '/admin?panel=users',
+		groups:      '/admin?panel=groups',
+		acls:        '/admin?panel=acls',
+		endpoints:   '/admin?panel=endpoints',
+		objects:     '/admin?panel=objects',
+		datacenters: '/admin?panel=datacenters'
 	}
 	
 	// Object type labels

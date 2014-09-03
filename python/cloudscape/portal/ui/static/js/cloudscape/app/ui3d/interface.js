@@ -91,7 +91,7 @@ cs.import('CSUI3D', function() {
 		// Update with the host details... IFRAMES NOOOOOO (just testing for now, I don't want to rewrite much)
 		$('#ui3d_host_inner_r').replaceWith(
 			'<div id="ui3d_host_inner_r">' +
-			'<iframe class="ui3d_embed" src="http://192.168.218.130/portal/hosts?panel=details&host=' + h + '"' +
+			'<iframe class="ui3d_embed" src="http://192.168.218.130/hosts?panel=details&host=' + h + '"' +
 			'</div>'
 		);
 		$('.ui3d_embed').height($('#ui3d_dw_outer').height());

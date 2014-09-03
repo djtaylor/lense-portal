@@ -20,7 +20,7 @@ class HostsView(View):
         
         # If the user is not authenticated
         if not self.portal.authenticated:
-            return HttpResponseRedirect('/portal/auth')
+            return HttpResponseRedirect('/auth')
         
         # Render the formula page
         return self.portal.template

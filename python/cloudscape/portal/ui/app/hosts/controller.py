@@ -115,12 +115,12 @@ class AppController(PortalTemplate):
         
         # Make sure a host parameter is supplied
         if not self.request_contains(self.portal.request.get, 'host'):
-            return self.set_redirect('/portal/%s?panel=overview' % self.path)
+            return self.set_redirect('/%s?panel=overview' % self.path)
         
         # Make sure host details are retrievable
         hd = self.api_call('host', 'get', {'uuid': self.portal.request.get.host})
         if not hd:
-            return self.set_redirect('/portal/hosts?panel=overview')
+            return self.set_redirect('/hosts?panel=overview')
         
         # Return the constructed template data
         return {

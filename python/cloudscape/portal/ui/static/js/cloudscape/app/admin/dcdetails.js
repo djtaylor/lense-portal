@@ -17,7 +17,7 @@ cs.import('CSAdminDatacentersDetails', function() {
 		// Jump to another datacenter
 		$('select[name="datacenter_jump"]').on('change', function() {
 			if (cs.url.param_get('datacenter') != this.value) {
-				window.location = '/portal/admin?panel=datacenters&datacenter=' + this.value;
+				window.location = '/admin?panel=datacenters&datacenter=' + this.value;
 			}
 		});
 	}

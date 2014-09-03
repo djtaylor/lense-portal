@@ -1,10 +1,6 @@
-import os
 import time
 import logging
 import logging.handlers
-
-# CloudScape Libraries
-from cloudscape.common.vars import C_USER
 
 class LogFormat(logging.Formatter):
     """
@@ -43,9 +39,6 @@ class Logger:
         :type log_file: str
         :rtype: logger
         """
-        
-        # Make sure the log file is owned by the cloudscape user
-        os.system('chown %s:%s %s' % (C_USER, C_USER, log_file))
         
         # Set the logger module name
         logger = logging.getLogger(name)

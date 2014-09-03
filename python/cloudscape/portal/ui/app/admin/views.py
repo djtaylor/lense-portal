@@ -12,7 +12,7 @@ from cloudscape.portal.ui.base import PortalBase
 from cloudscape.common.collection import Collection
 from cloudscape.portal.ui.core.api import APIClient
 
-class AdminView(View):
+class AppModule(View):
     
     # Handle GET requests and rendering the home page
     def get(self, request, *args, **kwargs):

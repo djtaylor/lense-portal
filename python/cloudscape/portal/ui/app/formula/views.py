@@ -14,7 +14,7 @@ CloudScape Portal Formulas
 
 Portal page for managing and editing deployment formulas.
 """
-class FormulaView(View):
+class AppModule(View):
     
     # Handle GET requests and rendering the home page
     def get(self, request, *args, **kwargs):

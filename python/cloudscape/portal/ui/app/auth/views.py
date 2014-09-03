@@ -9,7 +9,7 @@ from django.contrib.auth import authenticate, login, logout
 from cloudscape.portal.ui.base import PortalBase
 from cloudscape.common.collection import Collection
 
-class AuthView(View):
+class AppModule(View):
     """
     CloudScape portal authentication.
     """

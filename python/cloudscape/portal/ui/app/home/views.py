@@ -10,7 +10,7 @@ from django.http import HttpResponseRedirect
 from cloudscape.portal.ui.core import utils
 from cloudscape.portal.ui.base import PortalBase
 
-class HomeView(View):
+class AppModule(View):
     """
     CloudScape portal home.
     """

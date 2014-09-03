@@ -37,25 +37,25 @@ def np(p,t=None):
         ds = r'\\\\' if SYS_TYPE == 'windows' else r'/'
     return re.sub(r'[\/|\\]', ds, p)
 
+# CloudScape User
+C_USER         = 'cloudscape'
+
 # Static System Definitions
 W_BASE         = 'C:\\CloudScapeAgent'
 W_HOME         = '%s\\home' % W_BASE
 L_BASE         = '/opt/cloudscape'
-L_HOME         = '%s/home' % L_BASE
-
-# Base / Home Directories
-C_BASE         = 'C:\\CloudScapeAgent' if (SYS_TYPE == 'windows') else '/opt/cloudscape'
-C_HOME         = np('%s/home' % C_BASE)
-
-# CloudScape User
-C_USER         = 'cloudscape'
-
-# CloudScape API Client
-C_CLIENT       = np('%s/python/cloudscape/client' % C_BASE)
+L_HOME         = '/home/cloudscape'
 
 # Host types
 H_LINUX        = 'linux'
 H_WINDOWS      = 'windows'
+
+# Base / Home Directories
+C_BASE         = 'C:\\CloudScapeAgent' if (SYS_TYPE == 'windows') else '/opt/cloudscape'
+C_HOME         = W_HOME if (SYS_TYPE == H_WINDOWS) else L_HOME
+
+# CloudScape API Client
+C_CLIENT       = np('%s/python/cloudscape/client' % C_BASE)
 
 # Administrator Group / User
 G_ADMIN        = '00000000-0000-0000-0000-000000000000'

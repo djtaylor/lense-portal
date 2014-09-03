@@ -6,15 +6,14 @@ from cloudscape.common import config
 from cloudscape.client.base import APIBase
 from cloudscape.common.utils import parse_response
 
-"""
-API Client Factory Class
-
-Takes the API user, key, and optional connection parameters. Attempts to retrieve an API
-token and then returns an instance of the APIClient class for use in accessing authenticated
-API calls.
-"""
 class APIConnect:
+    """
+    Factory class used to construct an API connection object using the APIBase class. If supplying
+    an API key, a token will be retrieved then passed off to the APIBase class.
+    """
     def __init__(self, user=None, group=None, api_key=None, api_token=None):
+        
+        # API connection attributes
         self.api_user  = user       # API user
         self.api_group = group      # API group
         self.api_key   = api_key    # API key
@@ -23,8 +22,13 @@ class APIConnect:
         # Configuration
         self.conf      = config.parse()
 
-    # Construct and return the API connection
+        # Server URL
+        self.api_url   = '%s://%s:%s' % (self.conf.server.proto, self.conf.server.host, self.conf.server.port)
+
     def construct(self):
+        """
+        Construct and return the API connection and parameters objects.
+        """
         if not self.api_user or not self.api_group or not self.api_key:
             if not self.api_token:
                 raise Exception('Must supply an API user/group, key, and/or token')
@@ -62,7 +66,7 @@ class APIConnect:
                 'user':  self.api_user,
                 'group': self.api_group,
                 'token': self.api_token,
-                'url':   self.conf.server.url
+                'url':   self.api_url
             }
                 
             # Return the API client
@@ -70,6 +74,6 @@ class APIConnect:
                 user  = self.api_user, 
                 group = self.api_group,
                 token = self.api_token, 
-                url   = self.conf.server.url
+                url   = self.api_url
             ), self.params
         

@@ -9,7 +9,7 @@ class AppModule(AppBase, View):
     Application view for the CloudScape portal home page.
     """
     def __init__(self, request):
-        AppBase.__init__(request)
+        AppBase.__init__(self, request)
     
     def get(self, request, *args, **kwargs):
         if not self.portal.authenticated:

@@ -14,7 +14,7 @@ class AppModule(AppBase, View):
     Application view for the CloudScape portal authentication page.
     """
     def __init__(self, request):
-        AppBase.__init__(request)
+        AppBase.__init__(self, request)
     
     def post(self, request, *args, **kwargs):
         """

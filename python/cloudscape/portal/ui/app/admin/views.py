@@ -14,5 +14,5 @@ class AppModule(View):
         Handle GET requests for the portal administration page.
         """
         if not self.portal.authenticated:
-            return self.redirect('auth')
+            return self.portal.redirect('/auth')
         return self.portal.template

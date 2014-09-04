@@ -6,6 +6,7 @@ import importlib
 
 # Django Libraries
 from django.views.generic import View
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
 # CloudScape Libraries
@@ -150,8 +151,8 @@ class PortalBase(object):
         # Define the request object
         request_obj = {
             'method':  method,
-            'get':     None if not method == 'GET' else request.GET,
-            'post':    None if not method == 'POST' else request.POST,
+            'GET':     None if not method == 'GET' else request.GET,
+            'POST':    None if not method == 'POST' else request.POST,
             'session': None if not hasattr(request, 'session') else request.session.session_key,
             'user':    None if not hasattr(request, 'user') else request.user.username,
             'body':    request.body,
@@ -159,7 +160,8 @@ class PortalBase(object):
             'query':   request.META['QUERY_STRING'],
             'script':  request.META['SCRIPT_NAME'],
             'group':   None if not request.user.is_authenticated() else request.session['active_group'],
-            'current': request.META['REQUEST_URI']
+            'current': request.META['REQUEST_URI'],
+            'RAW':     request
         }
         
         # Return a request collection
@@ -208,6 +210,62 @@ class PortalBase(object):
         # If the group is valid
         if is_member:
             self.request_raw.session['active_group'] = group
+        
+    def GET(self, key, default=False):
+        """
+        Look for data in the request GET object.
+        """
+        if hasattr(self.request.GET, key):
+            return getattr(self.request.GET, key)
+        return default
+        
+    def POST(self, key, default=False):
+        """
+        Look for data in the request POST object.
+        """
+        if hasattr(self.request.POST, key):
+            return getattr(self.request.POST, key)
+        return default
+        
+    def login(self, username, password):
+        """
+        Login a user account.
+        """
+            
+        # Attempt to authenticate the user
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(self.request.RAW, user)
+                return self.redirect('/home')
+            else:
+                state = 'Your account is not active - please contact your administrator'
+        else:
+            state = 'Your username and/or password are incorrect'
+    
+        # Template data
+        template_data = {'state': state, 
+                         'state_display': 'block',
+                         'username': username, 
+                         'base_path': request.META['SCRIPT_NAME']}
+        
+        # Login failed
+        return render_to_response('app/auth/main.html', template_data, context_instance=RequestContext(request))
+        
+    def logout(self):
+        """
+        Logout the current user.
+        """
+        logout(self.request.RAW)
+        
+        # Return the base object
+        return self
+        
+    def redirect(self, path):
+        """
+        Wrapper method for the HTTPResponseRedirect class
+        """
+        return HttpResponseRedirect(path)
         
     def construct(self, request):
         """

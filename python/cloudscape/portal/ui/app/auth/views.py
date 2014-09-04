@@ -2,11 +2,7 @@
 from django.views.generic import View
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
-
-# CloudScape Libraries
-from cloudscape.common.collection import Collection
 
 class AppModule(View):
     """
@@ -20,57 +16,38 @@ class AppModule(View):
         """
         Handle GET requests for the portal authentication page.
         """
-        post_data = Collection(request.POST).get()
+
+        # Look for an action parameter
+        action = self.portal.POST('action')
+
+        # If no action present
+        if not action:
+            return self.portal.redirect(self.portal.request.current)
 
         # Change Active Group
-        if post_data.action == 'change_group':
+        if action == 'change_group':
             
-            # Look for a redirect parameter
-            redirect    = '/home' if not hasattr(post_data, 'redirect') else post_data.redirect
+            # Redirect / group parameter
+            redirect = self.portal.POST('redirect', default='/home')
+            group    = self.portal.POST('group')
             
             # Make sure a new group is provided
-            if not hasattr(post_data, 'group'):
-                return HttpResponseRedirect(redirect)
+            if not group:
+                return self.portal.redirect(redirect)
             
             # Set the new group
-            self.portal.set_active_group(post_data.group)
+            self.portal.set_active_group(group)
             
             # Redirect to the home page
-            return HttpResponseRedirect(redirect)
+            return self.portal.redirect(redirect)
 
         # Logout the user
-        if post_data.action == 'logout':
-            logout(request)
-            return self.redirect('auth')
+        if action == 'logout':
+            return self.portal.logout().redirect('/auth')
         
         # Login the user
-        if post_data.action == 'login':
-            username = post_data.username
-            password = post_data.password
-            
-            # Attempt to authenticate the user
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    return self.redirect('home')
-                else:
-                    state = 'Your account is not active - please contact your administrator'
-            else:
-                state = 'Your username and/or password are incorrect'
-        
-            # Template data
-            template_data = {'state': state, 
-                             'state_display': 'block',
-                             'username': username, 
-                             'base_path': request.META['SCRIPT_NAME']}
-        
-            # Login failed
-            return render_to_response('app/auth/main.html', template_data, context_instance=RequestContext(request))
-        
-        # Invalid form action
-        else:
-            raise Exception('Invalid form action supplied in POST data: %s' % post_data.action)
+        if action == 'login':
+            return self.portal.login(user=self.portal.POST('username'), passwd=self.portal.POST('password'))
     
     def get(self, request, *args, **kwargs):
         """
@@ -79,7 +56,7 @@ class AppModule(View):
         
         # If the user is authenticated
         if self.portal.authenticated:
-            return self.redirect('home')
+            return self.portal.redirect('/home')
             
         # Render the template
         return self.portal.template

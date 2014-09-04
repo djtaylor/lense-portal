@@ -146,12 +146,6 @@ function SocketProxy() {
             	self.sock  = self.io.listen(self.https_l);
         	}
         	
-        	// Redis adapter
-    		self.io.adapter(self.redis({
-    			host: self.conf.redis.host,
-    			port: parseInt(self.conf.redis.port)
-    		}));
-        	
         	// Set the transports
         	self.sock.set('transports', ['xhr-polling', 'jsonp-polling']);
         	
@@ -317,8 +311,6 @@ function SocketProxy() {
 		
 		// Set up the logger
 		self.log_init();
-		
-		console.log('LOG STARTED');
 		
 		// Open the socket
 		self.socket_init();

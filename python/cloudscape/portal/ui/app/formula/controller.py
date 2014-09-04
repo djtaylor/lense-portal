@@ -70,45 +70,49 @@ class AppController(PortalTemplate):
         """
         
         # Make sure a formula ID parameter is supplied
-        if not self.request_contains(self.portal.request.get, 'formula'):
+        formula = self.portal.GET('formula')
+        if not formula:
             return self.set_redirect('/formula?panel=%s' % self.map['default'])
         
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'editor':   ('editor', 'get', {'uuid':formula}),
+            'formulas': ('formula', 'get')
+        })
+        
         # Check if formula details are retrievable
-        ed = self.api_call('editor', 'get', {'uuid': self.portal.request.get.formula})
-        if not ed:
+        if not response['editor']:
             return self.set_redirect('/formula?panel=overview')
         
         # If editing the formula
-        formula_edit = 'no'
-        if self.request_contains(self.portal.request.get, 'edit', ['yes']):
-            formula_edit = 'yes'
+        formula_edit = self.portal.GET('edit')
    
         # Formula details template data
         base_data = {
             'formula': {
                 'state':     self.json.dumps({
-                    'locked':    ed['locked'],
-                    'locked_by': ed['locked_by']
+                    'locked':    response['editor']['locked'],
+                    'locked_by': response['editor']['locked_by']
                 }),
-                'uuid':      self.portal.request.get.formula,
+                'uuid':      formula,
                 'edit':      formula_edit,
-                'manifest':  self.json.dumps(ed['manifest']),
+                'manifest':  self.json.dumps(response['editor']['manifest']),
                 'templates': {},
-                'all':       self.api_call('formula', 'get'),
-                'name':      ed['name'],
-                'label':     ed['label'],
-                'desc':      ed['desc']
+                'all':       response['formulas'],
+                'name':      response['editor']['name'],
+                'label':     response['editor']['label'],
+                'desc':      response['editor']['desc']
             },
             'edit': {
-                'manifest':  self.json.dumps(ed['manifest']),
+                'manifest':  self.json.dumps(response['editor']['manifest']),
                 'templates': {}
             },
             'template': {},
             'page': {
-                'title': 'Formula - \'%s\'' % ed['name'],
+                'title': 'Formula - \'%s\'' % response['editor']['name'],
                 'css': [
                     'formula/details.css',
-                    'css/vendor/chrome.css'
+                    'vendor/chrome.css'
                 ],
                 'contents': [
                     'app/formula/tables/details.html'
@@ -122,8 +126,8 @@ class AppController(PortalTemplate):
             
         # Construct a list of available template variables
         t_vars = {}
-        if 'fieldsets' in ed['manifest']:
-            for fieldset in ed['manifest']['fieldsets']:
+        if 'fieldsets' in response['editor']['manifest']:
+            for fieldset in response['editor']['manifest']['fieldsets']:
                 for field in fieldset['fields']:
                     t_vars[field['name']] = field['desc']
         
@@ -133,7 +137,7 @@ class AppController(PortalTemplate):
         # Construct a list of templates
         t_names    = []
         t_contents = {}
-        for name, encoded in ed['templates'].iteritems():
+        for name, encoded in response['editor']['templates'].iteritems():
             t_names.append(name)
             t_contents[name] = encoded
         
@@ -152,42 +156,45 @@ class AppController(PortalTemplate):
         """
         
         # Make sure a formula ID parameter is supplied
-        if not self.request_contains(self.portal.request.get, 'formula'):
+        formula = self.portal.GET('formula')
+        if not formula:
             return self.set_redirect('/formula?panel=%s' % self.map['default'])
+        
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'formula': ('formula', 'get', {'uuid':formula}),
+            'hosts':   ('host', 'get')
+        })
         
         # Get the formula details
-        fd = self.api_call('formula', 'get', {'uuid': self.portal.request.get.formula})
-        if not fd:
+        if not response['formula']:
             return self.set_redirect('/formula?panel=%s' % self.map['default'])
-        
-        # Get a list of all managed hosts
-        mh = self.api_call('host', 'get')
         
         # Construct the hosts template element
         th = {}
-        for key, host in enumerate(mh):
+        for host in response['hosts']:
             th[host['uuid']] = {
                 'type':  host['os_type'],
                 'label': '%s: %s %s %s - %s' % (host['name'], host['sys']['os']['distro'], host['sys']['os']['version'], host['sys']['os']['arch'], host['ip'])
             }
         
         # Set the formula requirements and template files
-        fr = '' if not 'requires' in fd['manifest']['formula'] else ', '.join(fd['manifest']['formula']['requires'])
-        ft = ', '.join(fd['templates'])
+        fr = '' if not 'requires' in response['formula']['manifest']['formula'] else ', '.join(response['formula']['manifest']['formula']['requires'])
+        ft = ', '.join(response['formula']['templates'])
         
         # Build a list of the supported operating systems
         fs = []
-        for sp in fd['manifest']['formula']['supports']:
+        for sp in response['formula']['manifest']['formula']['supports']:
             fs.append(sp)
         fs = ', '.join(fs)
         
         # Formula information
         fi = self.OrderedDict([
-            ('UUID',      self.portal.request.get.formula),
-            ('Name',      fd['name']),
-            ('Label',     fd['label']),
-            ('Created',   fd['created']),
-            ('Modified',  fd['modified']),
+            ('UUID',      formula),
+            ('Name',      response['formula']['name']),
+            ('Label',     response['formula']['label']),
+            ('Created',   response['formula']['created']),
+            ('Modified',  response['formula']['modified']),
             ('Templates', ft),
             ('Requires',  fr),
             ('Supports',  fs)])
@@ -195,15 +202,15 @@ class AppController(PortalTemplate):
         # Base template data
         base_data = {
             'formula': {
-                'uuid':      self.portal.request.get.formula,
-                'name':      fd['name'],
-                'label':     fd['label'],
-                'desc':      fd['desc'],
+                'uuid':      formula,
+                'name':      response['formula']['name'],
+                'label':     response['formula']['label'],
+                'desc':      response['formula']['desc'],
                 'info':      fi,
-                'type':      fd['type'],
-                'setgroup':  True if ('setgroup' in fd['manifest']['formula'] and fd['manifest']['formula']['setgroup']) else False,
-                'actions':   {} if not ('actions' in fd['manifest']) else fd['manifest']['actions'],
-                'fields':    {} if not ('fieldsets' in fd['manifest']) else fd['manifest']['fieldsets'],
+                'type':      response['formula']['type'],
+                'setgroup':  True if ('setgroup' in response['formula']['manifest']['formula'] and response['formula']['formula']['manifest']['formula']['setgroup']) else False,
+                'actions':   {} if not ('actions' in response['formula']['manifest']) else response['formula']['manifest']['actions'],
+                'fields':    {} if not ('fieldsets' in response['formula']['manifest']) else response['formula']['manifest']['fieldsets'],
             },
             'managed_hosts': th,
             'page': {
@@ -219,8 +226,8 @@ class AppController(PortalTemplate):
         
         # Look for any group select menus
         formula_groups = []
-        if 'fieldsets' in fd['manifest']:
-            for fieldset in fd['manifest']['fieldsets']:
+        if 'fieldsets' in response['formula']['manifest']:
+            for fieldset in response['formula']['manifest']['fieldsets']:
                 for field in fieldset['fields']:
                     if (field['type'] == 'select_group') and ('group' in field):
                         kps = field['group'].split(';')

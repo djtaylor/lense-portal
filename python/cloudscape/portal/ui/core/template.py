@@ -36,17 +36,20 @@ class PortalTemplate(object):
         self.OrderedDict = OrderedDict  
         
         # Configuration / logger
-        self.conf   = config.parse()
-        self.log    = logger.create(__name__, self.conf.portal.log)
+        self.conf        = config.parse()
+        self.log         = logger.create(__name__, self.conf.portal.log)
      
         # URL panel
-        self.panel  = self.get_query_key('panel')
+        self.panel       = self.get_query_key('panel')
+        
+        # Threaded API responses
+        self._response   = {}
         
         # Template data
-        self._tdata = {}
+        self._tdata      = {}
      
         # Response filter
-        self.filter = APIFilter()
+        self.filter      = APIFilter()
      
     def redirect(self, location):
         """
@@ -149,6 +152,12 @@ class PortalTemplate(object):
         # Invalid base/method attribute
         return False    
     
+    def _api_call_threaded_worker(self, key, base, method, data=None):
+        """
+        Worker method for handled threaded API calls.
+        """
+        self._response[key] = self.api_call(base, method, data)
+    
     def api_call_threaded(self, requests):
         """
         Interface for a multi-threaded API call, to speed up the request/response cycle when
@@ -157,16 +166,15 @@ class PortalTemplate(object):
         
         # Threads / responses
         threads   = []
-        responses = {}
         
         # Process each request
         for key,attr in requests.iteritems():
         
             # Get any request data
-            data   = None if (len(attr) == 2) else attr[3]
+            data   = None if (len(attr) == 2) else attr[2]
         
             # Create the thread, append, and start
-            thread = Thread(target=self.api_call, args=[attr[1], attr[2], data])
+            thread = Thread(target=self._api_call_threaded_worker, args=[key, attr[0], attr[1], data])
             threads.append(thread)
             thread.start()
             
@@ -175,7 +183,7 @@ class PortalTemplate(object):
             thread.join()
             
         # Return the response object
-        return responses
+        return self._response
         
     def response(self):
         """
@@ -188,7 +196,7 @@ class PortalTemplate(object):
         
         # Return the template response
         try:
-            return render_to_response('interface.html', self._tdata, context_instance=RequestContext(self.portal.request_raw))
+            return render_to_response('interface.html', self._tdata, context_instance=RequestContext(self.portal.request.RAW))
         
         # Failed to render template
         except Exception as e:
@@ -206,7 +214,7 @@ class PortalTemplate(object):
             t = loader.get_template('core/error/500.html')
             
             # Return a server error
-            return HttpResponseServerError(t.render(RequestContext(self.portal.request_raw, {
+            return HttpResponseServerError(t.render(RequestContext(self.portal.request.RAW, {
                 'error': 'An error occurred when rendering the requested page.',
-                'debug': None if CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
+                'debug': None if self.conf.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
             })))

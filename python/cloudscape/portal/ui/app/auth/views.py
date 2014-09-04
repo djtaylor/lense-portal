@@ -1,8 +1,5 @@
 # Django Libraries
 from django.views.generic import View
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.contrib.auth import authenticate, login, logout
 
 class AppModule(View):
     """
@@ -47,7 +44,7 @@ class AppModule(View):
         
         # Login the user
         if action == 'login':
-            return self.portal.login(user=self.portal.POST('username'), passwd=self.portal.POST('password'))
+            return self.portal.login(username=self.portal.POST('username'), password=self.portal.POST('password'))
     
     def get(self, request, *args, **kwargs):
         """

@@ -17,6 +17,32 @@ from cloudscape.portal.ui.core.api import APIClient
 from cloudscape.common.collection import Collection
 from cloudscape.engine.api.app.user.models import DBUserDetails
 
+class PortalRequest(object):
+    """
+    Construct and return a portal request object.
+    """
+    def __init__(self, request):
+        
+        # Raw request object
+        self.RAW     = request
+        
+        # Method / GET / POST / body data
+        self.method  = request.META['REQUEST_METHOD']
+        self.GET     = Collection(request.GET).get()
+        self.POST    = Collection(request.POST).get()
+        self.body    = request.body
+        
+        # User / group / session
+        self.user    = None if not hasattr(request, 'user') else request.user.username
+        self.group   = None if not request.user.is_authenticated() else request.session['active_group']
+        self.session = None if not hasattr(request, 'session') else request.session.session_key
+        
+        # Path / query string / script / current URI
+        self.path    = request.META['PATH_INFO'].replace('/','')
+        self.query   = request.META['QUERY_STRING']
+        self.script  = request.META['SCRIPT_NAME']
+        self.current = request.META['REQUEST_URI']
+
 class PortalBase(object):
     """
     Base class shared by all CloudScape portal views. This is used to initialize
@@ -128,7 +154,6 @@ class PortalBase(object):
         """
         Setup the incoming request object.
         """
-        self.request_raw = request
         
         # If the active group session variable hasn't been set yet
         if request.user.is_authenticated():
@@ -142,30 +167,8 @@ class PortalBase(object):
                 # Set the active group to the first available group
                 request.session['active_group'] = all_groups[0]['uuid']
         
-        # Get the request method
-        method = request.META['REQUEST_METHOD']
-        
-        # Set available groups
-        self.groups = None if not request.user.is_authenticated() else all_groups
-        
-        # Define the request object
-        request_obj = {
-            'method':  method,
-            'GET':     None if not method == 'GET' else request.GET,
-            'POST':    None if not method == 'POST' else request.POST,
-            'session': None if not hasattr(request, 'session') else request.session.session_key,
-            'user':    None if not hasattr(request, 'user') else request.user.username,
-            'body':    request.body,
-            'path':    request.META['PATH_INFO'].replace('/',''),
-            'query':   request.META['QUERY_STRING'],
-            'script':  request.META['SCRIPT_NAME'],
-            'group':   None if not request.user.is_authenticated() else request.session['active_group'],
-            'current': request.META['REQUEST_URI'],
-            'RAW':     request
-        }
-        
-        # Return a request collection
-        return Collection(request_obj).get()
+        # Return a request object
+        return PortalRequest(request)
         
     def _run_controller(self):
         """

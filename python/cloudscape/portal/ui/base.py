@@ -5,6 +5,7 @@ import copy
 import importlib
 
 # Django Libraries
+from django.views.generic import View
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
 # CloudScape Libraries
@@ -14,6 +15,21 @@ from cloudscape.common.vars import L_BASE
 from cloudscape.portal.ui.core.api import APIClient
 from cloudscape.common.collection import Collection
 from cloudscape.engine.api.app.user.models import DBUserDetails
+
+class AppBase(View):
+    """
+    Base class used by application view modules.
+    """
+    def __init__(self, request):
+        
+        # Construct the base portal object
+        self.portal = PortalBase(__name__).construct(request)
+
+    def redirect(self, path):
+        """
+        Return an HTTPResponseRedirect object.
+        """
+        return HttpResponseRedirect('/%s' % path)
 
 class PortalBase(object):
     """

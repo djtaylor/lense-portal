@@ -79,6 +79,9 @@ class RequestManager(object):
                 
                 # Add to the modules object
                 app_obj[app] = cls_obj
+                
+                # Load application module
+                LOG.info('Loading application module: app=%s, module=%s' % (app, mod_path))
         
         # Return the constructed applications object
         return app_obj
@@ -87,14 +90,16 @@ class RequestManager(object):
         """
         Return an HTTPResponseRedirect object.
         """
-        return HttpResponseRedirect(path)
+        return HttpResponseRedirect('/%s' % path)
         
     def handler(self):
         """
         Worker method for mapping requests to controllers.
         """
-        return HttpResponse('OK')
         
         # If the path doesn't point to a valid application
         if not self.path in self.apps:
-            return self.redirect('/auth')
+            return self.redirect('auth')
+        
+        # Load the application
+        return self.apps[self.path].as_view()(self.request)

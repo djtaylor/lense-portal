@@ -1,18 +1,16 @@
 # Django Libraries
-from django.views.generic import View
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 
 # CloudScape Libraries
-from cloudscape.portal.ui.base import PortalBase
+from cloudscape.portal.ui.base import AppBase
 from cloudscape.common.collection import Collection
 
-class AppModule(View):
-    """
-    CloudScape portal authentication.
-    """
+class AppModule(AppBase):
+    def __init__(self, request):
+        super(AppModule, self).__init__(request)
     
     def post(self, request, *args, **kwargs):
         """
@@ -22,9 +20,6 @@ class AppModule(View):
 
         # Change Active Group
         if post_data.action == 'change_group':
-            
-            # Construct the base portal object
-            self.portal = PortalBase(__name__).construct(request)
             
             # Look for a redirect parameter
             redirect    = '/home' if not hasattr(post_data, 'redirect') else post_data.redirect
@@ -42,7 +37,7 @@ class AppModule(View):
         # Logout the user
         if post_data.action == 'logout':
             logout(request)
-            return HttpResponseRedirect("/auth")
+            return self.redirect('auth')
         
         # Login the user
         if post_data.action == 'login':
@@ -54,7 +49,7 @@ class AppModule(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    return HttpResponseRedirect("/home")
+                    return self.redirect('home')
                 else:
                     state = 'Your account is not active - please contact your administrator'
             else:
@@ -78,12 +73,9 @@ class AppModule(View):
         Handle GET requests for the authentication page.
         """
         
-        # Construct the base portal object
-        self.portal = PortalBase(__name__).construct(request)
-        
         # If the user is authenticated
         if self.portal.authenticated:
-            return HttpResponseRedirect('/home')
+            return self.redirect('home')
             
         # Render the template
         return self.portal.template

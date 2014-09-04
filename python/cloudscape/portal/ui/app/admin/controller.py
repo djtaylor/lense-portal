@@ -44,11 +44,24 @@ class AppController(PortalTemplate):
         administration pages.
         """
         
-        # All datacenters / target datacenter / target details / datacenter hosts
-        dc_all    = self.api_call('locations', 'get_datacenters')
+        # Look for a target datacenter
         dc_target = self.get_query_key('datacenter')
-        dc_detail = None if not dc_target else [x for x in dc_all if x['uuid'] == dc_target][0]
-        dc_hosts  = None if not dc_target else self.api_call('host', 'get', { 'filter': { 'datacenter': dc_target }})
+        
+        # API request parameters
+        request   = {
+            'datacenters': ('locations', 'get_datacenters')
+        }
+        
+        # If loading details for a datacenter
+        if dc_target:
+            request['hosts'] = ('host', 'get', {'filter':{'datacenter':dc_target}})
+        
+        # Make all required API calls
+        response = self.api_call_threaded(request)
+        
+        # Target details / datacenter hosts
+        dc_detail = None if not dc_target else [x for x in response['datacenters'] if x['uuid'] == dc_target][0]
+        dc_hosts  = None if not dc_target else response['hosts']
         
         def set_contents():
             """
@@ -72,9 +85,9 @@ class AppController(PortalTemplate):
         # Return the template data
         return {
             'datacenters': {
-                'all':    dc_all,
+                'all':    response['datacenters'],
                 'detail': dc_detail,
-                'hosts':  dc_hosts,
+                'hosts':  response['hosts'],
                 'target': dc_target
             },
             'page': {
@@ -90,9 +103,17 @@ class AppController(PortalTemplate):
         Helper method used to construct the template data needed to render the users
         administration page.
         """
+        
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'users':  ('user', 'get'),
+            'groups': ('group', 'get')
+        })
+        
+        # Return the template data
         return {
-            'users':  self.api_call('user', 'get'),
-            'groups': self.api_call('group', 'get'),
+            'users':  response['users'],
+            'groups': response['groups'],
             'page': {
                 'title': 'CloudScape Administration - Users',
                 'css': ['admin.css'],
@@ -115,24 +136,17 @@ class AppController(PortalTemplate):
         administration page.
         """
                
-        # Construt the host groups template element
-        t_hgroups = {}
-        for key, hgroup in enumerate(self.api_call('host', 'get_group')):
-            t_hgroups[hgroup['uuid']] = {
-                'label': hgroup['name']
-            }
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'groups':      ('group', 'get'),
+            'users':       ('user', 'get'),
+            'acls':        ('auth', 'get_acl'),
+            'acl_objects': ('auth', 'get_acl_objects', {'detailed':True})  
+        })
                 
-        # Construct the formulas template element
-        t_formulas = {}
-        for key, formula in enumerate(self.api_call('formula', 'get')):
-            t_formulas[formula['uuid']] = {
-                'label': formula['name']
-            }
-                
-        # All groups / target group / group details
-        groups_all    = self.api_call('group', 'get')
+        # Target group / group details
         groups_tgt    = self.get_query_key('group')
-        groups_detail = None if not groups_tgt else [x for x in groups_all if x['uuid'] == groups_tgt][0]
+        groups_detail = None if not groups_tgt else [x for x in response['groups'] if x['uuid'] == groups_tgt][0]
                 
         def get_contents():
             """
@@ -161,7 +175,7 @@ class AppController(PortalTemplate):
         # Return the template data 
         return {
             'groups': {
-                'all':     groups_all,
+                'all':     response['groups'],
                 'target':  groups_tgt,
                 'detail':  groups_detail,
                 'members': None if not groups_tgt else [x['username'] for x in groups_detail['members']],
@@ -171,10 +185,10 @@ class AppController(PortalTemplate):
                 }
             },
             'acls': {
-                'all': sorted(self.api_call('auth', 'get_acl'), key=lambda k: k['name']),
-                'objects': self.api_call('auth', 'get_acl_objects', data={'detailed': True})
+                'all': sorted(response['acls'], key=lambda k: k['name']),
+                'objects': response['acl_objects']
             },
-            'users': self.api_call('user', 'get'),
+            'users': response['users'],
             'page': {
                 'title': 'CloudScape Administration - Groups',
                 'css': ['admin.css'],
@@ -189,8 +203,14 @@ class AppController(PortalTemplate):
         administration page.
         """
         
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'acls':      ('auth', 'get_acl'),
+            'endpoints': ('auth', 'get_endpoints')
+        })
+        
         # All ACLS / target ACL / target object / target UUID / target endpoint list
-        acl_all    = sorted(self.api_call('auth', 'get_acl'), key=lambda k: k['name'])
+        acl_all    = sorted(response['acls'], key=lambda k: k['name'])
         acl_target = self.get_query_key('acl')
         acl_obj    = None if not acl_target else [x for x in acl_all if x['uuid'] == acl_target][0]
         acl_eplist = {'global':[],'object':[],'host':[]}
@@ -229,7 +249,7 @@ class AppController(PortalTemplate):
                 'detail':    acl_obj,
                 'endpoints': acl_eplist
             },
-            'endpoints':     sorted(self.api_call('auth', 'get_endpoints'), key=lambda k: k['name']),
+            'endpoints':     sorted(response['endpoints'], key=lambda k: k['name']),
             'page': {
                 'title': 'CloudScape Administration - ACLs',
                 'css': ['admin.css'],
@@ -244,8 +264,14 @@ class AppController(PortalTemplate):
         administration page.
         """
         
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'acl_objects': ('auth', 'get_acl_objects', {'detailed':True}),
+            'acls':        ('auth', 'get_acl')
+        })
+        
         # All ACL objects / target object / object details
-        acl_objects_all    = sorted(self.api_call('auth', 'get_acl_objects', data={'detailed':True}), key=lambda k: k['name'])
+        acl_objects_all    = sorted(response['acl_objects'], key=lambda k: k['name'])
         acl_objects_tgt    = self.get_query_key('object')
         acl_objects_detail = None if not acl_objects_tgt else [x for x in acl_objects_all if x['type'] == acl_objects_tgt][0]
         
@@ -279,7 +305,7 @@ class AppController(PortalTemplate):
                     'detail': acl_objects_detail,
                     'target': self.get_query_key('object')
                 },
-                'all':     sorted(self.api_call('auth', 'get_acl'), key=lambda k: k['name'])
+                'all':     sorted(response['acls'], key=lambda k: k['name'])
             },
             'page': {
                 'title': 'CloudScape Administration - Objects',
@@ -295,15 +321,21 @@ class AppController(PortalTemplate):
         administration page.
         """
         
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'endpoints':   ('auth', 'get_endpoints'),
+            'acl_objects': ('auth', 'get_acl_objects')
+        })
+        
         # All endpoints / target endpoint / endpoint object
-        endpoint_all  = sorted(self.api_call('auth', 'get_endpoints'), key=lambda k: k['name'])
+        endpoint_all  = sorted(response['endpoints'], key=lambda k: k['name'])
         endpoint_tgt  = self.get_query_key('endpoint')
         endpoint_obj  = None if not endpoint_tgt else [x for x in endpoint_all if x['uuid'] == endpoint_tgt][0]
         
         # Endpoint modules / utilities / ACL objects
         utils         = []
         modules       = []
-        acl_objects   = self.api_call('auth', 'get_acl_objects')
+        acl_objects   = response['acl_objects']
         
         # Construct modules and utilities
         for ep in endpoint_all:

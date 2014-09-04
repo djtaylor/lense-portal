@@ -35,6 +35,9 @@ function SocketProxy() {
 	this.https_l = require('https');
 	this.https_r = require('https');
 	
+	// Redis
+	this.redis   = require('/usr/lib/node_modules/socket.io-redis');
+	
 	// Configuration and base logger modules
 	this.ini     = require('/usr/lib/node_modules/ini');
 	this.winston = require('/usr/lib/node_modules/winston');
@@ -143,6 +146,12 @@ function SocketProxy() {
             	self.sock  = self.io.listen(self.https_l);
         	}
         	
+        	// Redis adapter
+    		self.io.adapter(self.redis({
+    			host: self.conf.redis.host,
+    			port: parseInt(self.conf.redis.port)
+    		}));
+        	
         	// Set the transports
         	self.sock.set('transports', ['xhr-polling', 'jsonp-polling']);
         	
@@ -151,6 +160,7 @@ function SocketProxy() {
         	
         // Error in Socket.IO
     	} catch (e) {
+    		console.log(e);
     		self.log.error('Failed to set up Socket.IO listener: ' + e);
     		process.exit(1);
     	}
@@ -307,6 +317,8 @@ function SocketProxy() {
 		
 		// Set up the logger
 		self.log_init();
+		
+		console.log('LOG STARTED');
 		
 		// Open the socket
 		self.socket_init();

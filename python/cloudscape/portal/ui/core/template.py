@@ -2,7 +2,7 @@ import re
 import sys
 import json
 import base64
-import urllib
+from threading import Thread
 from collections import OrderedDict
 
 # Django Libraries
@@ -146,7 +146,35 @@ class PortalTemplate(object):
                 return self.filter.object(self.portal.api.response(api_method(data))).map('%s.%s' % (base, method))
        
         # Invalid base/method attribute
-        return False
+        return False    
+    
+    def api_call_threaded(self, requests):
+        """
+        Interface for a multi-threaded API call, to speed up the request/response cycle when
+        calling multiple endpoints when rendering a template.
+        """
+        
+        # Threads / responses
+        threads   = []
+        responses = {}
+        
+        # Process each request
+        for key,attr in requests.iteritems():
+        
+            # Get any request data
+            data   = None if (len(attr) == 2) else attr[3]
+        
+            # Create the thread, append, and start
+            thread = Thread(target=self.api_call, attr[1], attr[2], data)
+            threads.append(thread)
+            thread.start()
+            
+        # Wait for the API calls to complete
+        for thread in threads:
+            thread.join()
+            
+        # Return the response object
+        return responses
         
     def response(self):
         """

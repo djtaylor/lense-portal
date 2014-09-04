@@ -1,31 +1,10 @@
-import json
+from cloudscape.portal.ui.base import AppBase
 
-# Django Libraries
-from django.views.generic import View
-from django.shortcuts import render_to_response
-from django.template import RequestContext
-from django.http import HttpResponseRedirect
-
-# CloudScape Libraries
-from cloudscape.portal.ui.core import utils
-from cloudscape.portal.ui.base import PortalBase
-
-class AppModule(View):
-    """
-    CloudScape portal home.
-    """
+class AppModule(AppBase):
+    def __init__(self, request):
+        super(AppModule, self).__init__(request)
     
     def get(self, request, *args, **kwargs):
-        """
-        Handle GET requests to the home page.
-        """
-        
-        # Construct the base portal object
-        self.portal = PortalBase(__name__).construct(request)
-        
-        # If the user is not authenticated
         if not self.portal.authenticated:
-            return HttpResponseRedirect('/auth')
-        
-        # Render the home page
+            return self.redirect('auth')
         return self.portal.template

@@ -34,11 +34,18 @@ class AppController(PortalTemplate):
         Construct and return the template data required to render the host groups page.
         """
         
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'hgroups':     ('host', 'get_group'),
+            'hosts':       ('host', 'get'),
+            'datacenters': ('locations', 'get_datacenters'),
+            'formulas':    ('formula', 'get')
+        })
+        
         # Host groups / target host group / editing flag / host group details
-        hgroups_all    = self.api_call('host', 'get_group')
         hgroups_target = self.get_query_key('group')
         hgroups_edit   = self.get_query_key('edit')
-        hgroups_detail = None if not hgroups_target else [x for x in hgroups_all if x['uuid'] == hgroups_target][0]
+        hgroups_detail = None if not hgroups_target else [x for x in response['hgroups'] if x['uuid'] == hgroups_target][0]
         
         def set_contents():
             """
@@ -64,14 +71,14 @@ class AppController(PortalTemplate):
         # Return the template data
         return {
             'hgroups': {
-                'all':     hgroups_all,
+                'all':     response['hgroups'],
                 'target':  hgroups_target,
                 'detail':  hgroups_detail,
                 'edit':    hgroups_edit
             },
-            'hosts':       self.api_call('host', 'get'),
-            'datacenters': self.api_call('locations', 'get_datacenters'),
-            'formulas':    self.api_call('formula', 'get'),
+            'hosts':       response['hosts'],
+            'datacenters': response['datacenters'],
+            'formulas':    response['formulas'],
             'page': {
                 'title':  'CloudScape Host Groups',
                 'css': [
@@ -86,11 +93,21 @@ class AppController(PortalTemplate):
         """
         Construct and return the template data required to render the hosts list page.
         """
+        
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'hosts':       ('host', 'get'),
+            'hgroups':     ('host', 'get_group'),
+            'datacenters': ('locations', 'get_datacenters'),
+            'dkeys':       ('host', 'get_dkey')
+        })
+        
+        # Return the template data
         return {
-            'hosts':       self.api_call('host', 'get'),
-            'groups':      self.api_call('host', 'get_group'),
-            'datacenters': self.api_call('locations', 'get_datacenters'),
-            'dkeys':       self.api_call('host', 'get_dkey'),
+            'hosts':       response['hosts'],
+            'groups':      response['hgroups'],
+            'datacenters': response['datacenters'],
+            'dkeys':       response['dkeys'],
             'page': {
                 'header': 'Hosts',
                 'title':  'CloudScape Hosts',
@@ -117,22 +134,29 @@ class AppController(PortalTemplate):
         if not self.request_contains(self.portal.request.get, 'host'):
             return self.set_redirect('/%s?panel=overview' % self.path)
         
+        # Make all required API calls
+        response = self.api_call_threaded({
+            'host':     ('host', 'get', {'uuid':self.portal.request.get.host}),
+            'formulas': ('host', 'get_formula', {'uuid':self.portal.request.get.host}),
+            'groups':   ('group', 'get')
+        })
+        
+        
         # Make sure host details are retrievable
-        hd = self.api_call('host', 'get', {'uuid': self.portal.request.get.host})
-        if not hd:
+        if not response['host']:
             return self.set_redirect('/hosts?panel=overview')
         
         # Return the constructed template data
         return {
             'host': {
-                'name':     hd['name'],
-                'details':  hd,
-                'formulas': self.api_call('host', 'get_formula', {'uuid': self.portal.request.get.host})
+                'name':     response['host']['name'],
+                'details':  response['host'],
+                'formulas': response['formulas']
             },
-            'groups':       self.api_call('group', 'get'),
+            'groups':       response['groups'],
             'page': {
-                'title':  'CloudScape Host - \'%s\'' % hd['name'],
-                'header': 'Host Details - \'%s\'' % hd['name'],
+                'title':  'CloudScape Host - \'%s\'' % response['host']['name'],
+                'header': 'Host Details - \'%s\'' % response['host']['name'],
                 'css': [
                     'hosts/details.css'
                 ],

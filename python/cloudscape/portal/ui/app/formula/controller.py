@@ -231,7 +231,7 @@ class AppController(PortalTemplate):
                             if kv[0] == 'formula':
                                 
                                 # Get all groups for that formula
-                                _groups = self.api_call('host', 'get_group', {'formula_id': kv[1]})
+                                _groups = self.api_call('host', 'get_group', {'formula': kv[1]})
                                 if _groups:
                                     for _group in _groups:
                                         formula_groups.append({

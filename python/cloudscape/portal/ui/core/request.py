@@ -13,6 +13,7 @@ from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedir
 from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.vars import L_BASE
+from cloudscape.portal.ui.core.base import PortalBase
 
 # Module class name
 MOD_CLASS = 'AppModule'
@@ -117,4 +118,4 @@ class RequestManager(object):
             return self.redirect('auth')
         
         # Load the application
-        return self.apps[self.path](self.request).as_view()(self.request)
+        return self.apps[self.path].as_view(portal=PortalBase(__name__).construct(request))(self.request)

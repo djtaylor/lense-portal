@@ -16,21 +16,6 @@ from cloudscape.portal.ui.core.api import APIClient
 from cloudscape.common.collection import Collection
 from cloudscape.engine.api.app.user.models import DBUserDetails
 
-class AppBase(object):
-    """
-    Base class used by application view modules.
-    """
-    def __init__(self, request):
-        
-        # Construct the base portal object
-        self.portal = PortalBase(__name__).construct(request)
-
-    def redirect(self, path):
-        """
-        Return an HTTPResponseRedirect object.
-        """
-        return HttpResponseRedirect('/%s' % path)
-
 class PortalBase(object):
     """
     Base class shared by all CloudScape portal views. This is used to initialize

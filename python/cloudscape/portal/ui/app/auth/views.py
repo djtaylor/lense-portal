@@ -6,16 +6,12 @@ from django.http import HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 
 # CloudScape Libraries
-from cloudscape.portal.ui.base import AppBase
 from cloudscape.common.collection import Collection
 
-class AppModule(AppBase, View):
+class AppModule(View):
     """
     Application view for the CloudScape portal authentication page.
     """
-    def __init__(self, request):
-        AppBase.__init__(self, request)
-    
     def post(self, request, *args, **kwargs):
         """
         Handle POST request for logging in and out.

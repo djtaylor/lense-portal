@@ -1,0 +1,2 @@
+#!/bin/bash
+ln -s /opt/cloudscape/_local/usr/bin/cloudscape /usr/bin/cloudscape

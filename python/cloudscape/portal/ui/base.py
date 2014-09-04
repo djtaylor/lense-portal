@@ -89,7 +89,7 @@ class PortalBase(object):
         else:
             return None
        
-    def _set_api(self, session):
+    def _set_api(self):
         """
         Setup the API client.
         """
@@ -100,7 +100,7 @@ class PortalBase(object):
             return False
         
         # Append the session ID to the API parameters
-        params['session'] = session;
+        params['session'] = self.request.session;
         
         # Define the API object
         api_obj = {

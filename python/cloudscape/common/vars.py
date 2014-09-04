@@ -51,7 +51,7 @@ H_LINUX        = 'linux'
 H_WINDOWS      = 'windows'
 
 # Base / Home Directories
-C_BASE         = 'C:\\CloudScapeAgent' if (SYS_TYPE == 'windows') else '/opt/cloudscape'
+C_BASE         = 'C:\\CloudScapeAgent' if (SYS_TYPE == H_WINDOWS) else '/opt/cloudscape'
 C_HOME         = W_HOME if (SYS_TYPE == H_WINDOWS) else L_HOME
 
 # CloudScape API Client
@@ -117,11 +117,11 @@ A_CONF         = np('%s/conf/agent.conf' % C_BASE)
 S_CONF         = np('%s/conf/server.conf' % C_BASE)
 
 # Agent Process
-A_PID          = np('%s/run/agent.pid' % C_BASE)
+A_PID          = '/var/run/cloudscape/agent.pid'
 A_CFLAG        = np('%s/.collect' % C_HOME)
 
 # Log Directory
-LOG_DIR        = np('%s/log' % C_HOME)
+LOG_DIR        = '/var/log/cloudscape' if (SYS_TYPE == H_LINUX) else '%s\\log' % W_HOME
 
 # SSH Paths (Windows)
 SSH_DIR        = np('%s/.ssh' % C_HOME)

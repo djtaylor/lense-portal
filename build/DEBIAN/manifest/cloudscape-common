@@ -1,0 +1,9 @@
+{
+	"name": "cloudscape-common",
+	"major": 0,
+	"minor": 1,
+	"release": 0,
+	"source": [
+		"/opt/cloudscape/python/cloudscape/common"
+	]
+}

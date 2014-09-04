@@ -40,14 +40,12 @@ CONFIG_API   = {
     'port':            None
 }
 
-"""
-Windows Agent Configuration
-
-Configuration wrapper for the main configuration parser. Looks through the raw object
-parsed from the agent configuration, and sets any default values required. Returns
-a namedtuple object.
-"""
 class AgentConfig:
+    """
+    Configuration wrapper for the main configuration parser. Looks through the raw object
+    parsed from the agent configuration, and sets any default values required. Returns
+    a namedtuple object.
+    """
     def __init__(self):
     
         # Load the configuration file
@@ -69,8 +67,10 @@ class AgentConfig:
         # Parsed and constructed configuration
         self.conf_p = self._parse()
         
-    """ Tuple Contains Check """
     def _tuple_contains(self, tuple, section, option):
+        """
+        Check if a configuration tuple contains a particular section and option.
+        """
         if not tuple:
             return False
         if not section in tuple._fields:
@@ -79,8 +79,10 @@ class AgentConfig:
             return False
         return tuple.__getattribute__(section).__getattribute__(option)
         
-    """ Parse Configuration """
     def _parse(self):
+        """
+        Parse the agent configuration file.
+        """
         config_obj = {}
         for section, options in self.conf_d.iteritems():
             if not hasattr(self.conf_i, section):
@@ -94,6 +96,8 @@ class AgentConfig:
                     config_obj[section][option] = opt_value
         return Collection(config_obj).get()
         
-    """ Get Configuration """
     def get(self):
+        """
+        Return the constructed configuration object.
+        """
         return self.conf_p

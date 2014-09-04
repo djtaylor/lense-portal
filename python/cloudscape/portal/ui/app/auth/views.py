@@ -12,9 +12,13 @@ class AppModule(View):
     """
     Application view for the CloudScape portal authentication page.
     """
+    
+    # Portal object
+    portal = None
+    
     def post(self, request, *args, **kwargs):
         """
-        Handle POST request for logging in and out.
+        Handle GET requests for the portal authentication page.
         """
         post_data = Collection(request.POST).get()
 
@@ -70,7 +74,7 @@ class AppModule(View):
     
     def get(self, request, *args, **kwargs):
         """
-        Handle GET requests for the authentication page.
+        Handle GET requests for the portal authentication page.
         """
         
         # If the user is authenticated

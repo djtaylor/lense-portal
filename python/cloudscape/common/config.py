@@ -18,6 +18,9 @@ def _construct(config_file):
     :rtype: Named tuple of configuration values
     """
 
+    # Bool values
+    bool_values = ['True', 'False']
+
     # If the config file does not exist
     if not os.path.isfile(config_file):
         raise Exception('Could not locate configuration file: %s' % (config_file))
@@ -42,37 +45,29 @@ def _construct(config_file):
         
         # Map each section and option to the collection object
         for opt in section_opts:
-            map_dict = {section: {opt: config.get(section, opt)}}
-            config_collector.map(map_dict)
+            
+            # If parsing a boolean value
+            if config.get(section, opt) in bool_values:
+                config_collector.map({section: {opt: config.getboolean(section, opt)}})
+                
+            # If parsing a string value
+            else:
+                config_collector.map({section: {opt: config.get(section, opt)}})
             
     # Return the collection object
     return config_collector.get()
 
-def parse():
+def parse(file=None):
     """
     Parse the configuration file. Detects whether running on the
     server or agent by the presence of each respective file. If the
     server configuration is found, load that. Otherwise, load the
     agent configuration.
-    
-    :rtype: Named tuple of configuration values
-    
-    Load the configuration::
-        
-        # Import the module
-        from cloudscape.common import config
-        
-        # Parse the configuration file
-        CONFIG = config.parse()
-        
-    Accessing configuration values::
-    
-        # Get the server log file
-        print CONFIG.server.log
-        
-        # Server API port
-        print CONFIG.server.port
     """
+    
+    # If manually specifying a file
+    if file:
+        return _construct(file)
     
     # Server Configuration
     if os.path.isfile(S_CONF):

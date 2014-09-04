@@ -16,7 +16,7 @@ from cloudscape.portal.ui.core.api import APIClient
 from cloudscape.common.collection import Collection
 from cloudscape.engine.api.app.user.models import DBUserDetails
 
-class AppBase(View):
+class AppBase(object):
     """
     Base class used by application view modules.
     """
@@ -48,7 +48,7 @@ class PortalBase(object):
         # Request / API objects / application controllers
         self.request       = None
         self.api           = None
-        self.app           = {}
+        self.controller    = {}
         
         # User groups
         self.groups        = None
@@ -129,14 +129,14 @@ class PortalBase(object):
                     cls_obj  = getattr(mod_obj, 'AppController')
                     
                     # Add to the application object
-                    self.app[app_name] = cls_obj
+                    self.controller[app_name] = cls_obj
                     
                 # Critical error when loading controller
                 except Exception as e:
                     self.log.exception('Failed to load application <%s> controller: %s' % (app_name, str(e)))
                     
                     # Application controller disabled
-                    self.app[app_name] = False
+                    self.controller[app_name] = False
         
     def _set_request(self, request):
         """
@@ -180,9 +180,9 @@ class PortalBase(object):
         # Return a request collection
         return Collection(request_obj).get()
         
-    def _run_application(self):
+    def _run_controller(self):
         """
-        Run the target application.
+        Run the target application controller.
         """
         
         # If the user is authenticated
@@ -193,7 +193,7 @@ class PortalBase(object):
                 return HttpResponseRedirect(self._set_url('home'))
             
             # Return the template response
-            return self.app[self.request.path](self).construct()
+            return self.controller[self.request.path](self).construct()
             
         # User is not authenticated
         else:
@@ -203,7 +203,7 @@ class PortalBase(object):
                 return HttpResponseRedirect(self._set_url('auth'))
             
             # Return the template response
-            return self.app[self.request.path](self).construct()
+            return self.controller[self.request.path](self).construct()
         
     def set_active_group(self, group):
         """
@@ -254,7 +254,7 @@ class PortalBase(object):
         self._set_app_controllers()
         
         # Construct and return the application template
-        self.template = self._run_application()
+        self.template = self._run_controller()
         
         # Return the constructed portal base
         return self

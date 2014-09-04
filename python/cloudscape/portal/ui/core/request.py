@@ -1,9 +1,12 @@
 import os
 import re
+import sys
 import json
 import importlib
+import traceback
 
 # Django Libraries
+from django.template import RequestContext, Context, loader
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect
 
 # CloudScape Libraries
@@ -30,9 +33,21 @@ def dispatch(request):
     # Critical server error
     except Exception as e:
         LOG.exception('Internal server error: %s' % str(e))
+            
+        # Get the exception data
+        e_type, e_info, e_trace = sys.exc_info()
+            
+        # Format the exception message
+        e_msg = '%s: %s' % (e_type.__name__, e_info)
+            
+        # Load the error template
+        t = loader.get_template('core/error/500.html')
         
-        # Return a 500 error
-        return HttpResponseServerError('Internal server error, please contact your administrator.')
+        # Return a server error
+        return HttpResponseServerError(t.render(RequestContext(request, {
+            'error': 'An error occurred when rendering the requested page.',
+            'debug': None if not CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
+        })))
     
 class RequestManager(object):
     """
@@ -102,4 +117,4 @@ class RequestManager(object):
             return self.redirect('auth')
         
         # Load the application
-        return self.apps[self.path].as_view()(self.request)
+        return self.apps[self.path](self.request).as_view()(self.request)

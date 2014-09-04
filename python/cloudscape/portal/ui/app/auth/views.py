@@ -1,4 +1,5 @@
 # Django Libraries
+from django.views.generic import View
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.http import HttpResponseRedirect
@@ -8,9 +9,12 @@ from django.contrib.auth import authenticate, login, logout
 from cloudscape.portal.ui.base import AppBase
 from cloudscape.common.collection import Collection
 
-class AppModule(AppBase):
+class AppModule(AppBase, View):
+    """
+    Application view for the CloudScape portal authentication page.
+    """
     def __init__(self, request):
-        super(AppModule, self).__init__(request)
+        AppBase.__init__(request)
     
     def post(self, request, *args, **kwargs):
         """

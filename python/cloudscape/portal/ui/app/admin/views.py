@@ -1,8 +1,15 @@
+# Django Libraries
+from django.views.generic import View
+
+# CloudScape Libraries
 from cloudscape.portal.ui.base import AppBase
 
-class AppModule(AppBase):
+class AppModule(AppBase, View):
+    """
+    Application view for the CloudScape portal administration page.
+    """
     def __init__(self, request):
-        super(AppModule, self).__init__(request)
+        AppBase.__init__(request)
     
     def get(self, request, *args, **kwargs):
         if not self.portal.authenticated:

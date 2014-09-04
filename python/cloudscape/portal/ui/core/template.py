@@ -2,6 +2,7 @@ import re
 import sys
 import json
 import base64
+import traceback
 from threading import Thread
 from collections import OrderedDict
 
@@ -165,7 +166,7 @@ class PortalTemplate(object):
             data   = None if (len(attr) == 2) else attr[3]
         
             # Create the thread, append, and start
-            thread = Thread(target=self.api_call, attr[1], attr[2], data)
+            thread = Thread(target=self.api_call, args=[attr[1], attr[2], data])
             threads.append(thread)
             thread.start()
             
@@ -195,10 +196,17 @@ class PortalTemplate(object):
             # Log the exception
             self.log.exception('Failed to render application template interface: %s' % str(e))
             
+            # Get the exception data
+            e_type, e_info, e_trace = sys.exc_info()
+                
+            # Format the exception message
+            e_msg = '%s: %s' % (e_type.__name__, e_info)
+            
             # Load the error template
             t = loader.get_template('core/error/500.html')
             
             # Return a server error
             return HttpResponseServerError(t.render(RequestContext(self.portal.request_raw, {
-                'error': 'An error occurred when rendering the requested page.'
+                'error': 'An error occurred when rendering the requested page.',
+                'debug': None if CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
             })))

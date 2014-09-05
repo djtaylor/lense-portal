@@ -147,6 +147,11 @@ class Builder(object):
     
         print('Successfully built component "%s" package: %s_%s.%s-%s_amd64.deb' % (component, component, major, minor, manifest['release']))
     
+        # Update the manifest
+        print('Updating release in manifest')
+        with open('manifest/%s' % component, 'w') as handle:
+            json.dump(manifest, handle)
+    
     def _find_components(self):
         """
         Look for package manifests.

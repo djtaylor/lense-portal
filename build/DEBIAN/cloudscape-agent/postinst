@@ -46,7 +46,7 @@ if [ -z "$(cat /etc/passwd | grep -e "^cloudscape:.*$")" ]; then
 	# If account creation failed
 	if [ "$?" != "0" ]; then
 		echo -e "Failed to create 'cloudscape' user account!"
-		return 1
+		exit 1
 	fi
 	
 	# Set up the umask
@@ -55,4 +55,4 @@ else
 	echo -e "User account 'cloudscape' already exists, not creating"
 fi
 
-return 0
+exit 0

@@ -12,4 +12,4 @@ else
 	echo -e "File '$PROFILE_DST' already exists, skipping deployment"
 fi
 
-return 0
+exit 0

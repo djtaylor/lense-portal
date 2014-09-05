@@ -29,4 +29,4 @@ if [ ! -z "$(cat /etc/passwd | grep -e "^cloudscape:.*$")" ]; then
 	fi
 fi
 
-return 0
+exit 0

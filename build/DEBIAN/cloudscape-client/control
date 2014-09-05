@@ -2,7 +2,7 @@ Package: cloudscape-client
 Version: $MAJOR.$MINOR-$RELEASE
 Section: admin
 Priority: optional
-Architecture: amd64
+Architecture: all
 Depends: cloudscape-common, python-requests
 Maintainer: David Taylor <dtaylor@vpls.net>
 Description: CloudScape Client Libraries

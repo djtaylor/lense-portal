@@ -2,7 +2,7 @@ Package: cloudscape-agent
 Version: $MAJOR.$MINOR-$RELEASE
 Section: admin
 Priority: optional
-Architecture: amd64
+Architecture: all
 Depends: cloudscape-common, cloudscape-client
 Maintainer: David Taylor <dtaylor@vpls.net>
 Description: CloudScape Linux Agent

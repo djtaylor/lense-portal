@@ -145,7 +145,7 @@ class Builder(object):
         # Build the package
         build_package(build_root, copy_files=False, repository='output')
     
-        print('Successfully built component "%s" package: %s_%s.%s-%s_amd64.deb' % (component, component, major, minor, manifest['release']))
+        print('Successfully built component "%s" package: %s_%s.%s-%s.deb' % (component, component, major, minor, manifest['release']))
     
         # Update the manifest
         print('Updating release in manifest')

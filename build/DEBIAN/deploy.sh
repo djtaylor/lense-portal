@@ -3,6 +3,9 @@
 # Configuration directory
 CONFIG_DIR=""
 
+# Supported releases (Ubuntu/Debian)
+declare -a RELEASES=("precise" "quantal" "raring" "saucy" "trusty" "wheezy")
+
 # Configure deployment
 configure() {
 	
@@ -23,7 +26,11 @@ deploy() {
 	
 	# Deploy each package
 	for PKG in $(find output/*.deb -type f); do
-		reprepro --confdir $CONFIG_DIR includedeb trusty $PKG
+		
+		# Deploy for each supported release
+		for RELEASE in ${RELEASES[@]}; do
+			reprepro --confdir $CONFIG_DIR includedeb $RELEASE $PKG
+		done
 	done
 }
 

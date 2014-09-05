@@ -16,7 +16,7 @@ INIT_DST="/etc/init.d/cloudscape-agent"
 # Sudoers drop-in configuration file
 if [ ! -h $SUDOERS_DST ]; then
 	ln -s $SUDOERS_SRC $SUDOERS_DST
-	chmod 440 $SUDOERS_DST
+	chmod 440 $SUDOERS_SRC
 else
 	echo -e "File '$SUDOERS_DST' already exists, skipping deployment"
 fi
@@ -24,7 +24,7 @@ fi
 # Agent executable
 if [ ! -h $EXE_SRC ]; then
 	ln -s $EXE_SRC $EXE_DST
-	chmod +x $EXE_DST
+	chmod +x $EXE_SRC
 else
 	echo -e "File '$EXE_DST' already exists, skipping deployment"
 fi
@@ -32,7 +32,7 @@ fi
 # Init script
 if [ ! -h $INIT_SRC ]; then
 	ln -s $INIT_SRC $INIT_DST
-	chmod +x $INIT_DST
+	chmod +x $INIT_SRC
 else
 	echo -e "File '$SUDOERS_DST' already exists, skipping deployment"
 fi

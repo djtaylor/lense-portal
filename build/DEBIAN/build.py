@@ -143,9 +143,9 @@ class Builder(object):
         self._copy_scripts(component, build_root)
     
         # Build the package
-        build_package(build_root, copy_files=False, repository=component)
+        build_package(build_root, copy_files=False, repository='output')
     
-        print('Successfully built component "%s" package: %s/%s_%s.%s-%s_amd64.deb' % (component, component, component, major, minor, manifest['release']))
+        print('Successfully built component "%s" package: %s_%s.%s-%s_amd64.deb' % (component, component, major, minor, manifest['release']))
     
     def _find_components(self):
         """

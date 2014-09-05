@@ -2,7 +2,7 @@
 # CloudScape Client Libraries: Post-installation Script
 
 # Client executable source / destination
-CLIENT_SRC="/opt/cloudscape/_local/user/bin/cloudscape"
+CLIENT_SRC="/opt/cloudscape/_local/usr/bin/cloudscape"
 CLIENT_DST="/usr/bin/cloudscape"
 
 # Client executable

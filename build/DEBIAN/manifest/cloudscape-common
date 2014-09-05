@@ -4,6 +4,7 @@
 	"minor": 1,
 	"release": 0,
 	"source": [
-		"/opt/cloudscape/python/cloudscape/common"
+		"/opt/cloudscape/python/cloudscape/common",
+		"/opt/cloudscape/_local/etc/profile.d/cloudscape.sh"
 	]
 }

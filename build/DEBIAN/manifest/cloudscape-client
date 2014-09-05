@@ -4,7 +4,6 @@
 	"minor": 1,
 	"release": 0,
 	"source": [
-		"/opt/cloudscape/python/lib",
 		"/opt/cloudscape/python/cloudscape/client",
 		"/opt/cloudscape/_local/usr/bin/cloudscape"
 	]

@@ -1,1 +1,58 @@
 #!/bin/bash
+# CloudScape Agent: Post-installation Script
+
+# Sudoers source / destination
+SUDOERS_SRC="/opt/cloudscape/_local/etc/sudoers.d/cloudscape-agent"
+SUDOERS_DST="/etc/sudoers.d/cloudscape-agent"
+
+# Executable source / destination
+EXE_SRC="/opt/cloudscape/_local/usr/bin/cloudscape-agent"
+EXE_DST="/usr/bin/cloudscape-agent"
+
+# Init script source / destination
+INIT_SRC="/opt/cloudscape/_local/etc/init.d/debian/cloudscape-agent"
+INIT_DST="/etc/init.d/cloudscape-agent"
+
+# Sudoers drop-in configuration file
+if [ ! -f $SUDOERS_DST ]; then
+	ln -s $SUDOERS_SRC $SUDOERS_DST
+	chmod 440 $SUDOERS_DST
+else
+	echo -e "File '$SUDOERS_DST' already exists, skipping deployment"
+fi
+
+# Agent executable
+if [ ! -f $EXE_SRC ]; then
+	ln -s $EXE_SRC $EXE_DST
+	chmod +x $EXE_DST
+else
+	echo -e "File '$EXE_DST' already exists, skipping deployment"
+fi
+
+# Init script
+if [ ! -f $INIT_SRC ]; then
+	ln -s $INIT_SRC $INIT_DST
+	chmod +x $INIT_DST
+else
+	echo -e "File '$SUDOERS_DST' already exists, skipping deployment"
+fi
+
+# Create the cloudscape user account
+if [ -z "$(cat /etc/passwd | grep -e "^cloudscape:.*$")" ]; then
+	
+	# Add the new user account
+	useradd -d /home/cloudscape -m -s /bin/bash cloudscape &> /dev/null
+	
+	# If account creation failed
+	if [ "$?" != "0" ]; then
+		echo -e "Failed to create 'cloudscape' user account!"
+		return 1
+	fi
+	
+	# Set up the umask
+	echo 'umask 022' >> /home/cloudscape/.bashrc
+else
+	echo -e "User account 'cloudscape' already exists, not creating"
+fi
+
+return 0

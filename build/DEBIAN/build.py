@@ -5,6 +5,7 @@ import os
 import re
 import sys
 import json
+import errno
 import shutil
 from deb_pkg_tools.package import build_package
 
@@ -111,8 +112,9 @@ class Builder(object):
         for file in files:
             src_script = '%s/%s' % (component, file)
             dst_script = '%s/DEBIAN/%s' % (root, file)
-            if os.path.isfile(script):
+            if os.path.isfile(src_script):
                 self._cp(src_script, dst_script)
+                os.system('chmod +x %s' % dst_script)
     
     def _build(self, component, manifest):
         """
@@ -137,8 +139,13 @@ class Builder(object):
         # Generate the control file
         self._create_control_file(component, build_root, manifest)
     
+        # Copy any extra scripts
+        self._copy_scripts(component, build_root)
+    
         # Build the package
-        build_package(build_root, copy_files=False)
+        build_package(build_root, copy_files=False, repository=component)
+    
+        print('Successfully built component "%s" package: %s/%s_%s.%s-%s_amd64.deb' % (component, component, component, major, minor, manifest['release']))
     
     def _find_components(self):
         """

@@ -1,2 +1,16 @@
 #!/bin/bash
-ln -s /opt/cloudscape/_local/usr/bin/cloudscape /usr/bin/cloudscape
+# CloudScape Client Libraries: Post-installation Script
+
+# Client executable source / destination
+CLIENT_SRC="/opt/cloudscape/_local/user/bin/cloudscape"
+CLIENT_DST="/usr/bin/cloudscape"
+
+# Client executable
+if [ ! -f $CLIENT_SRC ]; then
+	ln -s $CLIENT_SRC $CLIENT_DST
+	chmod +x $CLIENT_DST
+else
+	echo -e "File '$EXE_DST' already exists, skipping deployment"
+fi
+
+return 0

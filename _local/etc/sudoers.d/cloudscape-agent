@@ -1,0 +1,14 @@
+# CloudScape Agent Sudoers Configuration
+#
+# Configuration file on a managed host to give the local 'cloudscape' user account
+# root access to '/usr/bin/cloudscape-agent' and '/etc/init.d/cloudscape-agent'.
+
+# Preserve environment variables
+Defaults env_keep +="CLOUDSCAPE_BASE"
+Defaults env_keep +="PYTHONPATH"
+
+# Define access to agent and init script
+Defaults!/usr/bin/cloudscape-agent !requiretty
+Defaults!/etc/init.d/cloudscape-agent !requiretty
+Cmnd_Alias CLOUDSCAPE = /usr/bin/cloudscape-server, /etc/init.d/cloudscape-agent
+cloudscape ALL=(ALL) NOPASSWD: CLOUDSCAPE

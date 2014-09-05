@@ -5,6 +5,6 @@
 PROFILE_CONFIG="/etc/profile.d/cloudscape.sh"
 
 # Remove the old profile configuration
-[ -f $PROFILE_CONFIG ] && rm -f $PROFILE_CONFIG
+[ -h $PROFILE_CONFIG ] && rm -f $PROFILE_CONFIG
 
 exit 0

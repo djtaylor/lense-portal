@@ -11,13 +11,13 @@ AGENT_EXE="/usr/bin/cloudsape-agent"
 INIT_SCRIPT="/etc/init.d/cloudscape-agent"
 
 # Remove the sudoers drop-in configuration file
-[ -f $SUDOERS_DST ] && rm -f $SUDOERS_CONFIG
+[ -h $SUDOERS_DST ] && rm -f $SUDOERS_CONFIG
 
 # Remove the agent executable
-[ -f $AGENT_EXE ] && rm -f $AGENT_EXE
+[ -h $AGENT_EXE ] && rm -f $AGENT_EXE
 
 # Remove the init script
-[ -f $INIT_SCRIPT ] && rm -f $INIT_SCRIPT
+[ -h $INIT_SCRIPT ] && rm -f $INIT_SCRIPT
 
 # Remove the cloudscape user account
 if [ ! -z "$(cat /etc/passwd | grep -e "^cloudscape:.*$")" ]; then

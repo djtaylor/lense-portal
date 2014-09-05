@@ -14,7 +14,7 @@ INIT_SRC="/opt/cloudscape/_local/etc/init.d/debian/cloudscape-agent"
 INIT_DST="/etc/init.d/cloudscape-agent"
 
 # Sudoers drop-in configuration file
-if [ ! -f $SUDOERS_DST ]; then
+if [ ! -h $SUDOERS_DST ]; then
 	ln -s $SUDOERS_SRC $SUDOERS_DST
 	chmod 440 $SUDOERS_DST
 else
@@ -22,7 +22,7 @@ else
 fi
 
 # Agent executable
-if [ ! -f $EXE_SRC ]; then
+if [ ! -h $EXE_SRC ]; then
 	ln -s $EXE_SRC $EXE_DST
 	chmod +x $EXE_DST
 else
@@ -30,7 +30,7 @@ else
 fi
 
 # Init script
-if [ ! -f $INIT_SRC ]; then
+if [ ! -h $INIT_SRC ]; then
 	ln -s $INIT_SRC $INIT_DST
 	chmod +x $INIT_DST
 else

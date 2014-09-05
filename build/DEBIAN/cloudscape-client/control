@@ -3,6 +3,6 @@ Version: $MAJOR.$MINOR-$RELEASE
 Section: admin
 Priority: optional
 Architecture: amd64
-Depends: cloudscape-common (>= 0.1-1), python-requests (>= 2.2.1-1)
+Depends: cloudscape-common, python-requests
 Maintainer: David Taylor <dtaylor@vpls.net>
 Description: CloudScape Client Libraries

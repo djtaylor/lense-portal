@@ -3,6 +3,6 @@ Version: $MAJOR.$MINOR-$RELEASE
 Section: admin
 Priority: optional
 Architecture: amd64
-Depends: cloudscape-common (>= 0.1-1), cloudscape-client (>= 0.1-1)
+Depends: cloudscape-common, cloudscape-client
 Maintainer: David Taylor <dtaylor@vpls.net>
 Description: CloudScape Linux Agent

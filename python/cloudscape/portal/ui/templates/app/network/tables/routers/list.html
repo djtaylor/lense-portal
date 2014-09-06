@@ -1,0 +1,29 @@
+<div class="table" type="table" target="routers" id="router_list_table">
+	<div class="table_title" id="router_list_title">
+		<div class="table_title_label">Network Routers</div>
+		<div class="table_actions">
+			<div class="table_action" type="button" action="popup" target="router.create">Create</div>
+			<div class="table_action" type="button" action="popup" target="router.delete" require="input[type$='radio'][name$='router_uuid']:checked">Delete</div>
+		</div>
+	</div>
+	<div class="table_headers" table="router_list">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="router_name">Name</div>
+		<div class="table_header table_header_md" col="router_uuid">UUID</div>
+		<div class="table_header table_header_md" col="router_datacenter">Datacenter</div>
+		<div class="table_header table_header_md" col="router_interfaces">Interfaces</div>
+	</div>
+	<div type="rows" table="router_list">
+		{% for router in routers.all %}
+		<div class="table_row" type="row" target="routers" router="{{ router.uuid }}">
+			<div class="table_select_col">
+				<input type="radio" name="router_uuid" value="{{ router.uuid }}" action="update">
+			</div>
+			<div class="table_col table_link" type="button" action="link" target="network?panel=routers&router={{ router.uuid }}" col="router_name">{{ router.name }}</div>
+			<div class="table_col" col="router_uuid">{{ router.uuid }}</div>
+			<div class="table_col table_link" type="button" action="link" target="admin?panel=datacenters&datacenter={{ router.datacenter.uuid }}" col="router_datacenter">{{ router.datacenter.name }}</div>
+			<div class="table_col" col="router_interfaces">{{ router.interfaces|length }}</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>

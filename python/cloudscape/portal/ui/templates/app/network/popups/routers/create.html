@@ -1,0 +1,49 @@
+{# Create Router #}
+<div class="popup_content" type="popup" target="router.create">
+	<div class="popup_title">Create Router</div>
+	<div class="popup_body">
+		<div class="popup_desc">
+			Create a new network router definition. You can assign interfaces and network blocks to a
+			router after you have created it.
+		</div>
+		<form id="router_create">
+			
+			{# Router Name #}
+			<div class="popup_row">
+				<div class="popup_row_label">Name</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_create" name="name" value="" required />
+					<div class="form_input_icon_def" type="icon" form="router_create" name="name"></div>
+				</div>
+			</div>
+			
+			{# Router Description #}
+			<div class="popup_row">
+				<div class="popup_row_label">Description</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_create" name="desc" value="" required />
+					<div class="form_input_icon_def" type="icon" form="router_create" name="desc"></div>
+				</div>
+			</div>
+			
+			{# Router Datacenter #}
+			<div class="popup_row">
+				<div class="popup_row_label">Datacenter</div>
+				<div class="popup_row_input">
+					<select name="datacenter" form="create_router">
+						<option value="">-none-</option>
+						{% for datacenter in datacenters %}
+							<option value="{{ datacenter.uuid }}">{{ datacenter.name }}</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+
+			{# Form Validation Response #}
+			<div class="form_response" type="response" target="#router_create"></div>
+		</form>
+		
+		{# Submit API Request #}
+		<div class="popup_submit" type="button" action="method" target="router.create">Create Router</div>
+	</div>
+</div>

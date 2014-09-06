@@ -49,8 +49,19 @@ class ObjectsManager(object):
         if obj_id:
             obj_filter[obj_key] = obj_id
         
+        # Create the query object
+        query_obj = obj_class.objects
+        
+        # If an object filter is defined
+        if obj_filter:
+            query_obj = query_obj.filter(**obj_filter)
+            
+        # If a values filter is defined
+        if filters:
+            query_obj = query_obj.filter(**filters)
+        
         # Attempt to retrieve the object
-        obj_details = list(obj_class.objects.filter(**obj_filter).filter(**filters).values())
+        obj_details = list(query_obj.values())
         
         # If the object doesn't exist
         if len(obj_details) == 0:

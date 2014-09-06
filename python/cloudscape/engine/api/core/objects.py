@@ -1,4 +1,5 @@
 # coding=utf-8
+import json
 import importlib
 
 # CloudScape Libraries
@@ -54,18 +55,28 @@ class ObjectsManager(object):
         
         # If an object filter is defined
         if obj_filter:
+            self.log.info('Applying object filters: %s' % json.dumps(obj_filter))
             query_obj = query_obj.filter(**obj_filter)
             
         # If a values filter is defined
         if filters:
+            self.log.info('Applying value filters: %s' % json.dumps(filters))
             query_obj = query_obj.filter(**filters)
         
         # If no filters were defined
         if not obj_filter and not filters:
+            self.log.info('No filters defined, retrieving all objects')
             query_obj = query_obj.all()
+        
+        # Log the constructed query object
+        self.log.info('Constructed object query: %s' % str(query_obj))
         
         # Attempt to retrieve the object
         obj_details = list(query_obj.values())
+        
+        # Log the retrieved details
+        log_data = json.dumps(obj_details)
+        self.log.info('Retrieved object details: length=%s, data=%s' % (len(log_data), (log_data[:75] + '...') if len(log_data) > 75 else log_data))
         
         # If the object doesn't exist
         if len(obj_details) == 0:

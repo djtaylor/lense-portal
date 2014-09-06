@@ -300,7 +300,7 @@ class ACLGateway(object):
         
         # Make sure the endpoint has an object type association
         if not self.endpoint.obj['object']:
-            return invalid(', endpoint has no object type association')
+            return invalid()
         object_type = self.endpoint.obj['object']
         
         # Get the object authorization class
@@ -388,7 +388,13 @@ class ACLGateway(object):
             
             # Access denied
             else:
-                return invalid(LOG.error('Access denied to endpoint <%s>%s' % (self.endpoint.name, obj_error)))
+                err_msg = 'Access denied to endpoint <%s>%s' % (self.endpoint.name, obj_error)
+                
+                # Log the error message
+                LOG.error(err_msg)
+                
+                # Return the authentication error
+                return invalid(err_msg)
         
     def _authorize(self):
         """

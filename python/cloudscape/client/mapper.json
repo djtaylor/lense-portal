@@ -62,10 +62,10 @@
 	    	"desc": "Manage CloudScape locations."
 	    },
 	    {
-	    	"id": "schedule",
-	    	"module": "schedule",
-	    	"class": "ScheduleAPI",
-	    	"desc": "Manage CloudScape API schedules."
+	    	"id": "network",
+	    	"module": "network",
+	    	"class": "NetworkAPI",
+	    	"desc": "Manage CloudScape network objects."
 	    }
 	]
 }

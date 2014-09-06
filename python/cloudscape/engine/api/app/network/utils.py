@@ -2,6 +2,9 @@ import json
 import copy
 from uuid import uuid4
 
+# Django Libraries
+from django.core.serializers.json import DjangoJSONEncoder
+
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.app.locations.models import DBDatacenters

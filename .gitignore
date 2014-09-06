@@ -4,3 +4,6 @@
 # Eclipse project
 .project
 .settings
+
+# MacOS files
+.DS_Store

@@ -1669,6 +1669,30 @@ div[class="popup_row_toggle_button_50"][state="active"] {
 	background-image: url(/static/images/hosts_groups.png);
 }
 
+.nav_icon_network {
+	background-image: url(/static/images/network.png);
+}
+
+.nav_icon_routers {
+	background-image: url(/static/images/hosts_list.png);
+}
+
+.nav_icon_switches {
+	background-image: url(/static/images/hosts_list.png);
+}
+
+.nav_icon_ipv4 {
+	background-image: url(/static/images/ipv4.png);
+}
+
+.nav_icon_ipv6 {
+	background-image: url(/static/images/ipv6.png);
+}
+
+.nav_icon_vlans {
+	background-image: url(/static/images/vlan.png);
+}
+
 /**
  * Edit Flags
  */

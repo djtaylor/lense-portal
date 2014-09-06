@@ -124,6 +124,51 @@ class DBNetworkRouters(models.Model):
     class Meta:
         db_table = 'network_routers'
 
+class DBNetworkBlocksQuerySet(models.query.QuerySet):
+    """
+    Custom queryset manager for the IPv4/IPv6 network block models. This allows customization of 
+    the returned QuerySet when extracting IP block details from the database.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DBNetworkBlocksQuerySet, self).__init__(*args, **kwargs)
+        
+        # Timestamp format
+        self.tstamp = '%Y-%m-%d %H:%M:%S'
+        
+    def values(self, *fields):
+        """
+        Wrapper for the default values() method.
+        """
+        
+        # Store the initial results
+        _r = super(DBNetworkBlocksQuerySet, self).values(*fields)
+        
+        # Extract the IP block information
+        for _i in _r:
+            
+            # Parse the date formats
+            _i.update({
+                'created':  _i['created'].strftime(self.tstamp),
+                'modified': _i['modified'].strftime(self.tstamp),
+            })
+        
+        # Return the constructed IP block results
+        return _r
+
+class DBNetworkBlocksManager(models.Manager):
+    """
+    Custom objects manager for the both IPv4/IPv6 network block models. Acts as a link between the main
+    network block models and the custom DBNetworkBlocksQuerySet model.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DBNetworkBlocksManager, self).__init__()
+    
+    def get_queryset(self, *args, **kwargs):
+        """
+        Wrapper method for the internal get_queryset() method.
+        """
+        return DBNetworkBlocksQuerySet(model=self.model)
+
 class DBNetworkBlocksIPv4(models.Model):
     """
     Main database model for storing managed IPv4 network blocks.
@@ -141,6 +186,9 @@ class DBNetworkBlocksIPv4(models.Model):
     desc         = models.CharField(max_length=256)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
+    
+    # Custom objects manager
+    objects      = DBNetworkBlocksManager()
     
     # Custom model metadata
     class Meta:
@@ -163,6 +211,9 @@ class DBNetworkBlocksIPv6(models.Model):
     desc         = models.CharField(max_length=256)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
+    
+    # Custom objects manager
+    objects      = DBNetworkBlocksManager()
     
     # Custom model metadata
     class Meta:

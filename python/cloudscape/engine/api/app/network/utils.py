@@ -10,7 +10,7 @@ from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.app.locations.models import DBDatacenters
 from cloudscape.engine.api.app.network.models import DBNetworkRouters, DBNetworkBlocksIPv4, DBNetworkBlocksIPv6
 
-class NetworkBlockUpdate:
+class NetworkBlockUpdate(object):
     """
     Update an existing network IPv4/IPv6 block definition.
     """
@@ -28,16 +28,16 @@ class NetworkBlockIPv4Update(NetworkBlockUpdate):
     Update an existing IPv4 network block.
     """
     def __init__(self, parent):
-        super(NetworkBlockIPv4Update, self).__init__(parent, self.api.get_data('protocol'))
+        super(NetworkBlockIPv4Update, self).__init__(parent, 'ipv4')
         
 class NetworkBlockIPv6Update(NetworkBlockUpdate):
     """
     Update an existing IPv6 network block.
     """
     def __init__(self, parent):
-        super(NetworkBlockIPv6Update, self).__init__(parent, self.api.get_data('protocol'))
+        super(NetworkBlockIPv6Update, self).__init__(parent, 'ipv6')
         
-class NetworkBlockDelete:
+class NetworkBlockDelete(object):
     """
     Delete an existing network IPv4/IPv6 block definition.
     """
@@ -55,16 +55,16 @@ class NetworkBlockIPv4Delete(NetworkBlockDelete):
     Delete an existing IPv4 network block.
     """
     def __init__(self, parent):
-        super(NetworkBlockIPv4Delete, self).__init__(parent, self.api.get_data('protocol'))
+        super(NetworkBlockIPv4Delete, self).__init__(parent, 'ipv4')
         
 class NetworkBlockIPv6Delete(NetworkBlockDelete):
     """
     Delete an existing IPv6 network block.
     """
     def __init__(self, parent):
-        super(NetworkBlockIPv6Delete, self).__init__(parent, self.api.get_data('protocol'))
+        super(NetworkBlockIPv6Delete, self).__init__(parent, 'ipv6')
       
-class NetworkBlockCreate:
+class NetworkBlockCreate(object):
     """
     Create a new network IPv4/IPv6 block definition.
     """
@@ -75,7 +75,7 @@ class NetworkBlockCreate:
         self.uuid = str(uuid4())
         
         # Block protocol / protocol label
-        self.proto = self.api.get_data('protocol')
+        self.proto = proto
         self.proto_label = 'IPv4' if (self.proto == 'ipv4') else 'IPv6'
         
         # Attribute keys
@@ -148,7 +148,6 @@ class NetworkBlockCreate:
         # Return the response
         return valid('Successfully created network %s block' % self.proto_label, {
             'uuid': self.uuid,
-            'name': self.attrs['named'],
             'desc': self.attrs['desc'],
             'network': self.attrs['network'],
             'prefix': self.attrs['prefix'],
@@ -169,16 +168,16 @@ class NetworkBlockIPv4Create(NetworkBlockCreate):
     Create a new IPv4 network block.
     """
     def __init__(self, parent):
-        super(NetworkBlockIPv4Create, self).__init__(parent, self.api.get_data('protocol'))
+        super(NetworkBlockIPv4Create, self).__init__(parent, 'ipv4')
     
 class NetworkBlockIPv6Create(NetworkBlockCreate):
     """
     Create a new IPv6 network block.
     """
     def __init__(self, parent):
-        super(NetworkBlockIPv6Create, self).__init__(parent, self.api.get_data('protocol'))
+        super(NetworkBlockIPv6Create, self).__init__(parent, 'ipv6')
       
-class NetworkBlockGet:
+class NetworkBlockGet(object):
     """
     Retrieve a listing of network IPv4/IPv6 blocks.
     """
@@ -222,14 +221,14 @@ class NetworkBlockIPv4Get(NetworkBlockGet):
     Retrive details for an IPv4 network block.
     """
     def __init__(self, parent):
-        super(NetworkBlockIPv4Get, self).__init__(parent, self.api.get_data('protocol'))
+        super(NetworkBlockIPv4Get, self).__init__(parent, 'ipv4')
     
 class NetworkBlockIPv6Get(NetworkBlockGet):
     """
     Retrive details for an IPv6 network block.
     """
     def __init__(self, parent):
-        super(NetworkBlockIPv6Get, self).__init__(parent, self.api.get_data('protocol'))
+        super(NetworkBlockIPv6Get, self).__init__(parent, 'ipv6')
 
 class NetworkRouterRemoveInterface:
     """

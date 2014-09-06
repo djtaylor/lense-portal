@@ -109,7 +109,7 @@ class AppController(PortalTemplate):
             }         
         }
         
-    def _ipv4blocks(self):
+    def _ipv6blocks(self):
         """
         Construct and return the template data required to render the network IPv6 blocks page.
         """

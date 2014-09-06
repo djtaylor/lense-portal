@@ -286,16 +286,19 @@ class AppController(PortalTemplate):
                 'app/network/popups/routers/delete.html'
             ]
         
+        # Get router details
+        router_details = None if not router_target else [x for x in response['routers'] if x['uuid'] == router_target][0]
+        
         # Return the template data
         return {
             'routers': {
                 'all':    response['routers'],
-                'detail': None if not router_target else [x for x in response['routers'] if x['uuid'] == router_target][0],
+                'detail': router_details,
                 'target': router_target
             },
             'datacenters': response['datacenters'],
             'page': {
-                'header': None if not router_target else 'Network Router: %s' % router_target,
+                'header': None if not router_target else 'Network Router: %s' % router_details['name'],
                 'title':  'CloudScape Network Routers',
                 'contents': set_contents(),
                 'popups': set_popups()

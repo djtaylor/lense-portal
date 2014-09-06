@@ -9,6 +9,40 @@ from django.core.serializers.json import DjangoJSONEncoder
 from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.app.locations.models import DBDatacenters
 from cloudscape.engine.api.app.network.models import DBNetworkRouters
+
+class NetworkRouterRemoveInterface:
+    """
+    Remove an interface from an existing router.
+    """
+    def __init__(self, parent):
+        self.api = parent
+        
+        # Target router
+        self.router = self.api.acl.target_object()
+        
+    def launch(self):
+        """
+        Worker method for removing an interface from a router.
+        """
+        
+        return valid()
+      
+class NetworkRouterAddInterface:
+    """
+    Add an interface to an existing router.
+    """
+    def __init__(self, parent):
+        self.api = parent
+        
+        # Target router
+        self.router = self.api.acl.target_object()
+        
+    def launch(self):
+        """
+        Worker method for adding an interface to a router.
+        """
+        
+        return valid()
       
 class NetworkRouterUpdate:
     """

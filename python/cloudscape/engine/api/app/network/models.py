@@ -74,7 +74,7 @@ class DBNetworkRoutersQuerySet(models.query.QuerySet):
             _i.update({
                 'datacenter': {
                     'uuid': copy(_i['datacenter_id']),
-                    'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']]
+                    'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
                 }
             })
             

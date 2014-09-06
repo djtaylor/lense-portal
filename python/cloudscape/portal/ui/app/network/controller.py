@@ -119,6 +119,7 @@ class AppController(PortalTemplate):
         
         # Make all required API calls
         response = self.api_call_threaded({
+            'blocks':      ('network', 'get_ipv6_block'),
             'datacenters': ('locations', 'get_datacenters')
         })
         
@@ -141,16 +142,19 @@ class AppController(PortalTemplate):
                 'app/network/popups/ipv6blocks/delete.html'
             ]
         
+        # Get block details
+        block_details = None if not block_target else [x for x in response['blocks'] if x['uuid'] == block_target][0]
+        
         # Return the template data
         return {
             'blocks': {
-                'all':    None,
-                'detail': None,
+                'all':    response['blocks'],
+                'detail': block_details,
                 'target': block_target
             },
             'datacenters': response['datacenters'],
             'page': {
-                'header': None if not block_target else 'Network IPv6 Block: %s' % block_target,
+                'header': None if not block_target else 'Network IPv6 Block: %s:%s' % (block_details['network'], block_details['prefix']),
                 'title':  'CloudScape Network IPv6 Blocks',
                 'contents': set_contents(),
                 'popups': set_popups()
@@ -167,6 +171,7 @@ class AppController(PortalTemplate):
         
         # Make all required API calls
         response = self.api_call_threaded({
+            'blocks':      ('network', 'get_ipv4_block'),
             'datacenters': ('locations', 'get_datacenters')
         })
         
@@ -189,16 +194,19 @@ class AppController(PortalTemplate):
                 'app/network/popups/ipv4blocks/delete.html'
             ]
         
+        # Get block details
+        block_details = None if not block_target else [x for x in response['blocks'] if x['uuid'] == block_target][0]
+        
         # Return the template data
         return {
             'blocks': {
-                'all':    None,
-                'detail': None,
+                'all':    response['blocks'],
+                'detail': block_details,
                 'target': block_target
             },
             'datacenters': response['datacenters'],
             'page': {
-                'header': None if not block_target else 'Network IPv4 Block: %s' % block_target,
+                'header': None if not block_target else 'Network IPv4 Block: %s:%s' % (block_details['network'], block_details['prefix']),
                 'title':  'CloudScape Network IPv4 Blocks',
                 'contents': set_contents(),
                 'popups': set_popups()

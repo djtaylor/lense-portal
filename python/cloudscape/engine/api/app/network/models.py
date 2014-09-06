@@ -135,8 +135,9 @@ class DBNetworkBlocksQuerySet(models.query.QuerySet):
         # Timestamp format
         self.tstamp = '%Y-%m-%d %H:%M:%S'
         
-        # Get all datacenters
+        # Get all datacenters / routers
         self.datacenters = list(DBDatacenters.objects.all().values())
+        self.routers     = list(DBNetworkRouters.objects.all().values())
         
     def values(self, *fields):
         """
@@ -159,6 +160,25 @@ class DBNetworkBlocksQuerySet(models.query.QuerySet):
             
             # Remove the old datacenter reference
             del _i['datacenter_id']
+            
+            # Extract the router information
+            if _i['router_id']:
+            
+                # Extract datacenter information
+                _i.update({
+                    'router': {
+                        'uuid': copy(_i['router_id']),
+                        'name': [x['name'] for x in self.routers if x['uuid'] == _i['router_id']][0]
+                    }
+                })
+                
+                # Remove the old datacenter reference
+                del _i['router_id']
+            
+            # No router configured
+            else:
+                del _i['router_id']
+                _i['router'] = None
             
             # Parse the date formats
             _i.update({

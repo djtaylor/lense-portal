@@ -1,0 +1,41 @@
+<div class="table" type="table" target="ipv4_blocks" id="ipv4_block_list_table">
+	<div class="table_title" id="ipv4_block_list_title">
+		<div class="table_title_label">Network IPv4 Blocks</div>
+		<div class="table_actions">
+			<div class="table_action" type="button" action="popup" target="ipv4_block.create">Create</div>
+			<div class="table_action" type="button" action="popup" target="ipv4_block.delete" require="input[type$='radio'][name$='ipv4_block_uuid']:checked">Delete</div>
+		</div>
+	</div>
+	<div class="table_headers" table="ipv4_block_list">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="ipv4_block_network">Network</div>
+		<div class="table_header table_header_md" col="ipv4_block_prefix">Prefix</div>
+		<div class="table_header table_header_md" col="ipv4_block_desc">Description</div>
+		<div class="table_header table_header_md" col="ipv4_block_uuid">UUID</div>
+		<div class="table_header table_header_md" col="ipv4_block_datacenter">Datacenter</div>
+		<div class="table_header table_header_md" col="ipv4_block_router">Router</div>
+		<div class="table_header table_header_md" col="ipv4_block_active">Active</div>
+		<div class="table_header table_header_md" col="ipv4_block_locked">Locked</div>
+	</div>
+	<div type="rows" table="ipv4_block_list">
+		{% for block in blocks.all %}
+		<div class="table_row" type="row" target="routers" router="{{ block.uuid }}">
+			<div class="table_select_col">
+				<input type="radio" name="ipv4_block_uuid" value="{{ block.uuid }}" action="update">
+			</div>
+			<div class="table_col table_link" type="button" action="link" target="network?panel=ipv4blocks&block={{ block.uuid }}" col="ipv4_block_network">{{ block.network }}</div>
+			<div class="table_col" col="ipv4_block_prefix">{{ block.prefix }}</div>
+			<div class="table_col" col="ipv4_block_desc">{{ block.desc }}</div>
+			<div class="table_col" col="ipv4_block_uuid">{{ block.uuid }}</div>
+			<div class="table_col" col="ipv4_block_datacenter" type="button" action="link" target="admin?panel=datacenters&datacenter={{ block.datacenter.uuid }}">{{ block.datacenter.name }}</div>
+			{% if block.router %}
+				<div class="table_col" type="button" action="link" target="network?panel=routers&router={{ block.router.uuid }}" col="ipv4_block_router">{{ block.router.name }}</div>
+			{% else %}
+				<div class="table_col" col="ipv4_block_router"></div>
+			{% endif %}
+			<div class="table_col" col="ipv4_block_active">{{ block.active }}</div>
+			<div class="table_col" col="ipv4_block_locked">{{ block.locked }}</div>
+		</div>
+		{% endfor %}
+	</div>
+</div>

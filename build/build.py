@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+#%{name}-%{major}.%{minor}.el6.%{arch}
+
 from __future__ import print_function
 import os
 import re

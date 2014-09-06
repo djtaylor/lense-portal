@@ -1,3 +1,4 @@
+from copy import copy
 
 # Django Libraries
 from django.db import models
@@ -52,6 +53,9 @@ class DBNetworkRoutersQuerySet(models.query.QuerySet):
         # Timestamp format
         self.tstamp = '%Y-%m-%d %H:%M:%S'
         
+        # Get all datacenters
+        self.datacenters = list(DBDatacenters.objects.all().values())
+        
     def values(self, *fields):
         """
         Wrapper for the default values() method.
@@ -65,6 +69,17 @@ class DBNetworkRoutersQuerySet(models.query.QuerySet):
             
             # Extract router interfaces
             _i.update({'interfaces': list(DBNetworkRouterInterfaces.objects.filter(router=_i['uuid']).values())})
+            
+            # Extract datacenter information
+            _i.update({
+                'datacenter': {
+                    'uuid': copy(_i['datacenter_id']),
+                    'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']]
+                }
+            })
+            
+            # Remove the old datacenter reference
+            del _i['datacenter_id']
             
             # Parse the date formats
             _i.update({

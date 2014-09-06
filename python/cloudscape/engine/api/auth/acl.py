@@ -62,10 +62,11 @@ class ACLAuthObjects(object):
         """
         Merge a new list of objects with the existing object list, ignoring duplicate entries.
         """
-        for i in new_objs:
-            if not (i[self.obj_def['obj_key']] in self.ids):
-                self.ids.append(i[self.obj_def['obj_key']])
-                self.details.append(i)
+        if isinstance(new_objs, list):
+            for i in new_objs:
+                if not (i[self.obj_def['obj_key']] in self.ids):
+                    self.ids.append(i[self.obj_def['obj_key']])
+                    self.details.append(i)
         
     def _check_global_access(self, global_acls):
         """

@@ -285,7 +285,7 @@ class PortalBase(object):
             self.authenticated = True
             
             # Set the API connector
-            self.api = self._set_api(self.request.session)
+            self.api = self._set_api()
         
             # Set all available groups
             self.api.params['groups'] = self.groups

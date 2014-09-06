@@ -7,6 +7,24 @@ from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.app.locations.models import DBDatacenters
 from cloudscape.engine.api.app.host.models import DBHostDetails
       
+class NetworkRouterGet:
+    """
+    Retrieve a listing of network routers.
+    """
+    def __init__(self, parent):
+        self.api = parent
+        
+        # Target router
+        self.router = self.api.acl.target_object()
+        
+    def launch(self):
+        """
+        Worker method for retrieving network router details.
+        """
+        
+        # Build a list of authorized routers
+        auth_routers = self.api.acl.authorized_objects('network')
+      
 class DatacenterDelete:
     """
     Delete an existing datacenter entry.

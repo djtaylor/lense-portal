@@ -60,6 +60,10 @@ class ObjectsManager(object):
         if filters:
             query_obj = query_obj.filter(**filters)
         
+        # If no filters were defined
+        if not obj_filter and not filters:
+            query_obj.all()
+        
         # Attempt to retrieve the object
         obj_details = list(query_obj.values())
         

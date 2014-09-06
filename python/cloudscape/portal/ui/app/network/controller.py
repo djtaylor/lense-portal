@@ -246,7 +246,7 @@ class AppController(PortalTemplate):
             },
             'datacenters': response['datacenters'],
             'page': {
-                'header': None if not router_target else 'Network Switch: %s' % switch_target,
+                'header': None if not switch_target else 'Network Switch: %s' % switch_target,
                 'title':  'CloudScape Network Switches',
                 'contents': set_contents(),
                 'popups': set_popups()

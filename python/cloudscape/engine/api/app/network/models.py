@@ -135,6 +135,9 @@ class DBNetworkBlocksQuerySet(models.query.QuerySet):
         # Timestamp format
         self.tstamp = '%Y-%m-%d %H:%M:%S'
         
+        # Get all datacenters
+        self.datacenters = list(DBDatacenters.objects.all().values())
+        
     def values(self, *fields):
         """
         Wrapper for the default values() method.
@@ -145,6 +148,17 @@ class DBNetworkBlocksQuerySet(models.query.QuerySet):
         
         # Extract the IP block information
         for _i in _r:
+            
+            # Extract datacenter information
+            _i.update({
+                'datacenter': {
+                    'uuid': copy(_i['datacenter_id']),
+                    'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
+                }
+            })
+            
+            # Remove the old datacenter reference
+            del _i['datacenter_id']
             
             # Parse the date formats
             _i.update({

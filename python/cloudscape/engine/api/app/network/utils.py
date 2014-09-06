@@ -65,7 +65,7 @@ class NetworkRouterCreate:
         
         # Create the router object
         try:
-            DBNetworkRouter(
+            DBNetworkRouters(
                 uuid       = self.uuid,
                 name       = self.name,
                 desc       = self.desc,

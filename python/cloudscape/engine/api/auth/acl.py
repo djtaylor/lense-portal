@@ -300,7 +300,7 @@ class ACLGateway(object):
         
         # Make sure the endpoint has an object type association
         if not self.endpoint.obj['object']:
-            return invalid()
+            return invalid('')
         object_type = self.endpoint.obj['object']
         
         # Get the object authorization class

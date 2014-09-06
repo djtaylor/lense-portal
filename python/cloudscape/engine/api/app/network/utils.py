@@ -91,34 +91,29 @@ class NetworkBlockCreate:
         
         # Get the datacenter and router objects
         datacenter = DBDatacenters.objects.get(uuid=self.attrs['datacenter'])
-        router     = DBNetworkRouters.objects.get(uuid=self.attrs['router'])
+        # Define the creation parameters
+        params = {
+            'uuid':       self.uuid,
+            'network':    self.attrs['network'],
+            'prefix':     self.attrs['prefix'],
+            'datacenter': datacenter,
+            'desc':       self.attrs['desc'],
+            'meta':       '{}' if not self.attrs['meta'] else json.dumps(self.attrs['meta']),
+            'active':     True if not self.attrs['active'] else self.attrs['active'],
+            'locked':     False if not self.attrs['locked'] else self.attrs['locked']    
+        }
+        
+        # If assigning to a router
+        if self.attrs['router']:
+            params['router'] = DBNetworkRouters.objects.get(uuid=self.attrs['router'])
         
         # IPv4
         if self.proto == 'ipv4':
-            DBNetworkBlocksIPv4(
-                uuid       = self.uuid,
-                network    = self.attrs['network'],
-                prefix     = self.attrs['prefix'],
-                datacenter = datacenter,
-                router     = router,
-                desc       = self.attrs['desc'],
-                meta       = '{}' if not self.attrs['meta'] else self.attrs['meta'],
-                active     = True if not self.attrs['active'] else self.attrs['active'],
-                locked     = False if not self.attrs['locked'] else self.attrs['locked']
-            ).save()
+            DBNetworkBlocksIPv4(**params).save()
         
         # IPv6
         if self.proto == 'ipv6':
-            DBNetworkBlocksIPv6(
-                uuid       = self.uuid,
-                network    = self.attrs['network'],
-                prefix     = self.attrs['prefix'],
-                datacenter = datacenter,
-                router     = router,desc = self.attrs['desc'],
-                meta       = '{}' if not self.attrs['meta'] else self.attrs['meta'],
-                active     = True if not self.attrs['active'] else self.attrs['active'],
-                locked     = False if not self.attrs['locked'] else self.attrs['locked']
-            ).save()
+            DBNetworkBlocksIPv6(**params).save()
                 
     def launch(self):
         """
@@ -138,8 +133,9 @@ class NetworkBlockCreate:
             return invalid('Cannot create new %s block in datacenter <%s>, not found or access denied' % (self.proto_label, self.attrs['datacenter']))
         
         # If the router doesn't exist or isn't authorized
-        if not self.attrs['router'] in auth_routers.ids:
-            return invalid('Cannot create new %s block for router <%s>, not found or access denied' % (self.proto_label, self.attrs['router']))
+        if self.attrs['router']:
+            if not self.attrs['router'] in auth_routers.ids:
+                return invalid('Cannot create new %s block for router <%s>, not found or access denied' % (self.proto_label, self.attrs['router']))
         
         # Create the network block object
         try:

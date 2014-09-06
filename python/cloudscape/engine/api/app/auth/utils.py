@@ -237,7 +237,7 @@ class AuthEndpointsValidate:
         object_key = endpoint_row['object_key'] if not ('object_key' in self.api.data) else self.api.data['object_key']
     
         # Make sure the path and action strings are valid
-        if not re.match(r'^[a-z][a-z\/]*[a-z]$', path):
+        if not re.match(r'^[a-z0-9][a-z0-9\/]*[a-z0-9]$', path):
             return invalid('Failed to validate endpoint <%s>, invalid <path> value: %s' % (self.endpoint, path))
         if not re.match(r'^[a-z]*$', action):
             return invalid('Failed to validate endpoint <%s>, invalid <action> value: %s' % (self.endpoint, action))

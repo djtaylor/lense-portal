@@ -7,6 +7,45 @@ from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.app.locations.models import DBDatacenters
 from cloudscape.engine.api.app.host.models import DBHostDetails
       
+class NetworkRouterUpdate:
+    """
+    Update an existing network router definition.
+    """
+    def __init__(self, parent):
+        self.api = parent
+        
+    def launch(self):
+        """
+        Worker method for updating an existing network router object.
+        """
+        return valid()
+      
+class NetworkRouterDelete:
+    """
+    Delete an existing network router definition.
+    """
+    def __init__(self, parent):
+        self.api = parent
+        
+    def launch(self):
+        """
+        Worker method for deleting an existing network router object.
+        """
+        return valid()
+      
+class NetworkRouterCreate:
+    """
+    Create a new network router definition.
+    """
+    def __init__(self, parent):
+        self.api = parent
+        
+    def launch(self):
+        """
+        Worker method for creating a new network router object.
+        """
+        return valid()
+      
 class NetworkRouterGet:
     """
     Retrieve a listing of network routers.

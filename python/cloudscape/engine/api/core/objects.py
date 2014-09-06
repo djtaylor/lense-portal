@@ -2,6 +2,9 @@
 import json
 import importlib
 
+# Django Libraries
+from django.core.serializers.json import DjangoJSONEncoder
+
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
@@ -75,7 +78,7 @@ class ObjectsManager(object):
         obj_details = list(query_obj.values())
         
         # Log the retrieved details
-        log_data = json.dumps(obj_details)
+        log_data = json.dumps(obj_details, cls=DjangoJSONEncoder)
         self.log.info('Retrieved object details: length=%s, data=%s' % (len(log_data), (log_data[:75] + '...') if len(log_data) > 75 else log_data))
         
         # If the object doesn't exist
@@ -83,7 +86,7 @@ class ObjectsManager(object):
             return None
         
         # Return the object details
-        if len(obj_details) > 1:
+        if not obj_id:
             return obj_details
         return obj_details[0]
         

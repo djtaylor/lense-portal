@@ -55,7 +55,7 @@ class PortalTemplate(object):
         """
         Return an HTTPResponseRedirect object.
         """
-        return HTTPResponseRedirect(location)
+        return HttpResponseRedirect(location)
      
     def get_query_key(self, key):
         """

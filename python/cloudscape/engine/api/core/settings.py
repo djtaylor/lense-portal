@@ -89,7 +89,7 @@ INSTALLED_APPS = (
     'cloudscape.engine.api.util.formula',
     'cloudscape.engine.api.app.locations',
     'cloudscape.engine.api.app.cluster',
-    'cloudscape.engine.api.app.schedule'
+    'cloudscape.engine.api.app.network',
 )
 
 # Django middleware classes

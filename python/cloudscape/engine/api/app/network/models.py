@@ -156,6 +156,7 @@ class DBNetworkBlocksIPv6(models.Model):
     network      = models.GenericIPAddressField(protocol='ipv6', blank=True, null=True, unique=True)
     prefix       = NetworkPrefix(protocol='ipv6')
     datacenter   = models.ForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
+    router       = models.ForeignKey('network.DBNetworkRouters', to_field='uuid', db_column='router')
     active       = models.NullBooleanField()
     locked       = models.NullBooleanField()
     meta         = models.TextField()

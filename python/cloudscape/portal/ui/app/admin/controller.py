@@ -59,6 +59,10 @@ class AppController(PortalTemplate):
         # Make all required API calls
         response = self.api_call_threaded(request)
         
+        # If no datacenter targeted
+        if not dc_target:
+            response['hosts'] = None
+        
         # Target details / datacenter hosts
         dc_detail = None if not dc_target else [x for x in response['datacenters'] if x['uuid'] == dc_target][0]
         dc_hosts  = None if not dc_target else response['hosts']

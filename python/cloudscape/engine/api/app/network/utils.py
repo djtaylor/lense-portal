@@ -14,7 +14,7 @@ class NetworkBlockUpdate:
     """
     Update an existing network IPv4/IPv6 block definition.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, proto):
         self.api = parent
         
     def launch(self):
@@ -23,11 +23,25 @@ class NetworkBlockUpdate:
         """
         return valid()
       
+class NetworkBlockIPv4Update(NetworkBlockUpdate):
+    """
+    Update an existing IPv4 network block.
+    """
+    def __init__(self, parent):
+        super(NetworkBlockIPv4Update, self).__init__(parent, self.api.get_data('protocol'))
+        
+class NetworkBlockIPv6Update(NetworkBlockUpdate):
+    """
+    Update an existing IPv6 network block.
+    """
+    def __init__(self, parent):
+        super(NetworkBlockIPv6Update, self).__init__(parent, self.api.get_data('protocol'))
+        
 class NetworkBlockDelete:
     """
     Delete an existing network IPv4/IPv6 block definition.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, proto):
         self.api = parent
         
     def launch(self):
@@ -36,18 +50,33 @@ class NetworkBlockDelete:
         """
         return valid()
       
+class NetworkBlockIPv4Delete(NetworkBlockDelete):
+    """
+    Delete an existing IPv4 network block.
+    """
+    def __init__(self, parent):
+        super(NetworkBlockIPv4Delete, self).__init__(parent, self.api.get_data('protocol'))
+        
+class NetworkBlockIPv6Delete(NetworkBlockDelete):
+    """
+    Delete an existing IPv6 network block.
+    """
+    def __init__(self, parent):
+        super(NetworkBlockIPv6Delete, self).__init__(parent, self.api.get_data('protocol'))
+      
 class NetworkBlockCreate:
     """
     Create a new network IPv4/IPv6 block definition.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, proto):
         self.api = parent
         
         # Generate a UUID
         self.uuid = str(uuid4())
         
-        # Block protocol
+        # Block protocol / protocol label
         self.proto = self.api.get_data('protocol')
+        self.proto_label = 'IPv4' if (self.proto == 'ipv4') else 'IPv6'
         
         # Attribute keys
         self.keys = ['desc', 'datacenter', 'network', 'prefix', 'router', 'meta', 'active', 'locked']
@@ -106,11 +135,11 @@ class NetworkBlockCreate:
         
         # If the datacenter doesn't exist or isn't authorized
         if not self.attrs['datacenter'] in auth_datacenters.ids:
-            return invalid('Cannot create new IP block in datacenter <%s>, not found or access denied' % self.attrs['datacenter'])
+            return invalid('Cannot create new %s block in datacenter <%s>, not found or access denied' % (self.proto_label, self.attrs['datacenter']))
         
         # If the router doesn't exist or isn't authorized
         if not self.attrs['router'] in auth_routers.ids:
-            return invalid('Cannot create new IP block for router <%s>, not found or access denied' % self.attrs['router'])
+            return invalid('Cannot create new %s block for router <%s>, not found or access denied' % (self.proto_label, self.attrs['router']))
         
         # Create the network block object
         try:
@@ -118,10 +147,10 @@ class NetworkBlockCreate:
             
         # Critical error when creating network block
         except Exception as e:
-            return invalid(self.api.log.exception('Failed to create network IP block: %s' % str(e)))
+            return invalid(self.api.log.exception('Failed to create network %s block: %s' % (self.proto_label, str(e))))
         
         # Return the response
-        return valid('Successfully created network block', {
+        return valid('Successfully created network %s block' % self.proto_label, {
             'uuid': self.uuid,
             'name': self.attrs['named'],
             'desc': self.attrs['desc'],
@@ -139,16 +168,31 @@ class NetworkBlockCreate:
             }
         })
       
+class NetworkBlockIPv4Create(NetworkBlockCreate):
+    """
+    Create a new IPv4 network block.
+    """
+    def __init__(self, parent):
+        super(NetworkBlockIPv4Create, self).__init__(parent, self.api.get_data('protocol'))
+    
+class NetworkBlockIPv6Create(NetworkBlockCreate):
+    """
+    Create a new IPv6 network block.
+    """
+    def __init__(self, parent):
+        super(NetworkBlockIPv6Create, self).__init__(parent, self.api.get_data('protocol'))
+      
 class NetworkBlockGet:
     """
     Retrieve a listing of network IPv4/IPv6 blocks.
     """
-    def __init__(self, parent):
+    def __init__(self, parent, proto):
         self.api = parent
         
-        # Target block / protocol
+        # Target block / protocol / protocol label
         self.block = self.api.acl.target_object()
-        self.proto = self.api.get_data('protocol')
+        self.proto = proto
+        self.proto_label = 'IPv4' if (self.proto == 'ipv4') else 'IPv6'
         
         # Build a list of authorized IPv4/IPv6 blocks
         self.auth_blocks = {
@@ -165,30 +209,31 @@ class NetworkBlockGet:
         if self.block:
             
             # If the block doesn't exist or is not authorized
-            if not (self.block in self.auth_blocks['ipv4'].ids) and not (self.block in self.auth_blocks['ipv6'].ids):
-                return invalid('Failed to retrieve network block <%s>, not found or access denied' % self.block)
+            if not self.block in self.auth_blocks[self.proto].ids:
+                return invalid('Failed to retrieve network %s block <%s>, not found or access denied' % (self.proto_label, self.block))
             
             # Return the block details
-            if self.block in auth_ipv4.ids:
-                return valid(json.dumps(auth_ipv4).extract(self.block))
-            return valid(json.dumps(auth_ipv6).extract(self.block))
-           
-        # If retrieving either IPV4 or IPv6 only
-        elif self.proto:
-            if not self.proto in self.auth_blocks:
-                return invalid('Failed to retrieve network blocks, supported protocols are <ipv4> and <ipv6>')
-            
-            # Return the IP blocks for the protocol
-            return valid(json.dumps(self.auth_blocks[self.proto].details))
+            return valid(json.dumps(self.auth_blocks[self.proto].extract(self.block)))
             
         # If retrieving all blocks
         else:
             
             # Get both IPv4 and IPv6 blocks
-            return valid(json.dumps({
-                'ipv4': self.auth_blocks['ipv4'].details,
-                'ipv6': self.auth_blocks['ipv6'].details
-            }))
+            return valid(json.dumps(self.auth_blocks[self.proto].details))
+
+class NetworkBlockIPv4Get(NetworkBlockGet):
+    """
+    Retrive details for an IPv4 network block.
+    """
+    def __init__(self, parent):
+        super(NetworkBlockIPv4Get, self).__init__(parent, self.api.get_data('protocol'))
+    
+class NetworkBlockIPv6Get(NetworkBlockGet):
+    """
+    Retrive details for an IPv6 network block.
+    """
+    def __init__(self, parent):
+        super(NetworkBlockIPv6Get, self).__init__(parent, self.api.get_data('protocol'))
 
 class NetworkRouterRemoveInterface:
     """

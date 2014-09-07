@@ -44,7 +44,7 @@ API_TEMPLATES    = os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/engine
 
 # Template directories
 TEMPLATE_DIRS = (
-    os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/engine/templates')
+    os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/engine/templates'),
 )
 
 # SMTP backend

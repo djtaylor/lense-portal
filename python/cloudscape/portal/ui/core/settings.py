@@ -37,7 +37,7 @@ WSGI_APPLICATION = 'cloudscape.portal.ui.core.wsgi.application'
 
 # Template directories
 TEMPLATE_DIRS = (
-    os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/portal/ui/templates')
+    os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/portal/ui/templates'),
 )
 
 # Database connections

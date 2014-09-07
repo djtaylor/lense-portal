@@ -300,34 +300,44 @@ class NetworkRouterCreate:
         # Generate a UUID
         self.uuid = str(uuid4())
         
-        # Name / description / datacenter
+        # Name / description / datacenter / metadata
         self.name = self.api.get_data('name')
         self.desc = self.api.get_data('desc')
         self.datacenter = self.api.get_data('datacenter')
+        self.meta = self.api.get_data('meta')
         
     def launch(self):
         """
         Worker method for creating a new network router object.
         """
         
-        # Build a list of authorized datacenters
-        auth_datacenters = self.api.acl.authorized_objects('datacenter')
+        # Set the database object parameters
+        params = {
+            'uuid': self.uuid,
+            'name': self.name,
+            'desc': self.desc
+        }
         
-        # If the datacenter doesn't exist or isn't authorized
-        if not self.datacenter in auth_datacenters.ids:
-            return invalid('Cannot create new router in datacenter <%s>, not found or access denied' % self.datacenter)
+        # If setting metadata
+        if self.meta:
+            params['meta'] = self.meta
         
-        # Get the datacenter object
-        datacenter = DBDatacenters.objects.get(uuid=self.datacenter)
+        # Get the datacenter object if applying
+        if self.datacenter:
+            
+            # Build a list of authorized datacenters
+            auth_datacenters = self.api.acl.authorized_objects('datacenter')
+            
+            # If the datacenter doesn't exist or isn't authorized
+            if not self.datacenter in auth_datacenters.ids:
+                return invalid('Cannot create new router in datacenter <%s>, not found or access denied' % self.datacenter)
+            
+            # Set the datacenter object
+            params['datacenter'] = DBDatacenters.objects.get(uuid=self.datacenter)
         
         # Create the router object
         try:
-            DBNetworkRouters(
-                uuid       = self.uuid,
-                name       = self.name,
-                desc       = self.desc,
-                datacenter = datacenter
-            ).save()
+            DBNetworkRouters(**params).save()
             
         # Critical error when creating network router
         except Exception as e:
@@ -337,11 +347,7 @@ class NetworkRouterCreate:
         return valid('Successfully created network router', {
             'uuid': self.uuid,
             'name': self.name,
-            'desc': self.desc,
-            'datacenter': {
-                'name': datacenter.name,
-                'uuid': datacenter.uuid
-            }
+            'desc': self.desc
         })
       
 class NetworkRouterGet:

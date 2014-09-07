@@ -113,7 +113,7 @@ class DBNetworkRouters(models.Model):
     uuid         = models.CharField(max_length=36, unique=True)
     name         = models.CharField(max_length=128, unique=True)
     desc         = models.CharField(max_length=256)
-    datacenter   = models.ForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
+    datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
     
@@ -262,7 +262,7 @@ class DBNetworkSwitches(models.Model):
     uuid         = models.CharField(max_length=36, unique=True)
     name         = models.CharField(max_length=128, unique=True)
     desc         = models.CharField(max_length=256)
-    datacenter   = models.ForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
+    datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
     ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
     ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
     ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')

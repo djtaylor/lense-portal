@@ -40,19 +40,21 @@ class NetworkPrefix(models.IntegerField):
     def __init__(self, protocol, *args, **kwargs):
         
         # Available protocols
-        _protocols = ['ipv4', 'ipv6']
+        _proto_ipv4 = 'ipv4'
+        _proto_ipv6 = 'ipv6'
+        _protocols  = [_proto_ipv4, _proto_ipv6]
         
         # Set the protocol
         if not protocol in _protocols:
             raise ValidationError('Value for attribute <protocol> must be one of: %s' % ','.join(_protocols))
         
         # IPv4
-        if protocol == PROTO_IPV4:
+        if protocol == _proto_ipv4:
             kwargs['max_length'] = 2
             kwargs['validators'] = [MinValueValidator(1), MaxValueValidator(32)]
             
         # IPv6
-        if protocol == PROTO_IPV6:
+        if protocol == _proto_ipv6:
             kwargs['max_length'] = 3
             kwargs['validators'] = [MinValueValidator(1), MaxValueValidator(128)]
             

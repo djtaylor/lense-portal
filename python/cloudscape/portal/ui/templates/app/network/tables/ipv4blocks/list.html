@@ -27,9 +27,9 @@
 			<div class="table_col" col="ipv4_block_prefix">{{ block.prefix }}</div>
 			<div class="table_col" col="ipv4_block_desc">{{ block.desc }}</div>
 			<div class="table_col" col="ipv4_block_uuid">{{ block.uuid }}</div>
-			<div class="table_col" col="ipv4_block_datacenter" type="button" action="link" target="admin?panel=datacenters&datacenter={{ block.datacenter.uuid }}">{{ block.datacenter.name }}</div>
+			<div class="table_col table_link" col="ipv4_block_datacenter" type="button" action="link" target="admin?panel=datacenters&datacenter={{ block.datacenter.uuid }}">{{ block.datacenter.name }}</div>
 			{% if block.router %}
-				<div class="table_col" type="button" action="link" target="network?panel=routers&router={{ block.router.uuid }}" col="ipv4_block_router">{{ block.router.name }}</div>
+				<div class="table_col table_link" type="button" action="link" target="network?panel=routers&router={{ block.router.uuid }}" col="ipv4_block_router">{{ block.router.name }}</div>
 			{% else %}
 				<div class="table_col" col="ipv4_block_router"></div>
 			{% endif %}

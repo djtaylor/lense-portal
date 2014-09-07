@@ -7,6 +7,35 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 PROTO_IPV4 = 'ipv4'
 PROTO_IPV6 = 'ipv6'
 
+class NullTextField(models.TextField):
+    """
+    Custom Django model field for null capable text fields.
+    """
+    def __init__(self, *args, **kwargs):
+
+        # Allow null/blank values
+        self.blank = True
+        self.null  = True
+        
+        # Construct the parent field class
+        super(NullTextField, self).__init__(*args, **kwargs)
+
+class NullForeignKey(models.ForeignKey):
+    """
+    Custom Django model field for null capable foreign key relationships.
+    """
+    def __init__(self, *args, **kwargs):
+
+        # Allow null/blank values
+        self.blank = True
+        self.null  = True
+        
+        # Set to null on delete of parent key
+        self.on_delete = models.SET_NULL
+
+        # Construct the parent field class
+        super(NullForeignKey, self).__init__(*args, **kwargs)
+
 class NetworkPrefix(models.IntegerField):
     """
     Custom Django model field for IPv4/IPv6 network prefixes.

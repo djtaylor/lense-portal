@@ -32,6 +32,27 @@ class JSONField(six.with_metaclass(models.SubfieldBase, models.TextField)):
         # Construct the parent field
         super(JSONField, self).__init__(*args, **kwargs)
 
+    def from_db_value(self, value, connection, prepared=False):
+        """
+        Run on all return values from the database.
+        """
+        
+        # If already loaded
+        if not isinstance(value, six.string_types):
+            return value
+        
+        # If the value is empty
+        if value is None:
+            return value
+
+        # Return the value as a Python object
+        try:
+            return json.loads(value)
+        
+        # Failed to convert to a Python object
+        except Exception as e:
+            raise ValidationError('JSONField value cannot be converted to Python object: %s' % str(e))
+
     def to_python(self, value):
         """
         Return a Python object.
@@ -55,9 +76,6 @@ class JSONField(six.with_metaclass(models.SubfieldBase, models.TextField)):
         format and return a string.
         """
         
-        # Get the value from the parent class
-        value = super(JSONField, self).get_db_prep_value(value, connection, prepared)
-        
         # If the value is empty
         if not value:
             if not self.empty == True:
@@ -65,7 +83,7 @@ class JSONField(six.with_metaclass(models.SubfieldBase, models.TextField)):
             return None
         
         # If the data type is invalid
-        if not isinstance(value, (list, dict, str)):
+        if not isinstance(value, (list, dict, six.string_types)):
             raise ValidationError('JSONField value invalid data %s, only accepts <dict>, <list>, or <str>' % repr(type(value)))
         
         # If saving a list or dictionary
@@ -80,7 +98,7 @@ class JSONField(six.with_metaclass(models.SubfieldBase, models.TextField)):
                 raise ValidationError('JSONField value of %s cannot be converted to JSON string: %s' % (repr(type(value)), str(e)))
             
         # If saving a string
-        if isinstance(value, str):
+        if isinstance(value, six.string_types):
         
             # Make sure the string can be converted to a valid JSON object
             try:

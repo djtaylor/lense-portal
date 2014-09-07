@@ -85,7 +85,6 @@ INSTALLED_APPS = (
     'cloudscape.engine.api.app.host',
     'cloudscape.engine.api.app.user',
     'cloudscape.engine.api.app.group',
-    'cloudscape.engine.api.util.formula',
     'cloudscape.engine.api.app.locations',
     'cloudscape.engine.api.app.cluster',
     'cloudscape.engine.api.app.network',

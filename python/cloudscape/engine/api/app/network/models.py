@@ -4,7 +4,7 @@ from copy import copy
 from django.db import models
 
 # CloudScape Libraries
-from cloudscape.engine.api.core.models import NetworkPrefix, NetworkVLAN, NullForeignKey, NullTextField
+from cloudscape.engine.api.core.models import NetworkPrefix, NetworkVLAN, NullForeignKey, NullTextField, JSONField
 from cloudscape.engine.api.app.locations.models import DBDatacenters
 
 class DBNetworkVLANs(models.Model):
@@ -114,6 +114,7 @@ class DBNetworkRouters(models.Model):
     name         = models.CharField(max_length=128, unique=True)
     desc         = models.CharField(max_length=256)
     datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
+    meta         = JSONField(empty=True)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
     
@@ -216,7 +217,7 @@ class DBNetworkBlocksIPv4(models.Model):
     router       = NullForeignKey('network.DBNetworkRouters', to_field='uuid', db_column='router')
     active       = models.NullBooleanField()
     locked       = models.NullBooleanField()
-    meta         = NullTextField()
+    meta         = JSONField(empty=True)
     desc         = models.CharField(max_length=256)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
@@ -241,7 +242,7 @@ class DBNetworkBlocksIPv6(models.Model):
     router       = NullForeignKey('network.DBNetworkRouters', to_field='uuid', db_column='router')
     active       = models.NullBooleanField()
     locked       = models.NullBooleanField()
-    meta         = NullTextField()
+    meta         = JSONField(empty=True)
     desc         = models.CharField(max_length=256)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
@@ -263,6 +264,7 @@ class DBNetworkSwitches(models.Model):
     name         = models.CharField(max_length=128, unique=True)
     desc         = models.CharField(max_length=256)
     datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
+    meta         = JSONField(empty=True)
     ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
     ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
     ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')

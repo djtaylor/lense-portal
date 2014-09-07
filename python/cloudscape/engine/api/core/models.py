@@ -31,23 +31,31 @@ class JSONField(models.TextField):
         # Construct the parent field
         super(JSONField, self).__init__(*args, **kwargs)
 
-    def from_db_value(self, value, connection):
+    def to_python(self, value):
         """
-        Convert the JSON string to an object when returning.
+        Return a Python object.
         """
         
-        # If the value is empty, return null
+        # If the value is empty
         if value is None:
             return value
         
-        # If a string is set, load it into a JSON object
-        return json.loads(value)
-
+        # Return the value as a Python object
+        try:
+            return json.loads(value)
+        
+        # Failed to convert to a Python object
+        except Exception as e:
+            raise ValidationError('JSONField value cannot be converted to Python object: %s' % str(e))
+    
     def get_db_prep_value(self, value, connection, prepared=False):
         """
         Except both an object and a string. Make sure both are in valid JSON
         format and return a string.
         """
+        
+        # Get the value from the parent class
+        value = super(JSONField, self).get_db_prep_value(value, connection, prepared)
         
         # If the value is empty
         if not value:

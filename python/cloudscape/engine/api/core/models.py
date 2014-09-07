@@ -3,6 +3,7 @@ import json
 # Django Libraries
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 class JSONField(models.TextField):
@@ -10,8 +11,8 @@ class JSONField(models.TextField):
     Custom Django model field for storing JSON data strings.
     """
     
-    # Enable/disable empty string
-    empty = False
+    # Field description
+    description = _('JSON')
     
     def __init__(self, empty=False, *args, **kwargs):
         
@@ -28,7 +29,7 @@ class JSONField(models.TextField):
             kwargs['null']  = True
         
         # Construct the parent field
-        super(TextField, self).__init__(*args, **kwargs)
+        super(JSONField, self).__init__(*args, **kwargs)
 
     def from_db_value(self, value, connection):
         """
@@ -42,7 +43,7 @@ class JSONField(models.TextField):
         # If a string is set, load it into a JSON object
         return json.loads(value)
 
-    def get_db_prep_value(self, value):
+    def get_db_prep_value(self, value, connection, prepared=False):
         """
         Except both an object and a string. Make sure both are in valid JSON
         format and return a string.
@@ -63,10 +64,7 @@ class JSONField(models.TextField):
             
             # Make sure the object is valid JSON
             try:
-                json_str = json.dumps(value)
-                
-                # Return the string value
-                return json_str
+                return json.dumps(value)
                 
             # Invalid format
             except Exception as e:
@@ -90,6 +88,10 @@ class NullTextField(models.TextField):
     """
     Custom Django model field for null capable text fields.
     """
+    
+    # Field description
+    description = _('NullText')
+    
     def __init__(self, *args, **kwargs):
 
         # Allow null/blank values
@@ -103,6 +105,10 @@ class NullForeignKey(models.ForeignKey):
     """
     Custom Django model field for null capable foreign key relationships.
     """
+    
+    # Field description
+    description = _('NullForeignKey')
+    
     def __init__(self, *args, **kwargs):
 
         # Allow null/blank values
@@ -119,6 +125,10 @@ class NetworkPrefix(models.IntegerField):
     """
     Custom Django model field for IPv4/IPv6 network prefixes.
     """
+    
+    # Field description
+    description = _('NetworkPrefix')
+    
     def __init__(self, protocol, *args, **kwargs):
         
         # Available protocols
@@ -147,6 +157,9 @@ class NetworkVLAN(models.IntegerField):
     """
     Custom Django model field for IPv4 VLANs.
     """
+    
+    # Field description
+    description = _('VLAN')
     
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 4

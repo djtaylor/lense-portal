@@ -2,11 +2,12 @@ import json
 
 # Django Libraries
 from django.db import models
+from django.utils import six
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-class JSONField(models.TextField):
+class JSONField(six.with_metaclass(models.SubfieldBase, models.TextField)):
     """
     Custom Django model field for storing JSON data strings.
     """
@@ -64,11 +65,11 @@ class JSONField(models.TextField):
             return None
         
         # If the data type is invalid
-        if not isinstance(value, list) and not isinstance(value, dict) and not isinstance(value, str):
+        if not isinstance(value, (list, dict, str)):
             raise ValidationError('JSONField value invalid data %s, only accepts <dict>, <list>, or <str>' % repr(type(value)))
         
         # If saving a list or dictionary
-        if isinstance(value, list) or isinstance(value, dict):
+        if isinstance(value, (list, dict)):
             
             # Make sure the object is valid JSON
             try:

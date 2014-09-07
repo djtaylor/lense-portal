@@ -74,8 +74,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
-    'cloudscape.portal.ui.app.auth'
 )
 
 # Django middleware classes

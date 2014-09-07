@@ -71,12 +71,17 @@ class DBNetworkRoutersQuerySet(models.query.QuerySet):
             _i.update({'interfaces': list(DBNetworkRouterInterfaces.objects.filter(router=_i['uuid']).values())})
             
             # Extract datacenter information
-            _i.update({
-                'datacenter': {
-                    'uuid': copy(_i['datacenter_id']),
-                    'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
-                }
-            })
+            if _i['datacenter_id']:
+                _i.update({
+                    'datacenter': {
+                        'uuid': copy(_i['datacenter_id']),
+                        'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
+                    }
+                })             
+            
+            # No datacenter set
+            else:
+                _i['datacenter'] = None
             
             # Remove the old datacenter reference
             del _i['datacenter_id']
@@ -152,12 +157,17 @@ class DBNetworkBlocksQuerySet(models.query.QuerySet):
         for _i in _r:
             
             # Extract datacenter information
-            _i.update({
-                'datacenter': {
-                    'uuid': copy(_i['datacenter_id']),
-                    'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
-                }
-            })
+            if _i['datacenter_id']:
+                _i.update({
+                    'datacenter': {
+                        'uuid': copy(_i['datacenter_id']),
+                        'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
+                    }
+                })             
+            
+            # No datacenter set
+            else:
+                _i['datacenter'] = None
             
             # Remove the old datacenter reference
             del _i['datacenter_id']
@@ -173,13 +183,12 @@ class DBNetworkBlocksQuerySet(models.query.QuerySet):
                     }
                 })
                 
-                # Remove the old datacenter reference
-                del _i['router_id']
-            
             # No router configured
             else:
-                del _i['router_id']
                 _i['router'] = None
+                
+            # Remove the old router reference
+            del _i['router_id']
             
             # Parse the date formats
             _i.update({

@@ -60,7 +60,7 @@ class JSONField(models.TextField):
             raise ValidationError('JSONField value invalid data %s, only accepts <dict>, <list>, or <str>' % repr(type(value)))
         
         # If saving a list or dictionary
-        if isintance(value, list) or isinstance(value, dict):
+        if isinstance(value, list) or isinstance(value, dict):
             
             # Make sure the object is valid JSON
             try:

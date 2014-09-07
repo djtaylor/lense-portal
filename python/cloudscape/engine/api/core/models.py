@@ -4,9 +4,6 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-PROTO_IPV4 = 'ipv4'
-PROTO_IPV6 = 'ipv6'
-
 class NullTextField(models.TextField):
     """
     Custom Django model field for null capable text fields.
@@ -14,8 +11,8 @@ class NullTextField(models.TextField):
     def __init__(self, *args, **kwargs):
 
         # Allow null/blank values
-        self.blank = True
-        self.null  = True
+        kwargs['blank'] = True
+        kwargs['null']  = True
         
         # Construct the parent field class
         super(NullTextField, self).__init__(*args, **kwargs)
@@ -27,11 +24,11 @@ class NullForeignKey(models.ForeignKey):
     def __init__(self, *args, **kwargs):
 
         # Allow null/blank values
-        self.blank = True
-        self.null  = True
+        kwargs['blank'] = True
+        kwargs['null']  = True
         
         # Set to null on delete of parent key
-        self.on_delete = models.SET_NULL
+        kwargs['on_delete'] = models.SET_NULL
 
         # Construct the parent field class
         super(NullForeignKey, self).__init__(*args, **kwargs)
@@ -43,22 +40,21 @@ class NetworkPrefix(models.IntegerField):
     def __init__(self, protocol, *args, **kwargs):
         
         # Available protocols
-        _protocols = [PROTO_IPV4, PROTO_IPV6]
+        _protocols = ['ipv4', 'ipv6']
         
         # Set the protocol
-        if not protocol.lower() in _protocols:
+        if not protocol in _protocols:
             raise ValidationError('Value for attribute <protocol> must be one of: %s' % ','.join(_protocols))
-        self.protocol = protocol
         
         # IPv4
-        if self.protocol == PROTO_IPV4:
-            self.max_length = 2
-            self.validators = [MinValueValidator(1), MaxValueValidator(32)]
+        if protocol == PROTO_IPV4:
+            kwargs['max_length'] = 2
+            kwargs['validators'] = [MinValueValidator(1), MaxValueValidator(32)]
             
         # IPv6
-        if self.protocol == PROTO_IPV6:
-            self.max_length = 3
-            self.validators = [MinValueValidator(1), MaxValueValidator(128)]
+        if protocol == PROTO_IPV6:
+            kwargs['max_length'] = 3
+            kwargs['validators'] = [MinValueValidator(1), MaxValueValidator(128)]
             
         # Construct the parent field class
         super(NetworkPrefix, self).__init__(*args, **kwargs)
@@ -69,8 +65,8 @@ class NetworkVLAN(models.IntegerField):
     """
     
     def __init__(self, *args, **kwargs):
-        self.max_length = 4
-        self.validators = [MinValueValidator(0), MaxValueValidator(4095)]
+        kwargs['max_length'] = 4
+        kwargs['validators'] = [MinValueValidator(0), MaxValueValidator(4095)]
             
         # Construct the parent field class
         super(NetworkVLAN, self).__init__(*args, **kwargs)

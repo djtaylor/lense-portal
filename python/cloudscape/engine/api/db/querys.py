@@ -70,15 +70,13 @@ class APIQuerySet(models.query.QuerySet):
     """
     
     # Timestamp format / timefield keys
-    TIMESTAMP  = '%Y-%m-%d %H:%M:%S'
-    TIMEFIELDS = ['created', 'modified']
+    timestamp  = '%Y-%m-%d %H:%M:%S'
+    timefields = ['created', 'modified']
+    
+    # Object extractor
+    extract    = APIExtractor()
     
     def __init__(self, *args, **kwargs):
-        
-        # Object extractor
-        self.extract = APIExtractor()
-        
-        # Initialize the parent class
         super(APIQuerySet, self).__init__(*args, **kwargs)
         
     def _key_exists(self, _object, _key):
@@ -183,9 +181,9 @@ class APIQuerySet(models.query.QuerySet):
         for _object in _values:
             
             # Parse any time fields
-            for timefield in self.TIMEFIELDS:
+            for timefield in self.timefields:
                 if timefield in _object:
-                    _object[timefield] = _object[timefield].strftime(self.TIMESTAMP)
+                    _object[timefield] = _object[timefield].strftime(self.timestamp)
                    
             # Look for datacenter definitions
             self._parse_datacenters(_object)

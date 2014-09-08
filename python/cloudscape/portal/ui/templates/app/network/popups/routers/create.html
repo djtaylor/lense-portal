@@ -30,7 +30,7 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Datacenter</div>
 				<div class="popup_row_input">
-					<select name="datacenter" form="create_router">
+					<select name="datacenter" form="router_create">
 						<option value="">-none-</option>
 						{% for datacenter in datacenters %}
 							<option value="{{ datacenter.uuid }}">{{ datacenter.name }}</option>

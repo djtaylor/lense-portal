@@ -816,7 +816,10 @@ class JSONTemplate(UtilsBase):
                             else:
                                 return self._formula_err(m, 'Value for key \'%s\' is not defined or empty' % k)
                         if not self._is_type(v,tt):
-                            return self._formula_err(m, 'Invalid data type for key \'%s\', expected \'%s\'' % (k,tt))
+                            if ('_empty' in to) and (to['_empty'] == True):
+                                pass
+                            else:
+                                return self._formula_err(m, 'Invalid data type for key \'%s\', expected \'%s\'' % (k,tt))
                          
                         # Walk through the next level of the formula
                         ferr = _dict_walk(p,to,f[k],m)

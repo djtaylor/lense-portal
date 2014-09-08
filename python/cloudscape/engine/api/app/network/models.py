@@ -58,7 +58,7 @@ class DBNetworkRouters(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = APIQueryManager('DBNetworkRoutersQuerySet')
+    objects      = APIQueryManager(__name__, 'DBNetworkRoutersQuerySet')
     
     # Custom model metadata
     class Meta:
@@ -83,7 +83,7 @@ class DBNetworkBlocksIPv4(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = APIQueryManager('DBNetworkBlocksQuerySet')
+    objects      = APIQueryManager(__name__, 'DBNetworkBlocksQuerySet')
     
     # Custom model metadata
     class Meta:
@@ -108,7 +108,7 @@ class DBNetworkBlocksIPv6(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = APIQueryManager('DBNetworkBlocksQuerySet')
+    objects      = APIQueryManager(__name__, 'DBNetworkBlocksQuerySet')
     
     # Custom model metadata
     class Meta:

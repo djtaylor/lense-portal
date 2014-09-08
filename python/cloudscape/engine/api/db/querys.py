@@ -6,7 +6,13 @@ from copy import copy
 from django.db import models
 
 # CloudScape Libraries
+from cloudscape.common import config
+from cloudscape.common import logger
 from cloudscape.engine.api.objects.manager import ObjectsManager
+
+# Configuration / logger
+CONF = config.parse()
+LOG  = logger.create('cloudscape.engine.api.db.querys', CONF.utils.log)
 
 class APIExtractor(object):
     """
@@ -194,8 +200,12 @@ class APIQueryManager(models.Manager):
     """
     Base manager class for API custom querysets.
     """
-    def __init__(self, cls, *args, **kwargs):
+    def __init__(self, mod, cls, *args, **kwargs):
         super(APIQueryManager, self).__init__()
+
+        # Store the child module / class
+        self.mod = mod
+        self.cls = cls
 
     def get_queryset(self, *args, **kwargs):
         """
@@ -203,7 +213,9 @@ class APIQueryManager(models.Manager):
         """
         
         # Get the queryset instance
-        queryset = getattr(sys.modules[__name__], cls)
+        for mod,obj in sys.modules.iteritems():
+            LOG.info('MODULE[%s]: %s' % (mod, str(obj)))
+        queryset = getattr(sys.modules[self.mod], self.cls)
         
         # Return the queryset
         return queryset(model=self.model)

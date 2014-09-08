@@ -1,32 +1,12 @@
 import sys
-import json
-from copy import copy
 
 # Django Libraries
 from django.db import models
 
 # CloudScape Libraries
-from cloudscape.engine.api.db.querys import APIQuerySet
+from cloudscape.engine.api.db.querys import APIQuerySet, APIQueryManager
 from cloudscape.engine.api.db.models import NetworkPrefix, NetworkVLAN, NullForeignKey, NullTextField, JSONField
 from cloudscape.engine.api.app.locations.models import DBDatacenters
-
-class DBNetworkManager(models.Manager):
-    """
-    Base manager class for network custom querysets.
-    """
-    def __init__(self, cls, *args, **kwargs):
-        super(DBNetworkManager, self).__init__()
-
-    def get_queryset(self, *args, **kwargs):
-        """
-        Wrapper method for the internal get_queryset() method.
-        """
-        
-        # Get the queryset instance
-        queryset = getattr(sys.modules[__name__], cls)
-        
-        # Return the queryset
-        return queryset(model=self.model)
 
 class DBNetworkVLANs(models.Model):
     """
@@ -78,7 +58,7 @@ class DBNetworkRouters(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = DBNetworkManager('DBNetworkRoutersQuerySet')
+    objects      = APIQueryManager('DBNetworkRoutersQuerySet')
     
     # Custom model metadata
     class Meta:
@@ -103,7 +83,7 @@ class DBNetworkBlocksIPv4(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = DBNetworkManager('DBNetworkBlocksQuerySet')
+    objects      = APIQueryManager('DBNetworkBlocksQuerySet')
     
     # Custom model metadata
     class Meta:
@@ -128,7 +108,7 @@ class DBNetworkBlocksIPv6(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = DBNetworkManager('DBNetworkBlocksQuerySet')
+    objects      = APIQueryManager('DBNetworkBlocksQuerySet')
     
     # Custom model metadata
     class Meta:

@@ -188,3 +188,21 @@ class APIQuerySet(QuerySet):
             
         # Return the pre-processed value(s)
         return _values
+    
+class APIQueryManager(models.Manager):
+    """
+    Base manager class for API custom querysets.
+    """
+    def __init__(self, cls, *args, **kwargs):
+        super(APIQueryManager, self).__init__()
+
+    def get_queryset(self, *args, **kwargs):
+        """
+        Wrapper method for the internal get_queryset() method.
+        """
+        
+        # Get the queryset instance
+        queryset = getattr(sys.modules[__name__], cls)
+        
+        # Return the queryset
+        return queryset(model=self.model)

@@ -271,11 +271,118 @@ class NetworkRouterUpdate:
     def __init__(self, parent):
         self.api = parent
         
+        # Target router
+        self.router = self.api.acl.target_object()
+        
+        # Router object
+        self.router_obj = None
+        
+        # Update attributes
+        self.name = self.api.get_data('name')
+        self.desc = self.api.get_data('desc')
+        self.datacenter = self.api.get_data('datacenter')
+        self.meta = self.api.get_data('meta')
+        
+    def _update_name(self):
+        """
+        Update the router name.
+        """
+        if self.name:
+            self.router_obj.name = self.name
+        
+    def _update_desc(self):
+        """
+        Update the router description.
+        """
+        if self.desc:
+            self.router_obj.desc = self.desc
+        
+    def _update_datacenter(self):
+        """
+        Update the router datacenter.
+        """
+        
+        # If clearing the datacenter
+        if (self.datacenter == None) or (self.datacenter == False):
+            self.router_obj.datacenter = None
+        
+        # If changing the datacenter
+        if self.datacenter:
+            
+            # Build a list of authorized datacenters
+            auth_datacenters = self.api.acl.authorized_objects('datacenter')
+            
+            # If the target datacenter doesn't exist or access is denied
+            if not self.datacenter in auth_datacenters.ids:
+                raise Exception('Could not locate datacenter, not found or access denied')
+            
+            # Update the datacenter
+            self.router_obj.datacenter = DBDatacenters.objects.get(uuid=self.datacenter)
+        
+    def _update_meta(self):
+        """
+        Update the router metdata.
+        """
+        
+        # If clearing the metadata
+        if (self.meta == None) or (self.meta == False):
+            self.router_obj.meta = None
+        
+        # If updating the metadata
+        if self.meta:
+            
+            # Load the existing metadata
+            current_meta = {} if not self.router_obj.meta else json.loads(self.router_obj.meta)
+            
+            # Scan new metadata keys
+            for k,v in self.meta.iteritems():
+                
+                # If clearing an existing key
+                if (k in current_meta) and (v == False) or (v == None):
+                    del current_meta[k]
+                    
+                # If adding a new key
+                if not (k in current_meta):
+                    current_meta[k] = v
+                    
+                # If updating an existing key
+                if (k in current_meta) and current_meta[k]:
+                    current_meta[k] = v
+        
+            # Set the new metadata value
+            self.router_obj.meta = current_meta
+        
     def launch(self):
         """
         Worker method for updating an existing network router object.
         """
-        return valid()
+        
+        # Build a list of authorized routers
+        auth_routers = self.api.acl.authorized_objects('net_router')
+        
+        # If the router doesn't exist or access denied
+        if not self.router in auth_routers.ids:
+            return invalid('Failed to update router [%s], not found or access denied' % self.router)
+        
+        # Get the router object
+        self.router_obj = DBNetworkRouters.objects.get(uuid=self.router)
+        
+        # Update name / description / datacenter / metadata
+        try:
+            self._update_name()
+            self._update_desc()
+            self._update_datacenter()
+            self._update_meta()
+            
+            # Update the model
+            self.router_obj.save()
+            
+        # Failed to update all attributes
+        except Exception as e:
+            return invalid('Failed to update router: %s' % str(e))
+        
+        # Successfully updated router
+        return valid('Successfully updated router')
       
 class NetworkRouterDelete:
     """

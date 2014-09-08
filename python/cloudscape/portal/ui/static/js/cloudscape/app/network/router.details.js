@@ -22,6 +22,13 @@ cs.import('CSNetworkRouterDetails', function() {
 	 */
 	cs.register.callback('router.save', function(c,m,d,a) {
 		
+		// Switch the edit/save buttons
+		$('div[type="button"][target="router.save"]').css('display', 'none').attr('active', 'no');
+		$('div[type="button"][target="router.edit"]').css('display', 'block').attr('active', 'yes');
+		
+		// Enable the form fields
+		$('input[type="text"][form="edit_router"]').attr('disabled', '');
+		$('select[form="edit_router"]').attr('disabled', '');
 	});
 	
 	/**
@@ -50,9 +57,11 @@ cs.import('CSNetworkRouterDetails', function() {
 			cs.api.request.post({
 				path: 'network/router',
 				action: 'update',
-				_data: (function() {
-					// Generate request data
-				})(),
+				_data: {
+					name: $('input[type="text"][form="edit_router"][name="name"]').val(),
+					desc: $('input[type="text"][form="edit_router"][name="desc"]').val(),
+					datacenter: $('select[form="edit_router"][name="datacenter"]').val()
+				},
 				callback: {
 					id: 'router.save'
 				}
@@ -65,6 +74,13 @@ cs.import('CSNetworkRouterDetails', function() {
 	 */
 	cs.register.method('router.edit', function() {
 		
+		// Switch the edit/save buttons
+		$('div[type="button"][target="router.edit"]').css('display', 'none').attr('active', 'no');
+		$('div[type="button"][target="router.save"]').css('display', 'block').attr('active', 'yes');
+		
+		// Enable the form fields
+		$('input[type="text"][form="edit_router"]').removeAttr('disabled');
+		$('select[form="edit_router"]').removeAttr('disabled');
 	});
 	
 	/**

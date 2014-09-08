@@ -27,7 +27,7 @@
 			</div>
 			<div class="table_row">
 				<div class="table_row_label">UUID</div>
-				<div class="table_row_text">{{ groups.detail.uuid }}</div>
+				<div class="table_row_text">{{ routers.detail.uuid }}</div>
 			</div>
 			<div class="table_row">
 				<div class="table_row_label">Datacenter</div>
@@ -55,19 +55,20 @@
 	</div>
 </div>
 
-{# Router Attributes #}
-<div class="table_50" type="table" target="router_attributes" style="opacity:0.0;">
+{# Router Interfaces #}
+<div class="table_50" type="table" target="router_interfaces" style="opacity:0.0;">
 	<div class="table_title">
-		<div class="table_title_label">Attributes</div>
+		<div class="table_title_label">Interfaces</div>
 		<div class="table_actions">
 		
-			{# Attribute Panels #}
-			<div class="table_action_active" type="button" action="grouptoggle" group="router_attributes" target="router_interfaces">Interfaces</div>
+			{# Interface Actions #}
+			<div class="table_action" type="button" action="popup" target="router.add_interface">Add</div>
+			<div class="table_action" type="button" action="popup" target="router.remove_interface" require="input[type='radio'][name='interface_uuid']:checked">Remove</div>
 		</div>
 	</div>
 	
 	{# Router Interfaces #}
-	<div class="table_window" type="grouptoggle" group="router_attributes" name="router_interfaces">
+	<div class="table_window">
 		<div class="table_panel_title">Interfaces</div>
 		<div class="table_headers" table="interface_list">
 			<div class="table_select_header"></div>

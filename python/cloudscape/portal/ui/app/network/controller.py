@@ -269,11 +269,21 @@ class AppController(PortalTemplate):
         # Look for a target router
         router_target = self.get_query_key('router')
         
-        # Make all required API calls
-        response = self.api_call_threaded({
+        # Set request attributes
+        request = {
             'routers':     ('network', 'get_router'),
-            'datacenters': ('locations', 'get_datacenters')
-        })
+            'datacenters': ('locations', 'get_datacenters')   
+        }
+        
+        # If targeting a router
+        if router_target:
+            request.update({
+                'ipv4blocks':  ('network', 'get_ipv4_blocks'),
+                'ipv6blocks':  ('network', 'get_ipv6_blocks')
+            })
+        
+        # Make all required API calls
+        response = self.api_call_threaded(request)
         
         def set_contents():
             """
@@ -288,7 +298,10 @@ class AppController(PortalTemplate):
             Set popup contents.
             """
             if router_target:
-                return []
+                return [
+                    'app/network/popups/routers/interfaces/add.html',
+                    'app/network/popups/routers/interfaces/remove.html'
+                ]
             return [
                 'app/network/popups/routers/create.html',
                 'app/network/popups/routers/delete.html'
@@ -305,6 +318,10 @@ class AppController(PortalTemplate):
                 'target': router_target
             },
             'datacenters': response['datacenters'],
+            'blocks': {
+                'ipv4': None if not ('ipv4blocks' in response) else response['ipv4blocks'],
+                'ipv6': None if not ('ipv6blocks' in response) else response['ipv6blocks']
+            },
             'page': {
                 'header': None if not router_target else 'Network Router: %s' % router_details['name'],
                 'title':  'CloudScape Network Routers',

@@ -1,0 +1,88 @@
+{# Add Router Interface #}
+<div class="popup_content" type="popup" target="router.add_interface">
+	<div class="popup_title">Add Router Interface</div>
+	<div class="popup_body">
+		<div class="popup_desc">
+			Add a new router interface. You may associate with a pre-existing IPv4 or IPv6 block.
+		</div>
+		<form id="router_add_interface">
+			
+			{# Interface Name #}
+			<div class="popup_row">
+				<div class="popup_row_label">Name</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_add_interface" name="name" value="" required />
+					<div class="form_input_icon_def" type="icon" form="router_add_interface" name="name"></div>
+				</div>
+			</div>
+			
+			{# Interface Description #}
+			<div class="popup_row">
+				<div class="popup_row_label">Description</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_add_interface" name="desc" value="" required />
+					<div class="form_input_icon_def" type="icon" form="router_add_interface" name="desc"></div>
+				</div>
+			</div>
+			
+			{# Interface HW Address #}
+			<div class="popup_row">
+				<div class="popup_row_label">HW Address</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_add_interface" name="hwaddr" value="" required />
+					<div class="form_input_icon_def" type="icon" form="router_add_interface" name="hwaddr"></div>
+				</div>
+			</div>
+			
+			{# Interface IPv4 Network #}
+			<div class="popup_row">
+				<div class="popup_row_label">IPv4 Network</div>
+				<div class="popup_row_input">
+					<select name="ipv4_net" form="router_add_interface">
+						<option value="">-none-</option>
+						{% for block in blocks.ipv4 %}
+							<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+
+			{# Interface IPv4 Address #}
+			<div class="popup_row">
+				<div class="popup_row_label">IPv4 Address</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_add_interface" name="ipv4_addr" value="" required />
+					<div class="form_input_icon_def" type="icon" form="router_add_interface" name="ipv4_addr"></div>
+				</div>
+			</div>
+			
+			{# Interface IPv6 Network #}
+			<div class="popup_row">
+				<div class="popup_row_label">IPv6 Network</div>
+				<div class="popup_row_input">
+					<select name="ipv6_net" form="router_add_interface">
+						<option value="">-none-</option>
+						{% for block in blocks.ipv6 %}
+							<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+
+			{# Interface IPv6 Address #}
+			<div class="popup_row">
+				<div class="popup_row_label">IPv6 Address</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_add_interface" name="ipv6_addr" value="" required />
+					<div class="form_input_icon_def" type="icon" form="router_add_interface" name="ipv6_addr"></div>
+				</div>
+			</div>
+
+			{# Form Validation Response #}
+			<div class="form_response" type="response" target="#router_add_interface"></div>
+		</form>
+		
+		{# Submit API Request #}
+		<div class="popup_submit" type="button" action="method" target="router.add_interface">Add Router Interface</div>
+	</div>
+</div>

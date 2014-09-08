@@ -8,10 +8,11 @@ from django.contrib.auth.models import User
 
 # CloudScape Libraries
 from cloudscape.engine.api.app.formula.models import DBFormulaDetails
+from cloudscape.engine.api.objects.acl import ACLObjects
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostGroups, DBHostDKeys
 from cloudscape.engine.api.app.auth.models import DBAuthACLGroupGlobalPermissions, DBAuthACLEndpointsGlobal, \
                                                   DBAuthACLGroupObjectHostPermissions, DBAuthACLGroupObjectFormulaPermissions, \
-                                                  DBAuthACLGroupObjectHostGroupPermissions, DBAuthACLKeys, DBAuthACLObjects, \
+                                                  DBAuthACLGroupObjectHostGroupPermissions, DBAuthACLKeys, \
                                                   DBAuthACLGroupObjectDkeyPermissions, DBAuthACLGroupObjectUserPermissions, \
                                                   DBAuthACLGroupObjectGroupPermissions
 
@@ -49,12 +50,12 @@ class DBGroupDetailsQuerySet(models.query.QuerySet):
         
         # Construct the object permissions
         ret = {}
-        for obj_details in list(DBAuthACLObjects.objects.all().values()):
+        for obj_details in ACLObjects.get_values():
             obj_type  = obj_details['type']
             obj_key   = '%s_id' % obj_type
             
             # Get an instance of the ACL class
-            acl_def   = DBAuthACLObjects.objects.filter(type=obj_type).values()[0]
+            acl_def   = ACLObjects.get_values(obj_type)[0]
             acl_mod   = importlib.import_module(acl_def['acl_mod'])
             acl_class = getattr(acl_mod, acl_def['acl_cls'])
             
@@ -195,7 +196,7 @@ class DBGroupDetails(models.Model):
         # Get a list of object types and details
         obj_types   = []
         obj_details = []
-        for obj in list(DBAuthACLObjects.objects.all().values()):
+        for obj in ACLObjects.get_values():
             obj_types.append(obj['type'])
             obj_details.append(obj)
         
@@ -204,7 +205,7 @@ class DBGroupDetails(models.Model):
             if obj_type in permissions:
                 
                 # Get the details for this ACL object type
-                obj_def   = DBAuthACLObjects.objects.filter(type=obj_type).values()[0]
+                obj_def   = ACLObjects.get_values(obj_type)[0]
                 
                 # Get an instance of the ACL class
                 acl_mod   = importlib.import_module(obj_def['acl_mod'])

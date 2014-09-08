@@ -1,13 +1,10 @@
 from django.db import models
 
-# CloudScape Libraries
-from cloudscape.engine.api.app.auth.models import DBAuthACLObjects
-
 class DBClusterCache(models.Model):
     """
     Database model for storing cached database queries.
     """
-    object_type  = models.ForeignKey(DBAuthACLObjects, to_field='type', db_column='object_type')
+    object_type  = models.ForeignKey('auth.DBAuthACLObjects', to_field='type', db_column='object_type')
     object_id    = models.CharField(max_length=36)
     object_data  = models.TextField()
     object_hash  = models.CharField(max_length=32)

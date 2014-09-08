@@ -12,8 +12,8 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.utils import valid, invalid
 from cloudscape.common.collection import Collection
-from cloudscape.engine.api.core.cache import CacheManager
-from cloudscape.engine.api.core.objects import ObjectsManager
+from cloudscape.engine.api.objects.cache import CacheManager
+from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.core.socket import SocketResponse
 
 class APIRequest(object):

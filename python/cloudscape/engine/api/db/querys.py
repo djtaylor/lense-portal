@@ -5,7 +5,7 @@ from copy import copy
 from django.db.models.query import QuerySet
 
 # CloudScape Libraries
-from cloudscape.engine.api.core.objects import ObjectsManager
+from cloudscape.engine.api.objects.manager import ObjectsManager
 
 class APIExtractor(object):
     """

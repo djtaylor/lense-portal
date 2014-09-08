@@ -8,8 +8,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
-from cloudscape.engine.api.core.cache import CacheManager
-from cloudscape.engine.api.app.auth.models import DBAuthACLObjects
+from cloudscape.engine.api.objects.acl import ACLObjects
+from cloudscape.engine.api.objects.cache import CacheManager
 
 class ObjectsManager(object):
     """
@@ -39,7 +39,7 @@ class ObjectsManager(object):
         self.log.info('Retrieving object data from model: type=%s, id=%s' % (obj_type, repr(obj_id)))
         
         # Get the ACL object definition
-        acl_object  = DBAuthACLObjects.objects.get(type=obj_type)
+        acl_object  = ACLObjects.get(obj_type)
         
         # Get an instance of the object class
         obj_mod     = importlib.import_module(getattr(acl_object, 'obj_mod'))
@@ -105,7 +105,7 @@ class ObjectsManager(object):
         """
         
         # If the ACL object exists
-        if DBAuthACLObjects.objects.filter(type=obj_type).count():
+        if len(ACLObjects.get_values(obj_type)) > 0:
             self.log.info('Retrieving database object: type=%s, id=%s, cache=%s' % (obj_type, repr(obj_id), repr(cache)))
             
             # If retrieving from the database cache table

@@ -10,7 +10,7 @@ from cloudscape.common import logger
 from cloudscape.common.utils import invalid, valid
 from cloudscape.common.vars import T_USER, T_HOST
 from cloudscape.common.collection import Collection
-from cloudscape.engine.api.core.objects import ObjectsManager
+from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
 from cloudscape.engine.api.app.host.models import DBHostDetails
 from cloudscape.engine.api.app.auth.models import DBAuthACLEndpointsHost, DBAuthACLEndpointsGlobal, \

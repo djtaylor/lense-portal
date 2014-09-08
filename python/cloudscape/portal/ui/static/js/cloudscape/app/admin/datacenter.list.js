@@ -79,16 +79,18 @@ cs.import('CSAdminDatacentersList', function() {
 	cs.register.method('datacenter.delete', function() {
 		var d = $('input[type="hidden"][name="datacenter_uuid"]').val();
 		if (defined(d)) {
-			cs.layout.popup_toggle(false, 'datacenter.delete', false, function() {
-				cs.api.request.post({
-					path: 'locations/datacenters',
-					action: 'delete',
-					_data: {
-						uuid: d
-					},
-					callback: {
-						id: 'datacenter.delete'
-					}
+			cs.layout.popup_toggle(false, 'datacenter.delete', false, function() { 
+				cs.layout.loading(true, 'Deleting datacenter...', function() {
+					cs.api.request.post({
+						path: 'locations/datacenters',
+						action: 'delete',
+						_data: {
+							uuid: d
+						},
+						callback: {
+							id: 'datacenter.delete'
+						}
+					});
 				});
 			});
 		}
@@ -106,17 +108,19 @@ cs.import('CSAdminDatacentersList', function() {
 		});
 		
 		// Submit the API request
-		cs.layout.popup_toggle(false, 'datacenter.create', false, function() {
-			cs.api.request.post({
-				path: 'locations/datacenters',
-				action: 'create',
-				_data: {
-					name:  params.name,
-					label: params.label
-				},
-				callback: {
-					id: 'datacenter.create'
-				}
+		cs.layout.popup_toggle(false, 'datacenter.create', false, function() { 
+			cs.layout.loading(true, 'Creating datacenter...', function() {
+				cs.api.request.post({
+					path: 'locations/datacenters',
+					action: 'create',
+					_data: {
+						name:  params.name,
+						label: params.label
+					},
+					callback: {
+						id: 'datacenter.create'
+					}
+				});
 			});
 		});
 	});

@@ -274,33 +274,11 @@ cs.import('CSAPIRequest', function() {
 			request['socket']['callback'] = p.callback; 
 		}
 		
-		// Supported request paths
-		r_paths = [
-		    'host', 
-		    'host/formula', 
-		    'host/group', 
-		    'host/service',
-		    'host/agent',
-		    'agent', 
-		    'formula', 
-		    'formula/run', 
-		    'user', 
-		    'group',
-		    'group/member',
-		    'editor', 
-		    'cluster',
-		    'auth/acl',
-		    'auth/endpoints',
-		    'auth/acl/objects',
-		    'locations/datacenters'
-		];
+		// Valid request method
+		vm = $.inArray(request.socket.method, ['get', 'post']) > -1;
 		
-		// Valid request methods and paths
-		vm = $.inArray(request.socket.method, ['get', 'post']) > -1
-		vp = $.inArray(request.socket.path, r_paths) > -1
-		
-		// If the method and path are valid
-		if (vp && vm) {
+		// If the method is valid
+		if (vm) {
 			cs.api.client.io.emit('submit', request)
 		} else { return false; }
 	}

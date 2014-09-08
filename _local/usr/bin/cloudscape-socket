@@ -362,34 +362,9 @@ function SocketProxy() {
 	    			
 	    			// Handle the request
 	    			self.log.info('Processing client request: ', log_meta);
-		    		switch(client.socket.path) {
-		    			
-		    			// Host API requests
-		    			case 'host':
-		    			case 'host/formula':
-		    			case 'host/group':
-		    			case 'host/service':
-		    			case 'host/agent':
-		    			case 'formula':
-		    			case 'formula/run':
-		    			case 'agent':
-		    			case 'user':
-		    			case 'group':
-		    			case 'group/member':
-		    			case 'editor':
-		    			case 'auth/acl':
-		    			case 'auth/acl/objects':
-		    			case 'auth/endpoints':
-		    			case 'cluster':
-		    			case 'locations/datacenters':
-		    				self.api_submit(client);
-							break;
-							
-						// Unsupported request type
-						default:
-							self.log.error('Unsupported request path: ' + client.path, log_meta);
-							break;
-		    		}
+	    			
+	    			// Submit the API request
+	    			self.api_submit(client);
 	    		}
 	    	});
 	    });

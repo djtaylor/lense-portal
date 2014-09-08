@@ -278,8 +278,8 @@ class AppController(PortalTemplate):
         # If targeting a router
         if router_target:
             request.update({
-                'ipv4blocks':  ('network', 'get_ipv4_blocks'),
-                'ipv6blocks':  ('network', 'get_ipv6_blocks')
+                'ipv4blocks':  ('network', 'get_ipv4_block'),
+                'ipv6blocks':  ('network', 'get_ipv6_block')
             })
         
         # Make all required API calls

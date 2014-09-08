@@ -2,7 +2,7 @@ import json
 from copy import copy
 
 # Django Libraries
-from django.db.models.query import QuerySet
+from django.db import models
 
 # CloudScape Libraries
 from cloudscape.engine.api.objects.manager import ObjectsManager
@@ -58,7 +58,7 @@ class APIExtractor(object):
         """
         return self._get(obj_type='router')
 
-class APIQuerySet(QuerySet):
+class APIQuerySet(models.query.QuerySet):
     """
     Query set inheriting from the base Django QuerySet object.
     """

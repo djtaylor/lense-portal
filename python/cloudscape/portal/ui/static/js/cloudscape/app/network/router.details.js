@@ -58,6 +58,7 @@ cs.import('CSNetworkRouterDetails', function() {
 				path: 'network/router',
 				action: 'update',
 				_data: {
+					uuid: cs.network.router.active,
 					name: $('input[type="text"][form="edit_router"][name="name"]').val(),
 					desc: $('input[type="text"][form="edit_router"][name="desc"]').val(),
 					datacenter: $('select[form="edit_router"][name="datacenter"]').val()

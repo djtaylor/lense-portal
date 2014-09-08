@@ -106,7 +106,7 @@ class APIQuerySet(models.query.QuerySet):
             # Update the datacenter key
             _object.update({
                 'datacenter': {
-                    'uuid': copy(_datacenters['datacenter_id']),
+                    'uuid': copy(_object['datacenter_id']),
                     'name': [x['name'] for x in _datacenters if x['uuid'] == _object['datacenter_id']][0]
                 }
             })
@@ -135,7 +135,7 @@ class APIQuerySet(models.query.QuerySet):
             # Update the router key
             _object.update({
                 'router': {
-                    'uuid': copy(_i['router_id']),
+                    'uuid': copy(_object['router_id']),
                     'name': [x['name'] for x in _routers if x['uuid'] == _object['router_id']][0]
                 }
             })

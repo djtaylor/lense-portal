@@ -10,10 +10,6 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.engine.api.objects.manager import ObjectsManager
 
-# Configuration / logger
-CONF = config.parse()
-LOG  = logger.create('cloudscape.engine.api.db.querys', CONF.utils.log)
-
 class APIExtractor(object):
     """
     Class object used to extract values from the database internal to the
@@ -88,7 +84,7 @@ class APIQuerySet(models.query.QuerySet):
             return True
         return False
         
-    def _key_set(self, _object, key):
+    def _key_set(self, _object, _key):
         """
         Check if an object contains a specific key, and if the key is not empty.
         """
@@ -168,7 +164,7 @@ class APIQuerySet(models.query.QuerySet):
             except:
                 pass
         
-    def values_inner(self, *args):
+    def values_inner(self, *fields):
         """
         Inner processor to return the default results for the values() method.
         """
@@ -185,7 +181,7 @@ class APIQuerySet(models.query.QuerySet):
                     _object[timefield] = _object[timefield].strftime(self.TIMESTAMP)
                    
             # Look for datacenter definitions
-            self._parse_datacenter(_object)
+            self._parse_datacenters(_object)
             
             # Look for router definitions
             self._parse_routers(_object)
@@ -213,8 +209,6 @@ class APIQueryManager(models.Manager):
         """
         
         # Get the queryset instance
-        for mod,obj in sys.modules.iteritems():
-            LOG.info('MODULE[%s]: %s' % (mod, str(obj)))
         queryset = getattr(sys.modules[self.mod], self.cls)
         
         # Return the queryset

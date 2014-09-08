@@ -284,11 +284,40 @@ class NetworkRouterDelete:
     def __init__(self, parent):
         self.api = parent
         
+        # Target router
+        self.router = self.api.acl.target_object()
+        
     def launch(self):
         """
         Worker method for deleting an existing network router object.
         """
-        return valid()
+        
+        # Build a list of authorized routers
+        auth_routers = self.api.acl.authorized_objects('net_router')
+        
+        # If the router doesn't exist or access denied
+        if not self.router in auth_routers.ids:
+            return invalid('Failed to delete router [%s], not found or access denied' % self.router)
+        
+        # Extract the router details
+        router_details = auth_routers.extract(self.router)
+        
+        # If the router is attached to any interfaces
+        if len(router_details['interfaces']) > 0:
+            return invalid('Must remove all interfaces before deleting router')
+        
+        # Delete the router
+        try:
+            DBNetworkRouters.objects.get(uuid=self.router).delete()
+        
+        # Failed to delete router
+        except Exception as e:
+            return invalid('Failed to delete router: %s' % str(e))
+        
+        # Successfully deleted router
+        return valid('Successfully deleted router', {
+            'uuid': self.router
+        })
       
 class NetworkRouterCreate:
     """
@@ -343,12 +372,24 @@ class NetworkRouterCreate:
         except Exception as e:
             return invalid(self.api.log.exception('Failed to create network router: %s' % str(e)))
         
-        # Return the response
-        return valid('Successfully created network router', {
+        # Construct the web response data
+        web_data = {
             'uuid': self.uuid,
             'name': self.name,
             'desc': self.desc
-        })
+        }
+        
+        # If attaching to a datacenter
+        if self.datacenter:
+            web_data.update({
+                'datacenter': {
+                    'uuid': params['datacenter'].uuid,
+                    'name': params['datacenter'].name
+                }
+            })
+        
+        # Return the response
+        return valid('Successfully created network router', web_data)
       
 class NetworkRouterGet:
     """

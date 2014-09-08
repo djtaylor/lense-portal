@@ -12,6 +12,7 @@
 		<div class="table_header table_header_md" col="router_uuid">UUID</div>
 		<div class="table_header table_header_md" col="router_datacenter">Datacenter</div>
 		<div class="table_header table_header_md" col="router_interfaces">Interfaces</div>
+		<div class="table_header table_header_md" col="router_desc">Description</div>
 	</div>
 	<div type="rows" table="router_list">
 		{% for router in routers.all %}
@@ -21,8 +22,13 @@
 			</div>
 			<div class="table_col table_link" type="button" action="link" target="network?panel=routers&router={{ router.uuid }}" col="router_name">{{ router.name }}</div>
 			<div class="table_col" col="router_uuid">{{ router.uuid }}</div>
-			<div class="table_col table_link" type="button" action="link" target="admin?panel=datacenters&datacenter={{ router.datacenter.uuid }}" col="router_datacenter">{{ router.datacenter.name }}</div>
+			{% if router.datacenter %}
+				<div class="table_col table_link" type="button" action="link" target="admin?panel=datacenters&datacenter={{ router.datacenter.uuid }}" col="router_datacenter">{{ router.datacenter.name }}</div>
+			{% else %}
+				<div class="table_col" col="router_datacenter"></div>
+			{% endif %}
 			<div class="table_col" col="router_interfaces">{{ router.interfaces|length }}</div>
+			<div class="table_col" col="router_desc">{{ router.desc }}</div>
 		</div>
 		{% endfor %}
 	</div>

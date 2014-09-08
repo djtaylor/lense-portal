@@ -50,13 +50,24 @@
 		c.push('home.CSHomeInterface');
 	});
 
+	// CloudScape: Network
+	includ({
+		CSNetworkRoutersList:      'app/network/router.list.js',
+		CSNetworkRouterDetails:    'app/network/router.details.js',
+		CSNetworkInterface:        'app/network/interface.js'
+	}, {
+		path: 'network'
+	}, function() {
+		c.push('network.interface');
+	});
+	
 	// CloudScape: Hosts
 	include({
-		CSHostsList:    	       'app/hosts/list.js',
-		CSHostGroupsList:          'app/hosts/gplist.js',
-		CSHostGroupEditor:		   'app/hosts/gpeditor.js',
-		CSHostGroupDetails:        'app/hosts/gpdetails.js',
-		CSHostDetails:      	   'app/hosts/details.js',
+		CSHostsList:    	       'app/hosts/host.list.js',
+		SHostDetails:      	   	   'app/hosts/host.details.js',
+		CSHostGroupsList:          'app/hosts/group.list.js',
+		CSHostGroupEditor:		   'app/hosts/group.editor.js',
+		CSHostGroupDetails:        'app/hosts/group.details.js',
 		CSHostsInterface:   	   'app/hosts/interface.js'
 	}, {
 		path: 'hosts'
@@ -78,18 +89,18 @@
 	
 	// CloudScape: Admin
 	include({
-		CSAdminACLList:            'app/admin/acllist.js',
-		CSAdminACLDetails:         'app/admin/acldetails.js',
-		CSAdminUsers:              'app/admin/users.js',
-		CSAdminGroupsList:         'app/admin/gplist.js',
-		CSAdminGroupDetails:       'app/admin/gpdetails.js',
-		CSAdminInterface:          'app/admin/interface.js',
-		CSAdminEndpointDetails:    'app/admin/epdetails.js',
-		CSAdminEndpointList:       'app/admin/eplist.js',
-		CSAdminACLObjectsList:     'app/admin/objlist.js',
-		CSAdminACLObjectDetails:   'app/admin/objdetails.js',
-		CSAdminDatacentersList:    'app/admin/dclist.js',
-		CSAdminDatacentersDetails: 'app/admin/dcdetails.js'
+		CSAdminACLList:            'app/admin/acl.list.js',
+		CSAdminACLDetails:         'app/admin/acl.details.js',
+		CSAdminUsers:              'app/admin/user.list.js',
+		CSAdminGroupsList:         'app/admin/group.list.js',
+		CSAdminGroupDetails:       'app/admin/group.details.js',
+		CSAdminEndpointDetails:    'app/admin/endpoint.details.js',
+		CSAdminEndpointList:       'app/admin/endpoint.list.js',
+		CSAdminACLObjectsList:     'app/admin/object.list.js',
+		CSAdminACLObjectDetails:   'app/admin/object.details.js',
+		CSAdminDatacentersList:    'app/admin/datacenter.list.js',
+		CSAdminDatacentersDetails: 'app/admin/datacenter.details.js',
+		CSAdminInterface:          'app/admin/interface.js'
 	}, {
 		path: 'admin'
 	}, function() {

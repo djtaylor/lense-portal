@@ -108,8 +108,8 @@ class ObjectsManager(object):
         if len(ACLObjects.get_values(obj_type)) > 0:
             self.log.info('Retrieving database object: type=%s, id=%s, cache=%s' % (obj_type, repr(obj_id), repr(cache)))
             
-            # If retrieving from the database cache table
-            if cache:
+            # If retrieving from the database cache table and caching not explicitly disabled
+            if cache and not (self.conf.server.caching == False):
             
                 # Look for object details in the cache
                 cached_obj = self.cache.get_object(obj_type, obj_id, filters=filters)

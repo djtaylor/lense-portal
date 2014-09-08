@@ -27,7 +27,7 @@
 		CSAPICache:         	   'api/cache.js',
 		CSAPIInterface:     	   'api/interface.js'
 	}, {
-		path: ['home', 'hosts', 'formula', 'admin']
+		path: ['home', 'hosts', 'formula', 'admin', 'network']
 	}, function() {
 		c.push('api.CSAPIInterface');
 	});
@@ -58,7 +58,7 @@
 	}, {
 		path: 'network'
 	}, function() {
-		c.push('network.interface');
+		c.push('network.CSNetworkInterface');
 	});
 	
 	// CloudScape: Hosts

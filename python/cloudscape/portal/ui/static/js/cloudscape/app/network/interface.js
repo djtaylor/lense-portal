@@ -8,11 +8,11 @@ cs.import('CSNetworkInterface', function() {
 		
 		// Routers
 		if (defined(cs.url.param_get('router'))) {
-			cs.implement('CSNetworkRouterDetails', 'router');
+			cs.implement('CSNetworkRouterDetails', 'network.router');
 			
 		} else {
 			if (cs.url.param_get('panel') == 'routers') {
-				cs.implement('CSNetworkRoutersList', 'router');
+				cs.implement('CSNetworkRoutersList', 'network.router');
 			}
 		}
 	}

@@ -15,6 +15,7 @@
 		<div class="table_header table_header_md" col="router_desc">Description</div>
 	</div>
 	<div type="rows" table="router_list">
+		<input type="hidden" name="router_uuid">
 		{% for router in routers.all %}
 		<div class="table_row" type="row" target="routers" router="{{ router.uuid }}">
 			<div class="table_select_col">

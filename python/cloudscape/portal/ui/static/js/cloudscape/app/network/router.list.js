@@ -3,7 +3,7 @@ cs.import('CSNetworkRoutersList', function() {
 	/**
 	 * Target Router
 	 */
-	this.router = function() {
+	this.target = function() {
 		return $('input[type="hidden"][name="router_uuid"]').val();
 	}
 	
@@ -21,7 +21,7 @@ cs.import('CSNetworkRoutersList', function() {
 	 */
 	cs.register.callback('router.create', function(c,m,d,a) {
 		if (c == 200) {
-			$('div[type="rows"][table="routers_list"]').append(cs.layout.create.element('div', {
+			$('div[type="rows"][table="router_list"]').append(cs.layout.create.element('div', {
 				css:  'table_row',
 				attr: {
 					target: 'routers',
@@ -106,7 +106,7 @@ cs.import('CSNetworkRoutersList', function() {
 					path: 'network/router',
 					action: 'delete',
 					_data: {
-						uuid: cs.network.router();
+						uuid: cs.network.router.target()
 					},
 					callback: {
 						id: 'router.delete'
@@ -124,18 +124,18 @@ cs.import('CSNetworkRoutersList', function() {
 			cs.layout.loading(true, 'Creating router...', function() {
 				cs.api.request.post({
 					path: 'network/router',
-					action: 'delete',
+					action: 'create',
 					_data: (function() {
 						
 						// Request data
 						var _data = {};
-						$('input[type="text"][form="create_router"]').each(function(i,e) {
+						$('input[type="text"][form="router_create"]').each(function(i,e) {
 							var attr = get_attr(e);
 							_data[attr.name] = $(e).val();
 						});
 						
 						// If setting a datacenter
-						var datacenter = $('select[form="create_router"][name="datacenter"]').val();
+						var datacenter = $('select[form="router_create"][name="datacenter"]').val();
 						if (defined(datacenter)) {
 							_data['datacenter'] = datacenter;
 						}

@@ -1,0 +1,89 @@
+{# Router Overview #}
+<div class="table_50" type="table" target="router_overview" style="opacity:0.0;">
+	<div class="table_title">
+		<div class="table_title_label">Overview</div>
+		<div class="table_actions">
+		
+			{# Router Edit/Save #}
+			<div class="table_action" active="yes" type="button" action="method" target="router.edit">Edit</div>
+			<div class="table_action_active" active="no" type="button" action="method" target="router.save" style="display:none;">Save</div>
+		</div>
+	</div>
+
+	{# Router Details #}
+	<div class="table_window">
+		<div class="table_rows" type="table">
+			<div class="table_row">
+				<div class="table_row_label">Name</div>
+				<div class="table_row_input">
+					<input type="text" form="edit_router" name="name" value="{{ routers.detail.name }}">
+				</div>
+			</div>
+			<div class="table_row">
+				<div class="table_row_label">Description</div>
+				<div class="table_row_input">
+					<input type="text" form="edit_router" name="desc" value="{{ routers.detail.desc }}">
+				</div>
+			</div>
+			<div class="table_row">
+				<div class="table_row_label">UUID</div>
+				<div class="table_row_text">{{ groups.detail.uuid }}</div>
+			</div>
+			<div class="table_row">
+				<div class="table_row_label">Datacenter</div>
+				<div class="table_row_select">
+					<select form="edit_router" name="datacenter" disabled>
+						{% if not group.detail.datacenter %}
+							<option value="" selected="selected">-none-</option>
+							{% for datacenter in datacenters %}
+								<option value="{{ datacenter.uuid }}">{{ datacenter.name }}</option>
+							{% endfor %}
+						{% else %}
+							<option value="">-none-</option>
+							{% for datacenter in datacenters %}
+								{% if datacenter.uuid == routers.detail.datacenter.uuid %}
+									<option value="{{ datacenter.uuid }}" selected="selected">{{ datacenter.name }}</option>
+								{% else %}
+									<option value="{{ datacenter.uuid }}">{{ datacenter.name }}</option>
+								{% endif %}
+							{% endfor %}
+						{% endif %}
+					</select>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+{# Router Attributes #}
+<div class="table_50" type="table" target="router_attributes" style="opacity:0.0;">
+	<div class="table_title">
+		<div class="table_title_label">Attributes</div>
+		<div class="table_actions">
+		
+			{# Attribute Panels #}
+			<div class="table_action_active" type="button" action="grouptoggle" group="router_attributes" target="router_interfaces">Interfaces</div>
+		</div>
+	</div>
+	
+	{# Router Interfaces #}
+	<div class="table_window" type="grouptoggle" group="router_attributes" name="router_interfaces">
+		<div class="table_panel_title">Interfaces</div>
+		<div class="table_headers" table="interface_list">
+			<div class="table_select_header"></div>
+			<div class="table_header table_header_md" col="interface_name">Name</div>
+			<div class="table_header table_header_md" col="interface_desc">Description</div>
+			<div class="table_header table_header_md" col="interface_hwaddr">HW Address</div>
+		</div>
+		<div class="table_rows" type="table" name="router_interfaces">
+			{% for interface in routers.detail.interfaces %}
+				<div class="table_select_col">
+					<input type="radio" name="interface_uuid" action="update" value="{{ interface.uuid }}">
+				</div>
+				<div class="table_col" col="interface_name">{{ interface.name }}</div>
+				<div class="table_col" col="interface_desc">{{ interface.desc }}</div>
+				<div class="table_col" col="interface_hwaddr">{{ interface.hwaddr }}</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>

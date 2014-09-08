@@ -10,9 +10,6 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.engine.api.objects.manager import ObjectsManager
 
-CONF = config.parse()
-LOG  = logger.create('cloudscape.engine.api.db.querys', CONF.utils.log)
-
 class APIExtractor(object):
     """
     Class object used to extract values from the database internal to the
@@ -32,7 +29,7 @@ class APIExtractor(object):
         """
         Worker method for retrieving API objects.
         """
-        return self.objects.get(obj_type=obj_type, obj_id=obj_id, cache=self._cache, filters=self._filters, values=self._values)
+        return self._objects.get(obj_type=obj_type, obj_id=obj_id, cache=self._cache, filters=self._filters, values=self._values)
     
     def values(self, values=None):
         """
@@ -171,8 +168,6 @@ class APIQuerySet(models.query.QuerySet):
         """
         Inner processor to return the default results for the values() method.
         """
-        
-        LOG.info('ATTRIBUTES: %s' % str(dir(self)))
         
         # Store the initial results
         _values = super(APIQuerySet, self).values(*fields)

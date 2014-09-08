@@ -720,7 +720,10 @@ class JSONTemplate(UtilsBase):
             
             # Validate the data type of the current formula level
             if not self._is_type(f, dt):
-                return self._formula_err(m, 'Object is an invalid type, should be %s' % dt)
+                if ('_empty' in t) and (t['_empty'] == True):
+                    pass
+                else:
+                    return self._formula_err(m, 'Object is an invalid type, should be %s' % dt)
             
             # If the current level has no children
             if not '_children' in t:

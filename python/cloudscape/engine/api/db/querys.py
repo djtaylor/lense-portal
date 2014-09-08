@@ -10,6 +10,9 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.engine.api.objects.manager import ObjectsManager
 
+CONF = config.parse()
+LOG  = logger.create('cloudscape.engine.api.db.querys', CONF.utils.log)
+
 class APIExtractor(object):
     """
     Class object used to extract values from the database internal to the
@@ -71,10 +74,12 @@ class APIQuerySet(models.query.QuerySet):
     TIMEFIELDS = ['created', 'modified']
     
     def __init__(self, *args, **kwargs):
-        super(APIQuerySet, self).__init__(*args, **kwargs)
         
-        # Object extract
+        # Object extractor
         self.extract = APIExtractor()
+        
+        # Initialize the parent class
+        super(APIQuerySet, self).__init__(*args, **kwargs)
         
     def _key_exists(self, _object, _key):
         """
@@ -168,6 +173,8 @@ class APIQuerySet(models.query.QuerySet):
         """
         Inner processor to return the default results for the values() method.
         """
+        
+        LOG.info('ATTRIBUTES: %s' % str(dir(self)))
         
         # Store the initial results
         _values = super(APIQuerySet, self).values(*fields)

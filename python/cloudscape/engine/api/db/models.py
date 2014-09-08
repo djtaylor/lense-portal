@@ -1,4 +1,3 @@
-import sys
 import json
 from copy import copy
 
@@ -6,27 +5,8 @@ from copy import copy
 from django.db import models
 
 # CloudScape Libraries
-from cloudscape.engine.api.db.querys import APIQuerySet
-from cloudscape.engine.api.db.models import NetworkPrefix, NetworkVLAN, NullForeignKey, NullTextField, JSONField
+from cloudscape.engine.api.core.models import NetworkPrefix, NetworkVLAN, NullForeignKey, NullTextField, JSONField
 from cloudscape.engine.api.app.locations.models import DBDatacenters
-
-class DBNetworkManager(models.Manager):
-    """
-    Base manager class for network custom querysets.
-    """
-    def __init__(self, cls, *args, **kwargs):
-        super(DBNetworkManager, self).__init__()
-
-    def get_queryset(self, *args, **kwargs):
-        """
-        Wrapper method for the internal get_queryset() method.
-        """
-        
-        # Get the queryset instance
-        queryset = getattr(sys.modules[__name__], cls)
-        
-        # Return the queryset
-        return queryset(model=self.model)
 
 class DBNetworkVLANs(models.Model):
     """
@@ -63,6 +43,73 @@ class DBNetworkRouterInterfaces(models.Model):
     class Meta:
         db_table = 'network_router_interfaces'
 
+class DBNetworkRoutersQuerySet(models.query.QuerySet):
+    """
+    Custom queryset manager for the DBNetworkRouters model. This allows customization of 
+    the returned QuerySet when extracting router details from the database.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DBNetworkRoutersQuerySet, self).__init__(*args, **kwargs)
+        
+        # Timestamp format
+        self.tstamp = '%Y-%m-%d %H:%M:%S'
+        
+        # Get all datacenters
+        self.datacenters = list(DBDatacenters.objects.all().values())
+        
+    def values(self, *fields):
+        """
+        Wrapper for the default values() method.
+        """
+        
+        # Store the initial results
+        _r = super(DBNetworkRoutersQuerySet, self).values(*fields)
+        
+        # Extract the router information
+        for _i in _r:
+            
+            # Extract router interfaces
+            _i.update({'interfaces': list(DBNetworkRouterInterfaces.objects.filter(router=_i['uuid']).values())})
+            
+            # Extract datacenter information
+            if _i['datacenter_id']:
+                _i.update({
+                    'datacenter': {
+                        'uuid': copy(_i['datacenter_id']),
+                        'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
+                    }
+                })             
+            
+            # No datacenter set
+            else:
+                _i['datacenter'] = None
+            
+            # Remove the old datacenter reference
+            del _i['datacenter_id']
+            
+            # Parse the date formats
+            _i.update({
+                'created':  _i['created'].strftime(self.tstamp),
+                'modified': _i['modified'].strftime(self.tstamp),
+            })
+        
+        # Return the constructed router results
+        return _r
+
+class DBNetworkRoutersManager(models.Manager):
+    """
+    Custom objects manager for the DBNetworkRouters model. Acts as a link between the main
+    DBNetworkRouters model and the custom DBNetworkRoutersQuerySet model.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DBNetworkRoutersManager, self).__init__()
+    
+    def get_queryset(self, *args, **kwargs):
+        """
+        Wrapper method for the internal get_queryset() method.
+        """
+        return DBNetworkRoutersQuerySet(model=self.model)
+
 class DBNetworkRouters(models.Model):
     """
     Main database model for storing managed network routers.
@@ -78,11 +125,94 @@ class DBNetworkRouters(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = DBNetworkManager('DBNetworkRoutersQuerySet')
+    objects      = DBNetworkRoutersManager()
     
     # Custom model metadata
     class Meta:
         db_table = 'network_routers'
+
+class DBNetworkBlocksQuerySet(models.query.QuerySet):
+    """
+    Custom queryset manager for the IPv4/IPv6 network block models. This allows customization of 
+    the returned QuerySet when extracting IP block details from the database.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DBNetworkBlocksQuerySet, self).__init__(*args, **kwargs)
+        
+        # Timestamp format
+        self.tstamp = '%Y-%m-%d %H:%M:%S'
+        
+        # Get all datacenters / routers
+        self.datacenters = list(DBDatacenters.objects.all().values())
+        self.routers     = list(DBNetworkRouters.objects.all().values())
+        
+    def values(self, *fields):
+        """
+        Wrapper for the default values() method.
+        """
+        
+        # Store the initial results
+        _r = super(DBNetworkBlocksQuerySet, self).values(*fields)
+        
+        # Extract the IP block information
+        for _i in _r:
+            
+            # Extract datacenter information
+            if _i['datacenter_id']:
+                _i.update({
+                    'datacenter': {
+                        'uuid': copy(_i['datacenter_id']),
+                        'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
+                    }
+                })             
+            
+            # No datacenter set
+            else:
+                _i['datacenter'] = None
+            
+            # Remove the old datacenter reference
+            del _i['datacenter_id']
+            
+            # Extract the router information
+            if _i['router_id']:
+            
+                # Extract datacenter information
+                _i.update({
+                    'router': {
+                        'uuid': copy(_i['router_id']),
+                        'name': [x['name'] for x in self.routers if x['uuid'] == _i['router_id']][0]
+                    }
+                })
+                
+            # No router configured
+            else:
+                _i['router'] = None
+                
+            # Remove the old router reference
+            del _i['router_id']
+            
+            # Parse the date formats
+            _i.update({
+                'created':  _i['created'].strftime(self.tstamp),
+                'modified': _i['modified'].strftime(self.tstamp),
+            })
+        
+        # Return the constructed IP block results
+        return _r
+
+class DBNetworkBlocksManager(models.Manager):
+    """
+    Custom objects manager for the both IPv4/IPv6 network block models. Acts as a link between the main
+    network block models and the custom DBNetworkBlocksQuerySet model.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DBNetworkBlocksManager, self).__init__()
+    
+    def get_queryset(self, *args, **kwargs):
+        """
+        Wrapper method for the internal get_queryset() method.
+        """
+        return DBNetworkBlocksQuerySet(model=self.model)
 
 class DBNetworkBlocksIPv4(models.Model):
     """
@@ -103,7 +233,7 @@ class DBNetworkBlocksIPv4(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = DBNetworkManager('DBNetworkBlocksQuerySet')
+    objects      = DBNetworkBlocksManager()
     
     # Custom model metadata
     class Meta:
@@ -128,7 +258,7 @@ class DBNetworkBlocksIPv6(models.Model):
     modified     = models.DateTimeField(auto_now=True)
     
     # Custom objects manager
-    objects      = DBNetworkManager('DBNetworkBlocksQuerySet')
+    objects      = DBNetworkBlocksManager()
     
     # Custom model metadata
     class Meta:
@@ -175,44 +305,3 @@ class DBNetworkSwitchInterfaces(models.Model):
     # Custom model metadata
     class Meta:
         db_table = 'network_switch_interfaces'
-        
-class DBNetworkRoutersQuerySet(APIQuerySet):
-    """
-    Custom queryset manager for the DBNetworkRouters model. This allows customization of 
-    the returned QuerySet when extracting router details from the database.
-    """
-    def __init__(self, *args, **kwargs):
-        super(APIQuerySet, self).__init__(*args, **kwargs)
-        
-    def values(self, *fields):
-        """
-        Wrapper for the default values() method.
-        """
-        
-        # Store the initial results
-        _r = super(DBNetworkRoutersQuerySet, self).values_inner(*fields)
-        
-        # Extract the router information
-        for _i in _r:
-            
-            # Extract router interfaces
-            _i.update({'interfaces': list(DBNetworkRouterInterfaces.objects.filter(router=_i['uuid']).values())})
-        
-        # Return the constructed router results
-        return _r
-
-class DBNetworkBlocksQuerySet(APIQuerySet):
-    """
-    Custom queryset manager for the IPv4/IPv6 network block models. This allows customization of 
-    the returned QuerySet when extracting IP block details from the database.
-    """
-    def __init__(self, *args, **kwargs):
-        super(DBNetworkBlocksQuerySet, self).__init__(*args, **kwargs)
-        
-    def values(self, *fields):
-        """
-        Wrapper for the default values() method.
-        """
-        
-        # Return the processed results
-        return super(DBNetworkBlocksQuerySet, self).values_inner(*fields)

@@ -1,307 +1,158 @@
 import json
-from copy import copy
 
 # Django Libraries
 from django.db import models
+from django.utils import six
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
+from django.core.validators import MaxValueValidator, MinValueValidator
 
-# CloudScape Libraries
-from cloudscape.engine.api.core.models import NetworkPrefix, NetworkVLAN, NullForeignKey, NullTextField, JSONField
-from cloudscape.engine.api.app.locations.models import DBDatacenters
-
-class DBNetworkVLANs(models.Model):
+class JSONField(models.TextField):
     """
-    Main database model for storing managed network VLANs.
+    Custom Django model field for storing JSON data strings.
     """
     
-    # VLAN columns
-    uuid         = models.CharField(max_length=36, unique=True)
-    number       = NetworkVLAN(unique=True)
-
-    # Custom model metadata
-    class Meta:
-        db_table = 'network_vlans'
-
-class DBNetworkRouterInterfaces(models.Model):
-    """
-    Main database model for storing router interfaces.
-    """
+    # Field description
+    description = _('JSON')
     
-    # Router interface columns
-    uuid         = models.CharField(max_length=36, unique=True)
-    name         = models.CharField(max_length=64)
-    desc         = models.CharField(max_length=256)
-    router       = models.ForeignKey('network.DBNetworkRouters', to_field='uuid', db_column='router')
-    hwaddr       = models.CharField(max_length=17, unique=True)
-    ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
-    ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
-    ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')
-    ipv6_addr    = models.GenericIPAddressField(protocol='ipv6', blank=True, null=True, unique=True)
-    created      = models.DateTimeField(auto_now_add=True)
-    modified     = models.DateTimeField(auto_now=True)
+    def __init__(self, empty=False, *args, **kwargs):
+        
+        # Only accept boolean values for the <empty> attribute
+        if not isinstance(empty, bool):
+            raise ValidationError('JSONField model keyword <empty> must be either true or false')
+        
+        # Empty values flag
+        self.empty = empty
+        
+        # If empty JSON values are allowed
+        if self.empty:
+            kwargs['blank'] = True
+            kwargs['null']  = True
+        
+        # Construct the parent field
+        super(JSONField, self).__init__(*args, **kwargs)
     
-    # Custom model metadata
-    class Meta:
-        db_table = 'network_router_interfaces'
-
-class DBNetworkRoutersQuerySet(models.query.QuerySet):
-    """
-    Custom queryset manager for the DBNetworkRouters model. This allows customization of 
-    the returned QuerySet when extracting router details from the database.
-    """
-    def __init__(self, *args, **kwargs):
-        super(DBNetworkRoutersQuerySet, self).__init__(*args, **kwargs)
-        
-        # Timestamp format
-        self.tstamp = '%Y-%m-%d %H:%M:%S'
-        
-        # Get all datacenters
-        self.datacenters = list(DBDatacenters.objects.all().values())
-        
-    def values(self, *fields):
+    def get_db_prep_value(self, value, connection, prepared=False):
         """
-        Wrapper for the default values() method.
+        Except both an object and a string. Make sure both are in valid JSON
+        format and return a string.
         """
         
-        # Store the initial results
-        _r = super(DBNetworkRoutersQuerySet, self).values(*fields)
+        # If the value is empty
+        if not value:
+            if not self.empty == True:
+                raise ValidationError('JSONField value cannot be empty, must set the model\'s <empty> attribute to true to enable')
+            return None
         
-        # Extract the router information
-        for _i in _r:
-            
-            # Extract router interfaces
-            _i.update({'interfaces': list(DBNetworkRouterInterfaces.objects.filter(router=_i['uuid']).values())})
-            
-            # Extract datacenter information
-            if _i['datacenter_id']:
-                _i.update({
-                    'datacenter': {
-                        'uuid': copy(_i['datacenter_id']),
-                        'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
-                    }
-                })             
-            
-            # No datacenter set
-            else:
-                _i['datacenter'] = None
-            
-            # Remove the old datacenter reference
-            del _i['datacenter_id']
-            
-            # Parse the date formats
-            _i.update({
-                'created':  _i['created'].strftime(self.tstamp),
-                'modified': _i['modified'].strftime(self.tstamp),
-            })
+        # If the data type is invalid
+        if not isinstance(value, (list, dict, six.string_types)):
+            raise ValidationError('JSONField value invalid data %s, only accepts <dict>, <list>, or <str>' % repr(type(value)))
         
-        # Return the constructed router results
-        return _r
-
-class DBNetworkRoutersManager(models.Manager):
-    """
-    Custom objects manager for the DBNetworkRouters model. Acts as a link between the main
-    DBNetworkRouters model and the custom DBNetworkRoutersQuerySet model.
-    """
-    def __init__(self, *args, **kwargs):
-        super(DBNetworkRoutersManager, self).__init__()
-    
-    def get_queryset(self, *args, **kwargs):
-        """
-        Wrapper method for the internal get_queryset() method.
-        """
-        return DBNetworkRoutersQuerySet(model=self.model)
-
-class DBNetworkRouters(models.Model):
-    """
-    Main database model for storing managed network routers.
-    """
-    
-    # Router columns
-    uuid         = models.CharField(max_length=36, unique=True)
-    name         = models.CharField(max_length=128, unique=True)
-    desc         = models.CharField(max_length=256)
-    datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
-    meta         = JSONField(empty=True)
-    created      = models.DateTimeField(auto_now_add=True)
-    modified     = models.DateTimeField(auto_now=True)
-    
-    # Custom objects manager
-    objects      = DBNetworkRoutersManager()
-    
-    # Custom model metadata
-    class Meta:
-        db_table = 'network_routers'
-
-class DBNetworkBlocksQuerySet(models.query.QuerySet):
-    """
-    Custom queryset manager for the IPv4/IPv6 network block models. This allows customization of 
-    the returned QuerySet when extracting IP block details from the database.
-    """
-    def __init__(self, *args, **kwargs):
-        super(DBNetworkBlocksQuerySet, self).__init__(*args, **kwargs)
-        
-        # Timestamp format
-        self.tstamp = '%Y-%m-%d %H:%M:%S'
-        
-        # Get all datacenters / routers
-        self.datacenters = list(DBDatacenters.objects.all().values())
-        self.routers     = list(DBNetworkRouters.objects.all().values())
-        
-    def values(self, *fields):
-        """
-        Wrapper for the default values() method.
-        """
-        
-        # Store the initial results
-        _r = super(DBNetworkBlocksQuerySet, self).values(*fields)
-        
-        # Extract the IP block information
-        for _i in _r:
+        # If saving a list or dictionary
+        if isinstance(value, (list, dict)):
             
-            # Extract datacenter information
-            if _i['datacenter_id']:
-                _i.update({
-                    'datacenter': {
-                        'uuid': copy(_i['datacenter_id']),
-                        'name': [x['name'] for x in self.datacenters if x['uuid'] == _i['datacenter_id']][0]
-                    }
-                })             
-            
-            # No datacenter set
-            else:
-                _i['datacenter'] = None
-            
-            # Remove the old datacenter reference
-            del _i['datacenter_id']
-            
-            # Extract the router information
-            if _i['router_id']:
-            
-                # Extract datacenter information
-                _i.update({
-                    'router': {
-                        'uuid': copy(_i['router_id']),
-                        'name': [x['name'] for x in self.routers if x['uuid'] == _i['router_id']][0]
-                    }
-                })
+            # Make sure the object is valid JSON
+            try:
+                return json.dumps(value)
                 
-            # No router configured
-            else:
-                _i['router'] = None
-                
-            # Remove the old router reference
-            del _i['router_id']
+            # Invalid format
+            except Exception as e:
+                raise ValidationError('JSONField value of %s cannot be converted to JSON string: %s' % (repr(type(value)), str(e)))
             
-            # Parse the date formats
-            _i.update({
-                'created':  _i['created'].strftime(self.tstamp),
-                'modified': _i['modified'].strftime(self.tstamp),
-            })
+        # If saving a string
+        if isinstance(value, six.string_types):
         
-        # Return the constructed IP block results
-        return _r
+            # Make sure the string can be converted to a valid JSON object
+            try:
+                json_obj = json.loads(value)
+                
+                # Return the string value
+                return value
+            
+            # Invalid format
+            except Exception as e:
+                raise ValidationError('JSONField value of %s cannot be converted to JSON object: %s' % (repr(type(value)), str(e)))
 
-class DBNetworkBlocksManager(models.Manager):
+class NullTextField(models.TextField):
     """
-    Custom objects manager for the both IPv4/IPv6 network block models. Acts as a link between the main
-    network block models and the custom DBNetworkBlocksQuerySet model.
+    Custom Django model field for null capable text fields.
     """
+    
+    # Field description
+    description = _('NullText')
+    
     def __init__(self, *args, **kwargs):
-        super(DBNetworkBlocksManager, self).__init__()
-    
-    def get_queryset(self, *args, **kwargs):
-        """
-        Wrapper method for the internal get_queryset() method.
-        """
-        return DBNetworkBlocksQuerySet(model=self.model)
 
-class DBNetworkBlocksIPv4(models.Model):
-    """
-    Main database model for storing managed IPv4 network blocks.
-    """
-    
-    # IPv4 network block columns
-    uuid         = models.CharField(max_length=36, unique=True)
-    network      = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
-    prefix       = NetworkPrefix(protocol='ipv4')
-    datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
-    router       = NullForeignKey('network.DBNetworkRouters', to_field='uuid', db_column='router')
-    active       = models.NullBooleanField()
-    locked       = models.NullBooleanField()
-    meta         = JSONField(empty=True)
-    desc         = models.CharField(max_length=256)
-    created      = models.DateTimeField(auto_now_add=True)
-    modified     = models.DateTimeField(auto_now=True)
-    
-    # Custom objects manager
-    objects      = DBNetworkBlocksManager()
-    
-    # Custom model metadata
-    class Meta:
-        db_table = 'network_blocks_ipv4'
+        # Allow null/blank values
+        kwargs['blank'] = True
+        kwargs['null']  = True
         
-class DBNetworkBlocksIPv6(models.Model):
+        # Construct the parent field class
+        super(NullTextField, self).__init__(*args, **kwargs)
+
+class NullForeignKey(models.ForeignKey):
     """
-    Main database model for storing managed IPv6 network blocks.
+    Custom Django model field for null capable foreign key relationships.
     """
     
-    # IPv6 network block columns
-    uuid         = models.CharField(max_length=36, unique=True)
-    network      = models.GenericIPAddressField(protocol='ipv6', blank=True, null=True, unique=True)
-    prefix       = NetworkPrefix(protocol='ipv6')
-    datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
-    router       = NullForeignKey('network.DBNetworkRouters', to_field='uuid', db_column='router')
-    active       = models.NullBooleanField()
-    locked       = models.NullBooleanField()
-    meta         = JSONField(empty=True)
-    desc         = models.CharField(max_length=256)
-    created      = models.DateTimeField(auto_now_add=True)
-    modified     = models.DateTimeField(auto_now=True)
+    # Field description
+    description = _('NullForeignKey')
     
-    # Custom objects manager
-    objects      = DBNetworkBlocksManager()
-    
-    # Custom model metadata
-    class Meta:
-        db_table = 'network_blocks_ipv6'
+    def __init__(self, *args, **kwargs):
+
+        # Allow null/blank values
+        kwargs['blank'] = True
+        kwargs['null']  = True
         
-class DBNetworkSwitches(models.Model):
+        # Set to null on delete of parent key
+        kwargs['on_delete'] = models.SET_NULL
+
+        # Construct the parent field class
+        super(NullForeignKey, self).__init__(*args, **kwargs)
+
+class NetworkPrefix(models.IntegerField):
     """
-    Main database model for storing managed network switches.
+    Custom Django model field for IPv4/IPv6 network prefixes.
     """
     
-    # Switch columns
-    uuid         = models.CharField(max_length=36, unique=True)
-    name         = models.CharField(max_length=128, unique=True)
-    desc         = models.CharField(max_length=256)
-    datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
-    meta         = JSONField(empty=True)
-    ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
-    ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
-    ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')
-    ipv6_addr    = models.GenericIPAddressField(protocol='ipv6', blank=True, null=True, unique=True)
-    created      = models.DateTimeField(auto_now_add=True)
-    modified     = models.DateTimeField(auto_now=True)
+    # Field description
+    description = _('NetworkPrefix')
     
-    # Custom model metadata
-    class Meta:
-        db_table = 'network_switches'
+    def __init__(self, protocol, *args, **kwargs):
         
-class DBNetworkSwitchInterfaces(models.Model):
+        # Available protocols
+        _proto_ipv4 = 'ipv4'
+        _proto_ipv6 = 'ipv6'
+        _protocols  = [_proto_ipv4, _proto_ipv6]
+        
+        # Set the protocol
+        if not protocol in _protocols:
+            raise ValidationError('Value for attribute <protocol> must be one of: %s' % ','.join(_protocols))
+        
+        # IPv4
+        if protocol == _proto_ipv4:
+            kwargs['max_length'] = 2
+            kwargs['validators'] = [MinValueValidator(1), MaxValueValidator(32)]
+            
+        # IPv6
+        if protocol == _proto_ipv6:
+            kwargs['max_length'] = 3
+            kwargs['validators'] = [MinValueValidator(1), MaxValueValidator(128)]
+            
+        # Construct the parent field class
+        super(NetworkPrefix, self).__init__(*args, **kwargs)
+
+class NetworkVLAN(models.IntegerField):
     """
-    Main database model for storing network switch interfaces.
+    Custom Django model field for IPv4 VLANs.
     """
     
-    # Switch interface columns
-    uuid         = models.CharField(max_length=36, unique=True)
-    name         = models.CharField(max_length=64)
-    desc         = models.CharField(max_length=256)
-    switch       = models.ForeignKey('network.DBNetworkSwitches', to_field='uuid', db_column='switch')
-    hwaddr       = models.CharField(max_length=17, unique=True)
-    ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
-    ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
-    ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')
-    ipv6_addr    = models.GenericIPAddressField(protocol='ipv6', blank=True, null=True, unique=True)
+    # Field description
+    description = _('VLAN')
     
-    # Custom model metadata
-    class Meta:
-        db_table = 'network_switch_interfaces'
+    def __init__(self, *args, **kwargs):
+        kwargs['max_length'] = 4
+        kwargs['validators'] = [MinValueValidator(0), MaxValueValidator(4095)]
+            
+        # Construct the parent field class
+        super(NetworkVLAN, self).__init__(*args, **kwargs)

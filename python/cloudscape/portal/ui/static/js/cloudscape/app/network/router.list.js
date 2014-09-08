@@ -10,7 +10,7 @@ cs.import('CSNetworkRoutersList', function() {
 	/**
 	 * Callback: Delete Router
 	 */
-	cs.register.method('router.delete', function(c,m,d,a) {
+	cs.register.callback('router.delete', function(c,m,d,a) {
 		if (c == 200) {
 			cs.layout.remove('div[type="row"][target="routers"][router="' + d.uuid + '"]');
 		}

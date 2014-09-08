@@ -51,7 +51,7 @@
 	});
 
 	// CloudScape: Network
-	includ({
+	include({
 		CSNetworkRoutersList:      'app/network/router.list.js',
 		CSNetworkRouterDetails:    'app/network/router.details.js',
 		CSNetworkInterface:        'app/network/interface.js'

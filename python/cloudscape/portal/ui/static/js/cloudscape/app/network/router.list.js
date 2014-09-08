@@ -12,7 +12,12 @@ cs.import('CSNetworkRoutersList', function() {
 	 */
 	cs.register.callback('router.delete', function(c,m,d,a) {
 		if (c == 200) {
+			
+			// Remove the router row
 			cs.layout.remove('div[type="row"][target="routers"][router="' + d.uuid + '"]');
+		
+			// Clear the selected router hidden field
+			$('input[type="hidden"][name="router_uuid"]').val('');
 		}
 	});
 	

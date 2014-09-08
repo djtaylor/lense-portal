@@ -146,7 +146,7 @@ class DatacenterGet:
         if not self.datacenter:
                 
             # Return the datacenters object
-            return valid(json.dumps([self._get_details(x) for x in self.d_authorized.details]))
+            return valid(json.dumps(sorted([self._get_details(x) for x in self.d_authorized.details], key=lambda k: k['name'])))
             
         # Retrieve a single datacenter
         else:

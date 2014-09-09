@@ -1,8 +1,17 @@
 cs.import('CSNetworkIPBlocksList', function() { 
 	
 	// Protocol / Label
-	this.proto = $('input[type="hidden"][name="protocol"]').val();
-	this.proto_label = (cs.network.ipblock.proto == 'ipv4') ? 'IPv4' : 'IPv6';
+	this.proto = null;
+	this.proto_label = null;
+	
+	/**
+	 * Initialize: CSNetworkIPBlocksList
+	 * @constructor
+	 */
+	this.__init__ = function() {
+		cs.network.ipblock.proto = $('input[type="hidden"][name="protocol"]').val();
+		cs.network.ipblock.proto_label = (cs.network.ipblock.proto == 'ipv4') ? 'IPv4' : 'IPv6';
+	}
 	
 	/**
 	 * Callback: Delete IP Block

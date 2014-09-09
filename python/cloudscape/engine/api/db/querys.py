@@ -59,7 +59,7 @@ class APIExtractor(object):
         """
         Extract all router definitions.
         """
-        return self._get(obj_type='router')
+        return self._get(obj_type='net_router')
 
 class APIQuerySet(models.query.QuerySet):
     """

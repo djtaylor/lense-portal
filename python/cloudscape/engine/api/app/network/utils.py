@@ -268,8 +268,8 @@ class NetworkBlockGet(object):
         # If retrieving all blocks
         else:
             
-            # Get both IPv4 and IPv6 blocks
-            return valid(json.dumps(self.auth_blocks[self.proto].details))
+            # Return the IP protocol block
+            return valid(json.dumps(sorted(self.auth_blocks[self.proto].details), key=lambda k: k['network']))
 
 class NetworkBlockIPv4Get(NetworkBlockGet):
     """

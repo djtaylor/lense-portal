@@ -44,11 +44,50 @@ class NetworkBlockDelete(object):
     def __init__(self, parent, proto):
         self.api = parent
         
+        # Target protocol / label
+        self.proto = proto
+        self.proto_label = 'IPv4' if (self.proto == 'ipv4') else 'IPv6'
+        
+        # Target IP block
+        self.block = self.api.acl.target_object()
+        
+    def _delete_block(self):
+        """
+        Delete the target IPv4/IPv6 block.
+        """
+        
+        # IPv4
+        if self.proto == 'ipv4':
+            DBNetworkBlocksIPv4.objects.get(uuid=self.block).delete()
+            
+        # IPv6
+        if self.proto == 'ipv6':
+            DBNetworkBlocksIPv6.objects.get(uuid=self.block).delete()
+        
     def launch(self):
         """
         Worker method for deleting an existing network IPv4/IPv6 block object.
         """
-        return valid()
+        
+        # Construct a list of authorized network blocks
+        auth_blocks = self.api.acl.authorized_objects('net_block_%s' % self.proto)
+        
+        # If the target IP block isn't found or access is denied
+        if not self.block in auth_blocks.ids:
+            return invalid('Failed to delete %s block [%s], not found or access denied' % (self.proto_label, self.block))
+        
+        # Delete the block
+        try:
+            self._delete_block()
+            
+        # Error when deleting block
+        except Exception as e:
+            return invalid('Failed to delete %s block [%s]: %s ' % (self.proto_label, self.block, str(e)))
+        
+        # Successfully deleted block
+        return valid('Successfully deleted %s block' % self.proto_label, {
+            'uuid': self.block
+        })
       
 class NetworkBlockIPv4Delete(NetworkBlockDelete):
     """

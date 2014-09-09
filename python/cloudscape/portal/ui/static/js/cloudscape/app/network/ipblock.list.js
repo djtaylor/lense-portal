@@ -277,9 +277,14 @@ cs.import('CSNetworkIPBlocksList', function() {
 						// Request data
 						var _data = {
 							network: $('input[type="text"][form="ip_block_create"][name="network"]').val(),
-							prefix: parseInt($('input[type="text"][form="ip_block_create"][name="prefix"]').val()),
-							desc: $('input[type="text"][form="ip_block_create"][name="desc"]').val()
+							prefix: parseInt($('input[type="text"][form="ip_block_create"][name="prefix"]').val())
 						};
+						
+						// Description
+						var desc = $('input[type="text"][form="ip_block_create"][name="desc"]').val();
+						if (defined(desc)) {
+							_data['desc'] = desc;
+						}
 						
 						// Active/locked
 						_data['active'] = ($('input[form="ip_block_create"][name="active"]').is(':checked')) ? true : false;

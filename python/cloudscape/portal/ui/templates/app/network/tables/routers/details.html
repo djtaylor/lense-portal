@@ -95,6 +95,7 @@
 			<div class="table_header table_header_md" col="interface_desc">Description</div>
 		</div>
 		<div class="table_rows" type="table" name="router_interfaces">
+			<input type="hidden" name="interface_uuid">
 			{% for interface in routers.detail.interfaces %}
 				<div class="table_row table_row_link" type="button" action="toggle" target="{{ interface.uuid }}_attrs" interface="{{ interface.uuid }}">
 					<div class="table_select_col">

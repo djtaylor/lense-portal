@@ -36,7 +36,9 @@ cs.import('CSNetworkRouterDetails', function() {
 	 */
 	cs.register.callback('router.remove_interface', function(c,m,d,a) {
 		if (c == 200) {
-			
+			cs.layout.remove('div[type="toggle"][name="' + d.uuid + '_attrs"]');
+			cs.layout.remove('div[interface="' + d.uuid + '"]');
+			$('input[type="hidden"][name="interface_uuid"]').val('');
 		}
 	});
 	
@@ -227,10 +229,13 @@ cs.import('CSNetworkRouterDetails', function() {
 						    						if (d.ipv4_net == ea.uuid) {
 						    							_attr['selected'] = 'selected';
 						    						}
+						    						return _attr;
 						    					})(),
 						    					text: ea.label
 						    				}));
 						    			});
+						    			
+						    			return _c;
 						    		})()
 						    	})]
 						    })
@@ -297,10 +302,13 @@ cs.import('CSNetworkRouterDetails', function() {
 						    						if (d.ipv6_net == ea.uuid) {
 						    							_attr['selected'] = 'selected';
 						    						}
+						    						return _attr;
 						    					})(),
 						    					text: ea.label
 						    				}));
 						    			});
+						    			
+						    			return _c;
 						    		})()
 						    	})]
 						    })
@@ -339,6 +347,9 @@ cs.import('CSNetworkRouterDetails', function() {
 				    })
 				]
 			}));
+			
+			// Refresh the layout
+			cs.layout.refresh();
 		}
 	});
 	
@@ -475,7 +486,11 @@ cs.import('CSNetworkRouterDetails', function() {
 					path: 'network/router/interface',
 					action: 'remove',
 					_data: (function() {
-						// Generate request data
+						var _d = {
+							uuid: cs.network.router.active	
+						};
+						_d['interface'] = $('input[type="hidden"][name="interface_uuid"]').val();
+						return _d;
 					})(),
 					callback: {
 						id: 'router.remove_interface'

@@ -293,8 +293,9 @@ class NetworkRouterRemoveInterface:
     def __init__(self, parent):
         self.api = parent
         
-        # Target router
+        # Target router / interface
         self.router = self.api.acl.target_object()
+        self.interface = self.api.get_data('interface')
         
     def launch(self):
         """
@@ -308,7 +309,26 @@ class NetworkRouterRemoveInterface:
         if not self.router in auth_routers.ids:
             return invalid('Cannot remove interface, router not found or access denied' % self.router)
         
-        return valid()
+        # Extract the router details
+        router_details = auth_routers.extract(self.router)
+        
+        # Make sure the interface exists on the router
+        interface_found = False
+        for interface in router_details['interfaces']:
+            if interface['uuid'] == self.interface:
+                interface_found = True
+        
+        # If the interface is not attached to the router
+        if not interface_found:
+            return invalid('Cannot remove interface [%s] from router [%s], interface not found' % (self.interface, self.router))
+        
+        # Delete the interface
+        DBNetworkRouterInterfaces.objects.get(uuid=self.interface).delete()
+        
+        # Deleted the interface
+        return valid('Successfully removed router interface', {
+            'uuid': self.interface
+        })
       
 class NetworkRouterUpdateInterface:
     """

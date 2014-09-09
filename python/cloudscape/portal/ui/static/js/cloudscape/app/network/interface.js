@@ -12,7 +12,7 @@ cs.import('CSNetworkInterface', function() {
 			
 		} else {
 			if (cs.url.param_get('panel') == 'ipv4blocks' || cs.url.param_get('panel') == 'ipv6blocks') {
-				cs.implement('CSNetworkIPBlockDetails', 'network.ipblock');
+				cs.implement('CSNetworkIPBlocksList', 'network.ipblock');
 			}
 		}
 		

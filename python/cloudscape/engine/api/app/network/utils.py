@@ -132,7 +132,7 @@ class NetworkBlockCreate(object):
             'uuid':       self.uuid,
             'network':    self.api.get_data('network'),
             'prefix':     self.api.get_data('prefix'),
-            'desc':       self.api.get_data('desc'),
+            'desc':       self.api.get_data('desc', None),
             'meta':       self.api.get_data('meta', None),
             'active':     self.api.get_data('active', True),
             'locked':     self.api.get_data('locked', False)

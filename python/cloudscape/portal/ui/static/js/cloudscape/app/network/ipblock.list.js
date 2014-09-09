@@ -178,8 +178,8 @@ cs.import('CSNetworkIPBlocksList', function() {
 				    	attr: {
 				    		col: 'ip_block_desc'
 				    	},
-				    	text: d.desc
-				    }),
+				    	text: (d.desc) ? d.desc : ''
+ 				    }),
 				    cs.layout.create.element('div', {
 				    	css:  'table_col',
 				    	attr: {

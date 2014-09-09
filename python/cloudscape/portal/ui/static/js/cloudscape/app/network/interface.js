@@ -11,7 +11,7 @@ cs.import('CSNetworkInterface', function() {
 			cs.implement('CSNetworkIPBlockDetails', 'network.ipblock');
 			
 		} else {
-			if (cs.url.param_get('panel') == 'ipv4blocks' || cs.url.param_get('panel') == 'ipv6blocks') {
+			if ($.inArray(cs.url.param_get('panel'), ['ipv4blocks', 'ipv6blocks']) > -1) {
 				cs.implement('CSNetworkIPBlocksList', 'network.ipblock');
 			}
 		}

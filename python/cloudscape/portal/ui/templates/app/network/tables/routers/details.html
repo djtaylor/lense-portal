@@ -88,24 +88,72 @@
 				</div>
 				<div class="table_row_group" style="display:none;" type="toggle" name="{{ interface.uuid }}_attrs">
 					<div class="table_row">
+						<div class="table_row_label">Name</div>
+						<div class="table_row_input">
+							<input type="text" form="edit_interface_{{ interface.uuid }}" name="name" value="{{ interface.name }}" disabled>
+						</div>
+					</div>
+					<div class="table_row">
+						<div class="table_row_label">Description</div>
+						<div class="table_row_input">
+							<input type="text" form="edit_interface_{{ interface.uuid }}" name="desc" value="{{ interface.desc }}" disabled>
+						</div>
+					</div>
+					<div class="table_row">
 						<div class="table_row_label">HW Address</div>
-						<div class="table_row_text">{{ interface.hwaddr }}</div>
+						<div class="table_row_input">
+							<input type="text" form="edit_interface_{{ interface.uuid }}" name="hwaddr" value="{{ interface.hwaddr }}" disabled>
+						</div>
 					</div>
 					<div class="table_row">
 						<div class="table_row_label">IPv4 Address</div>
-						<div class="table_row_text">{{ interface.ipv4_addr }}</div>
+						<div class="table_row_input">
+							<input type="text" form="edit_interface_{{ interface.uuid }}" name="ipv4_addr" value="{{ interface.ipv4_addr }}" disabled>
+						</div>
 					</div>
 					<div class="table_row">
 						<div class="table_row_label">IPv4 Network</div>
-						<div class="table_row_text">{{ interface.ipv4_net }}</div>
+						<div class="table_row_input">
+							<select name="ipv4_net" form="edit_interface_{{ interface.uuid }}" disabled="disabled">
+								{% if interface.ipv4_net %}
+									<option value="">-none-</option>
+								{% else %}
+									<option value="" selected="selected">-none-</option>
+								{% endif %}
+								{% for block in blocks.ipv4 %}
+									{% if interface.ipv4_net == block.uuid %}
+										<option value="{{ block.uuid }}" selected="selected">{{ block.network }}/{{ block.prefix }}</option>
+									{% else %}
+										<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+									{% endif %}
+								{% endfor %}
+							</select>
+						</div>
 					</div>
 					<div class="table_row">
 						<div class="table_row_label">IPv6 Address</div>
-						<div class="table_row_text">{{ interface.ipv6_addr }}</div>
+						<div class="table_row_input">
+							<input type="text" form="edit_interface_{{ interface.uuid }}" name="ipv6_addr" value="{{ interface.ipv6_addr }}" disabled>
+						</div>
 					</div>
 					<div class="table_row">
 						<div class="table_row_label">IPv6 Network</div>
-						<div class="table_row_text">{{ interface.ipv6_net }}</div>
+						<div class="table_row_input">
+							<select name="ipv6_net" form="edit_interface_{{ interface.uuid }}" disabled="disabled">
+								{% if interface.ipv6_net %}
+									<option value="">-none-</option>
+								{% else %}
+									<option value="" selected="selected">-none-</option>
+								{% endif %}
+								{% for block in blocks.ipv6 %}
+									{% if interface.ipv6_net == block.uuid %}
+										<option value="{{ block.uuid }}" selected="selected">{{ block.network }}/{{ block.prefix }}</option>
+									{% else %}
+										<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+									{% endif %}
+								{% endfor %}
+							</select>
+						</div>
 					</div>
 				</div>
 			{% endfor %}

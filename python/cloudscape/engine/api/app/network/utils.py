@@ -543,83 +543,123 @@ class NetworkRouterUpdate:
         # Target router
         self.router = self.api.acl.target_object()
         
-        # Router object
-        self.router_obj = None
-        
-        # Update attributes
-        self.name = self.api.get_data('name')
-        self.desc = self.api.get_data('desc')
-        self.datacenter = self.api.get_data('datacenter')
-        self.meta = self.api.get_data('meta')
-        
-    def _update_name(self):
+    def _update_router(self):
         """
-        Update the router name.
-        """
-        if self.name:
-            self.router_obj.name = self.name
-        
-    def _update_desc(self):
-        """
-        Update the router description.
-        """
-        if self.desc:
-            self.router_obj.desc = self.desc
-        
-    def _update_datacenter(self):
-        """
-        Update the router datacenter.
+        Update router attributes.
         """
         
-        # If clearing the datacenter
-        if (self.datacenter == None) or (self.datacenter == False):
-            self.router_obj.datacenter = None
+        # Get an instance of the router object
+        router_obj = DBNetworkRouters.objects.get(uuid=self.router)
         
-        # If changing the datacenter
-        if self.datacenter:
-            
-            # Build a list of authorized datacenters
-            auth_datacenters = self.api.acl.authorized_objects('datacenter')
-            
-            # If the target datacenter doesn't exist or access is denied
-            if not self.datacenter in auth_datacenters.ids:
-                raise Exception('Could not locate datacenter, not found or access denied')
-            
-            # Update the datacenter
-            self.router_obj.datacenter = DBDatacenters.objects.get(uuid=self.datacenter)
+        # Name
+        if 'name' in self.api.data:
+            router_obj.name = self.api.data['name']
         
-    def _update_meta(self):
-        """
-        Update the router metdata.
-        """
-        
-        # If clearing the metadata
-        if (self.meta == None) or (self.meta == False):
-            self.router_obj.meta = None
-        
-        # If updating the metadata
-        if self.meta:
-            
-            # Load the existing metadata
-            current_meta = {} if not self.router_obj.meta else json.loads(self.router_obj.meta)
-            
-            # Scan new metadata keys
-            for k,v in self.meta.iteritems():
+        # Description
+        if 'desc' in self.api.data:
+            if (self.api.data['desc'] == None) or (self.api.data['desc'] == False):
+                router_obj.desc = None
+            if self.api.data['desc']:
+                router_obj.desc = self.api.data['desc']
                 
-                # If clearing an existing key
-                if (k in current_meta) and (v == False) or (v == None):
-                    del current_meta[k]
-                    
-                # If adding a new key
-                if not (k in current_meta):
-                    current_meta[k] = v
-                    
-                # If updating an existing key
-                if (k in current_meta) and current_meta[k]:
-                    current_meta[k] = v
+        # HW Address
+        if 'hwaddr' in self.api.data:
+            if (self.api.data['hwaddr'] == None) or (self.api.data['hwaddr'] == False):
+                router_obj.hwaddr = None
+            if self.api.data['hwaddr']:
+                router_obj.hwaddr = self.api.data['hwaddr']
         
-            # Set the new metadata value
-            self.router_obj.meta = current_meta
+        # IPv4 Address
+        if 'ipv4_addr' in self.api.data:
+            if (self.api.data['ipv4_addr'] == None) or (self.api.data['ipv4_addr'] == False):
+                router_obj.ipv4_addr = None
+            if self.api.data['ipv4_addr']:
+                router_obj.ipv4_addr = self.api.data['ipv4_addr']
+                
+        # IPv6 Address
+        if 'ipv6_addr' in self.api.data:
+            if (self.api.data['ipv6_addr'] == None) or (self.api.data['ipv6_addr'] == False):
+                router_obj.ipv6_addr = None
+            if self.api.data['ipv6_addr']:
+                router_obj.ipv6_addr = self.api.data['ipv6_addr']
+        
+        # Datacenter
+        if 'datacenter' in self.api.data:
+            if (self.api.data['datacenter'] == None) or (self.api.data['datacenter'] == False):
+                router_obj.datacenter = None
+            if self.api.data['datacenter']:
+                
+                # Build a list of authorized datacenters
+                auth_datacenters = self.api.acl.authorized_objects('datacenter')
+                
+                # If the target datacenter doesn't exist or access is denied
+                if not self.api.data['datacenter'] in auth_datacenters.ids:
+                    raise Exception('Could not locate datacenter, not found or access denied')
+                
+                # Update the datacenter
+                router_obj.datacenter = DBDatacenters.objects.get(uuid=self.api.data['datacenter'])
+        
+        # IPv4 Network
+        if 'ipv4_net' in self.api.data:
+            if (self.api.data['ipv4_net'] == False) or (self.api.data['ipv4_net'] == None):
+                router_obj.ipv4_net = None
+            if self.api.data['ipv4_net']:
+            
+                # Get a list of authorized IPv4 network blocks
+                auth_ipv4_blocks = self.api.acl.authorized_objects('net_block_ipv4')
+                
+                # If the IPv4 block doesn't exist or access denied
+                if not self.api.data['ipv4_net'] in auth_ipv4_blocks.ids:
+                    raise Exception('IPv4 network [%s] not found or access denied' % self.api.data['ipv4_net'])
+                
+                # Set the IPv4 network object
+                router_obj.ipv4_net = DBNetworkBlocksIPv4.objects.get(uuid=self.api.data['ipv4_net'])
+            
+        # IPv6 Network
+        if 'ipv6_net' in self.api.data:
+            if (self.api.data['ipv6_net'] == False) or (self.api.data['ipv6_net'] == None):
+                router_obj.ipv6_net = None
+            if self.api.data['ipv6_net']:
+            
+                # Get a list of authorized IPv6 network blocks
+                auth_ipv6_blocks = self.api.acl.authorized_objects('net_block_ipv6')
+                
+                # If the IPv6 block doesn't exist or access denied
+                if not self.api.data['ipv6_net'] in auth_ipv6_blocks.ids:
+                    raise Exception('IPv6 network [%s] not found or access denied' % self.api.data['ipv6_net'])
+                
+                # Set the IPv6 network object
+                router_obj.ipv6_net = DBNetworkBlocksIPv4.objects.get(uuid=self.api.data['ipv6_net'])
+        
+        # Metadata
+        if 'meta' in self.api.data:
+            if (self.api.data['meta'] == None) or (self.api.data['meta'] == False):
+                router_obj.meta = None
+            if self.api.data['meta']:
+                
+                # Load the existing metadata
+                current_meta = {} if not router_obj.meta else json.loads(router_obj.meta)
+                
+                # Scan new metadata keys
+                for k,v in self.api.data['meta'].iteritems():
+                    
+                    # If clearing an existing key
+                    if (k in current_meta) and (v == False) or (v == None):
+                        del current_meta[k]
+                        
+                    # If adding a new key
+                    if not (k in current_meta):
+                        current_meta[k] = v
+                        
+                    # If updating an existing key
+                    if (k in current_meta) and current_meta[k]:
+                        current_meta[k] = v
+            
+                # Set the new metadata value
+                router_obj.meta = current_meta
+                
+        # Save the router attributes
+        router_obj.save()
         
     def launch(self):
         """
@@ -636,15 +676,9 @@ class NetworkRouterUpdate:
         # Get the router object
         self.router_obj = DBNetworkRouters.objects.get(uuid=self.router)
         
-        # Update name / description / datacenter / metadata
+        # Update the router
         try:
-            self._update_name()
-            self._update_desc()
-            self._update_datacenter()
-            self._update_meta()
-            
-            # Update the model
-            self.router_obj.save()
+            self._update_router()
             
         # Failed to update all attributes
         except Exception as e:
@@ -705,7 +739,7 @@ class NetworkRouterCreate:
         # Generate a UUID
         self.uuid = str(uuid4())
         
-        # Name / description / datacenter / metadata
+        # Attributes
         self.name = self.api.get_data('name')
         self.desc = self.api.get_data('desc', None)
         self.datacenter = self.api.get_data('datacenter')

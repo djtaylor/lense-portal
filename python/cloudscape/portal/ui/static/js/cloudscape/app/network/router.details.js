@@ -61,7 +61,10 @@ cs.import('CSNetworkRouterDetails', function() {
 					uuid: cs.network.router.active,
 					name: $('input[type="text"][form="edit_router"][name="name"]').val(),
 					desc: $('input[type="text"][form="edit_router"][name="desc"]').val(),
-					datacenter: $('select[form="edit_router"][name="datacenter"]:selected').val()
+					datacenter: (function() {
+						var val = $('select[form="edit_router"][name="datacenter"]').val();
+						return (defined(val)) ? val : null;
+					})()
 				},
 				callback: {
 					id: 'router.save'

@@ -3,9 +3,10 @@
 		<div class="table_title_label">Network IPv4 Blocks</div>
 		<div class="table_actions">
 			<div class="table_action" type="button" action="popup" target="ipv4_block.create">Create</div>
-			<div class="table_action" type="button" action="popup" target="ipv4_block.delete" require="input[type$='radio'][name$='ipv4_block_uuid']:checked">Delete</div>
+			<div class="table_action" type="button" action="method" target="ipv4_block.delete" require="input[type$='radio'][name$='ipv4_block_uuid']:checked">Delete</div>
 		</div>
 	</div>
+	<input type="hidden" name="protocol" value="ipv4">
 	<div class="table_headers" table="ipv4_block_list">
 		<div class="table_select_header"></div>
 		<div class="table_header table_header_md" col="ipv4_block_network">Network</div>

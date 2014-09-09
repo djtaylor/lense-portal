@@ -120,7 +120,8 @@ class AppController(PortalTemplate):
         # Make all required API calls
         response = self.api_call_threaded({
             'blocks':      ('network', 'get_ipv6_block'),
-            'datacenters': ('locations', 'get_datacenters')
+            'datacenters': ('locations', 'get_datacenters'),
+            'routers':     ('network', 'get_router')
         })
         
         def set_contents():
@@ -138,8 +139,7 @@ class AppController(PortalTemplate):
             if block_target:
                 return []
             return [
-                'app/network/popups/ipv6blocks/create.html',
-                'app/network/popups/ipv6blocks/delete.html'
+                'app/network/popups/ipv6blocks/create.html'
             ]
         
         # Get block details
@@ -153,6 +153,7 @@ class AppController(PortalTemplate):
                 'target': block_target
             },
             'datacenters': response['datacenters'],
+            'routers': response['routers'],
             'page': {
                 'header': None if not block_target else 'Network IPv6 Block: %s:%s' % (block_details['network'], block_details['prefix']),
                 'title':  'CloudScape Network IPv6 Blocks',
@@ -172,7 +173,8 @@ class AppController(PortalTemplate):
         # Make all required API calls
         response = self.api_call_threaded({
             'blocks':      ('network', 'get_ipv4_block'),
-            'datacenters': ('locations', 'get_datacenters')
+            'datacenters': ('locations', 'get_datacenters'),
+            'routers':     ('network', 'get_router')
         })
         
         def set_contents():
@@ -190,8 +192,7 @@ class AppController(PortalTemplate):
             if block_target:
                 return []
             return [
-                'app/network/popups/ipv4blocks/create.html',
-                'app/network/popups/ipv4blocks/delete.html'
+                'app/network/popups/ipv4blocks/create.html'
             ]
         
         # Get block details
@@ -205,6 +206,7 @@ class AppController(PortalTemplate):
                 'target': block_target
             },
             'datacenters': response['datacenters'],
+            'routers': response['routers'],
             'page': {
                 'header': None if not block_target else 'Network IPv4 Block: %s:%s' % (block_details['network'], block_details['prefix']),
                 'title':  'CloudScape Network IPv4 Blocks',
@@ -299,8 +301,7 @@ class AppController(PortalTemplate):
             """
             if router_target:
                 return [
-                    'app/network/popups/routers/interfaces/add.html',
-                    'app/network/popups/routers/interfaces/remove.html'
+                    'app/network/popups/routers/interfaces/add.html'
                 ]
             return [
                 'app/network/popups/routers/create.html',

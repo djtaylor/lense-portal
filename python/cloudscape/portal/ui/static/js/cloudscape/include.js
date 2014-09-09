@@ -54,7 +54,9 @@
 	include({
 		CSNetworkRoutersList:      'app/network/router.list.js',
 		CSNetworkRouterDetails:    'app/network/router.details.js',
-		CSNetworkInterface:        'app/network/interface.js'
+		CSNetworkInterface:        'app/network/interface.js',
+		CSNetworkIPBlocksList:     'app/network/ipblock.list.js',
+		CSNetworkIPBlockDetails:   'app/network/ipblock.details.js'
 	}, {
 		path: 'network'
 	}, function() {

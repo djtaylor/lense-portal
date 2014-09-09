@@ -381,15 +381,31 @@ cs.import('CSNetworkRouterDetails', function() {
 			cs.api.request.post({
 				path: 'network/router',
 				action: 'update',
-				_data: {
-					uuid: cs.network.router.active,
-					name: $('input[type="text"][form="edit_router"][name="name"]').val(),
-					desc: $('input[type="text"][form="edit_router"][name="desc"]').val(),
-					datacenter: (function() {
-						var val = $('select[form="edit_router"][name="datacenter"]').val();
-						return (defined(val)) ? val : null;
-					})()
-				},
+				_data: (function() {
+					
+					// Request data
+					var _data = {};
+					$('input[type="text"][form="edit_router"]').each(function(i,e) {
+						var attr = get_attr(e);
+						var val = $(e).val();
+						_data[attr.name] = (defined(val)) ? val : null;
+					});
+					
+					// Datacenter
+					var datacenter = $('select[form="edit_router"][name="datacenter"]').val();
+					_data['datacenter'] = (defined(datacenter)) ? datacenter : null;
+					
+					// IPv4 Block
+					var ipv4_net = $('select[form="edit_router"][name="ipv4_net"]').val();
+					_data['ipv4_net'] = (defined(ipv4_net)) ? ipv4_net : null;
+					
+					// IPv6 Block
+					var ipv6_net = $('select[form="edit_router"][name="ipv6_net"]').val();
+					_data['ipv6_net'] = (defined(ipv6_net)) ? ipv6_net : null;
+					
+					// Return the request data
+					return _data;
+				})(),
 				callback: {
 					id: 'router.save'
 				}

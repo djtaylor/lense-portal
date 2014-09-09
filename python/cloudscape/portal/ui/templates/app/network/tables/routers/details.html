@@ -28,7 +28,11 @@
 			<div class="table_row">
 				<div class="table_row_label">HW Address</div>
 				<div class="table_row_input">
-					<input type="text" form="edit_router" name="hwaddr" value="{{ routers.detail.hwaddr }}" disabled>
+					{% if routers.detail.hwaddr %}
+						<input type="text" form="edit_router" name="hwaddr" value="{{ routers.detail.hwaddr }}" disabled>
+					{% else %}
+						<input type="text" form="edit_router" name="hwaddr" value="" disabled>
+					{% endif %}
 				</div>
 			</div>
 			<div class="table_row">
@@ -60,7 +64,11 @@
 			<div class="table_row">
 				<div class="table_row_label">IPv4 Address</div>
 				<div class="table_row_input">
-					<input type="text" form="edit_router" name="ipv4_addr" value="{{ routers.detail.ipv4_addr }}" disabled>
+					{% if routers.detail.ipv4_addr %}
+						<input type="text" form="edit_router" name="ipv4_addr" value="{{ routers.detail.ipv4_addr }}" disabled>
+					{% else %}
+						<input type="text" form="edit_router" name="ipv4_addr" value="" disabled>
+					{% endif %}
 				</div>
 			</div>
 			<div class="table_row">
@@ -88,7 +96,11 @@
 			<div class="table_row">
 				<div class="table_row_label">IPv6 Address</div>
 				<div class="table_row_input">
-					<input type="text" form="edit_router" name="ipv6_addr" value="{{ routers.detail.ipv6_addr }}" disabled>
+					{% if routers.detail.ipv6_addr %}
+						<input type="text" form="edit_router" name="ipv6_addr" value="{{ routers.detail.ipv6_addr }}" disabled>
+					{% else %}
+						<input type="text" form="edit_router" name="ipv6_addr" value="" disabled>
+					{% endif %}
 				</div>
 			</div>
 			<div class="table_row">

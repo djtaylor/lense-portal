@@ -707,25 +707,56 @@ class NetworkRouterCreate:
         
         # Name / description / datacenter / metadata
         self.name = self.api.get_data('name')
-        self.desc = self.api.get_data('desc')
+        self.desc = self.api.get_data('desc', None)
         self.datacenter = self.api.get_data('datacenter')
-        self.meta = self.api.get_data('meta')
+        self.hwaddr = self.api.get_data('hwaddr', None)
+        self.meta = self.api.get_data('meta', None)
+        self.ipv4_addr = self.api.get_data('ipv4_addr', None)
+        self.ipv4_net = self.api.get_data('ipv4_net')
+        self.ipv6_addr = self.api.get_data('ipv6_addr', None)
+        self.ipv6_net = self.api.get_data('ipv6_net')
         
-    def launch(self):
+    def _create_router(self):
         """
-        Worker method for creating a new network router object.
+        Create the router object.
         """
         
         # Set the database object parameters
         params = {
             'uuid': self.uuid,
             'name': self.name,
-            'desc': self.desc
+            'desc': self.desc,
+            'meta': self.meta,
+            'hwaddr': self.hwaddr,
+            'ipv4_addr': self.ipv4_addr,
+            'ipv6_addr': self.ipv6_addr
         }
         
-        # If setting metadata
-        if self.meta:
-            params['meta'] = self.meta
+        # If attaching to an IPv4 network
+        if self.ipv4_net:
+            
+            # Get a list of authorized IPv4 network blocks
+            auth_ipv4_blocks = self.api.acl.authorized_objects('net_block_ipv4')
+            
+            # If the IPv4 block doesn't exist or access denied
+            if not self.ipv4_net in auth_ipv4_blocks.ids:
+                raise Exception('IPv4 network [%s] not found or access denied' % self.ipv4_net)
+            
+            # Set the IPv4 network object
+            params['ipv4_net'] = DBNetworkBlocksIPv4.objects.get(uuid=self.ipv4_net)
+            
+        # If attaching to an IPv6 network
+        if self.ipv6_net:
+            
+            # Get a list of authorized IPv6 network blocks
+            auth_ipv6_blocks = self.api.acl.authorized_objects('net_block_ipv6')
+            
+            # If the IPv6 block doesn't exist or access denied
+            if not self.ipv6_net in auth_ipv6_blocks.ids:
+                raise Exception('IPv6 network [%s] not found or access denied' % self.ipv6_net)
+            
+            # Set the IPv6 network object
+            params['ipv6_net'] = DBNetworkBlocksIPv6.objects.get(uuid=self.ipv6_net)
         
         # Get the datacenter object if applying
         if self.datacenter:
@@ -740,9 +771,20 @@ class NetworkRouterCreate:
             # Set the datacenter object
             params['datacenter'] = DBDatacenters.objects.get(uuid=self.datacenter)
         
+        # Save the router object
+        DBNetworkRouters(**params).save()
+        
+        # Return the parameters
+        return params
+        
+    def launch(self):
+        """
+        Worker method for creating a new network router object.
+        """
+        
         # Create the router object
         try:
-            DBNetworkRouters(**params).save()
+            params = self._create_router()
             
         # Critical error when creating network router
         except Exception as e:
@@ -752,8 +794,29 @@ class NetworkRouterCreate:
         web_data = {
             'uuid': self.uuid,
             'name': self.name,
-            'desc': self.desc
+            'desc': self.desc,
+            'hwaddr': self.hwaddr,
+            'ipv4_addr': self.ipv4_addr,
+            'ipv6_addr': self.ipv6_addr
         }
+        
+        # If attaching to an IPv4 network
+        if self.ipv4_net:
+            web_data.update({
+                'ipv4_net': {
+                    'uuid': params['ipv4_net'].uuid,
+                    'label': '%s/%s' % (params['ipv4_net'].network, params['ipv4_net'].prefix)
+                }
+            })
+            
+        # If attaching to an IPv6 network
+        if self.ipv6_net:
+            web_data.update({
+                'ipv6_net': {
+                    'uuid': params['ipv6_net'].uuid,
+                    'label': '%s/%s' % (params['ipv6_net'].network, params['ipv6_net'].prefix)
+                }
+            })
         
         # If attaching to a datacenter
         if self.datacenter:

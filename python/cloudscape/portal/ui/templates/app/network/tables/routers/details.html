@@ -55,6 +55,24 @@
 	</div>
 </div>
 
+{# Hidden Elements #}
+<div style="display:none;">
+	
+	{# IPv4 Networks #}
+	<div id="ipv4_networks">
+		{% for block in blocks.ipv4 %}
+			<network uuid="{{ block.uuid }}" label="{{ block.network }}/{{ block.prefix }}"></network>
+		{% endfor %}
+	</div>
+	
+	{# IPv6 Networks #}
+	<div id="ipv6_networks">
+		{% for block in blocks.ipv6 %}
+			<network uuid="{{ block.uuid }}" label="{{ block.network }}/{{ block.prefix }}"></network>
+		{% endfor %}
+	</div>
+</div>
+
 {# Router Interfaces #}
 <div class="table_50" type="table" target="router_interfaces" style="opacity:0.0;">
 	<div class="table_title">

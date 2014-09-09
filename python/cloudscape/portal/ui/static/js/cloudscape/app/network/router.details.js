@@ -46,6 +46,299 @@ cs.import('CSNetworkRouterDetails', function() {
 	cs.register.callback('router.add_interface', function(c,m,d,a) {
 		if (c == 200) {
 			
+			// Create the parent row
+			$('div[type="table"][name="router_interfaces"]').append(cs.layout.create.element('div', {
+				css: 'table_row table_row_link',
+				attr: (function() {
+					_attr = {
+						type: 'button',
+						action: 'toggle',
+						target: d.uuid + '_attrs'
+					};
+					_attr['interface'] = d.uuid;
+					return _attr;
+				})(),
+				children: [
+				    cs.layout.create.element('div', {
+				    	css: 'table_select_col',
+				    	children: [cs.layout.create.element('input', {
+				    		attr: {
+				    			type: 'radio',
+				    			name: 'interface_uuid',
+				    			action: 'update',
+				    			value: d.uuid
+				    		}
+				    	})]
+				    }),     
+				    cs.layout.create.element('div', {
+				    	css: 'table_col',
+				    	attr: {
+				    		col: 'interface_name'
+				    	},
+				    	text: d.name
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_col',
+				    	attr: {
+				    		col: 'interface_uuid'
+				    	},
+				    	text: d.uuid
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_col',
+				    	attr: {
+				    		col: 'interface_desc'
+				    	},
+				    	text: d.desc
+				    })
+				]
+			}));
+			
+			// Create the attributes group
+			$('div[type="table"][name="router_interfaces"]').append(cs.layout.create.element('div', {
+				css: 'table_row_group',
+				attr: {
+					style: 'display:none;',
+					type: 'toggle',
+					name: d.uuid + '_attrs'
+				},
+				children: [
+				    cs.layout.create.element('div', {
+				    	css: 'table_row',
+				    	children: [
+				    	    cs.layout.create.element('div', {
+				    	    	css: 'table_row_label',
+				    	    	text: 'Name'
+				    	    }),
+				    	    cs.layout.create.element('div', {
+						    	css: 'table_row_input',
+						    	children: [cs.layout.create.element('input', {
+						    		attr: {
+						    			type: 'text',
+						    			form: 'edit_interface_' + d.uuid,
+						    			name: 'name',
+						    			value: d.name,
+						    			disabled: ''
+						    		}
+						    	})]
+						    })
+				    	]
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_row',
+				    	children: [
+				    	    cs.layout.create.element('div', {
+				    	    	css: 'table_row_label',
+				    	    	text: 'Description'
+				    	    }),
+				    	    cs.layout.create.element('div', {
+						    	css: 'table_row_input',
+						    	children: [cs.layout.create.element('input', {
+						    		attr: {
+						    			type: 'text',
+						    			form: 'edit_interface_' + d.uuid,
+						    			name: 'desc',
+						    			value: d.desc,
+						    			disabled: ''
+						    		}
+						    	})]
+						    })
+				    	]
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_row',
+				    	children: [
+				    	    cs.layout.create.element('div', {
+				    	    	css: 'table_row_label',
+				    	    	text: 'HW Address'
+				    	    }),
+				    	    cs.layout.create.element('div', {
+						    	css: 'table_row_input',
+						    	children: [cs.layout.create.element('input', {
+						    		attr: {
+						    			type: 'text',
+						    			form: 'edit_interface_' + d.uuid,
+						    			name: 'hwaddr',
+						    			value: d.hwaddr,
+						    			disabled: ''
+						    		}
+						    	})]
+						    })
+				    	]
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_row',
+				    	children: [
+				    	    cs.layout.create.element('div', {
+				    	    	css: 'table_row_label',
+				    	    	text: 'IPv4 Address'
+				    	    }),
+				    	    cs.layout.create.element('div', {
+						    	css: 'table_row_input',
+						    	children: [cs.layout.create.element('input', {
+						    		attr: {
+						    			type: 'text',
+						    			form: 'edit_interface_' + d.uuid,
+						    			name: 'ipv4_addr',
+						    			value: (d.ipv4_addr) ? d.ipv4_addr : '',
+						    			disabled: ''
+						    		}
+						    	})]
+						    })
+				    	]
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_row',
+				    	children: [ 
+				    	    cs.layout.create.element('div', {
+				    	    	css: 'table_row_label',
+				    	    	text: 'IPv4 Network'
+				    	    }),
+				    	    cs.layout.create.element('div', {
+						    	css: 'table_row_input',
+						    	children: [cs.layout.create.element('select', {
+						    		attr: {
+						    			form: 'edit_interface_' + d.uuid,
+						    			name: 'ipv4_net',
+						    			disabled: ''
+						    		},
+						    		children: (function() {
+						    			
+						    			var _c = [cs.layout.create.element('option', {
+						    				attr: (function() {
+						    					var _attr = {
+						    						value: ''	
+						    					};
+						    					if (!defined(d.ipv4_net)) {
+						    						_attr['selected'] = 'selected';
+						    					}
+						    					return _attr;
+						    				})(),
+						    				text: '-none-'
+						    			})];
+						    			
+						    			$.each($('#ipv4_networks').find('network'), function(i,e) {
+						    				var ea = get_attr(e);
+						    				_c.push(cs.layout.create.element('option', {
+						    					attr: (function() {
+						    						var _attr = {
+						    							value: ea.uuid
+						    						};
+						    						if (d.ipv4_net == ea.uuid) {
+						    							_attr['selected'] = 'selected';
+						    						}
+						    					})(),
+						    					text: ea.label
+						    				}));
+						    			});
+						    		})()
+						    	})]
+						    })
+					    ]
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_row',
+				    	children: [
+				    	    cs.layout.create.element('div', {
+				    	    	css: 'table_row_label',
+				    	    	text: 'IPv6 Address'
+				    	    }),
+				    	    cs.layout.create.element('div', {
+						    	css: 'table_row_input',
+						    	children: [cs.layout.create.element('input', {
+						    		attr: {
+						    			type: 'text',
+						    			form: 'edit_interface_' + d.uuid,
+						    			name: 'ipv6_addr',
+						    			value: (d.ipv6_addr) ? d.ipv6_addr : '',
+						    			disabled: ''
+						    		}
+						    	})]
+						    })
+				    	]
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_row',
+				    	children: [ 
+				    	    cs.layout.create.element('div', {
+				    	    	css: 'table_row_label',
+				    	    	text: 'IPv6 Network'
+				    	    }),
+				    	    cs.layout.create.element('div', {
+						    	css: 'table_row_input',
+						    	children: [cs.layout.create.element('select', {
+						    		attr: {
+						    			form: 'edit_interface_' + d.uuid,
+						    			name: 'ipv6_net',
+						    			disabled: ''
+						    		},
+						    		children: (function() {
+						    			
+						    			var _c = [cs.layout.create.element('option', {
+						    				attr: (function() {
+						    					var _attr = {
+						    						value: ''	
+						    					};
+						    					if (!defined(d.ipv6_net)) {
+						    						_attr['selected'] = 'selected';
+						    					}
+						    					return _attr;
+						    				})(),
+						    				text: '-none-'
+						    			})];
+						    			
+						    			$.each($('#ipv6_networks').find('network'), function(i,e) {
+						    				var ea = get_attr(e);
+						    				_c.push(cs.layout.create.element('option', {
+						    					attr: (function() {
+						    						var _attr = {
+						    							value: ea.uuid
+						    						};
+						    						if (d.ipv6_net == ea.uuid) {
+						    							_attr['selected'] = 'selected';
+						    						}
+						    					})(),
+						    					text: ea.label
+						    				}));
+						    			});
+						    		})()
+						    	})]
+						    })
+					    ]
+				    }),
+				    cs.layout.create.element('div', {
+				    	css: 'table_row',
+				    	children: [cs.layout.create.element('div', {
+				    		css: 'table_row_actions',
+				    		children: [
+				    		    cs.layout.create.element('div', {
+				    		    	css: 'table_action',
+				    		    	attr: {
+				    		    		active: 'yes',
+				    		    		type: 'button',
+				    		    		action: 'method',
+				    		    		target: 'interface.edit',
+				    		    		arg: d.uuid
+				    		    	},
+				    		    	text: 'Edit'
+				    		    }),
+				    		    cs.layout.create.element('div', {
+				    		    	css: 'table_action',
+				    		    	attr: {
+				    		    		active: 'no',
+				    		    		type: 'button',
+				    		    		action: 'method',
+				    		    		target: 'interface.edit',
+				    		    		arg: d.uuid,
+				    		    		style: 'display:none;'
+				    		    	},
+				    		    	text: 'Save'
+				    		    })
+				    		]
+				    	})]
+				    })
+				]
+			}));
 		}
 	});
 	
@@ -55,17 +348,17 @@ cs.import('CSNetworkRouterDetails', function() {
 	cs.register.callback('interface.save', function(c,m,d,a) {
 		
 		// Switch the edit/save buttons
-		$('div[type="button"][target="interface.edit"][arg="' + a.uuid + '"]').css('display', 'none').attr('active', 'no');
-		$('div[type="button"][target="interface.save"][arg="' + a.uuid + '"]').css('display', 'block').attr('active', 'yes');
+		$('div[type="button"][target="interface.edit"][arg="' + a.uuid + '"]').css('display', 'block').attr('active', 'yes');
+		$('div[type="button"][target="interface.save"][arg="' + a.uuid + '"]').css('display', 'none').attr('active', 'no');
 		
 		// Enable the form fields
-		$('input[type="text"][form="edit_interface_' + a.uuid + '"]').removeAttr('disabled');
-		$('select[form="edit_interface_' + a.uuid + '"]').removeAttr('disabled');
+		$('input[type="text"][form="edit_interface_' + a.uuid + '"]').attr('disabled', '');
+		$('select[form="edit_interface_' + a.uuid + '"]').attr('disabled', '');
 		
 		// If the request succeeded
 		if (c == 200) {
-			$('div[interface="' + a.uuid + '"]').find('div[col="interface_name"]').text($('input[type="text"][form="edit_interface_' + i + '"][name="name"]').val());
-			$('div[interface="' + a.uuid + '"]').find('div[col="interface_desc"]').text($('input[type="text"][form="edit_interface_' + i + '"][name="desc"]').val());
+			$('div[interface="' + a.uuid + '"]').find('div[col="interface_name"]').text($('input[type="text"][form="edit_interface_' + a.uuid + '"][name="name"]').val());
+			$('div[interface="' + a.uuid + '"]').find('div[col="interface_desc"]').text($('input[type="text"][form="edit_interface_' + a.uuid + '"][name="desc"]').val());
 		}
 	});
 	

@@ -379,7 +379,7 @@ class NetworkRouterUpdateInterface:
         interface_found = False
         for interface in router_details['interfaces']:
             if interface['uuid'] == self.interface:
-                interface_found
+                interface_found = True
         
         # If the interface is not attached to the router
         if not interface_found:
@@ -496,7 +496,19 @@ class NetworkRouterAddInterface:
             'name': params['name'],
             'desc': params['desc'],
             'hwaddr': params['hwaddr'],
+            'ipv4_net': None,
+            'ipv4_addr': params['ipv4_addr'],
+            'ipv6_net': None,
+            'ipv6_addr': params['ipv6_addr']
         }
+        
+        # If attaching to an IPv4 network block
+        if self.ipv4_net:
+            web_data['ipv4_net'] = params['ipv4_net'].uuid
+        
+        # If attaching to an IPv6 network block
+        if self.ipv6_net:
+            web_data['ipv6_net'] = params['ipv6_net'].uuid
         
         # Successfully added router interface
         return valid('Successfully created router interface', web_data)

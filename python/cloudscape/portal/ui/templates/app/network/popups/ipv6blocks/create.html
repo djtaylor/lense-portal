@@ -1,19 +1,19 @@
 {# Create IPv6 Block #}
-<div class="popup_content" type="popup" target="ipv6block.create">
+<div class="popup_content" type="popup" target="ipv6_block.create">
 	<div class="popup_title">Create IPv6 Block</div>
 	<div class="popup_body">
 		<div class="popup_desc">
 			Create a new IPv6 block definition. You may optionally assign to an existing datacenter/router
 			object.
 		</div>
-		<form id="ipv6block_create">
+		<form id="ipv6_block_create">
 			
 			{# IPv6 Block Network #}
 			<div class="popup_row">
 				<div class="popup_row_label">Network</div>
 				<div class="popup_row_input">
-					<input type="text" form="ipv6block_create" name="network" value="" required />
-					<div class="form_input_icon_def" type="icon" form="ipv6block_create" name="network"></div>
+					<input type="text" form="ipv6_block_create" name="network" value="" required />
+					<div class="form_input_icon_def" type="icon" form="ipv6_block_create" name="network"></div>
 				</div>
 			</div>
 			
@@ -21,8 +21,8 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Prefix</div>
 				<div class="popup_row_input">
-					<input type="text" form="ipv6block_create" name="prefix" value="" required />
-					<div class="form_input_icon_def" type="icon" form="ipv6block_create" name="prefix"></div>
+					<input type="text" form="ipv6_block_create" name="prefix" value="" required />
+					<div class="form_input_icon_def" type="icon" form="ipv6_block_create" name="prefix"></div>
 				</div>
 			</div>
 			
@@ -30,8 +30,8 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Description</div>
 				<div class="popup_row_input">
-					<input type="text" form="ipv6block_create" name="desc" value="" required />
-					<div class="form_input_icon_def" type="icon" form="ipv6block_create" name="desc"></div>
+					<input type="text" form="ipv6_block_create" name="desc" value="" required />
+					<div class="form_input_icon_def" type="icon" form="ipv6_block_create" name="desc"></div>
 				</div>
 			</div>
 			
@@ -39,7 +39,7 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Datacenter</div>
 				<div class="popup_row_input">
-					<select name="datacenter" form="ipv6block_create">
+					<select name="datacenter" form="ipv6_block_create">
 						<option value="">-none-</option>
 						{% for datacenter in datacenters %}
 							<option value="{{ datacenter.uuid }}">{{ datacenter.name }}</option>
@@ -52,7 +52,7 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Router</div>
 				<div class="popup_row_input">
-					<select name="router" form="ipv6block_create">
+					<select name="router" form="ipv6_block_create">
 						<option value="">-none-</option>
 						{% for router in routers %}
 							<option value="{{ router.uuid }}">{{ router.name }}</option>
@@ -65,8 +65,8 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Active</div>
 				<div class="popup_row_input">
-					<input type="checkbox" form="ipv6block_create" name="active" checked="checked"/>
-					<div class="form_input_icon_def" type="icon" form="ipv6block_create" name="active"></div>
+					<input type="checkbox" form="ipv6_block_create" name="active" checked="checked"/>
+					<div class="form_input_icon_def" type="icon" form="ipv6_block_create" name="active"></div>
 				</div>
 			</div>
 			
@@ -74,16 +74,16 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Locked</div>
 				<div class="popup_row_input">
-					<input type="checkbox" form="ipv6block_create" name="locked"/>
-					<div class="form_input_icon_def" type="icon" form="ipv6block_create" name="locked"></div>
+					<input type="checkbox" form="ipv6_block_create" name="locked"/>
+					<div class="form_input_icon_def" type="icon" form="ipv6_block_create" name="locked"></div>
 				</div>
 			</div>
 
 			{# Form Validation Response #}
-			<div class="form_response" type="response" target="#ipv6block_create"></div>
+			<div class="form_response" type="response" target="#ipv6_block_create"></div>
 		</form>
 		
 		{# Submit API Request #}
-		<div class="popup_submit" type="button" action="method" target="ipv6block.create">Create IPv6 Block</div>
+		<div class="popup_submit" type="button" action="method" target="ipv6_block.create">Create IPv6 Block</div>
 	</div>
 </div>

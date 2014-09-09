@@ -89,22 +89,41 @@ class NetworkBlockCreate(object):
         Create the IP block database entry.
         """
         
-        # Get the datacenter and router objects
-        datacenter = DBDatacenters.objects.get(uuid=self.attrs['datacenter'])
         # Define the creation parameters
         params = {
             'uuid':       self.uuid,
             'network':    self.attrs['network'],
             'prefix':     self.attrs['prefix'],
-            'datacenter': datacenter,
             'desc':       self.attrs['desc'],
-            'meta':       '{}' if not self.attrs['meta'] else json.dumps(self.attrs['meta']),
+            'meta':       self.attrs['meta'],
             'active':     True if not self.attrs['active'] else self.attrs['active'],
             'locked':     False if not self.attrs['locked'] else self.attrs['locked']    
         }
         
+        # If assigning to a datacenter
+        if self.attrs['datacenter']:
+            
+            # Construct a list of authorized datacenters
+            auth_datacenters = self.api.acl.authorized_objects('datacenter')
+            
+            # If the datacenter is not found or access is denied
+            if not self.attrs['datacenter'] in auth_datacenters.ids:
+                raise Exception('Could not locate datacenter [%s], not found or access denied' % self.attrs['datacenter'])
+            
+            # Set the datacenter object
+            params['datacenter'] = DBDatacenters.objects.get(uuid=self.attrs['datacenter'])
+        
         # If assigning to a router
         if self.attrs['router']:
+            
+            # Construct a list of authorized routers
+            auth_routers = self.api.acl.authorized_objects('net_router')
+            
+            # If the router is not found or access is denied
+            if not self.attrs['router'] in auth_routers.ids:
+                raise Exception('Could not locate router [%s], not found or access denied' % self.attrs['datacenter'])
+            
+            # Set the router object
             params['router'] = DBNetworkRouters.objects.get(uuid=self.attrs['router'])
         
         # IPv4
@@ -114,6 +133,9 @@ class NetworkBlockCreate(object):
         # IPv6
         if self.proto == 'ipv6':
             DBNetworkBlocksIPv6(**params).save()
+                
+        # Return the parameters
+        return params
                 
     def launch(self):
         """
@@ -139,29 +161,38 @@ class NetworkBlockCreate(object):
         
         # Create the network block object
         try:
-            self._create_block()
+            params = self._create_block()
             
         # Critical error when creating network block
         except Exception as e:
             return invalid(self.api.log.exception('Failed to create network %s block: %s' % (self.proto_label, str(e))))
         
-        # Return the response
-        return valid('Successfully created network %s block' % self.proto_label, {
+        # Construct the web data
+        web_data = {
             'uuid': self.uuid,
             'desc': self.attrs['desc'],
             'network': self.attrs['network'],
             'prefix': self.attrs['prefix'],
             'active': self.attrs['active'],
-            'locked': self.attrs['locked'],
-            'datacenter': {
-                'name': datacenter.name,
-                'uuid': datacenter.uuid
-            },
-            'router': {
-                'name': router.name,
-                'uuid': router.uuid
-            }
-        })
+            'locked': self.attrs['locked']
+        }
+        
+        # If attaching to a datacenter
+        if 'datacenter' in params:
+            web_data.update({'datacenter': {
+                'name': params['datacenter'].name,
+                'uuid': params['datacenter'].uuid
+            }})
+            
+        # If attaching to a router
+        if 'router' in params:
+            web_data.update({'router': {
+                'name': params['router'].name,
+                'uuid': params['router'].uuid
+            }})
+        
+        # Return the response
+        return valid('Successfully created network %s block' % self.proto_label, web_data)
       
 class NetworkBlockIPv4Create(NetworkBlockCreate):
     """

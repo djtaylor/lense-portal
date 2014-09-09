@@ -88,6 +88,45 @@ cs.import('CSNetworkRouterDetails', function() {
 	});
 	
 	/**
+	 * Method: Save Interface
+	 */
+	cs.register.method('interface.save', function(i) {
+		if (defined(i)) {
+			cs.layout.loading(true, 'Updating interface...', function() {
+				cs.api.request.post({
+					path: 'network/router/interface',
+					action: 'update',
+					_data: (function() {
+						// Construct data
+					})(),
+					callback: {
+						id: 'interface.save',
+						args: {
+							uuid: i
+						}
+					}
+				});
+			});
+		}
+	});
+	
+	/**
+	 * Method: Edit Interface
+	 */
+	cs.register.method('interface.edit', function(i) {
+		if (defined(i)) {
+			
+			// Switch the edit/save buttons
+			$('div[type="button"][target="interface.edit"][arg="' + i + '"]').css('display', 'none').attr('active', 'no');
+			$('div[type="button"][target="interface.save"][arg="' + i + '"]').css('display', 'block').attr('active', 'yes');
+			
+			// Enable the form fields
+			$('input[type="text"][form="edit_interface_' + i + '"]').removeAttr('disabled');
+			$('select[form="edit_interface_' + i + '"]').removeAttr('disabled');
+		}
+	});
+	
+	/**
 	 * Method: Remove Interface
 	 */
 	cs.register.method('router.remove_interface', function() {

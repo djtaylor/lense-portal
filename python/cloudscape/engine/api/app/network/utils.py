@@ -310,6 +310,16 @@ class NetworkRouterRemoveInterface:
         
         return valid()
       
+class NetworkRouterUpdateInterface:
+    """
+    Update an existing router interface.
+    """
+    def __init__(self, parent):
+        self.api = parent
+      
+    def launch(self):
+        return valid()
+      
 class NetworkRouterAddInterface:
     """
     Add an interface to an existing router.

@@ -629,6 +629,11 @@ div[class="table_sortable_icon"][icon="add"] {
 
 .table_row_actions {
 	overflow: auto;
+	padding: 5px;
+}
+
+.table_row_actions .table_action {
+	padding: 5px;
 }
 
 .table_header_rg {

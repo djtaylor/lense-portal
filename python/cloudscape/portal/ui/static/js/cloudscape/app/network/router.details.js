@@ -50,6 +50,26 @@ cs.import('CSNetworkRouterDetails', function() {
 	});
 	
 	/**
+	 * Callback: Save Interface
+	 */
+	cs.register.callback('interface.save', function(c,m,d,a) {
+		
+		// Switch the edit/save buttons
+		$('div[type="button"][target="interface.edit"][arg="' + a.uuid + '"]').css('display', 'none').attr('active', 'no');
+		$('div[type="button"][target="interface.save"][arg="' + a.uuid + '"]').css('display', 'block').attr('active', 'yes');
+		
+		// Enable the form fields
+		$('input[type="text"][form="edit_interface_' + a.uuid + '"]').removeAttr('disabled');
+		$('select[form="edit_interface_' + a.uuid + '"]').removeAttr('disabled');
+		
+		// If the request succeeded
+		if (c == 200) {
+			$('div[interface="' + a.uuid + '"]').find('div[col="interface_name"]').text($('input[type="text"][form="edit_interface_' + i + '"][name="name"]').val());
+			$('div[interface="' + a.uuid + '"]').find('div[col="interface_desc"]').text($('input[type="text"][form="edit_interface_' + i + '"][name="desc"]').val());
+		}
+	});
+	
+	/**
 	 * Method: Save Router
 	 */
 	cs.register.method('router.save', function() {
@@ -97,7 +117,33 @@ cs.import('CSNetworkRouterDetails', function() {
 					path: 'network/router/interface',
 					action: 'update',
 					_data: (function() {
-						// Construct data
+						
+						// IPv4 address / network
+						ipv4_addr = $('input[type="text"][form="edit_interface_' + i + '"][name="ipv4_addr"]').val();
+						ipv4_net = $('select[form="edit_interface_' + i + '"][name="ipv4_net"]').val()
+						
+						// IPv6 address / network
+						ipv6_addr = $('input[type="text"][form="edit_interface_' + i + '"][name="ipv6_addr"]').val();
+						ipv6_net = $('select[form="edit_interface_' + i + '"][name="ipv6_net"]').val()
+						
+						// Base data
+						var _data = {
+							uuid: cs.network.router.active,
+							name: $('input[type="text"][form="edit_interface_' + i + '"][name="name"]').val(),
+							desc: $('input[type="text"][form="edit_interface_' + i + '"][name="desc"]').val(),
+							hwaddr: $('input[type="text"][form="edit_interface_' + i + '"][name="hwaddr"]').val(),
+							ipv4_addr: (defined(ipv4_addr)) ? ipv4_addr : null,
+							ipv4_net: (defined(ipv4_net)) ? ipv4_net : null,
+							ipv6_addr: (defined(ipv6_addr)) ? ipv6_addr : null,
+							ipv6_net: (defined(ipv6_net)) ? ipv6_net : null
+						}
+						
+						// Set the target interface
+						_data['interface'] = i;
+						
+						// Return the request data
+						return _data;
+						
 					})(),
 					callback: {
 						id: 'interface.save',

@@ -317,8 +317,84 @@ class NetworkRouterUpdateInterface:
     def __init__(self, parent):
         self.api = parent
       
+        # Target router / interface
+        self.router = self.api.acl.target_object()
+        self.interface = self.api.get_data('interface')
+      
+    def _update_interface(self):
+        """
+        Update the interface attributes.
+        """
+      
+        # Get the interface object
+        interface_obj = DBNetworkRouterInterfaces.objects.get(uuid=self.interface)
+      
+        # Name / description / hardware address
+        if 'name' in self.api.data:
+            interface_obj.name = self.api.data['name']
+        if 'desc' in self.api.data:
+            interface_obj.desc = self.api.data['desc']
+        if 'hwaddr' in self.api.data:
+            interface_obj.hwaddr = self.api.data['hwaddr']
+        
+        # IPv4 address / network
+        if 'ipv4_addr' in self.api.data:
+            interface_obj.ipv4_addr = None if not self.api.data['ipv4_addr'] else self.api.data['ipv4_addr']
+        if 'ipv4_net' in self.api.data:
+            ipv4_net = self.api.get_data('ipv4_net')
+            if (ipv4_net == False) or (ipv4_net == None):
+                interface_obj.ipv4_net = None
+            else:
+                interface_obj.ipv4_net = DBNetworkBlocksIPv4.objects.get(uuid=ipv4_net)
+                
+        # IPv6 address / network
+        if 'ipv6_addr' in self.api.data:
+            interface_obj.ipv6_addr = None if not self.api.data['ipv6_addr'] else self.api.data['ipv6_addr']
+        if 'ipv6_net' in self.api.data:
+            ipv6_net = self.api.get_data('ipv6_net')
+            if (ipv6_net == False) or (ipv6_net == None):
+                interface_obj.ipv6_net = None
+            else:
+                interface_obj.ipv6_net = DBNetworkBlocksIPv6.objects.get(uuid=ipv6_net)
+                
+        # Update the interface
+        interface_obj.save()
+      
     def launch(self):
-        return valid()
+        """
+        Worker method for updating a router interface.
+        """
+        
+        # Get a list of authorized routers
+        auth_routers = self.api.acl.authorized_objects('net_router')
+        
+        # If the router doesn't exist or access denied
+        if not self.router in auth_routers.ids:
+            return invalid('Cannot update interface one router [%s], router not found or access denied' % self.router)
+        
+        # Extract the router details
+        router_details = auth_routers.extract(self.router)
+        
+        # Make sure the interface exists on the router
+        interface_found = False
+        for interface in router_details['interfaces']:
+            if interface['uuid'] == self.interface:
+                interface_found
+        
+        # If the interface is not attached to the router
+        if not interface_found:
+            return invalid('Cannot update interface [%s] on router [%s], interface not found' % (self.interface, self.router))
+        
+        # Update the interface
+        try:
+            self._update_interface()
+            
+        # Failed to update interface
+        except Exception as e:
+            return invalid('Failed to update interface: %s' % str(e))
+        
+        # Successfully updated interface
+        return valid('Successfully updated interface')
       
 class NetworkRouterAddInterface:
     """

@@ -627,6 +627,10 @@ div[class="table_sortable_icon"][icon="add"] {
 	border-top: solid 5px #eee;
 }
 
+.table_row_actions {
+	overflow: auto;
+}
+
 .table_header_rg {
 	font-size: 1.0em;
 	height: 20px;

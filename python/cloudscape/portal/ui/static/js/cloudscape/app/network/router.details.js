@@ -336,7 +336,7 @@ cs.import('CSNetworkRouterDetails', function() {
 				    		    		active: 'no',
 				    		    		type: 'button',
 				    		    		action: 'method',
-				    		    		target: 'interface.edit',
+				    		    		target: 'interface.save',
 				    		    		arg: d.uuid,
 				    		    		style: 'display:none;'
 				    		    	},

@@ -29,9 +29,9 @@ class DBNetworkRouterInterfaces(models.Model):
     # Router interface columns
     uuid         = models.CharField(max_length=36, unique=True)
     name         = models.CharField(max_length=64)
-    desc         = models.CharField(max_length=256)
+    desc         = models.CharField(max_length=256, blank=True, null=True)
     router       = models.ForeignKey('network.DBNetworkRouters', to_field='uuid', db_column='router')
-    hwaddr       = models.CharField(max_length=17, unique=True)
+    hwaddr       = models.CharField(max_length=17, unique=True, null=True, blank=True)
     ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
     ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
     ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')
@@ -51,8 +51,13 @@ class DBNetworkRouters(models.Model):
     # Router columns
     uuid         = models.CharField(max_length=36, unique=True)
     name         = models.CharField(max_length=128, unique=True)
-    desc         = models.CharField(max_length=256)
+    desc         = models.CharField(max_length=256, blank=True, null=True)
     datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
+    hwaddr       = models.CharField(max_length=17, unique=True, null=True, blank=True)
+    ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
+    ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
+    ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')
+    ipv6_addr    = models.GenericIPAddressField(protocol='ipv6', blank=True, null=True, unique=True)
     meta         = JSONField(empty=True)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
@@ -78,7 +83,7 @@ class DBNetworkBlocksIPv4(models.Model):
     active       = models.NullBooleanField()
     locked       = models.NullBooleanField()
     meta         = JSONField(empty=True)
-    desc         = models.CharField(max_length=256)
+    desc         = models.CharField(max_length=256, blank=True, null=True)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
     
@@ -103,7 +108,7 @@ class DBNetworkBlocksIPv6(models.Model):
     active       = models.NullBooleanField()
     locked       = models.NullBooleanField()
     meta         = JSONField(empty=True)
-    desc         = models.CharField(max_length=256)
+    desc         = models.CharField(max_length=256, blank=True, null=True)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
     
@@ -122,13 +127,14 @@ class DBNetworkSwitches(models.Model):
     # Switch columns
     uuid         = models.CharField(max_length=36, unique=True)
     name         = models.CharField(max_length=128, unique=True)
-    desc         = models.CharField(max_length=256)
+    desc         = models.CharField(max_length=256, blank=True, null=True)
     datacenter   = NullForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
-    meta         = JSONField(empty=True)
+    hwaddr       = models.CharField(max_length=17, unique=True, null=True, blank=True)
     ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
     ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
     ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')
     ipv6_addr    = models.GenericIPAddressField(protocol='ipv6', blank=True, null=True, unique=True)
+    meta         = JSONField(empty=True)
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
     
@@ -144,13 +150,15 @@ class DBNetworkSwitchInterfaces(models.Model):
     # Switch interface columns
     uuid         = models.CharField(max_length=36, unique=True)
     name         = models.CharField(max_length=64)
-    desc         = models.CharField(max_length=256)
+    desc         = models.CharField(max_length=256, blank=True, null=True)
     switch       = models.ForeignKey('network.DBNetworkSwitches', to_field='uuid', db_column='switch')
-    hwaddr       = models.CharField(max_length=17, unique=True)
+    hwaddr       = models.CharField(max_length=17, unique=True, null=True, blank=True)
     ipv4_net     = NullForeignKey('network.DBNetworkBlocksIPv4', to_field='uuid', db_column='ipv4_net')
     ipv4_addr    = models.GenericIPAddressField(protocol='ipv4', blank=True, null=True, unique=True)
     ipv6_net     = NullForeignKey('network.DBNetworkBlocksIPv6', to_field='uuid', db_column='ipv6_net')
     ipv6_addr    = models.GenericIPAddressField(protocol='ipv6', blank=True, null=True, unique=True)
+    created      = models.DateTimeField(auto_now_add=True)
+    modified     = models.DateTimeField(auto_now=True)
     
     # Custom model metadata
     class Meta:

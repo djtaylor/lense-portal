@@ -19,6 +19,7 @@
 		<div class="table_header table_header_md" col="ip_block_locked">Locked</div>
 	</div>
 	<div type="rows" table="ip_block_list">
+		<input type="hidden" name="ip_block_uuid" value="">
 		{% for block in blocks.all %}
 		<div class="table_row" type="row" target="ip_blocks" block="{{ block.uuid }}">
 			<div class="table_select_col">

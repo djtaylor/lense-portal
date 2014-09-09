@@ -28,7 +28,7 @@ cs.import('CSNetworkIPBlocksList', function() {
 	 */
 	cs.register.callback('ip_block.create', function(c,m,d,a) {
 		if (c == 200) {
-			$('div[type="row"][table="ip_block_list"]').append(cs.layout.create.element('div', {
+			$('div[type="rows"][table="ip_block_list"]').append(cs.layout.create.element('div', {
 				css: 'table_row',
 				attr: {
 					type: 'row',

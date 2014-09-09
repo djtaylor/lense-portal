@@ -117,7 +117,36 @@ cs.import('CSNetworkRouterDetails', function() {
 					path: 'network/router/interface',
 					action: 'add',
 					_data: (function() {
-						// Generate request data
+						
+						// Base request data
+						_data = {
+							name: $('input[form="router_add_interface"][name="name"]').val(),
+							desc: $('input[form="router_add_interface"][name="desc"]').val(),
+							hwaddr: $('input[form="router_add_interface"][name="name"]').val()
+						}
+						
+						// IPv4/IPv6 addresses
+						var ipv4_addr = $('input[form="router_add_interface"][name="ipv4_addr"]').val();
+						var ipv6_addr = $('input[form="router_add_interface"][name="ipv6_addr"]').val();
+						if (defined(ipv4_addr)) {
+							_data['ipv4_addr'] = ipv4_addr;
+						}
+						if (defined(ipv6_addr)) {
+							_data['ipv6_addr'] = ipv6_addr;
+						}
+						
+						// IPv4/IPv6 networks
+						var ipv4_net = $('select[form="router_add_interface"][name="ipv4_net"]').val();
+						var ipv6_net = $('select[form="router_add_interface"][name="ipv6_net"]').val();
+						if (defined(ipv4_net)) {
+							_data['ipv4_net'] = ipv4_net;
+						}
+						if (defined(ipv6_net)) {
+							_data['ipv6_net'] = ipv6_net;
+						}
+						
+						// Return the request data
+						return _data;
 					})(),
 					callback: {
 						id: 'router.add_interface'

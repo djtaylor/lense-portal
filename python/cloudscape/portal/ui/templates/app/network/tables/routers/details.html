@@ -26,6 +26,12 @@
 				</div>
 			</div>
 			<div class="table_row">
+				<div class="table_row_label">HW Address</div>
+				<div class="table_row_input">
+					<input type="text" form="edit_router" name="hwaddr" value="{{ routers.detail.hwaddr }}" disabled>
+				</div>
+			</div>
+			<div class="table_row">
 				<div class="table_row_label">UUID</div>
 				<div class="table_row_text">{{ routers.detail.uuid }}</div>
 			</div>
@@ -33,7 +39,7 @@
 				<div class="table_row_label">Datacenter</div>
 				<div class="table_row_select">
 					<select form="edit_router" name="datacenter" disabled>
-						{% if not group.detail.datacenter %}
+						{% if not routers.detail.datacenter %}
 							<option value="" selected="selected">-none-</option>
 							{% for datacenter in datacenters %}
 								<option value="{{ datacenter.uuid }}">{{ datacenter.name }}</option>
@@ -45,6 +51,62 @@
 									<option value="{{ datacenter.uuid }}" selected="selected">{{ datacenter.name }}</option>
 								{% else %}
 									<option value="{{ datacenter.uuid }}">{{ datacenter.name }}</option>
+								{% endif %}
+							{% endfor %}
+						{% endif %}
+					</select>
+				</div>
+			</div>
+			<div class="table_row">
+				<div class="table_row_label">IPv4 Address</div>
+				<div class="table_row_input">
+					<input type="text" form="edit_router" name="ipv4_addr" value="{{ routers.detail.ipv4_addr }}" disabled>
+				</div>
+			</div>
+			<div class="table_row">
+				<div class="table_row_label">IPv4 Network</div>
+				<div class="table_row_select">
+					<select form="edit_router" name="ipv6_net" disabled>
+						{% if not routers.detail.ipv4_net_id %}
+							<option value="" selected="selected">-none-</option>
+							{% for block in blocks.ipv4 %}
+								<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+							{% endfor %}
+						{% else %}
+							<option value="">-none-</option>
+							{% for block in blocks.ipv4 %}
+								{% if block.uuid == routers.detail.ipv4_net_id %}
+									<option value="{{ block.uuid }}" selected="selected">{{ block.network }}/{{ block.prefix }}</option>
+								{% else %}
+									<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+								{% endif %}
+							{% endfor %}
+						{% endif %}
+					</select>
+				</div>
+			</div>
+			<div class="table_row">
+				<div class="table_row_label">IPv6 Address</div>
+				<div class="table_row_input">
+					<input type="text" form="edit_router" name="ipv6_addr" value="{{ routers.detail.ipv6_addr }}" disabled>
+				</div>
+			</div>
+			<div class="table_row">
+				<div class="table_row_label">IPv4 Network</div>
+				<div class="table_row_select">
+					<select form="edit_router" name="ipv6_net" disabled>
+						{% if not routers.detail.ipv6_net_id %}
+							<option value="" selected="selected">-none-</option>
+							{% for block in blocks.ipv4 %}
+								<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+							{% endfor %}
+						{% else %}
+							<option value="">-none-</option>
+							{% for block in blocks.ipv6 %}
+								{% if block.uuid == routers.detail.ipv6_net_id %}
+									<option value="{{ block.uuid }}" selected="selected">{{ block.network }}/{{ block.prefix }}</option>
+								{% else %}
+									<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
 								{% endif %}
 							{% endfor %}
 						{% endif %}

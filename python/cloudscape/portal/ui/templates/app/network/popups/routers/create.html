@@ -21,8 +21,17 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Description</div>
 				<div class="popup_row_input">
-					<input type="text" form="router_create" name="desc" value="" required />
+					<input type="text" form="router_create" name="desc" value=""/>
 					<div class="form_input_icon_def" type="icon" form="router_create" name="desc"></div>
+				</div>
+			</div>
+			
+			{# Router HW Address #}
+			<div class="popup_row">
+				<div class="popup_row_label">HW Address</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_create" name="hwaddr" value=""/>
+					<div class="form_input_icon_def" type="icon" form="router_create" name="hwaddr"></div>
 				</div>
 			</div>
 			
@@ -36,6 +45,50 @@
 							<option value="{{ datacenter.uuid }}">{{ datacenter.name }}</option>
 						{% endfor %}
 					</select>
+				</div>
+			</div>
+			
+			{# Router IPv4 Network #}
+			<div class="popup_row">
+				<div class="popup_row_label">IPv4 Network</div>
+				<div class="popup_row_input">
+					<select name="ipv4_net" form="router_create">
+						<option value="">-none-</option>
+						{% for block in blocks.ipv4 %}
+							<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+
+			{# Router IPv4 Address #}
+			<div class="popup_row">
+				<div class="popup_row_label">IPv4 Address</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_create" name="ipv4_addr" value=""/>
+					<div class="form_input_icon_def" type="icon" form="router_create" name="ipv4_addr"></div>
+				</div>
+			</div>
+			
+			{# Router IPv6 Network #}
+			<div class="popup_row">
+				<div class="popup_row_label">IPv6 Network</div>
+				<div class="popup_row_input">
+					<select name="ipv6_net" form="router_create">
+						<option value="">-none-</option>
+						{% for block in blocks.ipv6 %}
+							<option value="{{ block.uuid }}">{{ block.network }}/{{ block.prefix }}</option>
+						{% endfor %}
+					</select>
+				</div>
+			</div>
+
+			{# Router IPv6 Address #}
+			<div class="popup_row">
+				<div class="popup_row_label">IPv6 Address</div>
+				<div class="popup_row_input">
+					<input type="text" form="router_create" name="ipv6_addr" value=""/>
+					<div class="form_input_icon_def" type="icon" form="router_create" name="ipv6_addr"></div>
 				</div>
 			</div>
 

@@ -39,6 +39,9 @@ class DBNetworkRouterInterfaces(models.Model):
     created      = models.DateTimeField(auto_now_add=True)
     modified     = models.DateTimeField(auto_now=True)
     
+    # Custom objects manager
+    objects      = APIQueryManager(__name__, 'DBNetworkRouterInterfacesQuerySet')
+    
     # Custom model metadata
     class Meta:
         db_table = 'network_router_interfaces'
@@ -196,3 +199,18 @@ class DBNetworkBlocksQuerySet(APIQuerySet):
         
         # Return the processed results
         return super(DBNetworkBlocksQuerySet, self).values_inner(*fields)
+
+class DBNetworkRouterInterfacesQuerySet(APIQuerySet):
+    """
+    Custom queryset manager for network router interfaces.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DBNetworkRouterInterfacesQuerySet, self).__init__(*args, **kwargs)
+        
+    def values(self, *fields):
+        """
+        Wrapper for the default values() method.
+        """
+        
+        # Return the processed results
+        return super(DBNetworkRouterInterfacesQuerySet, self).values_inner(*fields)

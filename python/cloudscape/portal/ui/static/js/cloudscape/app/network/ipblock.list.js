@@ -4,13 +4,122 @@ cs.import('CSNetworkIPBlocksList', function() {
 	this.proto = null;
 	this.proto_label = null;
 	
+	// Filtered IP blocks
+	this.filtered = {};
+	
 	/**
 	 * Initialize: CSNetworkIPBlocksList
 	 * @constructor
 	 */
 	this.__init__ = function() {
+		
+		// Protocol and label
 		cs.network.ipblock.proto = $('input[type="hidden"][name="protocol"]').val();
 		cs.network.ipblock.proto_label = (cs.network.ipblock.proto == 'ipv4') ? 'IPv4' : 'IPv6';
+		
+		// Block filtering
+		cs.network.ipblock.filter();
+	}
+	
+	/**
+	 * Filter IP Blocks
+	 */
+	this.filter = function() {
+		
+		// Filter keys
+		var filter_keys = ['datacenter']; 
+		
+		// Get all IP block rows
+		var ip_block_rows = $('div[type="row"][target="ip_blocks"]');
+		
+		// Load all IP blocks
+		$.each(ip_block_rows, function(i,ip_block_row) {
+			
+			// Get the IP block attributes
+			var ip_block_attr = get_attr($(ip_block_row).find('attr'));
+			
+			// Set the IP block filter attributes
+			cs.network.ipblock.filtered[ip_block_attr.uuid] = (function() {
+				var k = {};
+				$.each(filter_keys, function(i,filter_key) {
+					k[filter_key] = false;
+				});
+				return k;
+			})();
+			
+		});
+		
+		// Refresh filters
+		function _refresh() {
+			$.each(cs.network.ipblock.filtered, function(ip_block_uuid, ip_block_filters) {
+				
+				// Look for any active filters
+				var filter_enabled = false;
+				$.each(ip_block_filters, function(k,v) {
+					filter_enabled = (v) ? true : filter_enabled;
+				});
+				
+				// Set the display attribute
+				var display = (filter_enabled) ? 'none' : 'block';
+				
+				// Toggle the IP block element
+				$('div[type="row"][target="ip_blocks"][block="' + ip_block_uuid + '"]').css('display', display);
+			});
+		}
+		
+		// Wait for filter events
+		$('input[target="ipblocks.filter"]').on('change input', function() {
+			
+			// Get the changed filter element
+			var filter_elem = $(this);
+			var filter_attr = get_attr(this);
+			
+			// Text filters
+			if (filter_attr.type == 'text') {
+				
+				// Get the text value
+				var ip_filter = filter_elem.val();
+				
+				// If performing an IP search
+				if (filter_attr.key == 'ip.search') {
+					$.each(ip_block_rows, function(i,ip_block_row) {
+						
+						// Get the IP block attributes element
+						var ip_block_attr = get_attr($(ip_block_row).find('attr'));
+						
+						// If the IP filter box is empty
+						if (!defined(ip_filter)) {
+							cs.network.ipblock.filtered[ip_block_attr.uuid]['ip.filter'] = false;
+							
+						// Apply the IP filter
+						} else {
+							cs.network.ipblock.filtered[ip_block_attr.uuid]['ip.filter'] = (ip_block_attr.ip.indexOf(ip_filter) > -1) ? false : true;
+						}
+					});
+				}
+			}
+			
+			// Checkbox filters
+			if (filter_attr.type == 'checkbox') {
+				
+				// Toggle all elements with the attribute key
+				$.each(ip_block_rows, function(i,ip_block_row) {
+				
+					// Get the IP block attributes element
+					var ip_block_attr = get_attr($(ip_block_row).find('attr'));
+					
+					// If performing a key match
+					if ($.inArray(filter_attr.key, ['datacenter']) > -1) {
+						if (ip_block_attr[filter_attr.key] == filter_attr.value) {
+							cs.network.ipblock.filtered[ip_block_attr.uuid][filter_attr.key] = (filter_elem.is(':checked')) ? false : true;
+						}
+					}
+				});
+			}
+			
+			// Refresh filter states
+			_refresh();
+		});
 	}
 	
 	/**

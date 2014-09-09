@@ -1,0 +1,25 @@
+<div class="table_panel" type="table_panel" target="ipblocks">
+	<div class="table_panel_group">
+		<div class="table_panel_group_title">Datacenter</div>
+		<div class="table_panel_group_content">
+			{% for datacenter in datacenters %}
+				<div class="table_panel_checkbox">
+					<div class="table_panel_checkbox_input">
+						<input target="ipblocks.filter" type="checkbox" key="datacenter" value="{{ datacenter.uuid }}" checked>
+					</div>
+					<div class="table_panel_checkbox_label">{{ datacenter.name }}</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+	<div class="table_panel_group">
+		<div class="table_panel_group_title">IP Address</div>
+		<div class="table_panel_group_content">
+			<div class="table_panel_searchbox">
+				<div class="table_panel_searchbox_input">
+					<input target="ipblocks.filter" type="text" key="ip.search">
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

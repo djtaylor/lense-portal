@@ -129,8 +129,11 @@ class AppController(PortalTemplate):
             Set table contents.
             """
             if block_target:
-                return ['app/network/tables/ipv6blocks/details.html']
-            return ['app/network/tables/ipv6blocks/list.html']
+                return ['app/network/tables/ipblocks/details.html']
+            return [
+                'app/network/tables/ipblocks/list.html',
+                'app/network/tables/ipblocks/filter.html'
+            ]
             
         def set_popups():
             """
@@ -138,9 +141,7 @@ class AppController(PortalTemplate):
             """
             if block_target:
                 return []
-            return [
-                'app/network/popups/ipv6blocks/create.html'
-            ]
+            return ['app/network/popups/ipblocks/create.html']
         
         # Get block details
         block_details = None if not block_target else [x for x in response['blocks'] if x['uuid'] == block_target][0]
@@ -151,6 +152,10 @@ class AppController(PortalTemplate):
                 'all':    response['blocks'],
                 'detail': block_details,
                 'target': block_target
+            },
+            'proto': {
+                'type': 'ipv6',
+                'label': 'IPv6'
             },
             'datacenters': response['datacenters'],
             'routers': response['routers'],
@@ -182,8 +187,11 @@ class AppController(PortalTemplate):
             Set table contents.
             """
             if block_target:
-                return ['app/network/tables/ipv4blocks/details.html']
-            return ['app/network/tables/ipv4blocks/list.html']
+                return ['app/network/tables/ipblocks/details.html']
+            return [
+                'app/network/tables/ipblocks/list.html',
+                'app/network/tables/ipblocks/filter.html'
+            ]
             
         def set_popups():
             """
@@ -191,9 +199,7 @@ class AppController(PortalTemplate):
             """
             if block_target:
                 return []
-            return [
-                'app/network/popups/ipv4blocks/create.html'
-            ]
+            return ['app/network/popups/ipblocks/create.html']
         
         # Get block details
         block_details = None if not block_target else [x for x in response['blocks'] if x['uuid'] == block_target][0]
@@ -204,6 +210,10 @@ class AppController(PortalTemplate):
                 'all':    response['blocks'],
                 'detail': block_details,
                 'target': block_target
+            },
+            'proto': {
+                'type': 'ipv4',
+                'label': 'IPv4'
             },
             'datacenters': response['datacenters'],
             'routers': response['routers'],

@@ -136,13 +136,28 @@ cs.import('CSNetworkRoutersList', function() {
 						var _data = {};
 						$('input[type="text"][form="router_create"]').each(function(i,e) {
 							var attr = get_attr(e);
-							_data[attr.name] = $(e).val();
+							var val = $(e).val();
+							if (defined(val)) {
+								_data[attr.name] = val;
+							}
 						});
 						
 						// If setting a datacenter
 						var datacenter = $('select[form="router_create"][name="datacenter"]').val();
 						if (defined(datacenter)) {
 							_data['datacenter'] = datacenter;
+						}
+						
+						// If setting an IPv4 block
+						var ipv4_net = $('select[form="router_create"][name="ipv4_net"]').val();
+						if (defined(ipv4_net)) {
+							_data['ipv4_net'] = ipv4_net;
+						}
+						
+						// If setting an IPv6 block
+						var ipv6_net = $('select[form="router_create"][name="ipv6_net"]').val();
+						if (defined(ipv6_net)) {
+							_data['ipv6_net'] = ipv6_net;
 						}
 						
 						// Return the request data

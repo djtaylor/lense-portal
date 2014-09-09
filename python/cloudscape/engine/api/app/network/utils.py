@@ -378,6 +378,9 @@ class NetworkRouterAddInterface:
         # Create the router interface
         DBNetworkRouterInterfaces(**params).save()
         
+        # Return the parameters
+        return params
+        
     def launch(self):
         """
         Worker method for adding an interface to a router.

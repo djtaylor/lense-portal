@@ -122,7 +122,8 @@ cs.import('CSNetworkRouterDetails', function() {
 						_data = {
 							name: $('input[form="router_add_interface"][name="name"]').val(),
 							desc: $('input[form="router_add_interface"][name="desc"]').val(),
-							hwaddr: $('input[form="router_add_interface"][name="name"]').val()
+							hwaddr: $('input[form="router_add_interface"][name="name"]').val(),
+							uuid: cs.network.router.active
 						}
 						
 						// IPv4/IPv6 addresses

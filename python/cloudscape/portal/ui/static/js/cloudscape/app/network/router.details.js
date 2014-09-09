@@ -122,7 +122,7 @@ cs.import('CSNetworkRouterDetails', function() {
 						_data = {
 							name: $('input[form="router_add_interface"][name="name"]').val(),
 							desc: $('input[form="router_add_interface"][name="desc"]').val(),
-							hwaddr: $('input[form="router_add_interface"][name="name"]').val(),
+							hwaddr: $('input[form="router_add_interface"][name="hwaddr"]').val(),
 							uuid: cs.network.router.active
 						}
 						

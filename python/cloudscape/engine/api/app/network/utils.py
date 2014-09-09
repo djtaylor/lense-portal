@@ -8,7 +8,8 @@ from django.core.serializers.json import DjangoJSONEncoder
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.app.locations.models import DBDatacenters
-from cloudscape.engine.api.app.network.models import DBNetworkRouters, DBNetworkBlocksIPv4, DBNetworkBlocksIPv6
+from cloudscape.engine.api.app.network.models import DBNetworkRouters, DBNetworkBlocksIPv4, DBNetworkBlocksIPv6, \
+                                                     DBNetworkRouterInterfaces
 
 class NetworkBlockUpdate(object):
     """
@@ -300,6 +301,13 @@ class NetworkRouterRemoveInterface:
         Worker method for removing an interface from a router.
         """
         
+        # Get a list of authorized routers
+        auth_routers = self.api.acl.authorized_objects('net_router')
+        
+        # If the router doesn't exist or access denied
+        if not self.router in auth_routers.ids:
+            return invalid('Cannot remove interface, router not found or access denied' % self.router)
+        
         return valid()
       
 class NetworkRouterAddInterface:
@@ -309,15 +317,100 @@ class NetworkRouterAddInterface:
     def __init__(self, parent):
         self.api = parent
         
-        # Target router
+        # Interface UUID
+        self.uuid = str(uuid4())
+        
+        # Target router / router object
         self.router = self.api.acl.target_object()
+        self.router_obj = None
+        
+        # Attributes
+        self.name = self.api.get_data('name')
+        self.desc = self.api.get_data('desc')
+        self.hwaddr = self.api.get_data('hwaddr')
+        self.ipv4_net = self.api.get_data('ipv4_net')
+        self.ipv4_addr = self.api.get_data('ipv4_addr', None)
+        self.ipv6_net = self.api.get_data('ipv6_net')
+        self.ipv6_addr = self.api.get_data('ipv6_addr', None)
+        
+    def _create_interface(self):
+        """
+        Create the router interface.
+        """
+        
+        # Construct the initial parameters
+        params = {
+            'uuid': self.uuid,
+            'router': self.router_obj,
+            'name': self.name,
+            'desc': self.desc,
+            'hwaddr': self.hwaddr,
+            'ipv4_addr': self.ipv4_addr,
+            'ipv6_addr': self.ipv6_addr
+        }
+        
+        # If attaching to an IPv4 network
+        if self.ipv4_net:
+            
+            # Get a list of authorized IPv4 network blocks
+            auth_ipv4_blocks = self.api.acl.authorized_objects('net_block_ipv4')
+            
+            # If the IPv4 block doesn't exist or access denied
+            if not self.ipv4_net in auth_ipv4_blocks.ids:
+                raise Exception('IPv4 network [%s] not found or access denied' % self.ipv4_net)
+            
+            # Set the IPv4 network object
+            params['ipv4_net'] = DBNetworkBlocksIPv4.objects.get(uuid=self.ipv4_net)
+            
+        # If attaching to an IPv6 network
+        if self.ipv6_net:
+            
+            # Get a list of authorized IPv6 network blocks
+            auth_ipv6_blocks = self.api.acl.authorized_objects('net_block_ipv6')
+            
+            # If the IPv6 block doesn't exist or access denied
+            if not self.ipv6_net in auth_ipv6_blocks.ids:
+                raise Exception('IPv6 network [%s] not found or access denied' % self.ipv6_net)
+            
+            # Set the IPv6 network object
+            params['ipv6_net'] = DBNetworkBlocksIPv6.objects.get(uuid=self.ipv6_net)
+        
+        # Create the router interface
+        DBNetworkRouterInterfaces(**params).save()
         
     def launch(self):
         """
         Worker method for adding an interface to a router.
         """
         
-        return valid()
+        # Get a list of authorized routers
+        auth_routers = self.api.acl.authorized_objects('net_router')
+        
+        # If the router doesn't exist or access denied
+        if not self.router in auth_routers.ids:
+            return invalid('Cannot add interface to router [%s], not found or access denied' % self.router)
+        
+        # Get the router object
+        self.router_obj = DBNetworkRouters.objects.get(uuid=self.router)
+        
+        # Create the interface
+        try:
+            params = self._create_interface()
+            
+        # Failed to add interface
+        except Exception as e:
+            return invalid('Failed to add interface to router [%s]: %s' % (self.router, str(e)))
+        
+        # Construct the web response data
+        web_data = {
+            'uuid': self.uuid,
+            'name': params['name'],
+            'desc': params['desc'],
+            'hwaddr': params['hwaddr'],
+        }
+        
+        # Successfully added router interface
+        return valid('Successfully created router interface', web_data)
       
 class NetworkRouterUpdate:
     """

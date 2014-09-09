@@ -116,12 +116,10 @@ class NetworkBlockCreate(object):
         # Block protocol / protocol label
         self.proto = proto
         self.proto_label = 'IPv4' if (self.proto == 'ipv4') else 'IPv6'
-        
-        # Attribute keys
-        self.keys = ['desc', 'datacenter', 'network', 'prefix', 'router', 'meta', 'active', 'locked']
-        
-        # Get attributes
-        self.attrs = {x:self.api.get_data(x) for x in self.keys}
+              
+        # Datacenter / router
+        self.datacenter = self.api.get_data('datacenter')
+        self.router = self.api.get_data('router')
               
     def _create_block(self):
         """
@@ -131,39 +129,39 @@ class NetworkBlockCreate(object):
         # Define the creation parameters
         params = {
             'uuid':       self.uuid,
-            'network':    self.attrs['network'],
-            'prefix':     self.attrs['prefix'],
-            'desc':       self.attrs['desc'],
-            'meta':       self.attrs['meta'],
-            'active':     True if not self.attrs['active'] else self.attrs['active'],
-            'locked':     False if not self.attrs['locked'] else self.attrs['locked']    
+            'network':    self.api.get_data('network'),
+            'prefix':     self.api.get_data('prefix'),
+            'desc':       self.api.get_data('desc'),
+            'meta':       self.api.get_data('meta', None),
+            'active':     self.api.get_data('active', True),
+            'locked':     self.api.get_data('locked', False)
         }
         
         # If assigning to a datacenter
-        if self.attrs['datacenter']:
+        if self.datacenter:
             
             # Construct a list of authorized datacenters
             auth_datacenters = self.api.acl.authorized_objects('datacenter')
             
             # If the datacenter is not found or access is denied
-            if not self.attrs['datacenter'] in auth_datacenters.ids:
-                raise Exception('Could not locate datacenter [%s], not found or access denied' % self.attrs['datacenter'])
+            if not self.datacenter in auth_datacenters.ids:
+                raise Exception('Could not locate datacenter [%s], not found or access denied' % self.datacenter)
             
             # Set the datacenter object
-            params['datacenter'] = DBDatacenters.objects.get(uuid=self.attrs['datacenter'])
+            params['datacenter'] = DBDatacenters.objects.get(uuid=self.datacenter)
         
         # If assigning to a router
-        if self.attrs['router']:
+        if self.router:
             
             # Construct a list of authorized routers
             auth_routers = self.api.acl.authorized_objects('net_router')
             
             # If the router is not found or access is denied
-            if not self.attrs['router'] in auth_routers.ids:
-                raise Exception('Could not locate router [%s], not found or access denied' % self.attrs['datacenter'])
+            if not self.router in auth_routers.ids:
+                raise Exception('Could not locate router [%s], not found or access denied' % self.router)
             
             # Set the router object
-            params['router'] = DBNetworkRouters.objects.get(uuid=self.attrs['router'])
+            params['router'] = DBNetworkRouters.objects.get(uuid=self.router)
         
         # IPv4
         if self.proto == 'ipv4':
@@ -183,20 +181,7 @@ class NetworkBlockCreate(object):
         
         # If the protocol is invalid
         if not self.proto in ['ipv4', 'ipv6']:
-            return invalid('Failed to create network block, protocol must be <ipv4> or <ipv6>')
-        
-        # Build a list of authorized datacenters and routers
-        auth_datacenters = self.api.acl.authorized_objects('datacenter')
-        auth_routers     = self.api.acl.authorized_objects('net_router')
-        
-        # If the datacenter doesn't exist or isn't authorized
-        if not self.attrs['datacenter'] in auth_datacenters.ids:
-            return invalid('Cannot create new %s block in datacenter <%s>, not found or access denied' % (self.proto_label, self.attrs['datacenter']))
-        
-        # If the router doesn't exist or isn't authorized
-        if self.attrs['router']:
-            if not self.attrs['router'] in auth_routers.ids:
-                return invalid('Cannot create new %s block for router <%s>, not found or access denied' % (self.proto_label, self.attrs['router']))
+            return invalid('Failed to create network block, protocol must be [ipv4] or [ipv6]')
         
         # Create the network block object
         try:

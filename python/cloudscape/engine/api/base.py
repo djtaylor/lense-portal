@@ -132,13 +132,13 @@ class APIBase(object):
         else:
             self.websock = None
         
-    def get_data(self, key):
+    def get_data(self, key, default=False):
         """
         Retrieve a key value from the API data object.
         """
         if key in self.data:
             return self.data[key]
-        return False
+        return default
         
     def get_logger(self, client):
         """

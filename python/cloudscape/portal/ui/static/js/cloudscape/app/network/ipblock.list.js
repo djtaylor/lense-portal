@@ -166,11 +166,11 @@ cs.import('CSNetworkIPBlocksList', function() {
 					_data: (function() {
 						
 						// Request data
-						var _data = {};
-						$('input[type="text"][form="ip_block_create"]').each(function(i,e) {
-							var attr = get_attr(e);
-							_data[attr.name] = $(e).val();
-						});
+						var _data = {
+							network: $('input[type="text"][form="ip_block_create"][name="network"]').val(),
+							prefix: parseInt($('input[type="text"][form="ip_block_create"][name="prefix"]').val()),
+							desc: $('input[type="text"][form="ip_block_create"][name="desc"]').val()
+						};
 						
 						// Active/locked
 						_data['active'] = ($('input[form="ip_block_create"][name="active"]').is(':checked')) ? true : false;

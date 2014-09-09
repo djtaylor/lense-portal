@@ -185,7 +185,7 @@ cs.import('CSNetworkIPBlocksList', function() {
 						// If setting a router
 						var router = $('select[form="ip_block_create"][name="router"]').val();
 						if (defined(router)) {
-							_data['datacenter'] = router;
+							_data['router'] = router;
 						}
 						
 						// Return the request data

@@ -194,11 +194,11 @@ class NetworkBlockCreate(object):
         # Construct the web data
         web_data = {
             'uuid': self.uuid,
-            'desc': self.attrs['desc'],
-            'network': self.attrs['network'],
-            'prefix': self.attrs['prefix'],
-            'active': self.attrs['active'],
-            'locked': self.attrs['locked']
+            'desc': params['desc'],
+            'network': params['network'],
+            'prefix': params['prefix'],
+            'active': params['active'],
+            'locked': params['locked']
         }
         
         # If attaching to a datacenter
@@ -260,7 +260,7 @@ class NetworkBlockGet(object):
             
             # If the block doesn't exist or is not authorized
             if not self.block in self.auth_blocks[self.proto].ids:
-                return invalid('Failed to retrieve network %s block <%s>, not found or access denied' % (self.proto_label, self.block))
+                return invalid('Failed to retrieve network %s block [%s], not found or access denied' % (self.proto_label, self.block))
             
             # Return the block details
             return valid(json.dumps(self.auth_blocks[self.proto].extract(self.block)))
@@ -521,7 +521,7 @@ class NetworkRouterCreate:
             
             # If the datacenter doesn't exist or isn't authorized
             if not self.datacenter in auth_datacenters.ids:
-                return invalid('Cannot create new router in datacenter <%s>, not found or access denied' % self.datacenter)
+                return invalid('Cannot create new router in datacenter [%s], not found or access denied' % self.datacenter)
             
             # Set the datacenter object
             params['datacenter'] = DBDatacenters.objects.get(uuid=self.datacenter)
@@ -576,7 +576,7 @@ class NetworkRouterGet:
             
             # If the router doesn't exist or is not authorized
             if not self.router in auth_routers.ids:
-                return invalid('Failed to retrieve router <%s>, not found or access denied' % self.router)
+                return invalid('Failed to retrieve router [%s], not found or access denied' % self.router)
             
             # Return the router details
             return valid(json.dumps(auth_routers.extract(self.router)))

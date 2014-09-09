@@ -73,17 +73,41 @@
 		<div class="table_headers" table="interface_list">
 			<div class="table_select_header"></div>
 			<div class="table_header table_header_md" col="interface_name">Name</div>
+			<div class="table_header table_header_md" col="interface_uuid">UUID</div>
 			<div class="table_header table_header_md" col="interface_desc">Description</div>
-			<div class="table_header table_header_md" col="interface_hwaddr">HW Address</div>
 		</div>
 		<div class="table_rows" type="table" name="router_interfaces">
 			{% for interface in routers.detail.interfaces %}
-				<div class="table_select_col">
-					<input type="radio" name="interface_uuid" action="update" value="{{ interface.uuid }}">
+				<div class="table_row table_row_link" type="button" action="toggle" target="{{ interface.uuid }}_attrs" interface="{{ interface.uuid }}">
+					<div class="table_select_col">
+						<input type="radio" name="interface_uuid" action="update" value="{{ interface.uuid }}">
+					</div>
+					<div class="table_col" col="interface_name">{{ interface.name }}</div>
+					<div class="table_col" col="interface_uuid">{{ interface.uuid }}</div>
+					<div class="table_col" col="interface_desc">{{ interface.desc }}</div>
 				</div>
-				<div class="table_col" col="interface_name">{{ interface.name }}</div>
-				<div class="table_col" col="interface_desc">{{ interface.desc }}</div>
-				<div class="table_col" col="interface_hwaddr">{{ interface.hwaddr }}</div>
+				<div class="table_row_group" style="display:none;" type="toggle" name="{{ interface.uuid }}_attrs">
+					<div class="table_row">
+						<div class="table_row_label">HW Address</div>
+						<div class="table_row_text">{{ interface.hwaddr }}</div>
+					</div>
+					<div class="table_row">
+						<div class="table_row_label">IPv4 Address</div>
+						<div class="table_row_text">{{ interface.ipv4_addr }}</div>
+					</div>
+					<div class="table_row">
+						<div class="table_row_label">IPv4 Network</div>
+						<div class="table_row_text">{{ interface.ipv4_net }}</div>
+					</div>
+					<div class="table_row">
+						<div class="table_row_label">IPv6 Address</div>
+						<div class="table_row_text">{{ interface.ipv6_addr }}</div>
+					</div>
+					<div class="table_row">
+						<div class="table_row_label">IPv6 Network</div>
+						<div class="table_row_text">{{ interface.ipv6_net }}</div>
+					</div>
+				</div>
 			{% endfor %}
 		</div>
 	</div>

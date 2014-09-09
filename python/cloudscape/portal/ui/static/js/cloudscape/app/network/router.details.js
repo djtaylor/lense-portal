@@ -384,7 +384,11 @@ cs.import('CSNetworkRouterDetails', function() {
 				_data: (function() {
 					
 					// Request data
-					var _data = {};
+					var _data = {
+						uuid: cs.network.router.active
+					};
+					
+					// Load each input
 					$('input[type="text"][form="edit_router"]').each(function(i,e) {
 						var attr = get_attr(e);
 						var val = $(e).val();

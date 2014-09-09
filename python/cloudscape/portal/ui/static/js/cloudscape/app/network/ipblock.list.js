@@ -27,7 +27,7 @@ cs.import('CSNetworkIPBlocksList', function() {
 	this.filter = function() {
 		
 		// Filter keys
-		var filter_keys = ['datacenter']; 
+		var filter_keys = ['datacenter', 'network.filter']; 
 		
 		// Get all IP block rows
 		var ip_block_rows = $('div[type="row"][target="ip_blocks"]');
@@ -80,8 +80,8 @@ cs.import('CSNetworkIPBlocksList', function() {
 				// Get the text value
 				var ip_filter = filter_elem.val();
 				
-				// If performing an IP search
-				if (filter_attr.key == 'ip.search') {
+				// If performing a network search
+				if (filter_attr.key == 'network.search') {
 					$.each(ip_block_rows, function(i,ip_block_row) {
 						
 						// Get the IP block attributes element
@@ -89,11 +89,11 @@ cs.import('CSNetworkIPBlocksList', function() {
 						
 						// If the IP filter box is empty
 						if (!defined(ip_filter)) {
-							cs.network.ipblock.filtered[ip_block_attr.uuid]['ip.filter'] = false;
+							cs.network.ipblock.filtered[ip_block_attr.uuid]['network.filter'] = false;
 							
 						// Apply the IP filter
 						} else {
-							cs.network.ipblock.filtered[ip_block_attr.uuid]['ip.filter'] = (ip_block_attr.ip.indexOf(ip_filter) > -1) ? false : true;
+							cs.network.ipblock.filtered[ip_block_attr.uuid]['network.filter'] = (ip_block_attr.network.indexOf(ip_filter) > -1) ? false : true;
 						}
 					});
 				}

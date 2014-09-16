@@ -5,7 +5,6 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 # CloudScape Libraries
-from cloudscape.engine.api.auth.key import APIKey
 from cloudscape.common.vars import G_ADMIN, G_USER, G_DEFAULT
 from cloudscape.engine.api.app.group.models import DBGroupMembers, DBGroupDetails
 
@@ -117,6 +116,11 @@ class DBUserManager(BaseUserManager):
         """
         Create a new user account.
         """
+        
+        # Import the API keys module
+        from cloudscape.engine.api.auth.key import APIKey
+        
+        # Get the current timestamp
         now = timezone.now()
         
         # Create a new user object

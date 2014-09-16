@@ -51,7 +51,7 @@ TEMPLATE_DIRS = (
 EMAIL_HOST       = CONFIG.email.smtp_host
 
 # Authentication user model
-AUTH_USER_MODEL = 'cloudscape.engine.api.app.user.models.DBUser'
+AUTH_USER_MODEL = 'user.DBUser'
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = (

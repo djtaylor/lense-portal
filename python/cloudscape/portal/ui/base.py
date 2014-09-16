@@ -159,7 +159,7 @@ class PortalBase(object):
         if request.user.is_authenticated():
             
             # Get all user groups
-            all_groups = DBUser.objects.get(username=request.user.username).get_groups()
+            all_groups = DBUser.objects.filter(username=request.user.username).values()[0]['groups']
             
             # If the active group hasn't been set yet
             if not 'active_group' in request.session:
@@ -201,7 +201,7 @@ class PortalBase(object):
         """
         
         # Get all user groups
-        all_groups = DBUser.objects.get(username=self.request.user).get_groups()
+        all_groups = DBUser.objects.filter(username=self.request.user).values()[0]['groups']
         
         # Make sure the user is a member of the group
         is_member = False

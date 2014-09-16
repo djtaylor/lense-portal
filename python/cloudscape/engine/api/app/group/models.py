@@ -8,7 +8,6 @@ from django.db import models
 # CloudScape Libraries
 from cloudscape.engine.api.app.formula.models import DBFormulaDetails
 from cloudscape.engine.api.objects.acl import ACLObjects
-from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostGroups, DBHostDKeys
 from cloudscape.engine.api.app.auth.models import DBAuthACLGroupGlobalPermissions, DBAuthACLEndpointsGlobal, \
                                                   DBAuthACLGroupObjectHostPermissions, DBAuthACLGroupObjectFormulaPermissions, \
@@ -21,7 +20,7 @@ class DBGroupMembers(models.Model):
     Database model that stores group membership.
     """
     group   = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='group')
-    member  = models.ForeignKey(DBUser, to_field='uuid', db_column='member')
+    member  = models.ForeignKey('user.DBUser', to_field='uuid', db_column='member')
     
     # Custom model metadata
     class Meta:
@@ -304,7 +303,12 @@ class DBGroupDetails(models.Model):
         """
         Retrieve a list of group member objects.
         """
-        return [User.objects.get(uuid=m.member) for m in DBGroupMembers.objects.filter(group=self.uuid)]
+        
+        # Resolve circular dependencies
+        from cloudscape.engine.api.app.user.models import DBUser
+        
+        # Return a list of user member objects
+        return [DBUser.objects.get(uuid=m.member) for m in DBGroupMembers.objects.filter(group=self.uuid)]
         
     def members_set(self, m):
         """

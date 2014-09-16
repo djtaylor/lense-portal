@@ -98,10 +98,7 @@ class AuthBackendInterface(ModelBackend):
         
         # Try to authenticate the user
         try:
-            user_model.objects.get(username=username, from_ldap=False)
-            
-            # Authenticate the user
-            return self._authenticate_database(username, password)
+            return AuthBackendLDAP().authenticate(username, password)
             
         # Failed to get the user model
         except:
@@ -117,6 +114,15 @@ class AuthBackendInterface(ModelBackend):
         
         # Return the authentication model
         return ModelBackend.authenticate(self, username, password)
+    
+    def get_user(self, username):
+        """
+        Return a user object.
+        """
+        try:
+            return DBUser.objects.get(username=username)
+        except DBUser.DoesNotExist:
+            return None
     
     def authenticate(self, username=None, password=None):
         """

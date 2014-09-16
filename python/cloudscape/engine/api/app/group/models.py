@@ -4,11 +4,11 @@ import importlib
 
 # Django Libraries
 from django.db import models
-from django.contrib.auth.models import User
 
 # CloudScape Libraries
 from cloudscape.engine.api.app.formula.models import DBFormulaDetails
 from cloudscape.engine.api.objects.acl import ACLObjects
+from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostGroups, DBHostDKeys
 from cloudscape.engine.api.app.auth.models import DBAuthACLGroupGlobalPermissions, DBAuthACLEndpointsGlobal, \
                                                   DBAuthACLGroupObjectHostPermissions, DBAuthACLGroupObjectFormulaPermissions, \
@@ -21,7 +21,7 @@ class DBGroupMembers(models.Model):
     Database model that stores group membership.
     """
     group   = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='group')
-    member  = models.ForeignKey(User, to_field='username', db_column='member')
+    member  = models.ForeignKey(DBUser, to_field='uuid', db_column='member')
     
     # Custom model metadata
     class Meta:
@@ -123,6 +123,7 @@ class DBGroupDetailsQuerySet(models.query.QuerySet):
             # Get the member user object
             user_obj = User.objects.get(username=member['member_id'])
             members.append({
+                'uuid':       user_obj.uuid,
                 'username':   user_obj.username,
                 'email':      user_obj.email,
                 'is_enabled': user_obj.is_active,
@@ -303,7 +304,7 @@ class DBGroupDetails(models.Model):
         """
         Retrieve a list of group member objects.
         """
-        return [User.objects.get(username=m.member) for m in DBGroupMembers.objects.filter(group=self.uuid)]
+        return [User.objects.get(uuid=m.member) for m in DBGroupMembers.objects.filter(group=self.uuid)]
         
     def members_set(self, m):
         """
@@ -315,7 +316,7 @@ class DBGroupDetails(models.Model):
         """
         Remove a member from the group.
         """
-        DBGroupMembers.objects.filter(group=self.uuid).filter(member=m.username).delete()
+        DBGroupMembers.objects.filter(group=self.uuid).filter(member=m.uuid).delete()
     
     # Custom model metadata
     class Meta:

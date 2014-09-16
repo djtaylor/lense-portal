@@ -60,14 +60,6 @@ DATABASES = {
     }
 }
 
-# Authentication user model
-AUTH_USER_MODEL = 'user.DBUser'
-
-# Authentication backends
-AUTHENTICATION_BACKENDS = (
-    'cloudscape.common.auth.backends.AuthBackendInterface',
-)
-
 # Database encryption keys
 ENCRYPTED_FIELDS_KEYDIR = os.path.expandvars('$CLOUDSCAPE_BASE/dbkey')
 
@@ -82,6 +74,15 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudscape.engine.api.app.user'
+)
+
+# Authentication user model
+AUTH_USER_MODEL = 'user.DBUser'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = (
+    'cloudscape.common.auth.backends.AuthBackendInterface',
 )
 
 # Django middleware classes

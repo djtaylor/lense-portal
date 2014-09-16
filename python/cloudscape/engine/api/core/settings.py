@@ -50,14 +50,6 @@ TEMPLATE_DIRS = (
 # SMTP backend
 EMAIL_HOST       = CONFIG.email.smtp_host
 
-# Authentication user model
-AUTH_USER_MODEL = 'user.DBUser'
-
-# Authentication backends
-AUTHENTICATION_BACKENDS = (
-    'cloudscape.common.auth.backends.AuthBackendInterface',
-)
-
 # Database encryption keys
 ENCRYPTED_FIELDS_KEYDIR = os.path.expandvars('$CLOUDSCAPE_BASE/dbkey')
 
@@ -96,6 +88,14 @@ INSTALLED_APPS = (
     'cloudscape.engine.api.app.locations',
     'cloudscape.engine.api.app.cluster',
     'cloudscape.engine.api.app.network',
+)
+
+# Authentication user model
+AUTH_USER_MODEL = 'user.DBUser'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = (
+    'cloudscape.common.auth.backends.AuthBackendInterface',
 )
 
 # Django middleware classes

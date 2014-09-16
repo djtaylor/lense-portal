@@ -120,9 +120,9 @@ class DBUser(AbstractBaseUser):
 
     # Model metadata
     class Meta:
+        db_table = 'auth_user'
         verbose_name = _('user')
         verbose_name_plural = _('users')
-        abstract = True
 
 class DBUserAPIKeys(models.Model):
     """

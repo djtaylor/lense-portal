@@ -33,24 +33,26 @@ class APIToken(object):
 
         # If not an existing host or user
         if not api_user and not api_host:
-            return invalid('Authentication failed, account <%s> not found in the database' % id)
+            return invalid('Authentication failed, account [%s] not found in the database' % id)
         
         # If for some reason both a user and host
         if api_user and api_host:
-            return invalid('Authentication failed, account <%s> is both user and host' % id)
+            return invalid('Authentication failed, account [%s] is both user and host' % id)
 
-        # Get the API token
+        # Retrieve API token for a user account
         if api_user:
             
             # Make sure the user is enabled
             user_obj = DBUser.objects.get(username=id)
             if not user_obj.is_active:
-                return invalid('Authentication failed, account <%s> is disabled' % id)
+                return invalid('Authentication failed, account [%s] is disabled' % id)
             
             # Return the API token row
-            api_token_row = DBUserAPITokens.objects.filter(user=user_obj.uuid).values('token')
+            api_token_row = list(DBUserAPITokens.objects.filter(user=user_obj.uuid).values())
+            
+        # Retrieve API token for a host account
         if api_host:
-            api_token_row = DBHostAPITokens.objects.filter(host=id).values('token')
+            api_token_row = list(DBHostAPITokens.objects.filter(host=id).values())
 
         # User or host has no API key
         if not api_token_row:
@@ -65,7 +67,7 @@ class APIToken(object):
         expires   = datetime.datetime.now() + datetime.timedelta(hours=settings.API_TOKEN_LIFE)
             
         # Create a new API token
-        self.log.info('Generating API token for client <%s> of type <%s>' % (id, type))
+        self.log.info('Generating API token for client [%s] of type [%s]' % (id, type))
         
         # Host API token
         if type == 'host':
@@ -81,14 +83,14 @@ class APIToken(object):
         
         # Invalid account type
         else:
-            self.log.error('Failed to generate token for client <%s>' % id)
+            self.log.error('Failed to generate token for client [%s]' % id)
             return False
     
     def get(self, id):
         """
         Get the API authentication token for a user or host account.
         """
-        self.log.info('Retrieving API token for ID <%s>' % id)
+        self.log.info('Retrieving API token for ID [%s]' % id)
             
         # Check if a user or host
         api_user  = DBUser.objects.filter(username=id).count()
@@ -107,7 +109,7 @@ class APIToken(object):
                 api_token['content'] = self.create(id=id, type='user')
             if api_host:
                 api_token['content'] = self.create(id=id, type='host')
-        self.log.info('Retrieved token for API ID <%s>: %s' % (id, api_token['content']))
+        self.log.info('Retrieved token for API ID [%s]: %s' % (id, api_token['content']))
         return api_token['content']
     
     def validate(self, request):
@@ -117,9 +119,9 @@ class APIToken(object):
         
         # Missing API user and/or API token
         if not ('api_user' in request) or not ('api_token' in request):
-            self.log.error('Missing required token validation parameters <api_user> and <api_token>' % request['api_user'])
+            self.log.error('Missing required token validation parameters [api_user] and [api_token]' % request['api_user'])
             return False
-        self.log.info('Validating API token for ID <%s>: %s' % (request['api_user'], request['api_token']))
+        self.log.info('Validating API token for ID [%s]: %s' % (request['api_user'], request['api_token']))
             
         # Get the users API token from the database
         db_token = self._get_api_token(id=request['api_user'])
@@ -131,6 +133,6 @@ class APIToken(object):
 
         # Make sure the token is valid
         if request['api_token'] != db_token['content']:
-            self.log.error('Client <%s> has submitted an invalid API token' % request['api_user'])
+            self.log.error('Client [%s] has submitted an invalid API token' % request['api_user'])
             return False
         return True

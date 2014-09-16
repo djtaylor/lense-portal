@@ -29,30 +29,31 @@ class APIKey(object):
 
         # If not an existing host or user
         if not api_user and not api_host:
-            return invalid('Authentication failed, account <> not found in the database' % id)
+            return invalid('Authentication failed, account [%s] not found in the database' % id)
         
         # If for some reason both a user and host
         if api_user and api_host:
-            return invalid('Authentication failed, account <> is both user and host' % id)
+            return invalid('Authentication failed, account [%s] is both user and host' % id)
 
-        # Get the API key
+        # Retrieve API key for a user account
         if api_user:
             
             # Make sure the user is enabled
             user_obj = DBUser.objects.get(username=id)
             if not user_obj.is_active:
-                return invalid('Authentication failed, account <%s> is disabled' % id)
+                return invalid('Authentication failed, account [%s] is disabled' % id)
             
             # Return the API key row
-            api_key_row = DBUserAPIKeys.objects.filter(user=user_obj.uuid).values('api_key')
+            api_key_row = list(DBUserAPIKeys.objects.filter(user=user_obj.uuid).values())
+            
+        # Retrieve API key for a host account
         if api_host:
-            api_key_row = DBHostAPIKeys.objects.filter(host=id).values('api_key')
-        db_api_key  = api_key_row[0]['api_key']
+            api_key_row = list(DBHostAPIKeys.objects.filter(host=id).values())
 
         # User or host has no API key
-        if not db_api_key: 
-            return invalid('Authentication failed, no API key found for account <%s>' % id)
-        return valid(db_api_key)
+        if not api_key_row: 
+            return invalid('Authentication failed, no API key found for account [%s]' % id)
+        return valid(api_key_row[0]['api_key'])
 
     def validate(self, request):
         """
@@ -68,7 +69,7 @@ class APIKey(object):
             
         # Invalid API key
         if api_key['content'] != request['api_key']:
-            return invalid('Client <%s> has submitted an invalid API key' % request['api_user'])
+            return invalid('Client [%s] has submitted an invalid API key' % request['api_user'])
         
         # API key looks OK
         return valid(request)

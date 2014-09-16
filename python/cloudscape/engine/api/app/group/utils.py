@@ -2,12 +2,10 @@ import re
 import json
 from uuid import uuid4
 
-# Django Libraries
-from django.contrib.auth.models import User
-
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
+from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
 from cloudscape.engine.api.app.auth.models import DBAuthACLGroupGlobalPermissions, DBAuthACLEndpointsGlobal
 from cloudscape.engine.api.app.host.models import DBHostOwner
@@ -58,7 +56,7 @@ class GroupMemberRemove:
             return invalid('User <%s> is not a member of group <%s>' % (self.user, self.group))
 
         # Remove the user from the group
-        group.members_unset(User.objects.get(username=self.user))
+        group.members_unset(DBUser.objects.get(uuid=self.user))
         
         # Update the cached group data
         self.api.cache.save_object('group', self.group)
@@ -114,7 +112,7 @@ class GroupMemberAdd:
             return invalid('User <%s> is already a member of group <%s>' % (self.user, self.group))
         
         # Get the user object
-        user = User.objects.get(username=self.user)
+        user = DBUser.objects.get(uuid=self.user)
 
         # Add the user to the group
         try:
@@ -132,7 +130,7 @@ class GroupMemberAdd:
             'group': {
                 'name':   group.name,
                 'uuid':   self.group,
-                'member': user.username
+                'member': user.uuid
             }
         })
 

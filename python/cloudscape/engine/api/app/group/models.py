@@ -120,7 +120,7 @@ class DBGroupDetailsQuerySet(models.query.QuerySet):
         for member in list(DBGroupMembers.objects.filter(group=group['uuid']).values()):
             
             # Get the member user object
-            user_obj = User.objects.get(username=member['member_id'])
+            user_obj = DBUser.objects.get(uuid=member['member_id'])
             members.append({
                 'uuid':       user_obj.uuid,
                 'username':   user_obj.username,

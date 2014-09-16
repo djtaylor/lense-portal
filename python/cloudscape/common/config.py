@@ -57,6 +57,9 @@ class ServerConfig(object):
             for opt in section_opts:
                 config_dict[section][opt] = self._map_value(config.get(section, opt))
     
+        # Return the configuration dictionary
+        return config_dict
+                
     def _parse(self, file):
         """
         Parse a configuration file and return a dictionary object.

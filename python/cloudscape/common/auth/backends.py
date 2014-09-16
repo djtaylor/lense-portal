@@ -5,9 +5,15 @@ from django_auth_ldap.config import LDAPSearch
 from cloudscape.common import config
 from cloudscape.common import logger
 
-# Bind DN / Password
-AUTH_LDAP_BIND_DN = ""
-AUTH_LDAP_BIND_PASSWORD = ""
+# Configuration / logger
+CONFIG = config.parse()
+LOG    = logger.create(__name__, CONFIG.server.log)
+
+# LDAP Parameters
+AUTH_LDAP_SERVER_URI    = None
+AUTH_LDAP_BIND_DN       = None
+AUTH_LDAP_BIND_PASSWORD = None
+AUTH_LDAP_USER_SEARCH   = None
 
 class LDAPBackend(object):
     """
@@ -15,28 +21,42 @@ class LDAPBackend(object):
     """
     def __init__(self):
         
-        # Configuration / logger
-        self.conf = config.parse()
-        self.log  = logger.create(__name__, self.conf.server.log)
+        # Access global variables
+        global AUTH_LDAP_SERVER_URI, \
+               AUTH_LDAP_BIND_DN, \
+               AUTH_LDAP_BIND_PASSWORD, \
+               AUTH_LDAP_USER_SEARCH
         
-        # Set bind DN / password
-        self._set_bind_attrs()
+        # LDAP server / bind DN / password
+        AUTH_LDAP_SERVER_URI = CONFIG.ldap.host
+        AUTH_LDAP_BIND_DN = CONFIG.ldap.user
+        AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
         
-    def _set_bind_attrs(self):
-        """
-        Set a bind DN and password if configured.
-        """
-        if hasattr(self.conf.ldap, 'user') and hasattr(self.conf.ldap, 'password'):
-            
-            # Access global LDAP variables
-            global AUTH_LDAP_BIND_DN, AUTH_LDAP_BIND_PASSWORD
-            
-            # Set the variable values
-            AUTH_LDAP_BIND_DN = self.conf.ldap.user
-            AUTH_LDAP_BIND_PASSWORD = self.conf.ldap.password
-            
-    def query_user(self, username):
-        """
-        Look for an LDAP user.
-        """
-        return LDAPSearch(self.conf.ldap.tree, ldap.SCOPE_SUBTREE, "(uid=%(username)s)")
+        # LDAP user search
+        AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, ldap.SCOPE_SUBTREE, "(uid=%(username)s)")
+    
+def get_auth_backends():
+    """
+    Get the appropriate authentication backends depending on the server configuration.
+    """
+    auth_backends = {
+        'ldap': (
+            'django_auth_ldap.backend.LDAPBackend',
+            'django.contrib.auth.backends.ModelBackend',
+        ),
+        'database': (
+            'django.contrib.auth.backends.ModelBackend',
+        )
+    }
+    
+    # Make sure a valid backend is configured
+    if not CONFIG.auth.backend in auth_backends:
+        raise Exception('Invalid authentication backend type [%s]. Valid options are: [%s]' % (CONFIG.auth.backend, ','.join(auth_backends.keys())))
+    
+    # If using LDAP authentication
+    if CONFIG.auth.backend == 'ldap':
+        LDAPBackend()
+    
+    # Return the authentication backend tuple for Django
+    return auth_backends[CONFIG.auth.backend]
+    

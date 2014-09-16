@@ -2,6 +2,7 @@ import os
 
 # CloudScape Libraries
 import cloudscape.common.config as config
+from cloudscape.common.auth.backends import get_auth_backend
 
 # Configuration
 CONFIG           = config.parse()
@@ -61,13 +62,7 @@ DATABASES = {
 }
 
 # Authentication backends
-AUTHENTICATION_BACKENDS = (
-    'django_auth_ldap.backend.LDAPBackend',
-    'django.contrib.auth.backends.ModelBackend'
-)
-
-# LDAP server
-AUTH_LDAP_SERVER_URI = CONFIG.ldap.host
+AUTHENTICATION_BACKENDS = get_auth_backends()
 
 # Database encryption keys
 ENCRYPTED_FIELDS_KEYDIR = os.path.expandvars('$CLOUDSCAPE_BASE/dbkey')

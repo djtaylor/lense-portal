@@ -83,13 +83,15 @@ class AuthBackendInterface(ModelBackend):
         """
         Check if the LDAP authentication backend is active.
         """
-        
         return AuthBackendLDAP in [b.__class__ for b in get_backends()]
     
     def _authenticate_ldap(self, username, password):
         """
         Wrapper method for handling LDAP authentication.
         """
+        
+        # Log the authentication attempt
+        LOG.info('Attempting LDAP authentication for user [%s]' % username)
         
         # Get the user model
         user_model = get_user_model()
@@ -109,9 +111,14 @@ class AuthBackendInterface(ModelBackend):
         """
         Wrapper method for handling default database authentication.
         """
+        
+        # Log the authentication attempt
+        LOG.info('Attempting database authentication for user [%s]' % username)
+        
+        # Return the authentication model
         return ModelBackend.authenticate(self, username, password)
     
-    def authenticate(self, username, password):
+    def authenticate(self, username=None, password=None):
         """
         Authenticate a username/password combination.
         """

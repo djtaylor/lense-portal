@@ -82,6 +82,7 @@ AUTH_USER_MODEL = 'user.DBUser'
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = (
+    'cloudscape.common.auth.backends.AuthBackendLDAP',
     'cloudscape.common.auth.backends.AuthBackendInterface',
 )
 

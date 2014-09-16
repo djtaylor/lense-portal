@@ -119,9 +119,14 @@ class AuthBackendInterface(ModelBackend):
         """
         Return a user object.
         """
+        
+        # Get the user model
+        user_model = get_user_model()
+        
+        # Try to find the user object
         try:
-            return DBUser.objects.get(username=username)
-        except DBUser.DoesNotExist:
+            return user_model.objects.get(username=username)
+        except user_model.DoesNotExist:
             return None
     
     def authenticate(self, username=None, password=None):

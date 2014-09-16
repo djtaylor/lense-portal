@@ -1,7 +1,8 @@
 from django.db import models
+from django.utils import timezone
 from django.core import validators
-from django.contrib.auth.models import AbstractBaseUser, UserManager
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import AbstractBaseUser, UserManager
 
 # CloudScape Libraries
 from cloudscape.common.vars import G_ADMIN

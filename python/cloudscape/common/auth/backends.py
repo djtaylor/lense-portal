@@ -12,7 +12,7 @@ from cloudscape.common import logger
 
 # Configuration / logger
 CONFIG = config.parse()
-LOG    = logger.create(__name__, CONFIG.server.log)
+LOG    = logger.create(__name__, CONFIG.utils.log)
 
 # LDAP Parameters
 AUTH_LDAP_SERVER_URI    = None
@@ -59,10 +59,12 @@ class AuthBackendLDAP(LDAPBackend):
         Retrieve or create a user account.
         """
         
+        LOG.info('LDAP_USER: %s' % str(dir(ldap_user)))
+        
         # Set the kwargs for the user account
         kwargs = {
             'username': username,
-            'defaults': {'from_ldap': True} 
+            'from_ldap': True
         }
         
         # Get the user model

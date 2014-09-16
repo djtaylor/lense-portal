@@ -5,8 +5,36 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 # CloudScape Libraries
-from cloudscape.common.vars import G_ADMIN
+from cloudscape.engine.api.auth.key import APIKey
+from cloudscape.common.vars import G_ADMIN, G_USER, G_DEFAULT
 from cloudscape.engine.api.app.group.models import DBGroupMembers, DBGroupDetails
+
+class DBUserAPIKeys(models.Model):
+    """
+    Main database model for storing user API keys.
+    """
+    
+    # User API key table columns
+    user    = models.ForeignKey('user.DBUser', to_field='uuid', db_column='user')
+    api_key = models.CharField(max_length=64, unique=True)
+    
+    # Custom model metadata
+    class Meta:
+        db_table = 'auth_user_api_keys'
+        
+class DBUserAPITokens(models.Model):
+    """
+    Main database model for storing user API tokens.
+    """
+    
+    # User API token table columns
+    user    = models.ForeignKey('user.DBUser', to_field='uuid', db_column='user')
+    token   = models.CharField(max_length=255, unique=True)
+    expires = models.DateTimeField()
+    
+    # Custom model metadata
+    class Meta:
+        db_table = 'auth_user_api_tokens'
 
 class DBUserQuerySet(models.query.QuerySet):
     """
@@ -79,7 +107,13 @@ class DBUserManager(BaseUserManager):
         """
         return DBUserQuerySet(model=self.model)
         
-    def create_user(self, uuid, username, email, password, **kwargs):
+    def get_or_create(self, **kwargs):
+        """
+        Get or create a new user object.
+        """
+        
+        
+    def create_user(self, uuid, username, email, password, group, **kwargs):
         """
         Create a new user account.
         """
@@ -99,6 +133,20 @@ class DBUserManager(BaseUserManager):
         # Set the password and and save
         user.set_password(password)
         user.save(using=self._db)
+        
+        # Get the group object
+        group = DBGroupDetails.objects.get(uuid=group)
+        
+        # Add the user to the group
+        group.members_set(user)
+        
+        # Generate an API key for the user
+        key_str = APIKey().create()
+        api_key = DBUserAPIKeys(
+            user    = user,
+            api_key = key_str
+        )
+        api_key.save()
         
         # Return the user object
         return user
@@ -157,30 +205,3 @@ class DBUser(AbstractBaseUser):
         db_table = 'auth_user'
         verbose_name = _('user')
         verbose_name_plural = _('users')
-
-class DBUserAPIKeys(models.Model):
-    """
-    Main database model for storing user API keys.
-    """
-    
-    # User API key table columns
-    user    = models.ForeignKey(DBUser, to_field='uuid', db_column='user')
-    api_key = models.CharField(max_length=64, unique=True)
-    
-    # Custom model metadata
-    class Meta:
-        db_table = 'auth_user_api_keys'
-        
-class DBUserAPITokens(models.Model):
-    """
-    Main database model for storing user API tokens.
-    """
-    
-    # User API token table columns
-    user    = models.ForeignKey(DBUser, to_field='uuid', db_column='user')
-    token   = models.CharField(max_length=255, unique=True)
-    expires = models.DateTimeField()
-    
-    # Custom model metadata
-    class Meta:
-        db_table = 'auth_user_api_tokens'

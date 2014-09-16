@@ -61,6 +61,10 @@ C_CLIENT       = np('%s/python/cloudscape/client' % C_BASE)
 G_ADMIN        = '00000000-0000-0000-0000-000000000000'
 U_ADMIN        = 'admin'
 
+# Non-privileged Group / Default Group
+G_USER         = '11111111-1111-1111-1111-111111111111'
+G_DEFAULT      = G_USER
+
 # API Templates
 T_ROOT         = '%s/python/cloudscape/engine/templates/api' % C_BASE
 T_BASE         = '%s/base' % T_ROOT

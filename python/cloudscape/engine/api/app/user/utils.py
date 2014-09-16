@@ -8,7 +8,6 @@ from django.core.mail import send_mail
 
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid
-from cloudscape.engine.api.auth.key import APIKey
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
 from cloudscape.engine.api.app.user.models import DBUser, DBUserAPIKeys
 from cloudscape.engine.api.app.group.models import DBGroupDetails
@@ -248,27 +247,13 @@ class UserCreate:
                 uuid         = self.uuid,
                 username     = self.api.data['username'],
                 email        = self.api.data['email'],
-                password     = self.api.data['password']
+                password     = self.api.data['password'],
+                group        = self.api.data['group']
             )
                 
             # Save the user account details
             new_user.save()
             self.api.log.info('Created user account <%s>' % (self.api.data['username']))
-            
-            # Get the group object
-            group = DBGroupDetails.objects.get(uuid=self.api.data['group'])
-            
-            # Add the user to the group
-            group.members_set(new_user)
-            
-            # Generate an API key for the user
-            key_str = APIKey().create()
-            api_key = DBUserAPIKeys(
-                user    = new_user,
-                api_key = key_str
-            )
-            api_key.save()
-            self.api.log.info('Generated API key <%s> for user <%s>' % (key_str, self.api.data['username']))
             
             # Send the account creation email
             try:

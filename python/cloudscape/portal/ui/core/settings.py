@@ -60,6 +60,9 @@ DATABASES = {
     }
 }
 
+# Authentication user model
+AUTH_USER_MODEL = 'cloudscape.engine.api.app.user.models.DBUser'
+
 # Authentication backends
 AUTHENTICATION_BACKENDS = (
     'cloudscape.common.auth.backends.AuthBackendInterface',

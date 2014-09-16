@@ -50,6 +50,14 @@ TEMPLATE_DIRS = (
 # SMTP backend
 EMAIL_HOST       = CONFIG.email.smtp_host
 
+# Authentication user model
+AUTH_USER_MODEL = 'cloudscape.engine.api.app.user.models.DBUser'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = (
+    'cloudscape.common.auth.backends.AuthBackendInterface',
+)
+
 # Database encryption keys
 ENCRYPTED_FIELDS_KEYDIR = os.path.expandvars('$CLOUDSCAPE_BASE/dbkey')
 

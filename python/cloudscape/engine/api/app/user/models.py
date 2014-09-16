@@ -8,10 +8,68 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from cloudscape.common.vars import G_ADMIN
 from cloudscape.engine.api.app.group.models import DBGroupMembers, DBGroupDetails
 
+class DBUserQuerySet(models.query.QuerySet):
+    """
+    Custom query set for the user model.
+    """
+    def __init__(self, *args, **kwargs):
+        super(DBUserQuerySet, self).__init__(*args, **kwargs)
+
+    def _is_admin(self):
+        """
+        Check if the user is a member of the administrator group.
+        """
+        groups = self._get_groups()
+        for group in groups:
+            if group['uuid'] == G_ADMIN:
+                return True
+        return False
+
+    def _get_groups(self, user):
+        """
+        Retrieve a list of group membership.
+        """
+        membership = []
+        for g in DBGroupMembers.objects.filter(member=user).values():
+            gd = DBGroupDetails.objects.filter(uuid=g['group_id']).values()[0]
+            membership.append({
+                'uuid': gd['uuid'],
+                'name': gd['name'],
+                'desc': gd['desc']
+            })
+        return membership
+
+    def values(self, *fields):
+        """
+        Wrapper for the default values() method.
+        """
+        
+        # Store the initial results
+        _r = super(DBGroupDetailsQuerySet, self).values(*fields)
+        
+        # User return object
+        _u = []
+        
+        # Process each user object definition
+        for user in _r:
+            _u.update({
+                'groups': self._get_groups(),
+                'is_admin': self._is_admin()
+            })
+        
+        # Return the constructed user results
+        return _u
+
 class DBUserManager(BaseUserManager):
     """
     Custom user manager for the custom user model.
     """
+    def get_queryset(self, *args, **kwargs):
+        """
+        Wrapper method for the internal get_queryset() method.
+        """
+        return DBUserQuerySet(model=self.model)
+        
     def create_user(self, uuid, username, email, password, **kwargs):
         """
         Create a new user account.
@@ -84,30 +142,6 @@ class DBUser(AbstractBaseUser):
         """
         full_name = '%s %s' % (self.first_name, self.last_name)
         return full_name.strip()
-
-    def is_admin(self):
-        """
-        Check if the user is a member of the administrator group.
-        """
-        groups = self.get_groups()
-        for group in groups:
-            if group['uuid'] == G_ADMIN:
-                return True
-        return False
-
-    def get_groups(self):
-        """
-        Retrieve a list of group membership.
-        """
-        membership = []
-        for g in DBGroupMembers.objects.filter(member=self.uuid).values():
-            gd = DBGroupDetails.objects.filter(uuid=g['group_id']).values()[0]
-            membership.append({
-                'uuid': gd['uuid'],
-                'name': gd['name'],
-                'desc': gd['desc']
-            })
-        return membership
 
     # Model metadata
     class Meta:

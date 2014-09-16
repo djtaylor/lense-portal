@@ -315,21 +315,6 @@ class UserGet:
         
         # Target user
         self.user = self.api.acl.target_object()
-        
-    def _get_user(self, id):
-        user_obj = DBUser.objects.get(uuid=id)
-         
-        # Map the user details
-        return {
-            'uuid':         user_obj.uuid,
-            'username':     user_obj.get_username(),
-            'first_name':   user_obj.first_name,
-            'last_name':    user_obj.last_name,
-            'is_active':    user_obj.is_active,
-            'email':        user_obj.email,
-            'from_ldap':    user_obj.from_ldap,
-            'groups':       user_obj.get_groups()
-        }
             
     def launch(self):
         """
@@ -349,15 +334,8 @@ class UserGet:
                 return invalid('User <%s> does not exist or access denied' % self.user)
             
             # Return the user details
-            return valid(self._get_user(self.user))
+            return valid(auth_users.extract(self.user))
             
         # If retrieving all users
         else:
-        
-            # Construct a detailed users object
-            users_obj = []
-            for user in auth_users.details:
-                users_obj.append(self._get_user(user['username']))
-        
-            # Return the constructed users object
-            return valid(users_obj)
+            return valid(auth_users.details)

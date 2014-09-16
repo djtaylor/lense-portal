@@ -120,7 +120,7 @@ class EndpointManager:
             
             # Make sure the group exists and the user is a member
             is_member = False
-            for group in DBUser.objects.get(username=self.api_user).get_groups():
+            for group in DBUser.objects.filter(username=self.api_user).values()[0]['groups']:
                 if group['uuid'] == self.api_group:
                     is_member = True
                     break

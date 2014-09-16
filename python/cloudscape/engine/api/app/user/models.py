@@ -100,7 +100,7 @@ class DBUserAPIKeys(models.Model):
     """
     
     # User API key table columns
-    user    = models.ForeignKey(User, to_field='uuid', db_column='user')
+    user    = models.ForeignKey(DBUser, to_field='uuid', db_column='user')
     api_key = models.CharField(max_length=64, unique=True)
     
     # Custom model metadata
@@ -113,7 +113,7 @@ class DBUserAPITokens(models.Model):
     """
     
     # User API token table columns
-    user    = models.ForeignKey(User, to_field='uuid', db_column='user')
+    user    = models.ForeignKey(DBUser, to_field='uuid', db_column='user')
     token   = models.CharField(max_length=255, unique=True)
     expires = models.DateTimeField()
     

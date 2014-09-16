@@ -317,7 +317,7 @@ class UserGet:
         self.user = self.api.acl.target_object()
         
     def _get_user(self, id):
-        user_obj = DBUser.objects.get(username=id)
+        user_obj = DBUser.objects.get(uuid=id)
          
         # Map the user details
         return {

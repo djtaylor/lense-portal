@@ -27,7 +27,7 @@ class AuthBackendLDAP(LDAPBackend):
         """
         Authenticate the user and store the encrypted password for default database authentication.
         """
-        user = LDAPBackend.authenticate(self, username, password)
+        user = LDAPBackend().authenticate(self, username, password)
         
         # If the user authentication succeeds, save the password in Django
         if user:

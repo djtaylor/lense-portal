@@ -78,12 +78,16 @@ class AuthBackendInterface(ModelBackend):
     Custom authentication backend to provided mixed database/LDAP support depending on the 
     server configuration.
     """
+    def __init__(self):
+        
+        # Get the usermodel
+        self.user_model = get_user_model()
     
-    def _ldap_active(self):
+    def _user_from_ldap(self, username):
         """
-        Check if the LDAP authentication backend is active.
+        Check if the user is pulled from the LDAP server.
         """
-        return AuthBackendLDAP in [b.__class__ for b in get_backends()]
+        return self.user_model.objects.get(username=username).from_ldap
     
     def _authenticate_ldap(self, username, password):
         """
@@ -93,16 +97,16 @@ class AuthBackendInterface(ModelBackend):
         # Log the authentication attempt
         LOG.info('Attempting LDAP authentication for user [%s]' % username)
         
-        # Get the user model
-        user_model = get_user_model()
-        
         # Try to authenticate the user
         try:
             return AuthBackendLDAP().authenticate(username, password)
             
-        # Failed to get the user model
-        except:
-            return None
+        # Fallback to database authentication
+        except Exception as e:
+            LOG.exception('LDAP authentication failed for user [%s]: %s, falling back to database authentication' % (username, str(e)))
+            
+            # Return the database authentication object
+            return self._authenticate_database(username, password)
     
     def _authenticate_database(self, username, password):
         """
@@ -120,12 +124,9 @@ class AuthBackendInterface(ModelBackend):
         Return a user object.
         """
         
-        # Get the user model
-        user_model = get_user_model()
-        
         # Try to find the user object
         try:
-            return user_model.objects.get(username=username)
+            return self.user_model.objects.get(username=username)
         except user_model.DoesNotExist:
             return None
     
@@ -137,11 +138,11 @@ class AuthBackendInterface(ModelBackend):
         # If LDAP authentication is configured
         if CONFIG.auth.backend == 'ldap':
             
-            # If the LDAP backend is active
-            if self._ldap_active():
+            # If the user is from LDAP
+            if self._user_from_ldap(username):
                 return self._authenticate_ldap(username, password)
                 
-            # LDAP not active, default to database authentication
+            # User is not an LDAP account
             else:
                 return self._authenticate_database(username, password)
         

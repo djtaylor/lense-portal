@@ -17,7 +17,7 @@ from cloudscape.engine.api.auth.acl import ACLGateway
 from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.auth.token import APIToken
 from cloudscape.engine.api.app.auth.models import DBAuthEndpoints
-from cloudscape.engine.api.app.user.models import DBUserDetails
+from cloudscape.engine.api.app.user.models import DBUser
 
 # Configuration / Logger
 CONF = config.parse()
@@ -112,7 +112,7 @@ class EndpointManager:
             LOG.info('API token authentication successfull for user: %s' % self.api_user)
     
         # Check for a user account
-        if DBUserDetails.objects.filter(username=self.api_user).count():
+        if DBUser.objects.filter(username=self.api_user).count():
             
             # If no API group was supplied
             if not self.api_group:
@@ -120,7 +120,7 @@ class EndpointManager:
             
             # Make sure the group exists and the user is a member
             is_member = False
-            for group in DBUserDetails.objects.get(username=self.api_user).get_groups():
+            for group in DBUser.objects.get(username=self.api_user).get_groups():
                 if group['uuid'] == self.api_group:
                     is_member = True
                     break

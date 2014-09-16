@@ -4,7 +4,7 @@ import random
 
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid
-from cloudscape.engine.api.app.user.models import DBUserAPIKeys, DBUserDetails
+from cloudscape.engine.api.app.user.models import DBUserAPIKeys, DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPIKeys
 
@@ -24,7 +24,7 @@ class APIKey(object):
         """
         
         # Check if a user or host
-        api_user = DBUserDetails.objects.filter(username=id).count()
+        api_user = DBUser.objects.filter(username=id).count()
         api_host = DBHostDetails.objects.filter(uuid=id).count()
 
         # If not an existing host or user
@@ -39,7 +39,7 @@ class APIKey(object):
         if api_user:
             
             # Make sure the user is enabled
-            user_obj = DBUserDetails.objects.get(username=id)
+            user_obj = DBUser.objects.get(username=id)
             if not user_obj.is_active:
                 return invalid('Authentication failed, account <%s> is disabled' % id)
             

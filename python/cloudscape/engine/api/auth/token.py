@@ -9,7 +9,7 @@ from django.conf import settings
 from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.utils import valid, invalid
-from cloudscape.engine.api.app.user.models import DBUserAPITokens, DBUserDetails
+from cloudscape.engine.api.app.user.models import DBUserAPITokens, DBUser
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPITokens
 
 class APIToken(object):
@@ -28,7 +28,7 @@ class APIToken(object):
         """
         
         # Check if a user or host
-        api_user = DBUserDetails.objects.filter(username=id).count()
+        api_user = DBUser.objects.filter(username=id).count()
         api_host = DBHostDetails.objects.filter(uuid=id).count()
 
         # If not an existing host or user
@@ -43,7 +43,7 @@ class APIToken(object):
         if api_user:
             
             # Make sure the user is enabled
-            user_obj = DBUserDetails.objects.get(username=id)
+            user_obj = DBUser.objects.get(username=id)
             if not user_obj.is_active:
                 return invalid('Authentication failed, account <%s> is disabled' % id)
             
@@ -75,7 +75,7 @@ class APIToken(object):
         
         # User API token
         elif type == 'user':
-            db_token  = DBUserAPITokens(id = None, user=DBUserDetails.objects.get(username=id), token=token_str, expires=expires)
+            db_token  = DBUserAPITokens(id = None, user=DBUser.objects.get(username=id), token=token_str, expires=expires)
             db_token.save()
             return token_str
         
@@ -91,7 +91,7 @@ class APIToken(object):
         self.log.info('Retrieving API token for ID <%s>' % id)
             
         # Check if a user or host
-        api_user  = DBUserDetails.objects.filter(username=id).count()
+        api_user  = DBUser.objects.filter(username=id).count()
         api_host  = DBHostDetails.objects.filter(uuid=id).count()
         
         # Attempt to retrieve an existing token

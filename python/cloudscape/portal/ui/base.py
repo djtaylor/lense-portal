@@ -15,7 +15,7 @@ from cloudscape.common import logger
 from cloudscape.common.vars import L_BASE
 from cloudscape.portal.ui.core.api import APIClient
 from cloudscape.common.collection import Collection
-from cloudscape.engine.api.app.user.models import DBUserDetails
+from cloudscape.engine.api.app.user.models import DBUser
 
 class PortalRequest(object):
     """
@@ -159,7 +159,7 @@ class PortalBase(object):
         if request.user.is_authenticated():
             
             # Get all user groups
-            all_groups = DBUserDetails.objects.get(username=request.user.username).get_groups()
+            all_groups = DBUser.objects.get(username=request.user.username).get_groups()
             
             # If the active group hasn't been set yet
             if not 'active_group' in request.session:
@@ -201,7 +201,7 @@ class PortalBase(object):
         """
         
         # Get all user groups
-        all_groups = DBUserDetails.objects.get(username=self.request.user).get_groups()
+        all_groups = DBUser.objects.get(username=self.request.user).get_groups()
         
         # Make sure the user is a member of the group
         is_member = False

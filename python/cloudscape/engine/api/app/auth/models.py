@@ -373,7 +373,7 @@ class DBAuthACLGroupObjectUserPermissions(models.Model):
     Main database model for storing object ACL permissions for group objects.
     """
     acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    user       = models.ForeignKey('user.DBUserDetails', to_field='username', db_column='user')
+    user       = models.ForeignKey('user.DBUser', to_field='uuid', db_column='user')
     owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
     allowed    = models.NullBooleanField()
     

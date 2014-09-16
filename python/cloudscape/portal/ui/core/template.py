@@ -16,7 +16,6 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.portal.ui.core import utils
 from cloudscape.portal.ui.core.filter import APIFilter
-from cloudscape.engine.api.app.user.models import DBUserDetails
 
 class PortalTemplate(object):
     """

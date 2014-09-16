@@ -1,6 +1,7 @@
 import re
 import string
 import random
+from uuid import uuid4
 
 # Django Libraries
 from django.core.mail import send_mail
@@ -9,7 +10,7 @@ from django.core.mail import send_mail
 from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.auth.key import APIKey
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
-from cloudscape.engine.api.app.user.models import DBUserDetails, DBUserAPIKeys
+from cloudscape.engine.api.app.user.models import DBUser, DBUserAPIKeys
 from cloudscape.engine.api.app.group.models import DBGroupDetails
 
 def gen_password(length=12):
@@ -46,7 +47,7 @@ class UserDelete:
             return invalid('Cannot delete the default administrator account')
 
         # Delete the user account
-        DBUserDetails.objects.filter(username=self.user).delete()
+        DBUser.objects.filter(username=self.user).delete()
 
         # Return the response
         return valid('Successfully deleted user account', {
@@ -81,7 +82,7 @@ class UserEnable:
             return invalid('Cannot enable/disable the default administrator account')
 
         # Get the user object and disable the account
-        user_obj = DBUserDetails.objects.get(username=self.user)
+        user_obj = DBUser.objects.get(username=self.user)
         user_obj.is_active = True
         user_obj.save()
         
@@ -118,7 +119,7 @@ class UserDisable:
             return invalid('Cannot enable/disable the default administrator account')
 
         # Get the user object and disable the account
-        user_obj = DBUserDetails.objects.get(username=self.user)
+        user_obj = DBUser.objects.get(username=self.user)
         user_obj.is_active = False
         user_obj.save()
         
@@ -155,7 +156,7 @@ class UserResetPassword:
 
         # Get the user object and set the new password
         try:
-            user_obj = DBUserDetails.objects.get(username=self.user)
+            user_obj = DBUser.objects.get(username=self.user)
             user_obj.set_password(new_pw)
             user_obj.save()
             self.api.log.info('Successfully reset password for user <%s>' % self.user)
@@ -197,13 +198,16 @@ class UserCreate:
         """
         self.api  = parent
 
+        # New user UUID
+        self.uuid = str(uuid4())
+
     def _validate(self):
         """
         Make sure the user request is valid.
         """
 
         # Make sure the user doesn't exist
-        if DBUserDetails.objects.filter(username=self.api.data['username']).count():
+        if DBUser.objects.filter(username=self.api.data['username']).count():
             return invalid(self.api.log.error('The user account <%s> already exists' % self.api.data['username']))
 
         # Password RegEx Tester:
@@ -240,7 +244,8 @@ class UserCreate:
                 password = self.api.data['password']
                 
             # Create the user account
-            new_user = DBUserDetails.objects.create_user(
+            new_user = DBUser.objects.create_user(
+                uuid         = self.uuid,
                 username     = self.api.data['username'],
                 email        = self.api.data['email'],
                 password     = self.api.data['password']
@@ -312,7 +317,7 @@ class UserGet:
         self.user = self.api.acl.target_object()
         
     def _get_user(self, id):
-        user_obj = DBUserDetails.objects.get(username=id)
+        user_obj = DBUser.objects.get(username=id)
          
         # Map the user details
         return {

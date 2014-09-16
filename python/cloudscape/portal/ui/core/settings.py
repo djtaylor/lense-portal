@@ -1,5 +1,5 @@
 import os
-import ldap
+from ldap import SCOPE_SUBTREE
 
 # Django Libraries
 from django_auth_ldap.config import LDAPSearch
@@ -95,7 +95,7 @@ AUTH_LDAP_BIND_DN = CONFIG.ldap.user
 AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
         
 # LDAP user search
-AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, ldap.SCOPE_SUBTREE, "(uid=%(username)s)")
+AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, SCOPE_SUBTREE, "(%s=%(username)s)" % CONFIG.ldap.uid_attr)
 
 # Django middleware classes
 MIDDLEWARE_CLASSES = (

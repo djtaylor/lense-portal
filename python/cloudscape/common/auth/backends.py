@@ -23,23 +23,7 @@ AUTH_LDAP_USER_SEARCH   = None
 class AuthBackendLDAP(LDAPBackend):
     """
     Class wrapper for querying the LDAP server for authentication.
-    """
-    def __init__(self):
-        
-        # Access global variables
-        global AUTH_LDAP_SERVER_URI, \
-               AUTH_LDAP_BIND_DN, \
-               AUTH_LDAP_BIND_PASSWORD, \
-               AUTH_LDAP_USER_SEARCH
-        
-        # LDAP server / bind DN / password
-        AUTH_LDAP_SERVER_URI = CONFIG.ldap.host
-        AUTH_LDAP_BIND_DN = CONFIG.ldap.user
-        AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
-        
-        # LDAP user search
-        AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, ldap.SCOPE_SUBTREE, "(uid=%(username)s)")
-        
+    """ 
     def authenticate(self, username, password):
         """
         Authenticate the user and store the encrypted password for default database authentication.
@@ -87,7 +71,9 @@ class AuthBackendInterface(ModelBackend):
         """
         Check if the user is pulled from the LDAP server.
         """
-        return self.user_model.objects.get(username=username).from_ldap
+        if self.user_model.objects.filter(username=username).count():
+            return self.user_model.objects.get(username=username).from_ldap
+        return None
     
     def _authenticate_ldap(self, username, password):
         """
@@ -103,7 +89,7 @@ class AuthBackendInterface(ModelBackend):
             
         # Fallback to database authentication
         except Exception as e:
-            LOG.exception('LDAP authentication failed for user [%s]: %s, falling back to database authentication' % (username, str(e)))
+            LOG.exception('LDAP authentication failed for user [%s]: %s' % username)
             
             # Return the database authentication object
             return self._authenticate_database(username, password)
@@ -127,7 +113,7 @@ class AuthBackendInterface(ModelBackend):
         # Try to find the user object
         try:
             return self.user_model.objects.get(username=username)
-        except user_model.DoesNotExist:
+        except self.user_model.DoesNotExist:
             return None
     
     def authenticate(self, username=None, password=None):
@@ -137,6 +123,12 @@ class AuthBackendInterface(ModelBackend):
         
         # If LDAP authentication is configured
         if CONFIG.auth.backend == 'ldap':
+            
+            # If the user doesn't exist
+            if not self.user_model.objects.filter(username=username).count():
+                
+                # Attempt user authentication
+                return self._authenticate_ldap(username, password)
             
             # If the user is from LDAP
             if self._user_from_ldap(username):

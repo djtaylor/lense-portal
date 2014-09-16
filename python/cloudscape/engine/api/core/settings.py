@@ -90,14 +90,6 @@ INSTALLED_APPS = (
     'cloudscape.engine.api.app.network',
 )
 
-# Authentication user model
-AUTH_USER_MODEL = 'user.DBUser'
-
-# Authentication backends
-AUTHENTICATION_BACKENDS = (
-    'cloudscape.common.auth.backends.AuthBackendInterface',
-)
-
 # Django middleware classes
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

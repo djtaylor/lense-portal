@@ -1,4 +1,5 @@
 import os
+import ldap
 
 # CloudScape Libraries
 import cloudscape.common.config as config
@@ -84,6 +85,14 @@ AUTH_USER_MODEL = 'user.DBUser'
 AUTHENTICATION_BACKENDS = (
     'cloudscape.common.auth.backends.AuthBackendInterface',
 )
+
+# LDAP Authentication
+AUTH_LDAP_SERVER_URI = CONFIG.ldap.host
+AUTH_LDAP_BIND_DN = CONFIG.ldap.user
+AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
+        
+# LDAP user search
+AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, ldap.SCOPE_SUBTREE, "(uid=%(username)s)")
 
 # Django middleware classes
 MIDDLEWARE_CLASSES = (

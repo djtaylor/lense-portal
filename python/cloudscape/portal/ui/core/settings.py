@@ -95,7 +95,7 @@ AUTH_LDAP_BIND_DN = CONFIG.ldap.user
 AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
         
 # LDAP user search
-AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, SCOPE_SUBTREE, "(%s=%(username)s)" % CONFIG.ldap.uid_attr)
+AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, SCOPE_SUBTREE, "(" + CONFIG.ldap.uid_attr + "=%(username)s)")
 
 # Django middleware classes
 MIDDLEWARE_CLASSES = (

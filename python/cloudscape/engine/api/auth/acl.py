@@ -11,6 +11,7 @@ from cloudscape.common.utils import invalid, valid
 from cloudscape.common.vars import T_USER, T_HOST
 from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.manager import ObjectsManager
+from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
 from cloudscape.engine.api.app.host.models import DBHostDetails
 from cloudscape.engine.api.app.auth.models import DBAuthACLEndpointsHost, DBAuthACLEndpointsGlobal, \
@@ -212,11 +213,14 @@ class ACLUser(object):
         member of.
         """
         
+        # Get the user object
+        user_obj = DBUser.objects.get(username=self.name)
+        
         # Construct a list of group UUIDs the user is a member of
-        groups = [x['group_id'] for x in list(DBGroupMembers.objects.filter(member=self.name).values())]
+        groups = [x['group_id'] for x in list(DBGroupMembers.objects.filter(member=user_obj.uuid).values())]
     
         # Log the user's group membership
-        LOG.info('Constructed group membership for user <%s>: %s' % (self.name, json.dumps(groups)))
+        LOG.info('Constructed group membership for user [%s]: %s' % (user_obj.uuid, json.dumps(groups)))
         
         # Return the group membership list
         return groups
@@ -272,7 +276,7 @@ class ACLGateway(object):
                 return valid()
         
         # Access denied
-        return invalid('Access denied to endpoint <%s>' % self.endpoint.name)
+        return invalid('Access denied to endpoint [%s]' % self.endpoint.name)
         
     def _check_global_access(self, global_acls):
         """
@@ -288,10 +292,10 @@ class ACLGateway(object):
             
             # If the ACL supports the target endpoint
             if self.endpoint.uuid in global_endpoints:
-                return valid(LOG.info('Global access granted for user <%s> to endpoint <%s>' % (self.user.name, self.endpoint.name)))
+                return valid(LOG.info('Global access granted for user [%s] to endpoint [%s]' % (self.user.name, self.endpoint.name)))
         
         # Global access denied
-        return invalid('Global access denied for user <%s> to endpoint <%s>' % (self.user.name, self.endpoint.name))
+        return invalid('Global access denied for user [%s] to endpoint [%s]' % (self.user.name, self.endpoint.name))
     
     def _check_object_access(self, object_acls, group):
         """
@@ -327,7 +331,7 @@ class ACLGateway(object):
             
                 # Check if the user has access to this object
                 if acl_class.objects.filter(**filter).count():
-                    return valid(LOG.info('Object level access granted for user <%s> to endpoint <%s> for object <%s:%s>' % (self.user.name, self.endpoint.name, self.endpoint.obj['object'], tgt_obj)))
+                    return valid(LOG.info('Object level access granted for user [%s] to endpoint [%s] for object [%s:%s]' % (self.user.name, self.endpoint.name, self.endpoint.obj['object'], tgt_obj)))
         
             # Access denied
             return invalid(' for object <%s:%s>' % (self.endpoint.obj['object'], tgt_obj))
@@ -388,7 +392,7 @@ class ACLGateway(object):
             
             # Access denied
             else:
-                err_msg = 'Access denied to endpoint <%s>%s' % (self.endpoint.name, obj_error)
+                err_msg = 'Access denied to endpoint [%s]%s' % (self.endpoint.name, obj_error)
                 
                 # Log the error message
                 LOG.error(err_msg)
@@ -411,7 +415,7 @@ class ACLGateway(object):
         
         # If the user is not a member of any groups (and not a host account type)
         if not self.user.groups and self.user.type == T_USER:
-            return self._set_authorization(False, LOG.error('User <%s> is not a member of any groups, membership required for endpoint authorization' % (self.user.name)))
+            return self._set_authorization(False, LOG.error('User [%s] is not a member of any groups, membership required for endpoint authorization' % (self.user.name)))
         
         # Check if the account has access
         try:

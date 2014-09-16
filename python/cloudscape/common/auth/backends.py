@@ -23,11 +23,14 @@ class AuthBackendLDAP(LDAPBackend):
     """
     Class wrapper for querying the LDAP server for authentication.
     """ 
+    def __init__(self):
+        super(AuthBackendLDAP, self).__init__(self)
+    
     def authenticate(self, username, password):
         """
         Authenticate the user and store the encrypted password for default database authentication.
         """
-        user = LDAPBackend().authenticate(username, password)
+        user = super(AuthBackendLDAP, self).authenticate(username, password)
     
         # If the user authentication succeeds, save the password in Django
         if user:

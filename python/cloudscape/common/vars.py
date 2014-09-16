@@ -115,6 +115,7 @@ A_STATUS       = 'status'
 # Agent / Server Configuration
 A_CONF         = np('%s/conf/agent.conf' % C_BASE)
 S_CONF         = np('%s/conf/server.conf' % C_BASE)
+S_CONF_DEF     = np('%s/conf/default/server.conf' % C_BASE)
 
 # Agent Process
 A_PID          = '/var/run/cloudscape/agent.pid'

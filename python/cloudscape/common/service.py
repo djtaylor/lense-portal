@@ -9,6 +9,7 @@ import subprocess
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
+from cloudscape.common.vars import L_BASE
 from cloudscape.common.feedback import Feedback
 
 class ServiceManager:
@@ -243,8 +244,8 @@ class ServiceManager:
                     self.fb.show('Starting CloudScape %s [PID %s]...' % (srv_attr['label'], pnum)).success()
                     
                     # Make sure the PID file directory exists
-                    if not os.path.exists('%s/run' % self.conf.base):
-                        os.makedirs('%s/run' % self.conf.base, 0750)
+                    if not os.path.exists('%s/run' % L_BASE):
+                        os.makedirs('%s/run' % L_BASE, 0750)
                         
                     # Create or update the PID file
                     open(srv_attr['pid'], 'w').write(pnum)

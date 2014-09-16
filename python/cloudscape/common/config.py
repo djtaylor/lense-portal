@@ -2,8 +2,109 @@ import os.path
 import ConfigParser
 
 # CloudScape Libraries
-from cloudscape.common.vars import S_CONF, A_CONF, C_BASE
+from cloudscape.common.vars import S_CONF, S_CONF_DEF, A_CONF, C_BASE
 from cloudscape.common.collection import Collection
+
+# Boolean string values
+BOOL_STRINGS = {
+    'true':  ['True', 'true', 'yes', 'Yes'],
+    'false': ['False', 'false', 'no', 'No']
+}
+
+class ServerConfig(object):
+    """
+    Construct and return the server configuration file.
+    """ 
+    def _map_value(self, value):
+        """
+        Map a string value depending on the type.
+        """
+        
+        # True value
+        if value in BOOL_STRINGS['true']:
+            return True
+        
+        # False value
+        if value in BOOL_STRINGS['false']:
+            return False
+        
+        # Integer value
+        try:
+            return int(value)
+        except:
+            pass
+        
+        # String value
+        return value
+    
+    def _to_dict(self, config):
+        """
+        Map a configuration object to a dictionary.
+        """
+        
+        # Declare the configuration dictionary
+        config_dict = {}
+        
+        # Process each configuration section
+        for section in config.sections():
+            section_opts = config.options(section)
+            
+            # Make sure the section exists in the dictionary
+            if not section in config_dict:
+                config_dict[section] = {}
+            
+            # Map each section and option to the dictionary object
+            for opt in section_opts:
+                config_dict[section][opt] = self._map_value(config.get(section, opt))
+    
+    def _parse(self, file):
+        """
+        Parse a configuration file and return a dictionary object.
+        """
+        
+        # Make sure the default configuration file exists
+        if not os.path.isfile(file):
+            raise Exception('Could not locate configuration file: %s' % file)
+    
+        # Create a new configuration parser
+        config = ConfigParser.ConfigParser()
+        
+        # Parse the configuration file
+        try:
+            config.read(file)
+            
+        # Failed to parse the configuration file
+        except Exception as e:
+            raise Exception('Failed to parse configuration [%s]: %s' % (file, str(e)))
+    
+        # Return a configuration dictionary
+        return self._to_dict(config)
+    
+    def construct(self):
+        """
+        Construct the configuration and return an immutable collection object.
+        """
+
+        # Make sure the required configuration files exist
+        for file in [S_CONF, S_CONF_DEF]:
+            if not os.path.isfile(file):
+                raise Exception('Missing required configuration file: %s' % file)
+
+        # Parse the default and user configuration files
+        def_config = self._parse(S_CONF_DEF)
+        usr_config = self._parse(S_CONF)
+        
+        # Merge the default configuration into the user configuration
+        for section, options in def_config.iteritems():
+            if not section in usr_config:
+                usr_config[section] = def_config[section]
+            else:
+                for key, value in options.iteritems():
+                    if not (key in usr_config[section]):
+                        usr_config[section][key] = value
+    
+        # Return a configuration collection
+        return Collection(usr_config).get()
 
 def _construct(config_file):
     """
@@ -39,7 +140,7 @@ def _construct(config_file):
         raise Exception('Failed to parse configuration sections in: %s' % (config_file))
         
     # Build a dictionary of configuration options
-    config_collector = Collection({'base': C_BASE})
+    config_collector = Collection()
     for section in config_sections:
         section_opts = config.options(section)
         
@@ -71,7 +172,7 @@ def parse(file=None):
     
     # Server Configuration
     if os.path.isfile(S_CONF):
-        return _construct(S_CONF)
+        return ServerConfig().construct()
     
     # Agent Configuration
     else:

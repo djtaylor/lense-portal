@@ -61,13 +61,6 @@ class DBUser(AbstractBaseUser):
     last_name  = models.CharField(_('last name'), max_length=30, blank=True)
     email      = models.EmailField(_('email address'), blank=True)
     
-    # Is the user staff or not
-    is_staff   = models.BooleanField(_('staff status'), 
-        default   = False,
-        help_text = _('Designates whether the user can log into this admin '
-                    'site.')
-    )
-    
     # Is the account active
     is_active = models.BooleanField(_('active'), 
         default   = True,

@@ -326,9 +326,8 @@ class UserGet:
             'first_name':   user_obj.first_name,
             'last_name':    user_obj.last_name,
             'is_active':    user_obj.is_active,
-            'is_staff':     user_obj.is_staff,
-            'is_superuser': user_obj.is_superuser,
             'email':        user_obj.email,
+            'from_ldap':    user_obj.from_ldap,
             'groups':       user_obj.get_groups()
         }
             

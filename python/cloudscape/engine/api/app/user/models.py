@@ -1,4 +1,5 @@
 from django.db import models
+from django.core import validators
 from django.contrib.auth.models import AbstractBaseUser, UserManager
 from django.utils.translation import ugettext_lazy as _
 

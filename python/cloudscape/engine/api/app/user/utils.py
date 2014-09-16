@@ -321,6 +321,7 @@ class UserGet:
          
         # Map the user details
         return {
+            'uuid':         user_obj.uuid,
             'username':     user_obj.get_username(),
             'first_name':   user_obj.first_name,
             'last_name':    user_obj.last_name,

@@ -2,11 +2,41 @@ from django.db import models
 from django.utils import timezone
 from django.core import validators
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import AbstractBaseUser, UserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 # CloudScape Libraries
 from cloudscape.common.vars import G_ADMIN
 from cloudscape.engine.api.app.group.models import DBGroupMembers, DBGroupDetails
+
+class DBUserManager(BaseUserManager):
+    """
+    Custom user manager for the custom user model.
+    """
+    def create_user(self, uuid, username, email, password, **kwargs):
+        """
+        Create a new user account.
+        """
+        now = timezone.now()
+        
+        # Create a new user object
+        user = self.model(
+            uuid         = uuid,
+            username     = username,
+            email        = self.normalize_email(email),
+            is_staff     = False,
+            is_superuser = False,
+            is_active    = True,
+            last_login   = now,
+            date_joined  = now,
+            **kwargs
+        )
+        
+        # Set the password and and save
+        user.set_password(password)
+        user.save(using=self._db)
+        
+        # Return the user object
+        return user
 
 class DBUser(AbstractBaseUser):
     """
@@ -51,7 +81,7 @@ class DBUser(AbstractBaseUser):
     from_ldap = models.BooleanField(_('LDAP User'), editable=False, default=False)
 
     # User objects manager
-    objects = UserManager()
+    objects = DBUserManager()
 
     # Username field and required fields
     USERNAME_FIELD = 'username'

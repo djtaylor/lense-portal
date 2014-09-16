@@ -44,7 +44,7 @@ class APIKey(object):
                 return invalid('Authentication failed, account <%s> is disabled' % id)
             
             # Return the API key row
-            api_key_row = DBUserAPIKeys.objects.filter(user=id).values('api_key')
+            api_key_row = DBUserAPIKeys.objects.filter(user=user_obj.uuid).values('api_key')
         if api_host:
             api_key_row = DBHostAPIKeys.objects.filter(host=id).values('api_key')
         db_api_key  = api_key_row[0]['api_key']

@@ -48,7 +48,7 @@ class APIToken(object):
                 return invalid('Authentication failed, account <%s> is disabled' % id)
             
             # Return the API token row
-            api_token_row = DBUserAPITokens.objects.filter(user=id).values('token')
+            api_token_row = DBUserAPITokens.objects.filter(user=user_obj.uuid).values('token')
         if api_host:
             api_token_row = DBHostAPITokens.objects.filter(host=id).values('token')
 

@@ -1,7 +1,6 @@
 import ldap
 
 # Django Libraries
-from django_auth_ldap.config import LDAPSearch
 from django_auth_ldap.backend import LDAPBackend
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_backends, get_user_model

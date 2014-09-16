@@ -1,6 +1,9 @@
 import os
 import ldap
 
+# Django Libraries
+from django_auth_ldap.config import LDAPSearch
+
 # CloudScape Libraries
 import cloudscape.common.config as config
 

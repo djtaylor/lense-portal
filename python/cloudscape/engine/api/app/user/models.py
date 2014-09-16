@@ -23,8 +23,6 @@ class DBUserManager(BaseUserManager):
             uuid         = uuid,
             username     = username,
             email        = self.normalize_email(email),
-            is_staff     = False,
-            is_superuser = False,
             is_active    = True,
             last_login   = now,
             date_joined  = now,

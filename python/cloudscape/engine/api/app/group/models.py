@@ -116,6 +116,11 @@ class DBGroupDetailsQuerySet(models.query.QuerySet):
         """
         Extract group members.
         """
+        
+        # Resolve circular dependencies
+        from cloudscape.engine.api.app.user.models import DBUser
+        
+        # Extract group membership
         members = []
         for member in list(DBGroupMembers.objects.filter(group=group['uuid']).values()):
             

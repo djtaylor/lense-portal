@@ -79,11 +79,11 @@ class AuthBackendInterface(ModelBackend):
     server configuration.
     """
     
-    @staticmethod
-    def _ldap_active():
+    def _ldap_active(self):
         """
         Check if the LDAP authentication backend is active.
         """
+        
         return AuthBackendLDAP in [b.__class__ for b in get_backends()]
     
     def _authenticate_ldap(self, username, password):

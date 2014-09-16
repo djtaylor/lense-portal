@@ -24,7 +24,7 @@ class AuthBackendLDAP(LDAPBackend):
     Class wrapper for querying the LDAP server for authentication.
     """ 
     def __init__(self):
-        super(AuthBackendLDAP, self).__init__(self)
+        super(AuthBackendLDAP, self).__init__()
     
     def authenticate(self, username, password):
         """

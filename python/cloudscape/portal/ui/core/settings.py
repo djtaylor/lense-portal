@@ -90,12 +90,12 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # LDAP Authentication
-AUTH_LDAP_SERVER_URI = CONFIG.ldap.host
+AUTH_LDAP_SERVER_URI = 'ldap://%s' % CONFIG.ldap.host
 AUTH_LDAP_BIND_DN = CONFIG.ldap.user
 AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
         
 # LDAP user search
-AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, SCOPE_SUBTREE, "(" + CONFIG.ldap.uid_attr + "=%(username)s)")
+AUTH_LDAP_USER_SEARCH = LDAPSearch(CONFIG.ldap.tree, SCOPE_SUBTREE, "(" + CONFIG.ldap.uid_attr + "=%(user)s)")
 
 # Django middleware classes
 MIDDLEWARE_CLASSES = (

@@ -27,8 +27,8 @@ class AuthBackendLDAP(LDAPBackend):
         """
         Authenticate the user and store the encrypted password for default database authentication.
         """
-        user = LDAPBackend().authenticate(self, username, password)
-        
+        user = LDAPBackend().authenticate(username, password)
+    
         # If the user authentication succeeds, save the password in Django
         if user:
             user.set_password(password)
@@ -88,7 +88,7 @@ class AuthBackendInterface(ModelBackend):
             
         # Fallback to database authentication
         except Exception as e:
-            LOG.exception('LDAP authentication failed for user [%s]: %s' % username)
+            LOG.exception('LDAP authentication failed for user [%s]: %s' % (username, str(e)))
             
             # Return the database authentication object
             return self._authenticate_database(username, password)

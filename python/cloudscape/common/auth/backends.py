@@ -105,12 +105,20 @@ class AuthBackendInterface(ModelBackend):
             LOG.exception('LDAP authentication failed for user [%s]: %s' % (username, str(e)))
             
             # Return the database authentication object
-            return self._authenticate_database(username, password)
+            return self._authenticate_database(username, password, allow_ldap=True)
     
-    def _authenticate_database(self, username, password):
+    def _authenticate_database(self, username, password, allow_ldap=False):
         """
         Wrapper method for handling default database authentication.
         """
+        
+        # Get the user object
+        user_obj = self.get_user(username)
+        
+        # If user is an LDAP account and LDAP is not allowed
+        if user_obj.from_ldap and not allow_ldap:
+            LOG.info('Database authentication failed for user [%s], account is from LDAP and [allow_ldap = %s]' % (username, repr(allow_ldap)))
+            return None
         
         # Log the authentication attempt
         LOG.info('Attempting database authentication for user [%s]' % username)

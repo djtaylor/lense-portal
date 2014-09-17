@@ -245,8 +245,6 @@ class PortalBase(object):
             if user.is_active:
                 self.log.info('User account [%s] active, logging in user' % username)
                 
-                self.log.info('USER_OBJ: %s, %s' % (str(user), str(dir(user))))
-                
                 # Login the user account
                 login(self.request.RAW, user)
                 
@@ -290,9 +288,6 @@ class PortalBase(object):
         
         # Construct request object
         self.request = self._set_request(request)
-        
-        self.log.info('REQUEST_USER: %s' % str(request.user))
-        self.log.info('REQUEST_USER_AUTH: %s' % repr(request.user.is_authenticated()))
         
         # If the user is authenticated
         if request.user.is_authenticated():

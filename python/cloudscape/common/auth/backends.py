@@ -122,7 +122,7 @@ class AuthBackendInterface(ModelBackend):
         """
         
         # Get the user object
-        user_obj = self.get_user(username)
+        user_obj = self.user_model.objects.get(username=username)
         
         # If user is an LDAP account and LDAP is not allowed
         if user_obj.from_ldap and not allow_ldap:
@@ -143,17 +143,6 @@ class AuthBackendInterface(ModelBackend):
             
         # Return the authentication status
         return auth_status
-    
-    def get_user(self, username):
-        """
-        Return a user object.
-        """
-        
-        # Try to find the user object
-        try:
-            return self.user_model.objects.get(username=username)
-        except self.user_model.DoesNotExist:
-            return None
     
     def authenticate(self, username=None, password=None):
         """

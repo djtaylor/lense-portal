@@ -1,8 +1,4 @@
-import ldap
-import json
-
 # Django Libraries
-from django_auth_ldap.config import LDAPSearch, LDAPSearchUnion
 from django_auth_ldap.backend import LDAPBackend
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_backends, get_user_model
@@ -15,49 +11,6 @@ from cloudscape.common.utils import rstring
 # Configuration / logger
 CONFIG = config.parse()
 LOG    = logger.create(__name__, CONFIG.utils.log)
-
-class AuthGroupsLDAP(object):
-    """
-    Construct an LDAPSearchUnion object for every LDAP search group defined.
-    """
-    def __init__(self):
-        if CONFIG.auth.backend == 'ldap':
-        
-            # Parse the LDAP JSON map
-            self.map = self._get_map()
-    
-    def _get_map(self):
-        """
-        Load the LDAP JSON map file.
-        """
-        try:
-            return json.load(open(CONFIG.ldap.map))
-        
-        # Failed to parse JSON map file
-        except Exception as e:
-            err = 'Failed to load LDAP JSON map file [%s]: %s' % (CONFIG.ldap.map, str(e))
-            
-            # Log the error
-            LOG.exception(err)
-    
-            # Re-raise the exception
-            raise Exception(err)
-    
-    def construct(self):
-        """
-        Construct the LDAP search union.
-        """
-        if CONFIG.auth.backend == 'ldap':
-
-            # Define the search union
-            search_union = []
-            
-            # Process each group definition
-            for ldap_group in self.map['groups']:
-                search_union.append(LDAPSearch(ldap_group['tree'], SCOPE_SUBTREE, "(" + ldap_group['uid_attr'] + "=%(user)s)"))
-
-            # Return the LDAPSearchUnion object
-            return LDAPSearchUnion(tuple(search_union))
                 
 class AuthBackendLDAP(LDAPBackend):
     """
@@ -67,7 +20,7 @@ class AuthBackendLDAP(LDAPBackend):
         super(AuthBackendLDAP, self).__init__()
     
         # Get the LDAP JSON map object
-        self.map = AuthGroupsLDAP().map
+        self.map = AuthGroupsLDAP.get_map()
     
     def _map_user_attrs(self, ldap_attrs):
         """

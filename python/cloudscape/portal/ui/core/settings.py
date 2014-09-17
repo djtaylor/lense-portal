@@ -1,9 +1,8 @@
 import os
-from ldap import SCOPE_SUBTREE
 
 # CloudScape Libraries
 import cloudscape.common.config as config
-from cloudscape.common.auth.backends import AuthLDAPSearch
+from cloudscape.common.auth.utils import AuthGroupsLDAP
 
 # Configuration
 CONFIG           = config.parse()
@@ -93,7 +92,7 @@ AUTH_LDAP_BIND_DN = CONFIG.ldap.user
 AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
         
 # LDAP user search
-AUTH_LDAP_USER_SEARCH = AuthGroupsLDAP().construct()
+AUTH_LDAP_USER_SEARCH = AuthGroupsLDAP.construct()
 
 # Django middleware classes
 MIDDLEWARE_CLASSES = (

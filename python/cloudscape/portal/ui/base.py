@@ -245,6 +245,8 @@ class PortalBase(object):
             if user.is_active:
                 self.log.info('User account [%s] active, logging in user' % username)
                 
+                self.log.info('USER_OBJ: %s, %s' % (str(user), str(dir(user))))
+                
                 # Login the user account
                 login(self.request.RAW, user)
                 

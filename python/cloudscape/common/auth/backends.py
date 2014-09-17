@@ -57,8 +57,8 @@ class AuthBackendLDAP(LDAPBackend):
         Retrieve or create a user account.
         """
         
-        LOG.info('LDAP_USER_DN: %s' % str(dir(ldap_user.dn)))
-        LOG.info('LDAP_USER_ATTRS: %s' % str(dir(ldap_user.attrs)))
+        LOG.info('LDAP_USER_DN: %s' % str(ldap_user.dn))
+        LOG.info('LDAP_USER_ATTRS: %s' % str(ldap_user.attrs))
         
         # Map the user attributes
         user_attrs = self._map_user_attrs(ldap_user.attrs)
@@ -110,6 +110,9 @@ class AuthBackendInterface(ModelBackend):
                 LOG.info('LDAP authentication status for user [%s]: authenticated=%s' % (auth_status.username, repr(auth_status.is_authenticated())))
             else:
                 LOG.error('LDAP authentication failed for user [%s]' % username)
+                
+                # Fallback to database authentication if possible
+                return self._authenticate_database(username, password, allow_ldap=True)
             
             # Return the authentication status
             return auth_status

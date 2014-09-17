@@ -118,7 +118,8 @@ class PortalTemplate(object):
             'authenticated': self.portal.authenticated,
             'request': {
                 'current': self.portal.request.current
-            }
+            },
+            'is_admin': self.portal.request.is_admin
         }
         
         # Replace the API URL with the Socket.IO proxy

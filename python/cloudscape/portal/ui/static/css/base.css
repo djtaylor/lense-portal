@@ -154,9 +154,16 @@ div[type="agent.control"] {
 	margin: 0 0 10px 0;
 }
 
+.nav_profile_username {
+	float: left;
+	height: 30px;
+	line-height: 30px;
+}
+
 .nav_profile_icon {
 	height: 30px;
-	width: 30px;
+	width: 25px;
+	float: right;
 	background-image: url(/static/images/users.png);
 	background-position: 50% 50%;
 	background-repeat: no-repeat;

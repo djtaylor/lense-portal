@@ -1,5 +1,3 @@
-import string
-import random
 import datetime
 
 # Django Libraries
@@ -8,7 +6,7 @@ from django.conf import settings
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
-from cloudscape.common.utils import valid, invalid
+from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.engine.api.app.user.models import DBUserAPITokens, DBUser
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPITokens
 
@@ -63,7 +61,7 @@ class APIToken(object):
         """
         Generate a new API authentication token.
         """
-        token_str = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(255)])
+        token_str = rstring(255)
         expires   = datetime.datetime.now() + datetime.timedelta(hours=settings.API_TOKEN_LIFE)
             
         # Create a new API token

@@ -1,9 +1,7 @@
 import json
-import string
-import random
 
 # CloudScape Libraries
-from cloudscape.common.utils import valid, invalid
+from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.engine.api.app.user.models import DBUserAPIKeys, DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPIKeys
@@ -16,7 +14,7 @@ class APIKey(object):
         """
         Generate a 64 character API key.
         """
-        return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(64)])
+        return rstring(64)
 
     def _get_api_key(self, id):
         """

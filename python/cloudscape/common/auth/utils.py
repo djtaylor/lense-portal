@@ -25,13 +25,7 @@ class AuthGroupsLDAP(object):
         
         # Failed to parse JSON map file
         except Exception as e:
-            err = 'Failed to load LDAP JSON map file [%s]: %s' % (CONFIG.ldap.map, str(e))
-            
-            # Log the error
-            LOG.exception(err)
-    
-            # Re-raise the exception
-            raise Exception(err)
+            raise Exception('Failed to load LDAP JSON map file [%s]: %s' % (CONFIG.ldap.map, str(e)))
     
     @staticmethod
     def construct():

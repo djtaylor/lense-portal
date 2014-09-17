@@ -36,7 +36,7 @@ class PortalRequest(object):
         self.user     = None if not hasattr(request, 'user') else request.user.username
         self.group    = None if not request.user.is_authenticated() else request.session['active_group']
         self.session  = None if not hasattr(request, 'session') else request.session.session_key
-        self.is_admin = False if not hasattr(request, 'session') else request.session['is_admin']
+        self.is_admin = False if not request.user.is_authenticated() else request.session['is_admin']
         
         # Path / query string / script / current URI
         self.path     = request.META['PATH_INFO'].replace('/','')

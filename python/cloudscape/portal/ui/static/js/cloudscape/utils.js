@@ -75,38 +75,42 @@ function include(m,f,c) {
 		}()
 	}
 	
-	// If performing URL matching
-	if (f.hasOwnProperty('url')) {
-		for (var k in f.url) {
-			if (f.url[k] instanceof Array) {
-				if (f.url[k].indexOf(_url[k]) == -1) {
-					return;
-				}
-			} else {
-				
-				// If performing a negative match
-				if (f.url[k].startswith('!')) {
-					p = f.url[k].replace('!', '');
-					if (_url[k] == p) {
+	// If performing any type of filtering
+	if (defined(f)) {
+	
+		// If performing URL matching
+		if (f.hasOwnProperty('url')) {
+			for (var k in f.url) {
+				if (f.url[k] instanceof Array) {
+					if (f.url[k].indexOf(_url[k]) == -1) {
 						return;
 					}
 				} else {
-					if (_url[k] !== f.url[k]) {
-						return;
+					
+					// If performing a negative match
+					if (f.url[k].startswith('!')) {
+						p = f.url[k].replace('!', '');
+						if (_url[k] == p) {
+							return;
+						}
+					} else {
+						if (_url[k] !== f.url[k]) {
+							return;
+						}
 					}
 				}
 			}
 		}
-	}
-	
-	// If performing administrator right checks
-	if (f.hasOwnProperty('is_admin')) {
-		if (!defined(api_params.is_admin)) {
-			return;
-		}
-		if (h.is_admin === true) {
-			if (api_params.is_admin !== true) {
+		
+		// If performing administrator right checks
+		if (f.hasOwnProperty('is_admin')) {
+			if (!defined(api_params.is_admin)) {
 				return;
+			}
+			if (h.is_admin === true) {
+				if (api_params.is_admin !== true) {
+					return;
+				}
 			}
 		}
 	}

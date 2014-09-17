@@ -7,6 +7,7 @@ from django.contrib.auth import get_backends, get_user_model
 from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.utils import rstring
+from cloudscape.common.auth.utils import AuthGroupsLDAP
 
 # Configuration / logger
 CONFIG = config.parse()

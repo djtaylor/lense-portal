@@ -45,4 +45,4 @@ class AuthGroupsLDAP(object):
                 search_union.append(LDAPSearch(ldap_group['tree'], ldap.SCOPE_SUBTREE, "(" + ldap_group['uid_attr'] + "=%(user)s)"))
 
             # Return the LDAPSearchUnion object
-            return LDAPSearchUnion(tuple(search_union))
+            return LDAPSearchUnion(*search_union)

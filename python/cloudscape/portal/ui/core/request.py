@@ -20,7 +20,7 @@ MOD_CLASS = 'AppModule'
 
 # Configuration / Logger
 CONF = config.parse()
-LOG  = logger.create('cloudscape.portal.ui.core.request', CONF.portal.log)
+LOG  = logger.create(__name__, CONF.portal.log)
 
 def dispatch(request):
     """

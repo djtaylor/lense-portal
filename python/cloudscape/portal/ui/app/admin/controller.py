@@ -389,7 +389,7 @@ class AppController(PortalTemplate):
             }           
         }
         
-    def construct(self):
+    def construct(self, **kwargs):
         """
         Construct and return the template object.
         """

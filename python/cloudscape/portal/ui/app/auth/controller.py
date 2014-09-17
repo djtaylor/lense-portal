@@ -7,16 +7,16 @@ class AppController(PortalTemplate):
     def __init__(self, parent):
         super(AppController, self).__init__(parent)
         
-    def construct(self):
+    def construct(self, **kwargs):
         """
         Construct and return the template object.
         """
         
         # Set the template attributes
         self.set_template({
-            'state':          None, 
-            'state_display': 'none',
-            'base_path':      self.portal.request.script,
+            'state':         getattr(kwargs, 'state', None), 
+            'state_display': getattr(kwargs, 'state_display', 'none'),
+            'base_path':     self.portal.request.script,
             'page': {
                 'title': 'CloudScape Login',
                 'css': ['auth.css'],

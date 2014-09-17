@@ -170,7 +170,7 @@ class PortalBase(object):
         # Return a request object
         return PortalRequest(request)
         
-    def _run_controller(self):
+    def _run_controller(self, **kwargs):
         """
         Run the target application controller.
         """
@@ -183,7 +183,7 @@ class PortalBase(object):
                 return HttpResponseRedirect(self._set_url('home'))
             
             # Return the template response
-            return self.controller[self.request.path](self).construct()
+            return self.controller[self.request.path](self).construct(**kwargs)
             
         # User is not authenticated
         else:
@@ -193,7 +193,7 @@ class PortalBase(object):
                 return HttpResponseRedirect(self._set_url('auth'))
             
             # Return the template response
-            return self.controller[self.request.path](self).construct()
+            return self.controller[self.request.path](self).construct(**kwargs)
         
     def set_active_group(self, group):
         """
@@ -237,23 +237,32 @@ class PortalBase(object):
             
         # Attempt to authenticate the user
         user = authenticate(username=username, password=password)
+        
+        # User exists and is authenticated
         if user is not None:
+            
+            # User is active
             if user.is_active:
+                self.log.info('User account [%s] active, logging in user' % username)
+                
+                # Login the user account
                 login(self.request.RAW, user)
+                
+                # Redirect to the home page
                 return self.redirect('/home')
+            
+            # User account is inactive
             else:
+                self.log.info('Login failed, user account [%s] is inactive' % username)
                 state = 'Your account is not active - please contact your administrator'
+        
+        # User account does not exist or username/password incorrect
         else:
+            self.log.error('Login failed, user account [%s] does not exist or password is incorrect' % username)
             state = 'Your username and/or password are incorrect'
     
-        # Template data
-        template_data = {'state': state, 
-                         'state_display': 'block',
-                         'username': username, 
-                         'base_path': request.META['SCRIPT_NAME']}
-        
-        # Login failed
-        return render_to_response('app/auth/main.html', template_data, context_instance=RequestContext(request))
+        # Return the login failure screen
+        return self._run_controller(state=state, state_display='block')
         
     def logout(self):
         """

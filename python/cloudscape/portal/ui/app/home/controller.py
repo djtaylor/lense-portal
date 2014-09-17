@@ -7,7 +7,7 @@ class AppController(PortalTemplate):
     def __init__(self, parent):
         super(AppController, self).__init__(parent)
         
-    def construct(self):
+    def construct(self, **kwargs):
         """
         Construct and return the template object.
         """

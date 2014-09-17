@@ -205,7 +205,7 @@ class UserCreate:
         # - At least 1 special character
         pw_regex = re.compile(r'^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[\W])\S*$')
         if not pw_regex.match(self.api.data['password']):
-            return invalid(self.api.log.error('Password is too weak. Must be at least <8> characters and contain - upper/lower case letters, numbers, and special characters'))
+            return invalid(self.api.log.error('Password is too weak. Must be at least [8] characters and contain - upper/lower case letters, numbers, and special characters'))
         return valid()
 
     def launch(self):

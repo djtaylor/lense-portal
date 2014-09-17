@@ -253,7 +253,7 @@ class AppController(PortalTemplate):
         # Return the template data
         return base_data
         
-    def construct(self):
+    def construct(self, **kwargs):
         """
         Construct and return the template object.
         """

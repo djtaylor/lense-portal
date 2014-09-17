@@ -112,7 +112,7 @@ class DBUserManager(BaseUserManager):
         """
         return DBUserQuerySet(model=self.model)
         
-    def get_or_create(self, **kwargs):
+    def get_or_create(self, *args, **kwargs):
         """
         Get or create a new user object.
         """
@@ -125,7 +125,7 @@ class DBUserManager(BaseUserManager):
             return queryset.get(username=kwargs['username']), False
         
         # User doesn't exist yet
-        user = self.create_user(**kwargs)
+        user = self.create_user(*args, **kwargs)
         
         # Return the created user
         return user, True

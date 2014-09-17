@@ -1,3 +1,5 @@
+import re
+
 # Django Libraries
 from django_auth_ldap.backend import LDAPBackend
 from django.contrib.auth.backends import ModelBackend
@@ -23,7 +25,7 @@ class AuthBackendLDAP(LDAPBackend):
         # Get the LDAP JSON map object
         self.map = AuthGroupsLDAP.get_map()
     
-    def _map_user_attrs(self, ldap_attrs):
+    def _map_user_attrs(self, ldap_attrs, group_attrs):
         """
         Map LDAP user attributes to database user attributes.
         """
@@ -32,7 +34,7 @@ class AuthBackendLDAP(LDAPBackend):
         mapped = {}
         
         # Map each database attribute
-        for d,l in CONFIG.ldap_attr._asdict().iteritems():
+        for d,l in group_attrs['attr_map'].iteritems():
             mapped[d] = ldap_attrs[l][0]
         
         # Return the mapped attributes
@@ -57,11 +59,14 @@ class AuthBackendLDAP(LDAPBackend):
         Retrieve or create a user account.
         """
         
-        LOG.info('LDAP_USER_DN: %s' % str(ldap_user.dn))
-        LOG.info('LDAP_USER_ATTRS: %s' % str(ldap_user.attrs))
+        # Extract the user tree
+        tree = re.compile(r'^.*(ou.*$)').sub(r'\g<1>', ldap_user.dn)
+        
+        # Extract the group attributes
+        group_attrs = [x for x in self.map['groups'] if x['tree'].lower() == tree]
         
         # Map the user attributes
-        user_attrs = self._map_user_attrs(ldap_user.attrs)
+        user_attrs = self._map_user_attrs(ldap_user.attrs, group_attrs)
         
         # Add extra database attributes. Generate a random password (will be changed during authentication)
         user_attrs.update({
@@ -69,11 +74,14 @@ class AuthBackendLDAP(LDAPBackend):
             'password':  rstring()
         })
         
+        # Look for a default group
+        def_group = None if not ('default_group' in group_attrs) else group_attrs['default_group']
+        
         # Get the user model
         user_model = get_user_model()
         
         # Get or create the user model and then return
-        return user_model.objects.get_or_create(**user_attrs)
+        return user_model.objects.get_or_create(group=def_group, **user_attrs)
     
 class AuthBackendInterface(ModelBackend):
     """

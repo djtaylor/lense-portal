@@ -100,8 +100,10 @@ class AuthBackendInterface(ModelBackend):
         try:
             auth_status = AuthBackendLDAP().authenticate(username, password)
             
-            LOG.info('AUTH_STATUS_LDAP: %s = %s' % (str(auth_status), str(dir(auth_status))))
+            # Log the authentication status
+            LOG.info('LDAP authentication status for user [%s]: authenticated=%s' % (auth_status.username, repr(auth_status.is_authenticated())))
             
+            # Return the authentication status
             return auth_status
             
         # Fallback to database authentication
@@ -127,11 +129,13 @@ class AuthBackendInterface(ModelBackend):
         # Log the authentication attempt
         LOG.info('Attempting database authentication for user [%s]' % username)
         
-        # Return the authentication model
+        # Attempt to authenticate the user
         auth_status = ModelBackend.authenticate(self, username, password)
     
-        LOG.info('AUTH_STATUS_DB: %s = %s' % (str(auth_status), str(dir(auth_status))))
-    
+        # Log the authentication status
+        LOG.info('Database authentication status for user [%s]: authenticated=%s' % (auth_status.username, repr(auth_status.is_authenticated())))
+            
+        # Return the authentication status
         return auth_status
     
     def get_user(self, username):

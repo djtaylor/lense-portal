@@ -169,16 +169,32 @@ div[type="agent.control"] {
 	cursor: pointer;
 }
 
+.nav_profile_api_key {
+	margin: 0 0 10px 0;
+}
+
 .nav_profile_api_key_label {
-	
+	font-size: 1.1em;
+	margin: 0 0 5px 0;
 }
 
 .nav_profile_api_key_value {
-	
+	overflow: auto;
+}
+
+.nav_profile_api_key_toggle {
+	width: 30px;
+	height: 30px;
+	background-color: #fff;
+	float: right;
 }
 
 .nav_profile_api_key_value input {
-	
+	width: 260px;
+	border: none;
+	padding: 5px;
+	height: 30px;
+	float: left;
 }
 
 .nav_profile_icon {
@@ -203,14 +219,14 @@ div[type="agent.control"] {
 	text-align: center;
 	font-size: 1.1em;
 	background-color: #fff;
-	border: solid 1px #f0f0f0;
+	border: solid 1px #e0e0e0;
 	-webkit-border-radius: 5px;
 	border-radius: 5px;
 }
 
 .nav_profile_logout:hover {
 	cursor: pointer;
-	background-color: #eee;
+	background-color: #fefefe;
 }
 
 .nav_profile_ptr_wrapper {

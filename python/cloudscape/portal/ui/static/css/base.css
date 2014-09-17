@@ -176,12 +176,18 @@ div[type="agent.control"] {
 	right: 20px;
 }
 
+.nav_profile_ptr_wrapper {
+	overflow: auto;
+	height: 7px;
+}
+
 .nav_profile_ptr {
 	width: 0; 
 	height: 0; 
-	border-left: 5px solid transparent;
-	border-right: 5px solid transparent;
-	border-bottom: 5px solid #f4f4f4;
+	border-left: 7px solid transparent;
+	border-right: 7px solid transparent;
+	border-bottom: 7px solid #f4f4f4;
+	float: right;
 }
 
 .nav_profile_content {

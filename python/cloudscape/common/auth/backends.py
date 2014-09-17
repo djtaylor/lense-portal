@@ -101,7 +101,7 @@ class AuthBackendInterface(ModelBackend):
             auth_status = AuthBackendLDAP().authenticate(username, password)
             
             # Log the authentication status
-            LOG.info('LDAP authentication status for user [%s]: authenticated=%s' % (auth_status.username, repr(auth_status.is_authenticated())))
+            LOG.info('LDAP authentication status for user [%s]: authenticated=%s' % (username, repr(auth_status.is_authenticated())))
             
             # Return the authentication status
             return auth_status
@@ -133,7 +133,7 @@ class AuthBackendInterface(ModelBackend):
         auth_status = ModelBackend.authenticate(self, username, password)
     
         # Log the authentication status
-        LOG.info('Database authentication status for user [%s]: authenticated=%s' % (auth_status.username, repr(auth_status.is_authenticated())))
+        LOG.info('Database authentication status for user [%s]: authenticated=%s' % (username, repr(auth_status.is_authenticated())))
             
         # Return the authentication status
         return auth_status

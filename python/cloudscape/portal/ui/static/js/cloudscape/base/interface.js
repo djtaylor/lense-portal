@@ -61,6 +61,23 @@ cs.import('CSBaseInterface', function() {
 	 */
 	this.bind = function() {
 		
+		// Show/hide API key
+		$(document).on('click', '.nav_profile_api_key_toggle', function() {
+			var a = get_attr(this);
+			
+			// Show API key
+			if (a.state == 'show') {
+				$('input[name="api_key"]').attr('type', 'text');
+				$(this).attr('state', 'hide');
+			}
+			
+			// Hide API key
+			if (a.state == 'hide') {
+				$('input[name="api_key"]').attr('type', 'password');
+				$(this).attr('state', 'show');
+			}
+		});
+		
 		// Change active group
 		$('select[id="active_group"][name="group"]').change(function() {
 			var group = $(this).val();

@@ -8,6 +8,7 @@ from django.contrib.auth import get_backends, get_user_model
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
+from cloudscape.common.utils import rstring
 
 # Configuration / logger
 CONFIG = config.parse()
@@ -66,9 +67,10 @@ class AuthBackendLDAP(LDAPBackend):
         # Map the user attributes
         user_attrs = self._map_user_attrs(ldap_user.attrs)
         
-        # Add extra database attributes
+        # Add extra database attributes. Generate a random password (will be changed during authentication)
         user_attrs.update({
-            'from_ldap': True
+            'from_ldap': True,
+            'password':  rstring()
         })
         
         LOG.info('Mapped user attributes: %s' % str(user_attrs))

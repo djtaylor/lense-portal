@@ -1,21 +1,13 @@
 import re
-import string
-import random
 
 # Django Libraries
 from django.core.mail import send_mail
 
 # CloudScape Libraries
-from cloudscape.common.utils import valid, invalid
+from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
 from cloudscape.engine.api.app.user.models import DBUser, DBUserAPIKeys
 from cloudscape.engine.api.app.group.models import DBGroupDetails
-
-def gen_password(length=12):
-    """
-    Helper method used to generate a random password.
-    """
-    return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(length)])
 
 class UserDelete:
     """
@@ -150,7 +142,7 @@ class UserResetPassword:
         self.api.log.info('Resetting password for user [%s]' % self.user)
         
         # Generate a new random password
-        new_pw = gen_password()
+        new_pw = rstring()
 
         # Get the user object and set the new password
         try:
@@ -230,7 +222,7 @@ class UserCreate:
         try:
             
             # Generate a random password
-            password = gen_password()
+            password = rstring()
             
             # If manually setting the password
             if ('password' in self.api.data):

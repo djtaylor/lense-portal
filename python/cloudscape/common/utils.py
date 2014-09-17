@@ -5,6 +5,7 @@ import json
 import uuid
 import psutil
 import struct
+import string
 import random
 import hashlib
 import operator
@@ -17,6 +18,12 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.agent.config import AgentConfig
 from cloudscape.common.vars import SYS_TYPE, A_CONF, S_CONF, PY_WRAPPER, PY_BASE, np
+
+def rstring(length=12):
+    """
+    Helper method used to generate a random string.
+    """
+    return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(length)])
 
 def pyexec(script, **kwargs):
     """

@@ -90,6 +90,9 @@ class DBUserQuerySet(models.query.QuerySet):
                 if timefield in user:
                     user[timefield] = user[timefield].strftime(self.timestamp)
             
+            # Remove the password
+            del user['password']
+            
             # Get user groups and administrator status
             user.update({
                 'groups': self._get_groups(user['uuid']),

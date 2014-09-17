@@ -14,12 +14,6 @@ from cloudscape.common.utils import rstring
 CONFIG = config.parse()
 LOG    = logger.create(__name__, CONFIG.utils.log)
 
-# LDAP Parameters
-AUTH_LDAP_SERVER_URI    = None
-AUTH_LDAP_BIND_DN       = None
-AUTH_LDAP_BIND_PASSWORD = None
-AUTH_LDAP_USER_SEARCH   = None
-
 class AuthBackendLDAP(LDAPBackend):
     """
     Class wrapper for querying the LDAP server for authentication.

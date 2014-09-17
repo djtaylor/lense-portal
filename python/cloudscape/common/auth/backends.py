@@ -63,7 +63,7 @@ class AuthBackendLDAP(LDAPBackend):
         tree = re.compile(r'^.*(ou.*$)').sub(r'\g<1>', ldap_user.dn)
         
         # Extract the group attributes
-        group_attrs = [x for x in self.map['groups'] if x['tree'].lower() == tree]
+        group_attrs = [x for x in self.map['groups'] if x['tree'].lower() == tree][0]
         
         # Map the user attributes
         user_attrs = self._map_user_attrs(ldap_user.attrs, group_attrs)

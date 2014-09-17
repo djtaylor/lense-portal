@@ -35,8 +35,6 @@ class AuthBackendLDAP(LDAPBackend):
         # Mapped attributes
         mapped = {}
         
-        LOG.info('LDAP_ATTRS: %s' % str(ldap_attrs))
-        
         # Map each database attribute
         for d,l in CONFIG.ldap_attr._asdict().iteritems():
             mapped[d] = ldap_attrs[l][0]
@@ -72,12 +70,8 @@ class AuthBackendLDAP(LDAPBackend):
             'password':  rstring()
         })
         
-        LOG.info('Mapped user attributes: %s' % str(user_attrs))
-        
         # Get the user model
         user_model = get_user_model()
-        
-        LOG.info('Retrieved user mode, getting or creating user account')
         
         # Get or create the user model and then return
         return user_model.objects.get_or_create(**user_attrs)

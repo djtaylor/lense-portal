@@ -54,6 +54,7 @@
 						</div>
 						<div class="base_nav_right">
 							<div class="base_nav_button_right" type="button" action="submit" target="#logout_form">Logout</div>
+							<div class="base_nav_button_right nav_profile_icon" type="button" action="toggle" target="menu_profile"></div>
 							<div class="base_nav_active_group">
 								<form id="change_group_form" action="/auth" method="post">
 									<select id="active_group" name="group">
@@ -86,6 +87,7 @@
 					{% include "core/menu/admin.html" %}
 					{% include "core/menu/hosts.html" %}
 					{% include "core/menu/network.html" %}
+					{% include "core/menu/profile.html" %}
 				{% endblock %}
 				
 				{# Page Content Block #}

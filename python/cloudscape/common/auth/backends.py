@@ -26,6 +26,21 @@ class AuthBackendLDAP(LDAPBackend):
     def __init__(self):
         super(AuthBackendLDAP, self).__init__()
     
+    def _map_user_attrs(self, ldap_attrs):
+        """
+        Map LDAP user attributes to database user attributes.
+        """
+        
+        # Mapped attributes
+        mapped = {}
+        
+        # Map each database attribute
+        for d,l in CONFIG.ldap_attr.iteritems():
+            mapped[d] = ldap_attrs[l]
+        
+        # Return the mapped attributes
+        return mapped
+    
     def authenticate(self, username, password):
         """
         Authenticate the user and store the encrypted password for default database authentication.
@@ -45,14 +60,13 @@ class AuthBackendLDAP(LDAPBackend):
         Retrieve or create a user account.
         """
         
-        LOG.info('LDAP_USER: %s' % str(dir(ldap_user)))
-        LOG.info('LDAP_USER_ATTRS: %s' % str(ldap_user.attrs))
+        # Map the user attributes
+        user_attrs = self._map_user_attrs(ldap_user.attrs)
         
-        # Set the kwargs for the user account
-        kwargs = {
-            'username': username,
+        # Add extra database attributes
+        user_attrs.update({
             'from_ldap': True
-        }
+        })
         
         # Get the user model
         user_model = get_user_model()

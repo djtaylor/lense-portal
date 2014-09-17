@@ -1,7 +1,6 @@
 import re
 import string
 import random
-from uuid import uuid4
 
 # Django Libraries
 from django.core.mail import send_mail
@@ -38,8 +37,8 @@ class UserDelete:
         
         # If the user does not exist or access is denied
         if not self.user in auth_users.ids:
-            return invalid('Cannot delete user <%s>, not found or access denied' % self.user)
-        self.api.log.info('Deleting user account <%s>' % self.user)
+            return invalid('Cannot delete user [%s], not found or access denied' % self.user)
+        self.api.log.info('Deleting user account [%s]' % self.user)
         
         # Cannot delete default administrator
         if self.user == U_ADMIN:
@@ -73,8 +72,8 @@ class UserEnable:
         
         # If the user does not exist or access is denied
         if not self.user in auth_users.ids:
-            return invalid('Cannot enable user <%s>, not found or access denied' % self.user)
-        self.api.log.info('Enabling user account <%s>' % self.user)
+            return invalid('Cannot enable user [%s], not found or access denied' % self.user)
+        self.api.log.info('Enabling user account [%s]' % self.user)
 
         # Cannot enable/disable default administrator
         if self.user == U_ADMIN:
@@ -110,8 +109,8 @@ class UserDisable:
         
         # If the user does not exist or access is denied
         if not self.user in auth_users.ids:
-            return invalid('Cannot disable user <%s>, not found or access denied' % self.user)
-        self.api.log.info('Disabling user account <%s>' % self.user)
+            return invalid('Cannot disable user [%s], not found or access denied' % self.user)
+        self.api.log.info('Disabling user account [%s]' % self.user)
 
         # Cannot enable/disable default administrator
         if self.user == U_ADMIN:
@@ -147,8 +146,8 @@ class UserResetPassword:
         
         # If the user does not exist or access is denied
         if not self.user in auth_users.ids:
-            return invalid('Cannot reset password for user <%s>, not found or access denied' % self.user)
-        self.api.log.info('Resetting password for user <%s>' % self.user)
+            return invalid('Cannot reset password for user [%s], not found or access denied' % self.user)
+        self.api.log.info('Resetting password for user [%s]' % self.user)
         
         # Generate a new random password
         new_pw = gen_password()
@@ -158,11 +157,11 @@ class UserResetPassword:
             user_obj = DBUser.objects.get(username=self.user)
             user_obj.set_password(new_pw)
             user_obj.save()
-            self.api.log.info('Successfully reset password for user <%s>' % self.user)
+            self.api.log.info('Successfully reset password for user [%s]' % self.user)
             
         # Critical error when resetting user password
         except Exception as e:
-            return invalid('Failed to reset password for user <%s>: %s' % (self.user, str(e)))
+            return invalid('Failed to reset password for user [%s]: %s' % (self.user, str(e)))
         
         # Send the email
         try:
@@ -175,7 +174,7 @@ class UserResetPassword:
             
             # Send the email
             send_mail(email_sub, email_txt, from_email=email_from, recipient_list=email_to, fail_silently=False)
-            self.api.log.info('Sent email confirmation for password reset to user <%s>' % self.user)
+            self.api.log.info('Sent email confirmation for password reset to user [%s]' % self.user)
             
             # Return the response
             return valid('Successfully reset user password')
@@ -197,9 +196,6 @@ class UserCreate:
         """
         self.api  = parent
 
-        # New user UUID
-        self.uuid = str(uuid4())
-
     def _validate(self):
         """
         Make sure the user request is valid.
@@ -207,7 +203,7 @@ class UserCreate:
 
         # Make sure the user doesn't exist
         if DBUser.objects.filter(username=self.api.data['username']).count():
-            return invalid(self.api.log.error('The user account <%s> already exists' % self.api.data['username']))
+            return invalid(self.api.log.error('The user account [%s] already exists' % self.api.data['username']))
 
         # Password RegEx Tester:
         # - At least 8 characters
@@ -233,27 +229,34 @@ class UserCreate:
         # Try to create the new user account
         try:
             
-            # If manually supplying a password
+            # Generate a random password
             password = gen_password()
+            
+            # If manually setting the password
             if ('password' in self.api.data):
+                
+                # Must confirm the password
                 if not ('password_confirm' in self.api.data):
-                    return invalid('Missing <password_confirm> request parameter')
+                    return invalid('Missing [password_confirm] request parameter')
+                
+                # Passwords don't match
                 if not (self.api.data['password'] == self.api.data['password_confirm']):
-                    return invalid('Request parameters <password> and <password_confirm> do not match')
+                    return invalid('Request parameters [password] and [password_confirm] do not match')
+                
+                # Set the password
                 password = self.api.data['password']
                 
             # Create the user account
             new_user = DBUser.objects.create_user(
-                uuid         = self.uuid,
+                group        = self.api.data['group'],
                 username     = self.api.data['username'],
                 email        = self.api.data['email'],
                 password     = self.api.data['password'],
-                group        = self.api.data['group']
             )
                 
             # Save the user account details
             new_user.save()
-            self.api.log.info('Created user account <%s>' % (self.api.data['username']))
+            self.api.log.info('Created user account [%s]' % (self.api.data['username']))
             
             # Send the account creation email
             try:
@@ -266,22 +269,27 @@ class UserCreate:
                 
                 # Send the email
                 send_mail(email_sub, email_txt, from_email=email_from, recipient_list=email_to, fail_silently=False)
-                self.api.log.info('Sent email confirmation for new account <%s> to <%s>' % (new_user.username, new_user.email))
+                self.api.log.info('Sent email confirmation for new account [%s] to [%s]' % (new_user.username, new_user.email))
                 
                 # Return valid
                 return valid('Successfully sent account creation confirmation')
+            
+            # Critical error when sending email confirmation, continue but log exception
             except Exception as e:
-                return invalid(self.api.log.error('Failed to send account creation confirmation: %s' % str(e)))
+                self.api.log.exception('Failed to send account creation confirmation: %s' % str(e))
             
         # Something failed during creation
         except Exception as e:
-            return invalid(self.api.log.exception('Failed to create user account <%s>: %s' % (self.api.data['username'], str(e))))
+            return invalid(self.api.log.exception('Failed to create user account [%s]: %s' % (self.api.data['username'], str(e))))
         
         # Return the response
         return valid('Successfully created user account', {
-            'username': self.api.data['username'],
-            'email':    self.api.data['email'],
-            'super':    False if (not 'is_superuser' in self.api.data) else self.api.data['is_superuser'],
+            'uuid':       new_user.uuid,
+            'username':   new_user.username,
+            'first_name': new_user.first_name,
+            'last_name':  new_user.last_name,
+            'is_admin':   new_user.is_admin,
+            'email':      new_user.email
         })
 
 class UserGet:
@@ -316,7 +324,7 @@ class UserGet:
             
             # If the user does not exist or access is denied
             if not self.user in auth_users.ids:
-                return invalid('User <%s> does not exist or access denied' % self.user)
+                return invalid('User [%s] does not exist or access denied' % self.user)
             
             # Return the user details
             return valid(auth_users.extract(self.user))

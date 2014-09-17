@@ -1,3 +1,6 @@
+from uuid import uuid4
+
+# Django Libraries
 from django.db import models
 from django.utils import timezone
 from django.core import validators
@@ -111,11 +114,28 @@ class DBUserManager(BaseUserManager):
         Get or create a new user object.
         """
         
+        # Get the user queryset
+        queryset = self.get_queryset()
         
-    def create_user(self, uuid, username, email, password, group, **kwargs):
+        # If the user exists
+        if queryset.filter(username=kwargs['username']).count():
+            return queryset.get(username=kwargs['username']), False
+        
+        # User doesn't exist yet
+        user = self.create_user(**kwargs)
+        
+        # Return the created user
+        return user, True
+        
+    def create_user(self, group=G_DEFAULT, **attrs):
         """
         Create a new user account.
         """
+        
+        # Required attributes
+        for k in ['username', 'email', 'password']:
+            if not k in attrs:
+                raise Exception('Missing required attribute [%s], failed to create user' % k)
         
         # Import the API keys module
         from cloudscape.engine.api.auth.key import APIKey
@@ -123,19 +143,18 @@ class DBUserManager(BaseUserManager):
         # Get the current timestamp
         now = timezone.now()
         
+        # Update the user creation attributes
+        attrs.update({
+            'uuid':        str(uuid4()),
+            'is_active':   True,
+            'last_login':  now,
+            'date_joined': now
+        })
         # Create a new user object
-        user = self.model(
-            uuid         = uuid,
-            username     = username,
-            email        = self.normalize_email(email),
-            is_active    = True,
-            last_login   = now,
-            date_joined  = now,
-            **kwargs
-        )
+        user = self.model(**attrs)
         
         # Set the password and and save
-        user.set_password(password)
+        user.set_password(attrs['password'])
         user.save(using=self._db)
         
         # Get the group object
@@ -145,12 +164,10 @@ class DBUserManager(BaseUserManager):
         group.members_set(user)
         
         # Generate an API key for the user
-        key_str = APIKey().create()
         api_key = DBUserAPIKeys(
             user    = user,
-            api_key = key_str
-        )
-        api_key.save()
+            api_key = APIKey().create()
+        ).save()
         
         # Return the user object
         return user

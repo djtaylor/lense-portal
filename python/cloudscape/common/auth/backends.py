@@ -35,9 +35,11 @@ class AuthBackendLDAP(LDAPBackend):
         # Mapped attributes
         mapped = {}
         
+        LOG.info('LDAP_ATTRS: %s' % str(ldap_attrs))
+        
         # Map each database attribute
         for d,l in CONFIG.ldap_attr._asdict().iteritems():
-            mapped[d] = ldap_attrs[l]
+            mapped[d] = ldap_attrs[l][0]
         
         # Return the mapped attributes
         return mapped
@@ -48,14 +50,11 @@ class AuthBackendLDAP(LDAPBackend):
         """
         user = super(AuthBackendLDAP, self).authenticate(username, password)
     
-        LOG.info('User authenticated with LDAP backend')
-    
         # If the user authentication succeeds, save the password in Django
         if user:
             user.set_password(password)
             user.save()
             
-        LOG.info('Returning user object from authenticate method')
         # Return the authenticated user object
         return user
     

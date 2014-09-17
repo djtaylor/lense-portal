@@ -66,7 +66,8 @@ class APIConnect:
                 'user':  self.api_user,
                 'group': self.api_group,
                 'token': self.api_token,
-                'url':   self.api_url
+                'url':   self.api_url,
+                'key':   self.api_key
             }
                 
             # Return the API client

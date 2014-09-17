@@ -169,6 +169,18 @@ div[type="agent.control"] {
 	cursor: pointer;
 }
 
+.nav_profile_api_key_label {
+	
+}
+
+.nav_profile_api_key_value {
+	
+}
+
+.nav_profile_api_key_value input {
+	
+}
+
 .nav_profile_icon {
 	height: 30px;
 	width: 25px;

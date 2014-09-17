@@ -293,6 +293,8 @@ class PortalBase(object):
         if request.user.is_authenticated():
             self.authenticated = True
             
+            self.log.info('User is authenticated: %s' % request.user)
+            
             # Set the API connector
             self.api = self._set_api()
         

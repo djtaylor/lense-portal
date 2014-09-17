@@ -46,6 +46,7 @@ class AuthBackendLDAP(LDAPBackend):
         """
         
         LOG.info('LDAP_USER: %s' % str(dir(ldap_user)))
+        LOG.info('LDAP_USER_ATTRS: %s' % str(ldap_user.attrs))
         
         # Set the kwargs for the user account
         kwargs = {

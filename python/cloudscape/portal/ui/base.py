@@ -289,8 +289,8 @@ class PortalBase(object):
         # Construct request object
         self.request = self._set_request(request)
         
-        LOG.info('REQUEST_USER: %s' % str(request.user))
-        LOG.info('REQUEST_USER_AUTH: %s' % repr(request.user.is_authenticated()))
+        self.log.info('REQUEST_USER: %s' % str(request.user))
+        self.log.info('REQUEST_USER_AUTH: %s' % repr(request.user.is_authenticated()))
         
         # If the user is authenticated
         if request.user.is_authenticated():

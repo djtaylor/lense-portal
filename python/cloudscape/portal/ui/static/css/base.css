@@ -160,6 +160,15 @@ div[type="agent.control"] {
 	line-height: 30px;
 }
 
+.nav_profile_button {
+	opacity: 0.5;
+}
+
+.nav_profile_button:hover {
+	opacity: 1.0;
+	cursor: pointer;
+}
+
 .nav_profile_icon {
 	height: 30px;
 	width: 25px;
@@ -167,13 +176,29 @@ div[type="agent.control"] {
 	background-image: url(/static/images/users.png);
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
-	opacity: 0.5;
 }
 
 .nav_profile_wrapper {
 	position: fixed;
-	top: 40px;
-	right: 20px;
+	top: 35px;
+	right: 15px;
+}
+
+.nav_profile_logout {
+	width: 300px;
+	height: 30px;
+	line-height: 30px;
+	text-align: center;
+	font-size: 1.1em;
+	background-color: #fff;
+	border: solid 1px #f0f0f0;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.nav_profile_logout:hover {
+	cursor: pointer;
+	background-color: #eee;
 }
 
 .nav_profile_ptr_wrapper {
@@ -191,15 +216,8 @@ div[type="agent.control"] {
 }
 
 .nav_profile_content {
-	width: 300px;
-	height: 300px;
 	background-color: #f4f4f4;
 	padding: 10px;
-}
-
-.nav_profile_icon:hover {
-	opacity: 1.0;
-	cursor: pointer;
 }
 
 .base_nav_finder,

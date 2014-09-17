@@ -53,9 +53,9 @@
 							<div class="base_nav_button_left" type="hover" action="menutoggle" target="menu_admin">Admin</div>
 						</div>
 						<div class="base_nav_right">
-							<div class="base_nav_button_right">
+							<div class="base_nav_button_right nav_profile_button">
 								<div class="nav_profile_username" type="button" action="toggle" target="menu_profile">{{ api_params.user }}</div>
-								<div class="nav_profile_icon"></div>
+								<div class="nav_profile_icon" type="button" action="toggle" target="menu_profile"></div>
 							</div>
 							<div class="base_nav_active_group">
 								<form id="change_group_form" action="/auth" method="post">

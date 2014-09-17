@@ -47,11 +47,14 @@ class AuthBackendLDAP(LDAPBackend):
         """
         user = super(AuthBackendLDAP, self).authenticate(username, password)
     
+        LOG.info('User authenticated with LDAP backend')
+    
         # If the user authentication succeeds, save the password in Django
         if user:
             user.set_password(password)
             user.save()
-
+            
+        LOG.info('Returning user object from authenticate method')
         # Return the authenticated user object
         return user
     
@@ -68,11 +71,15 @@ class AuthBackendLDAP(LDAPBackend):
             'from_ldap': True
         })
         
+        LOG.info('Mapped user attributes: %s' % str(user_attrs))
+        
         # Get the user model
         user_model = get_user_model()
         
+        LOG.info('Retrieved user mode, getting or creating user account')
+        
         # Get or create the user model and then return
-        return user_model.objects.get_or_create(**kwargs)
+        return user_model.objects.get_or_create(**user_attrs)
     
 class AuthBackendInterface(ModelBackend):
     """

@@ -185,15 +185,22 @@ div[type="agent.control"] {
 .nav_profile_api_key_toggle {
 	width: 30px;
 	height: 30px;
-	background-color: #fff;
 	float: right;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	opacity: 0.5;
+}
+
+.nav_profile_api_key_toggle:hover {
+	opacity: 1.0;
+	cursor: pointer;
 }
 
 .nav_profile_api_key_value input {
 	width: 260px;
 	border: none;
 	padding: 5px;
-	height: 30px;
+	height: 20px;
 	float: left;
 }
 
@@ -226,7 +233,7 @@ div[type="agent.control"] {
 
 .nav_profile_logout:hover {
 	cursor: pointer;
-	background-color: #fefefe;
+	background-color: #f2f2f2;
 }
 
 .nav_profile_ptr_wrapper {
@@ -298,6 +305,14 @@ div[type="agent.control"] {
 .base_nav_button_right:hover {
 	cursor: pointer;
 	text-decoration: underline;
+}
+
+.nav_profile_api_key_toggle[state="show"] {
+	background-image: url(/static/images/show.png);	
+}
+
+.nav_profile_api_key_toggle[state="hide"] {
+	background-image: url(/static/images/hide.png);	
 }
 
 /* Layouts for full page width tables, table grids, tables with columns,

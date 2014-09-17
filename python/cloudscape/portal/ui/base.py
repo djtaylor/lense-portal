@@ -164,7 +164,7 @@ class PortalBase(object):
         if request.user.is_authenticated():
             
             # Get the user details
-            user_details = DBUser.objects.get(username=request.user.username).values()[0]
+            user_details = DBUser.objects.filter(username=request.user.username).values()[0]
             
             # Set the 'is_admin' flag
             request.session['is_admin'] = user_details['is_admin']

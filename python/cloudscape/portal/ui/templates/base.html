@@ -50,7 +50,9 @@
 							<div class="base_nav_button_left" type="hover" action="menutoggle" target="menu_hosts">Hosts</div>
 							<div class="base_nav_button_left" type="button" action="link" target="formula?panel=overview">Formulas</div>
 							<div class="base_nav_button_left" type="hover" action="menutoggle" target="menu_network">Network</div>
-							<div class="base_nav_button_left" type="hover" action="menutoggle" target="menu_admin">Admin</div>
+							{% if is_admin %}
+								<div class="base_nav_button_left" type="hover" action="menutoggle" target="menu_admin">Admin</div>
+							{% endif %}
 						</div>
 						<div class="base_nav_right">
 							<div class="base_nav_button_right nav_profile_button">
@@ -86,7 +88,9 @@
 					</form>
 					
 					{# Navigation Dropdowns #}
-					{% include "core/menu/admin.html" %}
+					{% if is_admin %}
+						{% include "core/menu/admin.html" %}
+					{% endif %}
 					{% include "core/menu/hosts.html" %}
 					{% include "core/menu/network.html" %}
 					{% include "core/menu/profile.html" %}

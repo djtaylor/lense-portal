@@ -27,7 +27,9 @@
 		CSAPICache:         	   'api/cache.js',
 		CSAPIInterface:     	   'api/interface.js'
 	}, {
-		path: ['home', 'hosts', 'formula', 'admin', 'network']
+		url: {
+			path: ['home', 'hosts', 'formula', 'admin', 'network']
+		}
 	}, function() {
 		c.push('api.CSAPIInterface');
 	});
@@ -36,7 +38,9 @@
 	include({
 		CSAuthInterface:    	   'app/auth/interface.js'
 	}, {
-		path: 'auth'
+		url: {
+			path: 'auth'
+		}
 	}, function() {
 		c.push('auth.CSAuthInterface');
 	});
@@ -45,7 +49,9 @@
 	include({
 		CSHomeInterface:    	   'app/home/interface.js'
 	}, {
-		path: 'home'
+		url: {
+			path: 'home'
+		}
 	}, function() {
 		c.push('home.CSHomeInterface');
 	});
@@ -58,7 +64,9 @@
 		CSNetworkIPBlocksList:     'app/network/ipblock.list.js',
 		CSNetworkIPBlockDetails:   'app/network/ipblock.details.js'
 	}, {
-		path: 'network'
+		url: {
+			path: 'network'
+		}
 	}, function() {
 		c.push('network.CSNetworkInterface');
 	});
@@ -72,7 +80,9 @@
 		CSHostGroupDetails:        'app/hosts/group.details.js',
 		CSHostsInterface:   	   'app/hosts/interface.js'
 	}, {
-		path: 'hosts'
+		url: {
+			path: 'hosts'
+		}
 	}, function() {
 		c.push('hosts.CSHostsInterface');
 	});
@@ -84,7 +94,9 @@
 		CSFormulaRun:       	   'app/formula/run.js',
 		CSFormulaInterface:        'app/formula/interface.js'
 	}, {
-		path: 'formula'
+		url: {
+			path: 'formula'
+		}
 	}, function() {
 		c.push('formula.CSFormulaInterface');
 	});
@@ -104,7 +116,10 @@
 		CSAdminDatacentersDetails: 'app/admin/datacenter.details.js',
 		CSAdminInterface:          'app/admin/interface.js'
 	}, {
-		path: 'admin'
+		url: {
+			path: 'admin'
+		},
+		is_admin: true
 	}, function() {
 		c.push('admin.CSAdminInterface');
 	});

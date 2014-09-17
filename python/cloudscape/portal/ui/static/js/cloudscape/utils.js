@@ -57,10 +57,10 @@ function get_attr(e) {
  * Programatically include a JavaScript module.
  * 
  * @param {m} Either a single module or array of modules
- * @param {u} Optional URL filter
+ * @param {f} Optional filter attributes
  * @param {c} Callback
  */
-function include(m,u,c) {
+function include(m,f,c) {
 	var container = 'scripts';
 	
 	// URL attributes
@@ -76,25 +76,37 @@ function include(m,u,c) {
 	}
 	
 	// If performing URL matching
-	if (u) {
-		for (var k in u) {
-			if (u[k] instanceof Array) {
-				if (u[k].indexOf(_url[k]) == -1) {
+	if (f.hasOwnProperty('url')) {
+		for (var k in f.url) {
+			if (f.url[k] instanceof Array) {
+				if (f.url[k].indexOf(_url[k]) == -1) {
 					return;
 				}
 			} else {
 				
 				// If performing a negative match
-				if (u[k].startswith('!')) {
-					p = u[k].replace('!', '');
+				if (f.url[k].startswith('!')) {
+					p = f.url[k].replace('!', '');
 					if (_url[k] == p) {
 						return;
 					}
 				} else {
-					if (_url[k] !== u[k]) {
+					if (_url[k] !== f.url[k]) {
 						return;
 					}
 				}
+			}
+		}
+	}
+	
+	// If performing administrator right checks
+	if (f.hasOwnProperty('is_admin')) {
+		if (!defined(api_params.is_admin)) {
+			return;
+		}
+		if (h.is_admin === true) {
+			if (api_params.is_admin !== true) {
+				return;
 			}
 		}
 	}

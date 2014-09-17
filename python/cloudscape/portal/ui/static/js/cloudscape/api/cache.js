@@ -18,7 +18,9 @@ cs.import('CSAPICache', function() {
 	 * Callback: Cache Endpoints
 	 */
 	cs.register.callback('api.cache_endpoints', function(c,m,d,a) {
-		cs.api.cache.endpoints = m;
+		if (cs.api.client.params.is_admin === true) {
+			cs.api.cache.endpoints = m;
+		}
 	});
 	
 	/**
@@ -32,7 +34,9 @@ cs.import('CSAPICache', function() {
 	 * Callback: Cache ACLs
 	 */
 	cs.register.callback('api.cache_acls', function(c,m,d,a) {
-		cs.api.cache.acls = m;
+		if (cs.api.client.params.is_admin === true) {
+			cs.api.cache.acls = m;
+		}
 	});
 	
 	/**

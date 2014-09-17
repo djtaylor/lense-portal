@@ -24,24 +24,25 @@ class PortalRequest(object):
     def __init__(self, request):
         
         # Raw request object
-        self.RAW     = request
+        self.RAW      = request
         
         # Method / GET / POST / body data
-        self.method  = request.META['REQUEST_METHOD']
-        self.GET     = Collection(request.GET).get()
-        self.POST    = Collection(request.POST).get()
-        self.body    = request.body
+        self.method   = request.META['REQUEST_METHOD']
+        self.GET      = Collection(request.GET).get()
+        self.POST     = Collection(request.POST).get()
+        self.body     = request.body
         
         # User / group / session
-        self.user    = None if not hasattr(request, 'user') else request.user.username
-        self.group   = None if not request.user.is_authenticated() else request.session['active_group']
-        self.session = None if not hasattr(request, 'session') else request.session.session_key
+        self.user     = None if not hasattr(request, 'user') else request.user.username
+        self.group    = None if not request.user.is_authenticated() else request.session['active_group']
+        self.session  = None if not hasattr(request, 'session') else request.session.session_key
+        self.is_admin = False if not hasattr(request, 'session') else request.session['is_admin']
         
         # Path / query string / script / current URI
-        self.path    = request.META['PATH_INFO'].replace('/','')
-        self.query   = request.META['QUERY_STRING']
-        self.script  = request.META['SCRIPT_NAME']
-        self.current = request.META['REQUEST_URI']
+        self.path     = request.META['PATH_INFO'].replace('/','')
+        self.query    = request.META['QUERY_STRING']
+        self.script   = request.META['SCRIPT_NAME']
+        self.current  = request.META['REQUEST_URI']
 
 class PortalBase(object):
     """
@@ -99,14 +100,18 @@ class PortalBase(object):
         if not connector or not params:
             return False
         
-        # Append the session ID to the API parameters
-        params['session'] = self.request.session;
+        # Append the session ID to the API parameters as well as the 'is_admin' flag
+        params.update({
+            'session': self.request.session,
+            'is_admin': self.request.is_admin
+        })
         
         # Define the API object
         api_obj = {
             'client':   connector,
             'params':   params,
-            'response': self._api_response
+            'response': self._api_response,
+            'is_admin': self.request.is_admin
             
         }
         return Collection(api_obj).get()
@@ -158,14 +163,17 @@ class PortalBase(object):
         # If the active group session variable hasn't been set yet
         if request.user.is_authenticated():
             
-            # Get all user groups
-            all_groups = DBUser.objects.filter(username=request.user.username).values()[0]['groups']
+            # Get the user details
+            user_details = DBUser.objects.get(username=request.user.username).values()[0]
+            
+            # Set the 'is_admin' flag
+            request.session['is_admin'] = user_details['is_admin']
             
             # If the active group hasn't been set yet
             if not 'active_group' in request.session:
             
                 # Set the active group to the first available group
-                request.session['active_group'] = all_groups[0]['uuid']
+                request.session['active_group'] = user_details['groups'][0]['uuid']
         
         # Return a request object
         return PortalRequest(request)

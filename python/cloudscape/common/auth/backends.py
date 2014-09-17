@@ -35,7 +35,7 @@ class AuthBackendLDAP(LDAPBackend):
         mapped = {}
         
         # Map each database attribute
-        for d,l in CONFIG.ldap_attr.iteritems():
+        for d,l in CONFIG.ldap_attr._asdict().iteritems():
             mapped[d] = ldap_attrs[l]
         
         # Return the mapped attributes

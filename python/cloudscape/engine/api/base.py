@@ -15,6 +15,7 @@ from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.cache import CacheManager
 from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.core.socket import SocketResponse
+from cloudscape.common.errors import JSONError, JSONException
 
 class APIRequest(object):
     """

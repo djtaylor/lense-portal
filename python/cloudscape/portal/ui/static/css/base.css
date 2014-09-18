@@ -1567,12 +1567,11 @@ div[class="popup_row_toggle_button_50"][state="active"] {
 }
 
 .table_chart_nodata {
-	
+	font-size: 1.1em;
 }
 
 .table_line_chart {
 	padding: 0 0 10px 0;
-	border-bottom: solid 1px #eee;
 }
 
 .table_panel_title {
@@ -1634,7 +1633,6 @@ div[class="popup_row_toggle_button_50"][state="active"] {
 .table_line_chart_info {
 	overflow: auto;
 	padding: 10px;
-	border-bottom: solid 1px #eee;
 }
 
 .table_row_ind_line {

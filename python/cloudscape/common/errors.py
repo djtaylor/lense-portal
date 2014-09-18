@@ -24,15 +24,15 @@ class JSONErrorBase(object):
     """
     Base response class for error and exception responses.
     """
-    def __init__(self, error=None, code=500, exception=False):
+    def __init__(self, error=None, status=500, exception=False):
 
-        # Store the response code
-        self.code = code
+        # Store the response status code
+        self.status = status
 
         # Construct the JSON error object
         self.error_object = {
-            'message': ERR_MESSAGE.get(self.code, 'An unknown error has occurred, please contact your administrator'),
-            'code':    self.code,
+            'message': ERR_MESSAGE.get(self.status, 'An unknown error has occurred, please contact your administrator'),
+            'code':    self.status,
             'error':   error
         }
         
@@ -75,14 +75,14 @@ class JSONErrorBase(object):
         """
         Construct and return the response object.
         """
-        return HttpResponse(json.dumps(self.error_object), content_type='application/json', status=self.code)
+        return HttpResponse(json.dumps(self.error_object), content_type='application/json', status=self.status)
 
 class JSONError(JSONErrorBase):
     """
     Client error response object.
     """
-    def __init__(self, error=None, code=400):
-        super(JSONError, self).__init__(error=error, code=code)
+    def __init__(self, error=None, status=400):
+        super(JSONError, self).__init__(error=error, status=status)
     
 class JSONException(JSONErrorBase):
     """

@@ -74,7 +74,7 @@
 	// CloudScape: Hosts
 	include({
 		CSHostsList:    	       'app/hosts/host.list.js',
-		SHostDetails:      	   	   'app/hosts/host.details.js',
+		CSHostDetails:      	   	   'app/hosts/host.details.js',
 		CSHostGroupsList:          'app/hosts/group.list.js',
 		CSHostGroupEditor:		   'app/hosts/group.editor.js',
 		CSHostGroupDetails:        'app/hosts/group.details.js',

@@ -1566,6 +1566,10 @@ div[class="popup_row_toggle_button_50"][state="active"] {
       stroke-width: 0;
 }
 
+.table_chart_nodata {
+	
+}
+
 .table_line_chart {
 	padding: 0 0 10px 0;
 	border-bottom: solid 1px #eee;

@@ -266,6 +266,10 @@ cs.import('CSBaseForms', function() {
 	 */
 	this.load = function() {
 		
+		// Disable autocomplete for all forms and inputs
+		$('form').attr('autocomplete', 'off');
+		$('input').attr('autocomplete', 'off');
+		
 		// Check each form on the page
 		$.each($('form'), function(index, form) {
 			inputs = $(form).find('input');

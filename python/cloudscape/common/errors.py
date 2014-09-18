@@ -86,7 +86,7 @@ class JSONException(JSONErrorBase):
     Internal server error response object.
     """
     def __init__(self):
-        super(JSONError, self).__init__(exception=True)
+        super(JSONException, self).__init__(exception=True)
     
     
         

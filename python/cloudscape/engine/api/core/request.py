@@ -76,16 +76,6 @@ class EndpointManager:
         # API base object
         self.api_base    = None
     
-    # Request error
-    def _req_error(self, err):
-        err_response = {
-            'message':  'An error occured when processing the API request',
-            'endpoint': self.endpoint,
-            'error':    err
-        }
-        LOG.error('%s:%s' % (self.endpoint, err))
-        return HttpResponse(json.dumps(err_response), content_type='application/json', status=400)
-    
     def _authenticate(self):
         """
         Authenticate the API request.

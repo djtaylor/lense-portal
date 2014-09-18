@@ -124,6 +124,8 @@
 		c.push('admin.CSAdminInterface');
 	});
 	
+	console.log(c);
+	
 	// Boostrap the constructors
 	cs.bootstrap(c);
 })();

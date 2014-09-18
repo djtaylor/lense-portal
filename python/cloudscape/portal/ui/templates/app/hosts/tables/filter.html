@@ -1,7 +1,7 @@
 <div class="table_panel" type="table_panel" target="hosts">
 	<div class="table_panel_group">
-		<div class="table_panel_group_title">System Type</div>
-		<div class="table_panel_group_content">
+		<div class="table_panel_group_title table_panel_group_title_link" type="button" action="toggle" target="filter.sys_type">System Type</div>
+		<div class="table_panel_group_content" type="toggle" name="filter.sys_type" style="display:none;">
 			<div class="table_panel_checkbox">
 				<div class="table_panel_checkbox_input">
 					<input target="hosts.filter" type="checkbox" key="sys" value="linux" checked>
@@ -17,8 +17,8 @@
 		</div>
 	</div>
 	<div class="table_panel_group">
-		<div class="table_panel_group_title">Datacenter</div>
-		<div class="table_panel_group_content">
+		<div class="table_panel_group_title table_panel_group_title_link" type="button" action="toggle" target="filter.datacenters">Datacenter</div>
+		<div class="table_panel_group_content" type="toggle" name="filter.datacenters" style="display:none;">
 			{% for datacenter in datacenters %}
 				<div class="table_panel_checkbox">
 					<div class="table_panel_checkbox_input">
@@ -30,8 +30,8 @@
 		</div>
 	</div>
 	<div class="table_panel_group">
-		<div class="table_panel_group_title">Agent Status</div>
-		<div class="table_panel_group_content">
+		<div class="table_panel_group_title table_panel_group_title_link" type="button" action="toggle" target="filter.agent_status">Agent Status</div>
+		<div class="table_panel_group_content" type="toggle" name="filter.agent_status" style="display:none;">
 			<div class="table_panel_checkbox">
 				<div class="table_panel_checkbox_input">
 					<input target="hosts.filter" type="checkbox" key="agent_status" value="RUNNING" checked>
@@ -53,8 +53,8 @@
 		</div>
 	</div>
 	<div class="table_panel_group">
-		<div class="table_panel_group_title">IP Address</div>
-		<div class="table_panel_group_content">
+		<div class="table_panel_group_title table_panel_group_title_link" type="button" action="toggle" target="filter.ip">IP Address</div>
+		<div class="table_panel_group_content" type="toggle" name="filter.ip" style="display:none;">
 			<div class="table_panel_searchbox">
 				<div class="table_panel_searchbox_input">
 					<input target="hosts.filter" type="text" key="ip.search">

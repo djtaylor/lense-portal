@@ -531,6 +531,11 @@ div[type="agent.control"] {
 	border-bottom: solid 1px #eee;
 }
 
+.table_panel_group_title_link:hover {
+	cursor: pointer;
+	border-bottom: solid 1px #fff;
+}
+
 .table_menu {
 	float: left;
 	overflow: auto;

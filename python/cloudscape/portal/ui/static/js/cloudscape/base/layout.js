@@ -642,7 +642,7 @@ cs.import('CSBaseLayout', function() {
 				
 				// Set the table/panel dimensions
 				var t_w = $(o).actual('outerWidth', { includeMargin: true }) - t_p.actual('outerWidth', { includeMargin: true });
-				var t_h = $(o).height();
+				var t_h = $(o).actual('outerHeight', {includeMargin: true });
 				
 				// Update the table panel attributes
 				t_p.css('height', t_h + 'px');

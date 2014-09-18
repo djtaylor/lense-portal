@@ -113,7 +113,7 @@ class PortalTemplate(object):
         """
         
         # Set the base parameters
-        base = {
+        params = {
             'BASE': {
                      
                 # Connection user attributes
@@ -138,8 +138,8 @@ class PortalTemplate(object):
         }
         
         # Replace the API URL with the Socket.IO proxy
-        if base['api']['params']:
-            base['api']['params']['url'] = '%s://%s:%s' % (self.conf.socket.proto, self.conf.socket.host, self.conf.socket.port)
+        if params['BASE']['api']['params']:
+            params['BASE']['api']['params']['url'] = '%s://%s:%s' % (self.conf.socket.proto, self.conf.socket.host, self.conf.socket.port)
         
         # Merge extra template parameters
         for k,v in objs.iteritems():
@@ -149,10 +149,10 @@ class PortalTemplate(object):
                 raise Exception('Template data key [BASE] is reserved for internal use only')
             
             # Append the template data key
-            base[k] = v
+            params[k] = v
             
         # Return the template data object
-        return base
+        return params
        
     def api_call(self, base, method, data=None):
         """

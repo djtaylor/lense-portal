@@ -55,8 +55,6 @@ cs.import('CSAuthInterface', function() {
 	 */
 	this.bind = function() {
 		
-		// Default form values
-		
 		// Click login button
 		$(document).on('click', '.login_submit', function() {
 			$('#login_form').submit();

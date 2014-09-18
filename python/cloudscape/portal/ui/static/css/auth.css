@@ -50,14 +50,17 @@
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
 	float: left;
+	opacity: 0.5;
 }
 
 .login_input input {
-	width: 255px;
+	width: 260px;
 	border: 0;
 	margin: 0;
-	padding: 5px;
-	font-size: 1.2em;
+	padding: 0 0 0 5px;
+	height: 25px;
+	line-height: 25px;
+	font-size: 1.1em;
 	float: left;
 }
 

@@ -124,8 +124,11 @@
 		c.push('admin.CSAdminInterface');
 	});
 	
-	console.log(c);
-	
 	// Boostrap the constructors
-	cs.bootstrap(c);
+	try {
+		cs.bootstrap(c);
+	} catch (e) {
+		console.log('Failed to bootstrap includes');
+		console.log(e.stack);
+	}
 })();

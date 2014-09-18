@@ -76,7 +76,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'cloudscape.engine.api.app.user',
-    'cloudscape.portal.api.util'
+    'cloudscape.portal.ui.util'
 )
 
 # Authentication user model

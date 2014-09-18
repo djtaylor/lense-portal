@@ -117,7 +117,8 @@ class PortalTemplate(object):
             'api_params':    None if not hasattr(self.portal.api, 'params') else self.portal.api.params,
             'authenticated': self.portal.authenticated,
             'request': {
-                'current': self.portal.request.current
+                'current': self.portal.request.current,
+                'path': self.portal.request.path
             },
             'is_admin': self.portal.request.is_admin
         }

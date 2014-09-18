@@ -6,10 +6,16 @@
 		</div>
 		<div class="login_fields">
 			<div class="login_username">
-				<div class="login_input"><input type="text" name="username" value="" /></div>
+				<div class="login_input">
+					<div class="login_input_icon" icon="username"></div>
+					<input type="text" name="username" value=""/>
+				</div>
 			</div>
 			<div class="login_password">
-				<div class="login_input"><input type="password" name="password" value="" /></div>
+				<div class="login_input">
+					<div class="login_input_icon" icon="password"></div>
+					<input type="password" name="password" value=""/>
+				</div>
 			</div>
 		</div>
 		<div class="login_state" style="display:{{ state_display }};">{{ state }}</div>

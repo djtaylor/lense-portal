@@ -7,6 +7,10 @@ html,body {
 	font-size: 12px;
 }
 
+body[path="auth"] {
+	background-color: #f7f7f7;
+}
+
 /**
  * Base Form Styling
  */

@@ -34,7 +34,7 @@
 			{% endif %}
 		</script>
 	</head>
-	<body>
+	<body path="{{ request.path }}">
 		
 		{# Authenticated Requests #}
 		{% if authenticated %}

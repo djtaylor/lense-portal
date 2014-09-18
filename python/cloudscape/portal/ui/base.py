@@ -166,6 +166,9 @@ class PortalBase(object):
             # Get the user details
             user_details = DBUser.objects.filter(username=request.user.username).values()[0]
             
+            # Set the user's groups
+            self.groups = user_details['groups']
+            
             # Set the 'is_admin' flag
             request.session['is_admin'] = user_details['is_admin']
             

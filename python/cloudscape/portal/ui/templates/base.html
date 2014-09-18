@@ -18,16 +18,10 @@
 		
 		{# API Parameters #}
 		<script id="api_params" type="text/javascript">
-			{% if authenticated %}
+			{% if BASE.user.is_authenticated %}
 				api_params = { 
 					{% for key, val in BASE.api.params.iteritems %}
-						{% if val == 'True' %}
-							{{ key }}: true,
-						{% elif val == 'False' %}
-							{{ key }}: false,
-						{% else %}
-							{{ key }}: '{{ val }}',
-						{% endif %} 
+						{{ key }}: {% py2js val %}, 
 					{% endfor %}
 				};
 			{% endif %}

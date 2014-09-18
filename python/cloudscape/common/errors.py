@@ -26,10 +26,13 @@ class JSONErrorBase(object):
     """
     def __init__(self, error=None, code=500, exception=False):
 
+        # Store the response code
+        self.code = code
+
         # Construct the JSON error object
         self.error_object = {
-            'message': ERR_MESSAGE.get(code, 'An unknown error has occurred, please contact your administrator'),
-            'code':    code,
+            'message': ERR_MESSAGE.get(self.code, 'An unknown error has occurred, please contact your administrator'),
+            'code':    self.code,
             'error':   error
         }
         
@@ -72,7 +75,7 @@ class JSONErrorBase(object):
         """
         Construct and return the response object.
         """
-        return HttpResponse(json.dumps(self.error_object), content_type='application/json', status=code)
+        return HttpResponse(json.dumps(self.error_object), content_type='application/json', status=self.code)
 
 class JSONError(JSONErrorBase):
     """

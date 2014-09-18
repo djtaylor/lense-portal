@@ -202,8 +202,9 @@ div[type="agent.control"] {
 }
 
 .nav_profile_user_label {
-	width: 100px;
 	border-right: solid 1px #eee;
+	margin: 0 10px 0 0;
+	font-weight: bold;
 }
 
 .nav_profile_api_key_value {

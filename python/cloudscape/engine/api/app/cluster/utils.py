@@ -237,13 +237,12 @@ class ClusterIndex:
         # Return success
         return valid('Successfully rebuilt cluster search index')
 
-"""
-Cluster Stats
-
-Class to manage retrieving global statistics for the cluster. Used when rendering
-an overview of the cluster state and statistics.
-"""
 class ClusterStats:
+    """
+    Retrieve host statistics, crunch into an object containing averages and current
+    statistics, and return a statistics object for use by either D3JS or another
+    application defined by the user.
+    """
     def __init__(self, parent):
         self.api = parent
         
@@ -303,8 +302,48 @@ class ClusterStats:
             'disk_io': {}
         }
         
-    """ Construct Latest Stats """
-    def _get_latest_stat(self, uuid, stat_rows):
+    def _percent_calc(self, total, used):
+        """
+        Return a percentage retrieved from a total/used value pair.
+        """
+        total_num = float(total)
+        used_num  = float(used)
+        
+        # Cannot divide by 0
+        if total_num == 0:
+            return 0.0
+        
+        # Calculate the percentage used
+        '%2.f' % float(100.0 * used_num / total_num)
+        
+    def _bytes_to(self, bytes, unit='G'):
+        """
+        Convert bytes value to GB/MB/KB.
+        """
+        
+        # Division counter
+        counter = {'G': 3, 'M': 2, 'K': 1}
+        
+        # If using an unsupported unit
+        if not unit in counter:
+            return bytes
+        
+        # Convert the value to an integer
+        bytes_num = int(bytes)
+        
+        # Convert to the target unit
+        count = 0
+        while (count < counter[unit]):
+            bytes_num = float(bytes_num / 1024)
+            count += 1
+        
+        # Return the converted value
+        return '%.2f' % bytes_num
+        
+    def _get_latest_stats(self, uuid, stat_rows):
+        """
+        Construct the latest disk, CPU, and memory statistics for the host.
+        """
         
         # I/O Groups
         stat_count = 0
@@ -360,8 +399,10 @@ class ClusterStats:
         self.totals['mem']['free'].append(float(_mem['free']))
         self.totals['mem']['total'].append(float(_mem['total']))
         
-    """ Map I/O Data """
     def _map_io(self, key):
+        """
+        Map network and disk I/O data for the host.
+        """
         
         # Base I/O data
         _iodata = {
@@ -386,22 +427,25 @@ class ClusterStats:
         # Return the constructed data object
         return _iodata
         
-    """ Crunch Statistic Totals """
     def _crunch_totals(self):
+        """
+        Crunch statistic totals into a format that will be used by either D3JS or another
+        user application for rendering data.
+        """
         
         # Perform CPU calculations
-        cpu_pused    = '%.2f' % float(re.compile(r'^[^\.]\.([0-9]{2})([0-9]{2}).*$').sub(r'\g<1>.\g<2>', str(float(self.totals['cpu']['used'] / self.totals['cpu']['total']))))
-        cpu_pfree    = '%.2f' % (float(100) - float(cpu_pused))
+        cpu_pused    = self._percent_calc(self.totals['cpu']['total'], self.totals['cpu']['used'])
+        cpu_pfree    = '%.2f' % (100.0 - float(cpu_pused))
         
         # Perform disk calculations
-        disk_gbtotal = '%.2f' % float(((self.totals['disk']['total'] / 1024) / 1024) / 1024)
+        disk_gbtotal = self._bytes_to(self.totals['disk']['total'], unit='G')
         disk_gbused  = '%.2f' % float(self.totals['disk']['used'])
-        disk_pused   = '{0:.2f}'.format(float(disk_gbused) / float(disk_gbtotal) * 100)
+        disk_pused   = self._percent_calc(disk_gbtotal, disk_gbused)
         
         # Perform memory calculations
         mem_mbused   = '%.2f' % float(sum(self.totals['mem']['used']))
         mem_mbtotal  = '%.2f' % float(sum(self.totals['mem']['total']))
-        mem_pused    = '%.2f' % float(re.compile(r'^[^\.]\.([0-9]{2})([0-9]{2}).*$').sub(r'\g<1>.\g<2>', str(float(mem_mbused) / float(mem_mbtotal))))
+        mem_pused    = self._percent_calc(mem_mbtotal, mem_mbused)
         
         # Constructed stats object
         c_stats = {
@@ -440,8 +484,10 @@ class ClusterStats:
             c_stats[key] = _iostat
         return c_stats
         
-    """ Launch Cluster Stats Gathering """
     def launch(self):
+        """
+        Worker method for gathering, crunching, and return cluster statistics.
+        """
         
         # If filtering by host group
         hgroup = False
@@ -453,11 +499,7 @@ class ClusterStats:
         authorized_hosts = self.api.acl.authorized_objects('host', 'host/get', self.filters)
         
         # If filtering by host group
-        hgroup_members = False
-        if hgroup:
-            
-            # Get all member hosts for the group
-            hgroup_members = [x['host_id'] for x in list(DBHostGroupMembers.objects.filter(group=hgroup).values())]
+        hgroup_members = False if not hgroup else [x['host_id'] for x in list(DBHostGroupMembers.objects.filter(group=hgroup).values())]
         
         # Construct the statistics for each host
         for host in authorized_hosts.details:
@@ -472,14 +514,11 @@ class ClusterStats:
             
             # Start calculating statistics
             self.totals['host']['total'] += 1
-            if host['os_type'] == 'windows':
-                self.totals['host']['windows'] += 1
-            else:
-                self.totals['host']['linux'] += 1
+            self.totals['host'][host['os_type']] += 1
             
             # Get the statistics for the host if it meets the criteria
             if (host['agent_status'] == A_RUNNING) and (len(stat_rows) >= 30):
-                self._get_latest_stat(host['uuid'], stat_rows)
+                self._get_latest_stats(host['uuid'], stat_rows)
                 
                 # Get the size of all disks
                 for disk in host['sys']['disk']:

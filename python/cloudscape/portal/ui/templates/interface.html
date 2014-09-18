@@ -26,7 +26,7 @@
 {% endblock %}
 
 {# Page Content #}
-{% if authenticated %}
+{% if BASE.user.is_authenticated %}
 	{% block window %}
 		{% if page.header %}
 			<div class="page_header_box">
@@ -40,7 +40,7 @@
 {% endif %}
 
 {# Authentication Content #}
-{% if not authenticated %}
+{% if not BASE.user.is_authenticated %}
 	{% block auth %}
 		{% for content in page.contents %}
 			{% include content %}

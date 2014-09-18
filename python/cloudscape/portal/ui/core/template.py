@@ -114,21 +114,41 @@ class PortalTemplate(object):
         
         # Set the base parameters
         base = {
-            'api_params':    None if not hasattr(self.portal.api, 'params') else self.portal.api.params,
-            'authenticated': self.portal.authenticated,
-            'request': {
-                'current': self.portal.request.current,
-                'path': self.portal.request.path
-            },
-            'is_admin': self.portal.request.is_admin
+            'BASE': {
+                     
+                # Connection user attributes
+                'user': {
+                    'is_admin': self.portal.request.is_admin,
+                    'is_authenticated': self.portal.authenticated,
+                    'groups': self.portal.groups,
+                    'name': self.portal.request.user
+                },
+                     
+                # API connection parameters
+                'api': {
+                    'params': None if not hasattr(self.portal.api, 'params') else self.portal.api.params
+                },
+                     
+                # Request parameters
+                'request': {
+                    'current': self.portal.request.current,
+                    'path': self.portal.request.path       
+                }
+            }
         }
         
         # Replace the API URL with the Socket.IO proxy
-        if base['api_params']:
-            base['api_params']['url'] = '%s://%s:%s' % (self.conf.socket.proto, self.conf.socket.host, self.conf.socket.port)
+        if base['api']['params']:
+            base['api']['params']['url'] = '%s://%s:%s' % (self.conf.socket.proto, self.conf.socket.host, self.conf.socket.port)
         
         # Merge extra template parameters
         for k,v in objs.iteritems():
+            
+            # Do not overwrite the 'BASE' key
+            if k == 'BASE':
+                raise Exception('Template data key [BASE] is reserved for internal use only')
+            
+            # Append the template data key
             base[k] = v
             
         # Return the template data object

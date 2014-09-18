@@ -122,8 +122,9 @@ class PortalTemplate(object):
                 'user': {
                     'is_admin': self.portal.request.is_admin,
                     'is_authenticated': self.portal.authenticated,
-                    'groups': self.portal.groups,
-                    'name': self.portal.request.user
+                    'groups': self.portal.user['groups'],
+                    'name': self.portal.user['username'],
+                    'email': self.portal.user['email']
                 },
                      
                 # API connection parameters

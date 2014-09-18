@@ -63,8 +63,8 @@ class PortalBase(object):
         self.api           = None
         self.controller    = {}
         
-        # User groups
-        self.groups        = None
+        # User object
+        self.user          = None
         
         # Initialize the configuration object and logger
         self.conf          = config.parse()
@@ -167,7 +167,7 @@ class PortalBase(object):
             user_details = DBUser.objects.filter(username=request.user.username).values()[0]
             
             # Set the user's groups
-            self.groups = user_details['groups']
+            self.user = user_details
             
             # Set the 'is_admin' flag
             request.session['is_admin'] = user_details['is_admin']
@@ -308,7 +308,7 @@ class PortalBase(object):
             self.api = self._set_api()
         
             # Set all available groups
-            self.api.params['groups'] = self.groups
+            self.api.params['groups'] = self.user['groups']
             
             # Process each API parameter
             for key,value in self.api.params.iteritems():

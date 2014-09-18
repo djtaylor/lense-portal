@@ -186,6 +186,26 @@ div[type="agent.control"] {
 	margin: 0 0 5px 0;
 }
 
+.nav_profile_user_details {
+	margin: 0 0 10px 0;
+}
+
+.nav_profile_user_row {
+	overflow: auto;
+	margin: 0 0 5px 0;
+}
+
+.nav_profile_user_label,
+.nav_profile_user_text {
+	float: left;
+	padding: 5px 0 5px 0;
+}
+
+.nav_profile_user_label {
+	width: 100px;
+	border-right: solid 1px #eee;
+}
+
 .nav_profile_api_key_value {
 	overflow: auto;
 	border-left: solid 2px #048cc4;

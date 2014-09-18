@@ -294,14 +294,31 @@ cs.import('CSBaseD3', function() {
 		
 		// Make sure the target chart div is rendered
 		if ($('div[type$="svg"][name$="' + t +'"]').length > 0) {
-			e = $('div[type$="svg"][name$="' + t +'"]');
+			var e = $('div[type$="svg"][name$="' + t +'"]');
 			
 			// Delete the old SVG contents
 			$.each(e.find('svg'), function(i,o) { $(o).remove(); });
 			
+			// Make sure data is available
+			var data_available = false;
+			$.each(d.group, function(i,_g) {
+				if (!$.isEmptyObject(_g.stats)) {
+					data_available = true;
+				}
+			});
+			
+			// If no data is available
+			if (!data_available) {
+				e.append(cs.layout.create.element('div', {
+					css: 'table_chart_nodata',
+					text: 'No data available'
+				}));
+				return;
+			}
+			
 			// Set the chart width and height
-			tw = $('.table_panel_tmpl').width() - 40;
-			th = !defined(p.height) ? $(e).height() - 40 : p.height - 40;
+			var tw = $('.table_panel_tmpl').width() - 40;
+			var th = !defined(p.height) ? $(e).height() - 40 : p.height - 40;
 			
 			// Handle multiple groups
 			$.each(d['group'], function(i,o) {

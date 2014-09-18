@@ -188,6 +188,10 @@ div[type="agent.control"] {
 
 .nav_profile_api_key_value {
 	overflow: auto;
+	border-left: solid 2px #048cc4;
+	border-top: solid 1px #eee;
+	border-right: solid 1px #eee;
+	border-bottom: solid 1px #eee;
 }
 
 .nav_profile_api_key_toggle {
@@ -215,7 +219,7 @@ div[type="agent.control"] {
 .nav_profile_icon {
 	height: 30px;
 	width: 25px;
-	float: right;
+	float: left;
 	background-image: url(/static/images/users.png);
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
@@ -232,16 +236,15 @@ div[type="agent.control"] {
 	height: 30px;
 	line-height: 30px;
 	text-align: center;
-	font-size: 1.1em;
-	background-color: #fff;
-	border: solid 1px #e0e0e0;
-	-webkit-border-radius: 5px;
-	border-radius: 5px;
+	font-size: 1.2em;
+	background-color: #19a9e5;
+	border: solid 1px #048cc4;
+	color: #f4f4f4;
 }
 
 .nav_profile_logout:hover {
 	cursor: pointer;
-	background-color: #f2f2f2;
+	background-color: #159ad1;
 }
 
 .nav_profile_ptr_wrapper {
@@ -256,11 +259,16 @@ div[type="agent.control"] {
 	border-right: 7px solid transparent;
 	border-bottom: 7px solid #f4f4f4;
 	float: right;
+	z-index: 5;
 }
 
 .nav_profile_content {
-	background-color: #f4f4f4;
+	background-color: #fff;
+	border: solid 1px #eee;
 	padding: 10px;
+	-webkit-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.5);
+	box-shadow: 0px 0px 10px 0px rgba(0,0,0,0.5);
 }
 
 .base_nav_finder,

@@ -296,8 +296,8 @@ cs.import('CSBaseD3', function() {
 		if ($('div[type$="svg"][name$="' + t +'"]').length > 0) {
 			var e = $('div[type$="svg"][name$="' + t +'"]');
 			
-			// Delete the old SVG contents
-			$.each(e.find('svg'), function(i,o) { $(o).remove(); });
+			// Delete any children
+			e.empty();
 			
 			// Make sure data is available
 			var data_available = false;

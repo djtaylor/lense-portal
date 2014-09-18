@@ -12,6 +12,7 @@ from cloudscape.common import logger
 from cloudscape.common.vars import T_BASE
 from cloudscape.engine.api.base import APIBase
 from cloudscape.common.utils import JSONTemplate
+from cloudscape.common.errors import JSONError, JSONException
 from cloudscape.engine.api.auth.key import APIKey
 from cloudscape.engine.api.auth.acl import ACLGateway
 from cloudscape.common.utils import valid, invalid
@@ -21,7 +22,7 @@ from cloudscape.engine.api.app.user.models import DBUser
 
 # Configuration / Logger
 CONF = config.parse()
-LOG  = logger.create('cloudscape.engine.api.core.request', CONF.server.log)
+LOG  = logger.create(__name__, CONF.server.log)
 
 def dispatch(request):
     """
@@ -40,10 +41,7 @@ def dispatch(request):
     
     # Critical server error
     except Exception as e:
-        LOG.exception('Internal server error: %s' % str(e))
-        
-        # Return a 500 error
-        return HttpResponseServerError('Internal server error, please contact your administrator.')
+        return JSONException().response()
   
 class EndpointManager:
     """
@@ -101,14 +99,22 @@ class EndpointManager:
         # Authenticate key for token requests
         if self.endpoint == 'auth/get':
             auth_status = APIKey().validate(self.request)
+            
+            # API key authentication failed
             if not auth_status['valid']:
-                return self._req_error(auth_status['content'])
+                return JSONError(error='Invalid API key', code=401).response()
+            
+            # API key authentication successfull
             LOG.info('API key authentication successfull for user: %s' % self.api_user)
             
         # Authenticate token for API requests
         else:
+            
+            # Invalid API token
             if not APIToken().validate(self.request):
-                return self._req_error('Failed to validate API token for user \'%s\'' % self.api_user)
+                return JSONError(error='Invalid API token', code=401).response()
+            
+            # API token looks good
             LOG.info('API token authentication successfull for user: %s' % self.api_user)
     
         # Check for a user account
@@ -116,7 +122,7 @@ class EndpointManager:
             
             # If no API group was supplied
             if not self.api_group:
-                return self._req_error('User accounts must supply a group UUID when making a request using the <api_group> parameter')
+                return JSONError(error='Must submit a group UUID using the [api_group] parameter', code=401).response()
             
             # Make sure the group exists and the user is a member
             is_member = False
@@ -127,7 +133,7 @@ class EndpointManager:
             
             # If the user is not a member of the group
             if not is_member:
-                return self._req_error('User account <%s> is not a member of group <%s>' % (self.api_user, self.api_group))
+                return JSONError(error='API user [%s] is not a member of group [%s]' % (self.api_user, self.api_group), code=401).response()
     
     # Validate the request
     def _validate(self):
@@ -138,7 +144,9 @@ class EndpointManager:
     
         # Make sure a request action is set
         if not 'action' in self.request:
-            return self._req_error('Request body requires an <action> parameter for endpoint pathing')
+            return JSONError(error='Request body requires an [action] parameter for endpoint pathing', code=400)
+        
+        # Set the request action
         self.action = self.request['action']
     
         # Get the request path
@@ -150,12 +158,12 @@ class EndpointManager:
         # Map the path to a module, class, and API name
         self.handler_obj = EndpointMapper(self.endpoint, self.method).handler()
         if not self.handler_obj['valid']:
-            return self._req_error(self.handler_obj['content'])
+            return JSONError(error=self.handler_obj['content'], code=400).response()
     
         # Validate the request body
         request_err  = JSONTemplate(self.handler_obj['content']['api_map']).validate(self.request)
         if request_err:
-            return self._req_error(request_err)
+            return JSONError(error=request_err, code=400).response()
     
         # Set the handler objects
         self.api_name    = self.handler_obj['content']['api_name']
@@ -176,30 +184,32 @@ class EndpointManager:
         6.) Returns either an HTTP response with the status of the request
         """
         
-        # Parse the request
+        # Validate the request
         try:
             validate_err = self._validate()
             if validate_err:
                 return validate_err
+            
+        # Critical error when validating the request
         except Exception as e:
-            LOG.exception('Exception while validating request: %s' % str(e))
-            return self._req_error('Internal server error, failed to validate the request')
+            return JSONException().response()
         
         # Authenticate the request
         try:
             auth_err     = self._authenticate()
             if auth_err:
                 return auth_err
+            
+        # Critical error when authenticating the request
         except Exception as e:
-            LOG.exception('Exception while authenticating the request: %s' % str(e))
-            return self._req_error('Internal server error, failed to authenticate the request')
+            return JSONException().response()
         
         # Check the request against ACLs
         acl_gateway = ACLGateway(self.request, self.endpoint, self.api_user)
         
         # If the user is not authorized for this endpoint/object combination
         if not acl_gateway.authorized:
-            return self._req_error(acl_gateway.auth_error)
+            return JSONError(error=acl_gateway.auth_error, code=401).response()
         
         # Set up the API base
         try:
@@ -214,15 +224,14 @@ class EndpointManager:
             
             # Make sure the construct ran successfully
             if not api_obj['valid']:
-                return self._req_error(api_obj['content'])
+                return api_obj['content']
             
             # Set the API base object for endpoint utilities
             self.api_base = api_obj['content']
             
         # Failed to setup the APIBase
         except Exception as e:
-            LOG.exception('Failed to set up API base: %s' % str(e))
-            return self._req_error('Internal server, failed to set up API base')
+            return JSONException().response()
             
         # Load the handler module and class
         handler_mod   = importlib.import_module(self.api_mod)
@@ -235,8 +244,7 @@ class EndpointManager:
             
         # Critical error when running handler
         except Exception as e:
-            LOG.exception('Exeption while running API handler: %s' % str(e))
-            return self._req_error('Encountered API handler error')
+            return JSONException().response()
         
         # Close any open SocketIO connections
         self.api_base.socket.disconnect()
@@ -337,7 +345,7 @@ class EndpointMapper:
             
             # Error constructing request map, skip to next endpoint map
             except Exception as e:
-                LOG.exception('Failed to load request map for endpoint <%s>: %s ' % (endpoint['name'], str(e)))
+                LOG.exception('Failed to load request map for endpoint [%s]: %s ' % (endpoint['name'], str(e)))
                 continue
                     
         # All template maps constructed
@@ -353,17 +361,17 @@ class EndpointMapper:
         if not map_rsp['valid']:
             return map_rsp
         
-        # Request path missing
+        # Request endpoint missing
         if not self.endpoint:
-            return invalid(LOG.error('Missing request endpoint'))
+            return invalid(JSONError(error='Missing request endpoint', code=400).response())
         
         # Invalid request path
         if not self.endpoint in self.map:
-            return invalid(LOG.error('Unsupported request endpoint: <%s>' % self.endpoint))
+            return invalid(JSONError(error='Unsupported request endpoint: [%s]' % self.endpoint, code=400).response())
         
         # Verify the request method
         if self.method != self.map[self.endpoint]['method']:
-            return invalid(LOG.error('Unsupported request method <%s> for endpoint <%s>' % (self.method, self.endpoint)))
+            return invalid(JSONError(error='Unsupported request method [%s] for endpoint [%s]' % (self.method, self.endpoint), code=400).response())
         
         # Get the API module, class handler, and name
         self.handler_obj = {
@@ -373,7 +381,7 @@ class EndpointMapper:
             'api_utils': self.map[self.endpoint]['utils'],
             'api_map':   self.map[self.endpoint]['json']
         }
-        LOG.info('Parsed handler object for API endpoint <%s>: %s' % (self.endpoint, self.handler_obj))
+        LOG.info('Parsed handler object for API endpoint [%s]: %s' % (self.endpoint, self.handler_obj))
         
         # Return the handler module path
         return valid(self.handler_obj)

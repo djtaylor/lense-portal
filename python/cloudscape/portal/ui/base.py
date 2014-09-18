@@ -64,7 +64,7 @@ class PortalBase(object):
         self.controller    = {}
         
         # User object
-        self.user          = None
+        self.user          = {}
         
         # Initialize the configuration object and logger
         self.conf          = config.parse()

@@ -125,10 +125,5 @@
 	});
 	
 	// Boostrap the constructors
-	try {
-		cs.bootstrap(c);
-	} catch (e) {
-		console.log('Failed to bootstrap includes');
-		console.log(e.stack);
-	}
+	cs.bootstrap(c);
 })();

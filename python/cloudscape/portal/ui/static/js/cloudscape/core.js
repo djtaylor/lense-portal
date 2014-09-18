@@ -48,6 +48,9 @@ var cs = (function() {
 			return true;
 		})();
 		
+		console.log('All includes complete');
+		console.log(self.includes);
+		
 		// Bootstrap after includes completed
 		(function() {
 			(function wait_inner() {
@@ -64,6 +67,8 @@ var cs = (function() {
 							lib  = c[m].split('.');
 							path = lib[0];
 							name = lib[1];
+							
+							console.log('Implementing ' + name + ' to path ' + path);
 							
 							// Create a new class instance
 							self.implement(name, path);

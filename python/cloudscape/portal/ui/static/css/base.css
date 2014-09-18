@@ -231,7 +231,7 @@ div[type="agent.control"] {
 
 .nav_profile_wrapper {
 	position: fixed;
-	top: 30px;
+	top: 25px;
 	right: 5px;
 }
 
@@ -253,7 +253,8 @@ div[type="agent.control"] {
 
 .nav_profile_ptr_wrapper {
 	overflow: auto;
-	height: 7px;
+	z-index: 5;
+	margin: 0 0 -1px 0;
 }
 
 .nav_profile_ptr {
@@ -264,6 +265,7 @@ div[type="agent.control"] {
 	border-bottom: 7px solid #f4f4f4;
 	float: right;
 	z-index: 5;
+	margin: 0 8px 0 0;
 }
 
 .nav_profile_content {

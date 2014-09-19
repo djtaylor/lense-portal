@@ -145,7 +145,7 @@ class ACLUtility(object):
     def __init__(self, path):
         
         # Utility name / UUID / object
-        self.name   = path
+        self.path   = path
         self.obj    = DBAuthUtilites.objects.filter(name=self.name).values()[0]
         self.uuid   = self.obj['uuid']
         
@@ -264,7 +264,7 @@ class ACLGateway(object):
                 return valid()
         
         # Access denied
-        return invalid('Access denied to utility [%s]' % self.utility.name)
+        return invalid('Access denied to utility [%s]' % self.utility.path)
         
     def _check_global_access(self, global_acls):
         """
@@ -280,10 +280,10 @@ class ACLGateway(object):
             
             # If the ACL supports the target utility
             if self.utility.uuid in global_access:
-                return valid(LOG.info('Global access granted for user [%s] to utility [%s]' % (self.user.name, self.utility.name)))
+                return valid(LOG.info('Global access granted for user [%s] to utility [%s]' % (self.user.name, self.utility.path)))
         
         # Global access denied
-        return invalid('Global access denied for user [%s] to utility [%s]' % (self.user.name, self.utility.name))
+        return invalid('Global access denied for user [%s] to utility [%s]' % (self.user.name, self.utility.path))
     
     def _check_object_access(self, object_acls, group):
         """
@@ -319,7 +319,7 @@ class ACLGateway(object):
             
                 # Check if the user has access to this object
                 if acl_class.objects.filter(**filter).count():
-                    return valid(LOG.info('Object level access granted for user [%s] to utility [%s] for object [%s:%s]' % (self.user.name, self.utility.name, self.utility.obj['object'], tgt_obj)))
+                    return valid(LOG.info('Object level access granted for user [%s] to utility [%s] for object [%s:%s]' % (self.user.name, self.utility.path, self.utility.obj['object'], tgt_obj)))
         
             # Access denied
             return invalid(' for object <%s:%s>' % (self.utility.obj['object'], tgt_obj))
@@ -380,7 +380,7 @@ class ACLGateway(object):
             
             # Access denied
             else:
-                err_msg = 'Access denied to utility [%s]%s' % (self.utility.name, obj_error)
+                err_msg = 'Access denied to utility [%s]%s' % (self.utility.path, obj_error)
                 
                 # Log the error message
                 LOG.error(err_msg)
@@ -395,11 +395,11 @@ class ACLGateway(object):
         """
         
         # Permit access to <auth/get> for all API users with a valid API key
-        if self.utility.name == PATH.GET_TOKEN:
+        if self.utility.path == PATH.GET_TOKEN:
             return self._set_authorization(True)
             
         # Log the initial ACL authorization request
-        LOG.info('Running ACL gateway validation: utility=%s, %s=%s' % (self.utility.name, self.user.type, self.user.name))
+        LOG.info('Running ACL gateway validation: utility=%s, %s=%s' % (self.utility.path, self.user.type, self.user.name))
         
         # If the user is not a member of any groups (and not a host account type)
         if not self.user.groups and self.user.type == T_USER:
@@ -410,7 +410,7 @@ class ACLGateway(object):
             access_status = self._check_access()
             if not access_status['valid']:
                 return self._set_authorization(False, access_status['content'])
-            LOG.info('ACL gateway authorization success: %s=%s, utility=%s' % (self.user.type, self.user.name, self.utility.name))
+            LOG.info('ACL gateway authorization success: %s=%s, utility=%s' % (self.user.type, self.user.name, self.utility.path))
             
             # Account has access
             return self._set_authorization(True)
@@ -437,4 +437,4 @@ class ACLGateway(object):
         """
         
         # Create the authorized objects list
-        return ACLAuthObjects(self.user, type, (path if path else self.utility.name)).get(filter)
+        return ACLAuthObjects(self.user, type, (path if path else self.utility.path)).get(filter)

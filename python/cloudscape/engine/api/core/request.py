@@ -63,10 +63,10 @@ class RequestObject(object):
         self.data        = self._load_data()
     
         # API authorization attributes
-        self.user        = self.headers.get(HEADER.API_USER.upper().replace('-', '_'))
-        self.group       = self.headers.get(HEADER.API_GROUP.upper().replace('-', '_'))
-        self.key         = self.headers.get(HEADER.API_KEY.upper().replace('-', '_'))
-        self.token       = self.headers.get(HEADER.API_TOKEN.upper().replace('-', '_'))
+        self.user        = self.headers.get('HTTP_%s' % HEADER.API_USER.upper().replace('-', '_'))
+        self.group       = self.headers.get('HTTP_%s' % HEADER.API_GROUP.upper().replace('-', '_'))
+        self.key         = self.headers.get('HTTP_%s' % HEADER.API_KEY.upper().replace('-', '_'))
+        self.token       = self.headers.get('HTTP_%s' % HEADER.API_TOKEN.upper().replace('-', '_'))
     
     def _load_data(self):
         """
@@ -89,12 +89,6 @@ class RequestObject(object):
                     data[query_pair] = True
             return data
     
-    def get_data(self, key, default=None):
-        """
-        Shortcut method for retrieving request data.
-        """
-        return self.data.get(key, default)
-    
     @staticmethod
     def construct(request):
         return RequestObject(request)
@@ -113,6 +107,8 @@ class RequestManager:
         
         # Construct a request object
         self.request     = RequestObject.construct(request)
+    
+        LOG.info('REQUEST_OBJ: %s' % str(self.request))
     
         # Request endpoint handler
         self.handler_obj = None

@@ -51,9 +51,8 @@ class DBAuthUtilities(models.Model):
     Main database model for storing API utility details.
     """
     uuid       = models.CharField(max_length=36, unique=True)
-    name       = models.CharField(max_length=128, unique=True)
+    path       = models.CharField(max_length=128, unique=True)
     desc       = models.CharField(max_length=256)
-    path       = models.CharField(max_length=64)
     method     = models.CharField(max_length=4)
     mod        = models.CharField(max_length=128)
     cls        = models.CharField(max_length=64, unique=True)

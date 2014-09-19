@@ -56,7 +56,7 @@ class RequestObject(object):
         self.RAW         = request
         
         # Request data / method / headers / path / client address
-        self.data        = json.loads(request.body)
+        self.data        = json.loads(getattr(request, 'body', {}))
         self.method      = request.META['REQUEST_METHOD']
         self.headers     = request.META
         self.path        = request.META['PATH_INFO'][1:]

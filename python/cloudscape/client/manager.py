@@ -61,7 +61,7 @@ class APIConnect(object):
         self.token_rsp = parse_response(requests.get(auth_url, headers=self._get_token_headers()))
     
         # Load the response body
-        auth_obj       = json.loads(self.token_rsp.get('body', {}))
+        self.token_rsp['body'] = json.loads(self.token_rsp['body'])
     
         # If token request looks OK
         if self.token_rsp['code'] == 200:
@@ -92,16 +92,17 @@ class APIConnect(object):
             
             # Show any problems with token retrieval
             if self.token_rsp:
-                print 'HTTP %s: %s' % (self.token_rsp['code'], self.token_rsp['message'])
+                print '\n---RESPONSE---'
+                print 'HTTP %s: %s\n' % (self.token_rsp['code'], self.token_rsp['body']['message'])
                 
                 # If any debug information is present
-                if 'debug' in self.token_rsp:
+                if 'debug' in self.token_rsp['body']:
                     print '---DEBUG---'
                     print 'Traceback (most recent call last):'
-                    for l in self.token_rsp['debug']['traceback']:
+                    for l in self.token_rsp['body']['debug']['traceback']:
                         print '  File "%s", line %s, in %s' % (l[0], l[1], l[2])
                         print '    %s' % l[3]
-                    print 'Exception: %s' % self.token_rsp['debug']['exception']
+                    print 'Exception: %s\n' % self.token_rsp['body']['debug']['exception']
             
             # Exit the client
             sys.exit(1)

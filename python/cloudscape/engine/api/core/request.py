@@ -56,17 +56,38 @@ class RequestObject(object):
         self.RAW         = request
         
         # Request data / method / headers / path / client address
-        self.data        = json.loads(getattr(request, 'body', {}))
         self.method      = request.META['REQUEST_METHOD']
         self.headers     = request.META
         self.path        = request.META['PATH_INFO'][1:]
         self.client      = request.META['REMOTE_ADDR']
+        self.data        = self._load_data()
     
         # API authorization attributes
         self.user        = self.headers.get(HEADER.API_USER.upper().replace('-', '_'))
         self.group       = self.headers.get(HEADER.API_GROUP.upper().replace('-', '_'))
         self.key         = self.headers.get(HEADER.API_KEY.upper().replace('-', '_'))
         self.token       = self.headers.get(HEADER.API_TOKEN.upper().replace('-', '_'))
+    
+    def _load_data(self):
+        """
+        Load request data depending on the method. For POST requests, load the request
+        body, for GET requests, load the query string.
+        """
+    
+        # POST request
+        if self.method == 'POST':
+            return json.loads(getattr(self.RAW, 'body', '{}'))
+    
+        # GET request
+        if self.method == 'GET':
+            data = {}
+            for query_pair in self.RAW.META['QUERY_STRING'].split('&'):
+                if '=' in query_pair:
+                    query_set = query_pair.split('=')
+                    data[query_set[0]] = query_set[1]
+                else:
+                    data[query_pair] = True
+            return data
     
     def get_data(self, key, default=None):
         """

@@ -66,6 +66,8 @@ class RequestObject(object):
         self.key         = self.headers.get('HTTP_%s' % HEADER.API_KEY.upper().replace('-', '_'))
         self.token       = self.headers.get('HTTP_%s' % HEADER.API_TOKEN.upper().replace('-', '_'))
     
+        LOG.info('REQUEST_OBJ: %s' % str(self))
+    
     def _load_data(self):
         """
         Load request data depending on the method. For POST requests, load the request
@@ -105,8 +107,6 @@ class RequestManager:
         
         # Construct a request object
         self.request     = RequestObject.construct(request)
-    
-        LOG.info('REQUEST_OBJ: %s' % str(self.request))
     
         # Request endpoint handler
         self.handler_obj = None

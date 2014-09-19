@@ -8,6 +8,7 @@ from django.http import HttpResponse
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
+from cloudscape.common.http import MIME_TYPE
 
 # Configuration / Logger
 CONF = config.parse()
@@ -75,7 +76,7 @@ class JSONErrorBase(object):
         """
         Construct and return the response object.
         """
-        return HttpResponse(json.dumps(self.error_object), content_type='application/json', status=self.status)
+        return HttpResponse(json.dumps(self.error_object), content_type=MIME_TYPE.APPLICATION.JSON, status=self.status)
 
 class JSONError(JSONErrorBase):
     """

@@ -13,10 +13,7 @@ from cloudscape.common.utils import format_action
 
 class CLIClient(object):
     """
-    CloudScape Client Interface
-    
-    The following is a class designed to handle command line interactions
-    with the API client.
+    Command line interface for making API requests.
     """
     def __init__(self):
         
@@ -52,12 +49,18 @@ class CLIClient(object):
         # Return the API connection attributes
         api_ret = {}
         
+        # Scan environment variables and look for connection attributes
         for k,v in api_env.iteritems():
             if v in os.environ:
                 api_ret[k] = os.environ[v] 
+                
+        # Return any discovered connection attributes
         return api_ret
     
     def _api_connect(self):
+        """
+        Establish an API connection using the client libraries.
+        """
         self.client, self.connect = APIConnect(user=self.api['user'], group=self.api['group'], api_key=self.api['key']).construct()
     
         # If token retrieval/connection failed

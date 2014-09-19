@@ -37,7 +37,7 @@ class APIConnect(object):
             HEADER.CONTENT_TYPE: MIME_TYPE.APPLICATION.JSON,
             HEADER.ACCEPT:       MIME_TYPE.TEXT.PLAIN,
             HEADER.API_USER:     self.api_user,
-            HEADER.API_TOKEN:    self.api_key,
+            HEADER.API_KEY:      self.api_key,
             HEADER.API_GROUP:    self.api_group 
         }
 

@@ -92,8 +92,12 @@ class APIConnect(object):
             
             # Show any problems with token retrieval
             if self.token_rsp:
+                rsp_msg = self.token_rsp['body'].get('message', 'Failed to process the request')
+                rsp_err = self.token_rsp['body'].get('error', 'An unknown error has occurred')
+                
+                # Print the response
                 print '\n---RESPONSE---'
-                print 'HTTP %s: %s\n' % (self.token_rsp['code'], self.token_rsp['body']['message'])
+                print 'HTTP %s: %s\n' % (self.token_rsp['code'], '%s - %s' % (rsp_msg, rsp_err))
                 
                 # If any debug information is present
                 if 'debug' in self.token_rsp['body']:

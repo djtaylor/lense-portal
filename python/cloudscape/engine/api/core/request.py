@@ -66,8 +66,6 @@ class RequestObject(object):
         self.key         = self.headers.get('HTTP_%s' % HEADER.API_KEY.upper().replace('-', '_'))
         self.token       = self.headers.get('HTTP_%s' % HEADER.API_TOKEN.upper().replace('-', '_'))
     
-        LOG.info('REQUEST_OBJ: %s' % str(dir(a for a in dir(self))))
-    
     def _load_data(self):
         """
         Load request data depending on the method. For POST requests, load the request

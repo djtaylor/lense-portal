@@ -10,13 +10,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
-from cloudscape.common.http import PATH, MIME_TYPE
+from cloudscape.common.http import PATH, MIME_TYPE, JSONError, JSONException
 from cloudscape.common.utils import valid, invalid
 from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.cache import CacheManager
 from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.core.socket import SocketResponse
-from cloudscape.common.errors import JSONError, JSONException
 
 class APIBase(object):
     """

@@ -4,16 +4,15 @@ import requests
 import importlib
 
 # CloudScape Libraries
-from cloudscape.common.http import HEADER, MIME_TYPE
 from cloudscape.common.vars import C_CLIENT
-from cloudscape.common.utils import parse_response
+from cloudscape.common.http import HEADER, MIME_TYPE, parse_response, error_response
 
 class APIBase(object):
     """
     The base class inherited by API path specific classes. This class provides access to
     command methods to GET and POST data to the API server.
     """
-    def __init__(self, user=None, group=None, token=None, url=None):
+    def __init__(self, user=None, group=None, token=None, url=None, cli=False):
 
         # API User / Group / Token / URL / Headers
         self.API_USER    = user
@@ -62,6 +61,21 @@ class APIBase(object):
             # Set the internal attribute
             setattr(self, mod['id'], ep_inst)
 
+    def _return(self, response):
+        """
+        Parse and return the response.
+        """
+        
+        # Parse the response
+        parsed = parse_response(response)
+        
+        # If there was an error during the request
+        if parsed['code'] != 200:
+            error_response(parsed['body']['message'], response=parsed, cli=self.cli)
+
+        # Return a successfull response
+        return parsed
+
     def _get(self, path, data={}):
         """
         Wrapper method to make GET requests to the specific API endpoint.
@@ -70,8 +84,11 @@ class APIBase(object):
         # Set the request URL to the API endpoint path
         get_url = '%s/%s' % (self.API_URL, path)
         
-        # POST the request and return the response
-        return parse_response(requests.get(get_url, headers=self.API_HEADERS, params=data))
+        # POST the request and get the response
+        response = requests.get(get_url, headers=self.API_HEADERS, params=data)
+        
+        # Return a response
+        self._return(response)
 
     def _post(self, path, data={}):
         """
@@ -81,5 +98,8 @@ class APIBase(object):
         # Set the request URL to the API endpoint path
         post_url = '%s/%s' % (self.API_URL, path)
         
-        # POST the request and return the response
-        return parse_response(requests.post(post_url, data=json.dumps(data), headers=self.API_HEADERS))
+        # POST the request and get the response
+        response = requests.post(post_url, headers=self.API_HEADERS, data=json.dumps(data))
+        
+        # Return a response
+        self._return(response)

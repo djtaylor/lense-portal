@@ -11,14 +11,13 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.vars import T_BASE
 from cloudscape.engine.api.base import APIBase
-from cloudscape.common.http import HEADER, PATH
+from cloudscape.common.http import HEADER, PATH, JSONError, JSONException
 from cloudscape.common.utils import JSONTemplate
 from cloudscape.engine.api.auth.key import APIKey
 from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.auth.acl import ACLGateway
 from cloudscape.engine.api.auth.token import APIToken
 from cloudscape.engine.api.app.user.models import DBUser
-from cloudscape.common.errors import JSONError, JSONException
 from cloudscape.engine.api.app.auth.models import DBAuthUtilities
 
 # Configuration / Logger

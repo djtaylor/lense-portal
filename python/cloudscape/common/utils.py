@@ -364,42 +364,6 @@ def format_action(a, m, w=10, b=False):
     b = '' if not b else '\r'
     return "{0:<{1}}{2}{3}\n".format(a, w, m, b)
 
-"""
-Parse HTTP Response
-
-Wrapper method to return a globally formatted object regardless of the syntactic differences
-between versions of 'python-requests' on different Linux distributions.
-"""
-def parse_response(obj):
-    """
-    Helper method used to parse a Python requests object and return a formatted dictionary.
-    Used to help alleviate differences between versions of the requests module on different
-    systems.
-    
-    :param obj: The response object to parse
-    :type obj: object
-    :rtype: dict
-    """
-    return_obj = {}
-    
-    # Look for the status code
-    if hasattr(obj, 'status_code'):
-        return_obj['code'] = obj.status_code
-    if hasattr(obj, 'code'):
-        return_obj['code'] = obj.code
-    
-    # Look for the return body
-    if hasattr(obj, 'content'):
-        return_obj['body'] = obj.content
-    if hasattr(obj, 'text'):
-        if callable(getattr(obj, 'text')):
-            return_obj['body'] = obj.text()
-        else:
-            return_obj['body'] = obj.text
-    
-    # Return the formatted response
-    return return_obj
-
 class UtilsBase(object):
     """
     Utilities base class for specific classes. Constucts the configuration and logging

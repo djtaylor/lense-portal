@@ -5,8 +5,7 @@ import requests
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.client.base import APIBase
-from cloudscape.common.http import HEADER, MIME_TYPE, PATH
-from cloudscape.common.utils import parse_response
+from cloudscape.common.http import HEADER, MIME_TYPE, PATH, parse_response, error_response
 
 class APIConnect(object):
     """
@@ -78,49 +77,6 @@ class APIConnect(object):
             # Return false
             return False
     
-    def _error(self, message):
-        """
-        Handle any errors when creating an instance of the client. Different output depending
-        if the library is being called from the command line, or being loaded from another module.
-        """
-        
-        # If being run from the command line
-        if self.cli:
-            
-            # Show the error message
-            print 'ERROR: %s' % message
-            
-            # Show any problems with token retrieval
-            if self.token_rsp:
-                rsp_msg = self.token_rsp['body'].get('message', 'Failed to process the request')
-                rsp_err = self.token_rsp['body'].get('error', 'An unknown error has occurred')
-                
-                # Print the response
-                print '\n---RESPONSE---'
-                print 'HTTP %s: %s\n' % (self.token_rsp['code'], '%s - %s' % (rsp_msg, rsp_err))
-                
-                # If any debug information is present
-                if 'debug' in self.token_rsp['body']:
-                    print '---DEBUG---'
-                    print 'Traceback (most recent call last):'
-                    for l in self.token_rsp['body']['debug']['traceback']:
-                        print '  File "%s", line %s, in %s' % (l[0], l[1], l[2])
-                        print '    %s' % l[3]
-                    print 'Exception: %s\n' % self.token_rsp['body']['debug']['exception']
-            
-            # Exit the client
-            sys.exit(1)
-            
-        # Library is being loaded from another module
-        else:
-            
-            # If there was a problem with token retrieval
-            if self.token_rsp:
-                message += ' - HTTP %s: %s' % (self.token_rsp['code'], self.token_rsp['message'])
-            
-            # Raise an exception
-            raise Exception(message)
-    
     def construct(self):
         """
         Construct and return the API connection and parameters objects.
@@ -128,11 +84,11 @@ class APIConnect(object):
         
         # Require an API key or token
         if not self.api_key and not self.api_token:
-            self._error('Must supply either an API key or a token to make a request')
+            error_response('Must supply either an API key or a token to make a request', cli=self.cli)
         
         # Retrieve a token if not supplied
         if not self._get_token():
-            self._error('Failed to retrieve API token')  
+            error_response('Failed to retrieve API token', response=self.token_rsp, cli=self.cli)  
             
         # API connector parameters
         self.params = {
@@ -148,5 +104,6 @@ class APIConnect(object):
             user  = self.api_user, 
             group = self.api_group,
             token = self.api_token, 
-            url   = self.api_url
+            url   = self.api_url,
+            cli   = self.cli
         ), self.params

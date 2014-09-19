@@ -26,7 +26,7 @@ class APIBase(object):
     handful of other class definitions. This class contains common attributes used by all API
     utilities, such as the logger, path details, external utilities, request attributes, etc.
     """
-    def __init__(self, name=None, request=None, utils=False, acl=None):
+    def __init__(self, request=None, utils=False, acl=None):
         """
         Initialize the APIBase class.
         
@@ -47,10 +47,9 @@ class APIBase(object):
         self.data         = request.data
         self.path         = request.path
         
-        # Class base / configuration / internal logger
-        self.class_name   = __name__ if not name else name
+        # Configuration / internal logger
         self.conf         = config.parse()
-        self.log_int      = logger.create(self.class_name, self.conf.server.log)
+        self.log_int      = logger.create(self.path, self.conf.server.log)
 
         # External utilities / utilities object / cache manager / objects manager / ACL gateway
         self.utils        = utils

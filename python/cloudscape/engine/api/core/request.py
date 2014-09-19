@@ -165,7 +165,7 @@ class RequestManager:
             return JSONError(error=request_err, status=400).response()
     
         # Set the handler objects
-        self.api_name    = self.handler_obj['content']['api_name']
+        self.api_path    = self.handler_obj['content']['api_path']
         self.api_mod     = self.handler_obj['content']['api_mod']
         self.api_class   = self.handler_obj['content']['api_class']
         self.api_utils   = self.handler_obj['content']['api_utils']
@@ -207,7 +207,6 @@ class RequestManager:
             
             # Create an instance of the APIBase and run the constructor
             api_obj = APIBase(
-                name     = self.api_name, 
                 request  = self.request, 
                 utils    = self.api_utils,
                 acl      = acl_gateway
@@ -298,10 +297,10 @@ class UtilityMapper:
                 self._merge_socket(rmap_base)
             
                 # Load the endpoint request handler module string
-                self.map[utility['name']] = {
+                self.map[utility['path']] = {
                     'module': utility['mod'],
                     'class':  utility['cls'],
-                    'name':   utility['name'],
+                    'path':   utility['path'],
                     'desc':   utility['desc'],
                     'method': utility['method'],
                     'utils':  None if not utility['utils'] else json.loads(utility['utils']),
@@ -310,7 +309,7 @@ class UtilityMapper:
             
             # Error constructing request map, skip to next utility map
             except Exception as e:
-                LOG.exception('Failed to load request map for utility [%s]: %s ' % (utility['name'], str(e)))
+                LOG.exception('Failed to load request map for utility [%s]: %s ' % (utility['path'], str(e)))
                 continue
                     
         # All template maps constructed
@@ -342,7 +341,7 @@ class UtilityMapper:
         self.handler_obj = {
             'api_mod':   self.map[self.path]['module'],
             'api_class': self.map[self.path]['class'],
-            'api_name':  self.map[self.path]['name'],
+            'api_path':  self.map[self.path]['path'],
             'api_utils': self.map[self.path]['utils'],
             'api_map':   self.map[self.path]['json']
         }

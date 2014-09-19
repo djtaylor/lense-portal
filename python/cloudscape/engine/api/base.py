@@ -10,6 +10,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
+from cloudscape.common.http import PATH, MIME_TYPE
 from cloudscape.common.utils import valid, invalid
 from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.cache import CacheManager
@@ -17,34 +18,22 @@ from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.core.socket import SocketResponse
 from cloudscape.common.errors import JSONError, JSONException
 
-class APIRequest(object):
-    """
-    APIRequest
-    
-    Abstraction class for parsing the Django request object.
-    """
-    def __init__(self, request):
-        
-        # Raw request / request body
-        self.raw  = request
-        self.body = json.loads(request.body)
-
 class APIBase(object):
     """
     APIBase
     
-    Base class in the inheritance model used by all API utilties assigned to an endpoint, and a
+    Base class in the inheritance model used by all API utilties assigned to a path, and a
     handful of other class definitions. This class contains common attributes used by all API
-    utilities, such as the logger, endpoint details, external utilities, request attributes, etc.
+    utilities, such as the logger, path details, external utilities, request attributes, etc.
     """
-    def __init__(self, name=None, endpoint=None, utils=False, acl=None):
+    def __init__(self, name=None, request=None, utils=False, acl=None):
         """
         Initialize the APIBase class.
         
         @param name:     The module name used for the logger 
         @type  name:     str
-        @param endpoint: The endpoint being accessed
-        @type  endpoint: str
+        @param request:  The request object from RequestManager
+        @type  request:  RequestObject
         @param utils:    Any external utilities required by this API endpoint
         @type  utils:    list
         @param acl:      The ACL gateway generated during request initialization
@@ -52,6 +41,11 @@ class APIBase(object):
         @param cache:    The CacheManager class instance
         @param cache:    CacheManager
         """
+        
+        # Request object / data / path
+        self.request      = request
+        self.data         = request.data
+        self.path         = request.path
         
         # Class base / configuration / internal logger
         self.class_name   = __name__ if not name else name
@@ -65,14 +59,9 @@ class APIBase(object):
         self.objects      = ObjectsManager()
         self.acl          = acl
 
-        # SocketIO client / Cache Manager
+        # SocketIO client / web socket object
         self.socket       = SocketResponse().construct()
-
-        # Request attributes
-        self.request_raw  = None     # Raw request object
-        self.action       = None     # Request action
-        self.data         = None     # Any request data
-        self.endpoint     = endpoint # Request endpoint
+        self.websock      = None
      
     def _utils(self):
         """
@@ -95,51 +84,19 @@ class APIBase(object):
                 util_obj[class_name] = class_inst
             self.util = Collection(util_obj).get()
         
-    def _set_action(self):
-        """
-        Set the API request action.
-        """
-        self.action = self._get_request_data('action')
-        
-    def _get_request_data(self, key, default=None):
-        """
-        Retrieve request data from the body by key.
-        """
-        
-        # If the key is found
-        if key in self.request.body:
-            return self.request.body[key]
-        
-        # If no key is found, return the default value
-        return default
-        
-    def _set_data(self):
-        """
-        Set the API request data if any is found.
-        """
-        self.data = self._get_request_data('_data', {})
-        
     def _set_websock(self):
         """
         Check if the client is making a request via the Socket.IO proxy server.
         """
-        if 'socket' in self.request.body:
+        if 'socket' in self.request.data:
             
             # Log the socket connection
-            self.log_int.info('Received connection from web socket client: %s' % str(self.request.body['socket']))
+            self.log_int.info('Received connection from web socket client: %s' % str(self.request.data['socket']))
             
             # Set the web socket response attributes
-            self.websock = self.socket.set(self.request.body['socket'])
+            self.websock = self.socket.set(self.request.data['socket'])
         else:
             self.websock = None
-        
-    def get_data(self, key, default=False):
-        """
-        Retrieve a key value from the API data object.
-        """
-        if key in self.data:
-            return self.data[key]
-        return default
         
     def get_logger(self, client):
         """
@@ -151,42 +108,24 @@ class APIBase(object):
         self.log = APILogger(self, client)
         return self
         
-    def construct(self, request):
+    def construct(self):
         """
-        Construct and return the request object and logger.
-        
-        @param request: The raw Django request object
-        @type  request: 
+        Construct and return the APIBase class.
         """
-        
-        # Construct the request object
-        self.request = APIRequest(request)
-        
-        # Client address and API user
-        self.client  = self.request.raw.META['REMOTE_ADDR']
-        self.user    = self._get_request_data('api_user')
-        self.group   = self._get_request_data('api_group')
         
         # Check if a web socket is making an API call
         self._set_websock()
         
-        # Set the request data and action for non-authentication requests
-        if not self.endpoint == 'auth/get':
-            
-            # Set API data / action
-            self._set_data()
-            self._set_action()
+        # Import the utility classes
+        self._utils()
         
         # Set the logger object
         self.log = APILogger(self)
         
-        # Import the utility classes
-        self._utils()
-        
         # Return the constructed API object, ready for authentication or other requests
         return valid(self)
     
-class APILogger(APIBase):
+class APILogger(object):
     """
     APILogger
     
@@ -201,25 +140,16 @@ class APILogger(APIBase):
         @param client: The client IP address
         @type  client: str
         """
-        super(APILogger, self).__init__()
-        self.parent       = parent
-        self.content_type = self._get_content_type()
+        self.api     = parent
 
         # Container for the current log message
         self.log_msg = None
 
         # Default parameters
-        if hasattr(self.parent, 'client') and not client:
-            self.client = parent.client
+        if hasattr(self.api.request, 'client') and not client:
+            self.client = self.api.request.client
         else:
-            self.client = 'cloudscape' if not client else client
-
-    def _get_content_type(self):
-        """
-        Determine the content type for HTTP responses. Right now this returns a static string,
-        but depending on the response message, can be modified to change the content type.
-        """
-        return 'application/json'
+            self.client = 'localhost' if not client else client
 
     def _websock_response(self, status, _data={}):
         """
@@ -239,7 +169,7 @@ class APILogger(APIBase):
             '_data':    _data
         }, cls=DjangoJSONEncoder)
 
-    def _api_response(self, ok=False, _data={}):
+    def _api_response(self, ok=False, data={}):
         """
         Construct the API response body to send back to clients. Constructs the websocket data
         to be interpreted by the Socket.IO proxy server if relaying back to a web client.
@@ -249,8 +179,8 @@ class APILogger(APIBase):
         status = 'true' if ok else 'false'
         
         # Web socket responses
-        if self.parent.websock:
-            return self._websock_response(status, _data)
+        if self.api.websock:
+            return self._websock_response(status, data)
             
         # Any endpoints that don't supply web socket responses    
         else:
@@ -295,7 +225,7 @@ class APILogger(APIBase):
         self.log_int.info('client(%s): %s' % (self.client, log_msg))
         
         # Return the HTTP response
-        return HttpResponse(self._api_response(True, web_data), self.content_type, status=200)
+        return HttpResponse(self._api_response(True, web_data), MIME_TYPE.APPLICATION.JSON, status=200)
     
     def exception(self, log_msg=None, code=None, web_data={}):
         """
@@ -313,7 +243,7 @@ class APILogger(APIBase):
         if code and isinstance(code, int):
         
             # Return the HTTP response
-            return HttpResponse(self._api_response(False, web_data), self.content_type, status=code)
+            return HttpResponse(self._api_response(False, web_data), MIME_TYPE.APPLICATION.JSON, status=code)
         else:
             return self.log_msg
     
@@ -333,6 +263,6 @@ class APILogger(APIBase):
         if code and isinstance(code, int):
         
             # Return the HTTP response
-            return HttpResponse(self._api_response(False, web_data), self.content_type, status=code)
+            return HttpResponse(self._api_response(False, web_data), MIME_TYPE.APPLICATION.JSON, status=code)
         else:
             return self.log_msg

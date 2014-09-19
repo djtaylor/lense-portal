@@ -5,7 +5,6 @@ from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.engine.api.app.user.models import DBUserAPIKeys, DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPIKeys
-from cloudscape.common.vars import HTTP_API_USER, HTTP_API_KEY, HTTP_API_TOKEN, HTTP_API_GROUP
 
 class APIKey(object):
     """
@@ -54,21 +53,21 @@ class APIKey(object):
             return invalid('Authentication failed, no API key found for account [%s]' % id)
         return valid(api_key_row[0]['api_key'])
 
-    def validate(self, headers):
+    def validate(self, request):
         """
         Validate the API key for a user or host account.
         """
         
         # Get the API key of the user or host
-        api_key = self._get_api_key(id=headers[HTTP_API_USER])
+        api_key = self._get_api_key(id=request.user)
         
         # User has no API key
         if not api_key['valid']: 
             return api_key
             
         # Invalid API key
-        if api_key['content'] != headers[HTTP_API_KEY]:
-            return invalid('Client [%s] has submitted an invalid API key' % headers[HTTP_API_USER])
+        if api_key['content'] != request.key:
+            return invalid('Client [%s] has submitted an invalid API key' % request.user)
         
         # API key looks OK
         return valid(request)

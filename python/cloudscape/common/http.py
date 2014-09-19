@@ -1,6 +1,11 @@
 # CloudScape Libraries
 from cloudscape.common.collection import Collection
 
+# HTTP Paths
+PATH = Collection({
+    'GET_TOKEN':    'auth/get'
+}).get()
+
 # HTTP Headers
 HEADER = Collection({
     'API_USER':     'CS-API-User',

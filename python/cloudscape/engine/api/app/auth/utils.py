@@ -31,7 +31,7 @@ class AuthEndpointsDelete:
         
         # Make sure the endpoint exists
         if not DBAuthEndpoints.objects.filter(uuid=self.endpoint).count():
-            return invalid(self.api.log.error('Could not delete endpoint <%s>, not found in database' % self.endpoint))
+            return invalid(self.api.log.error('Could not delete endpoint [%s], not found in database' % self.endpoint))
         
         # Get the endpoint details
         endpoint_row = DBAuthEndpoints.objects.filter(uuid=self.endpoint).values()[0]
@@ -86,7 +86,7 @@ class AuthEndpointsCreate:
         
         # Make sure the name isn't taken already
         if DBAuthEndpoints.objects.filter(name=ep_name).count():
-            return invalid('The endpoint <%s> already exists, please use a different <path>/<action> combination' % ep_name)
+            return invalid('The endpoint [%s] already exists, please use a different <path>/<action> combination' % ep_name)
         
         # Try to import the module and make sure it contains the class definition
         mod_status = mod_has_class(ep_mod, ep_class)
@@ -150,7 +150,7 @@ class AuthEndpointsSave:
 
         # Make sure the endpoint exists
         if not DBAuthEndpoints.objects.filter(uuid=self.endpoint).count():
-            return invalid(self.api.log.error('Could not save endpoint <%s>, not found in database' % self.endpoint))
+            return invalid(self.api.log.error('Could not save endpoint [%s], not found in database' % self.endpoint))
 
         # Validate the endpoint attributes
         #ep_status = self.api.util.AuthEndpointsValidate.launch()
@@ -238,13 +238,13 @@ class AuthEndpointsValidate:
     
         # Make sure the path and action strings are valid
         if not re.match(r'^[a-z0-9][a-z0-9\/]*[a-z0-9]$', path):
-            return invalid('Failed to validate endpoint <%s>, invalid <path> value: %s' % (self.endpoint, path))
+            return invalid('Failed to validate endpoint [%s], invalid <path> value: %s' % (self.endpoint, path))
         if not re.match(r'^[a-z]*$', action):
-            return invalid('Failed to validate endpoint <%s>, invalid <action> value: %s' % (self.endpoint, action))
+            return invalid('Failed to validate endpoint [%s], invalid <action> value: %s' % (self.endpoint, action))
     
         # Make sure the method is valid
         if not method in ['GET', 'POST', 'PUT', 'DELETE']:
-            return invalid('Failed to validate endpoint <%s>, invalid <method> value: %s' % (self.endpoint, method))
+            return invalid('Failed to validate endpoint [%s], invalid <method> value: %s' % (self.endpoint, method))
     
         # Make sure the object type is supported
         obj_supported = False if object else True
@@ -253,7 +253,7 @@ class AuthEndpointsValidate:
                 obj_supported = True
                 break
         if not obj_supported:
-            return invalid('Failed to validate endpoint, using unsupported endpoint object type <%s>' % object)
+            return invalid('Failed to validate endpoint, using unsupported endpoint object type [%s]' % object)
     
         # Make sure the request map is valid JSON
         try:
@@ -264,7 +264,7 @@ class AuthEndpointsValidate:
         # Validate the module
         mod_path = mod.replace('.', '/')
         if not os.path.isfile('%s/python/%s.py' % (C_BASE, mod_path)):
-            return invalid('Failed to validate endpoint <%s>, module <%s> not found' % (self.endpoint, mod))
+            return invalid('Failed to validate endpoint [%s], module [%s] not found' % (self.endpoint, mod))
     
         # Validate the class
         mod_status = mod_has_class(mod, cls)
@@ -274,7 +274,7 @@ class AuthEndpointsValidate:
         # Validate external utilities
         for util in utils:
             if not util in endpoint_utils:
-                return invalid('Failed to validate endpoint <%s>, could not locate external utility class <%s>' % (self.endpoint, util))
+                return invalid('Failed to validate endpoint [%s], could not locate external utility class [%s]' % (self.endpoint, util))
     
         # Map object
         self.epattr = {
@@ -299,7 +299,7 @@ class AuthEndpointsValidate:
         
         # Make sure the endpoint exists
         if not DBAuthEndpoints.objects.filter(uuid=self.endpoint).count():
-            return invalid(self.api.log.error('Could not validate endpoint <%s>, not found in database' % self.endpoint))
+            return invalid(self.api.log.error('Could not validate endpoint [%s], not found in database' % self.endpoint))
 
         # Validate the endpoint attributes
         ep_status = self._validate()
@@ -326,17 +326,17 @@ class AuthEndpointsClose:
     
         # Make sure the endpoint exists
         if not DBAuthEndpoints.objects.filter(uuid=self.endpoint).count():
-            return invalid(self.api.log.error('Could not check in endpoint <%s>, not found in database' % self.endpoint))
+            return invalid(self.api.log.error('Could not check in endpoint [%s], not found in database' % self.endpoint))
         
         # Get the endpoint details row
         endpoint_row = DBAuthEndpoints.objects.filter(uuid=self.endpoint).values()[0]
         
         # Check if the endpoint is already checked out
         if endpoint_row['locked'] == False:
-            return invalid(self.api.log.error('Could not check in endpoint <%s>, already checked in' % self.endpoint))
+            return invalid(self.api.log.error('Could not check in endpoint [%s], already checked in' % self.endpoint))
         
         # Unlock the endpoint
-        self.api.log.info('Checked in endpoint <%s> by user <%s>' % (self.endpoint, self.api.user))
+        self.api.log.info('Checked in endpoint [%s] by user [%s]' % (self.endpoint, self.api.user))
         try:
             DBAuthEndpoints.objects.filter(uuid=self.endpoint).update(
                 locked    = False,
@@ -362,11 +362,11 @@ class AuthEndpointsOpen:
         """
         Worker method to open the endpoint for editing.
         """
-        self.api.log.info('Preparing to checkout endpoint <%s> for editing' % self.endpoint)
+        self.api.log.info('Preparing to checkout endpoint [%s] for editing' % self.endpoint)
     
         # Make sure the endpoint exists
         if not DBAuthEndpoints.objects.filter(uuid=self.endpoint).count():
-            return invalid(self.api.log.error('Could not open endpoint <%s> for editing, not found in database' % self.endpoint))
+            return invalid(self.api.log.error('Could not open endpoint [%s] for editing, not found in database' % self.endpoint))
         
         # Get the endpoint details row
         endpoint_row = DBAuthEndpoints.objects.filter(uuid=self.endpoint).values()[0]
@@ -380,7 +380,7 @@ class AuthEndpointsOpen:
                 self.api.log.info('Endpoint checkout request OK, requestor \'%s\' is the same as the locking user \'%s\'' % (self.api.user, endpoint_row['locked_by']))
                 return valid('Endpoint already checked out by the current user')
             else:
-                return invalid(self.api.log.error('Could not open endpoint <%s> for editing, already checked out by %s' % (self.endpoint, formula_row['locked_by'])))
+                return invalid(self.api.log.error('Could not open endpoint [%s] for editing, already checked out by %s' % (self.endpoint, formula_row['locked_by'])))
     
         # Set the locking user
         locked_by = self.api.user
@@ -417,7 +417,7 @@ class AuthEndpointsGet:
                 
                 # If the endpoint doesn't exist
                 if not DBAuthEndpoints.objects.filter(uuid=self.api.data['uuid']).count():
-                    return invalid('Endpoint <%s> does not exist' % self.api.data['uuid'])
+                    return invalid('Endpoint [%s] does not exist' % self.api.data['uuid'])
                 return valid(json.dumps(DBAuthEndpoints.objects.filter(uuid=self.api.data['uuid']).values()[0]))
                 
             # Return all endpoints
@@ -443,7 +443,7 @@ class AuthACLObjectsDelete:
         
         # If the ACL object doesn't exist
         if not DBAuthACLObjects.objects.filter(type=self.type).count():
-            return invalid('Cannot delete ACL object <%s>, not found in database' % self.type)
+            return invalid('Cannot delete ACL object [%s], not found in database' % self.type)
         self.api.log.info('BLARGLE')
         
         # Get the ACL object definition
@@ -451,7 +451,7 @@ class AuthACLObjectsDelete:
         
         # If the ACL object has any assigned object
         if acl_object['objects']:
-            return invalid('Cannot delete ACL object <%s> definition, contains <%s> child objects' % (self.type, str(len(acl_object['objects']))))
+            return invalid('Cannot delete ACL object [%s] definition, contains [%s] child objects' % (self.type, str(len(acl_object['objects']))))
 
         # Delete the ACL object definition
         try:
@@ -459,7 +459,7 @@ class AuthACLObjectsDelete:
             
         # Critical error when deleting ACL object
         except Exception as e:
-            return invalid(self.api.log.exception('Failed to delete ACL object <%s> definition: %s' % (self.type, str(e))))
+            return invalid(self.api.log.exception('Failed to delete ACL object [%s] definition: %s' % (self.type, str(e))))
 
         # Return the response
         return valid('Successfully deleted ACL object definition', {
@@ -503,7 +503,7 @@ class AuthACLObjectsCreate:
         
         # Make sure the type definition is not already used
         if DBAuthACLObjects.objects.filter(type=self.attr['type']).count():
-            return invalid('Failed to create ACL object type <%s>, already defined' % self.attr['type'])
+            return invalid('Failed to create ACL object type [%s], already defined' % self.attr['type'])
         
         # Check the ACL and object module/class definitions
         for key,status in {
@@ -516,14 +516,14 @@ class AuthACLObjectsCreate:
         # If a default ACL UUID is supplied
         if ('def_acl' in self.api.data):
             if not DBAuthACLKeys.objects.filter(uuid=self.attr['def_acl']).count():
-                return invalid('Failed to create ACL object type <%s>, default ACL <%s> not found' % (self.attr['type'], self.attr['def_acl']))
+                return invalid('Failed to create ACL object type [%s], default ACL [%s] not found' % (self.attr['type'], self.attr['def_acl']))
         
             # Get the default ACL object
             self.attr['def_acl'] = DBAuthACLKeys.objects.get(uuid=self.api.data['def_acl'])
             
             # Make sure the ACL has object type authentication enabled
             if not self.attr['def_acl']['type_object']:
-                return invalid('Failed to create ACL object type <%s>, default ACL <%s> must have object authentication enabled' % (self.attr['type'], self.attr['def_acl']['uuid']))
+                return invalid('Failed to create ACL object type [%s], default ACL [%s] must have object authentication enabled' % (self.attr['type'], self.attr['def_acl']['uuid']))
         
         # Create the ACL object definition
         try:
@@ -531,7 +531,7 @@ class AuthACLObjectsCreate:
             
         # Critical error when saving ACL object definition
         except Exception as e:
-            return invalid(self.api.log.exception('Failed to create ACL object type <%s>: %s' % (self.attr['type'], str(e))))
+            return invalid(self.api.log.exception('Failed to create ACL object type [%s]: %s' % (self.attr['type'], str(e))))
         
         # Return the response
         return valid('Successfully created ACL object definition', {
@@ -556,7 +556,7 @@ class AuthACLObjectsUpdate:
         
         # Make sure the object definition exists
         if not DBAuthACLObjects.objects.filter(type=self.type).count():
-            return invalid('Failed to update ACL object, type definition <%s> not found' % self.type)
+            return invalid('Failed to update ACL object, type definition [%s] not found' % self.type)
         
         # Get the existing ACL object definition
         acl_obj = DBAuthACLObjects.objects.filter(type=self.type).values()[0]
@@ -585,14 +585,14 @@ class AuthACLObjectsUpdate:
             
             # Make sure the default ACL exists
             if not DBAuthACLKeys.objects.filter(uuid=self.api.data['def_acl']).count():
-                return invalid('Failed to update ACL object type <%s>, default ACL <%s> not found' % (self.type, self.api.data['def_acl']))
+                return invalid('Failed to update ACL object type [%s], default ACL [%s] not found' % (self.type, self.api.data['def_acl']))
         
             # Get the default ACL object
             def_acl = DBAuthACLKeys.objects.get(uuid=self.api.data['def_acl'])
             
             # Make sure the ACL has object type authentication enabled
             if not def_acl.type_object:
-                return invalid('Failed to update ACL object type <%s>, default ACL <%s> must have object authentication enabled' % (self.type, def_acl.uuid))
+                return invalid('Failed to update ACL object type [%s], default ACL [%s] must have object authentication enabled' % (self.type, def_acl.uuid))
         
             # Clear the UUID string from the API data
             del self.api.data['def_acl']
@@ -641,7 +641,7 @@ class AuthACLObjectsGet:
             
             # Make sure the object type exists
             if not object_details:
-                return invalid('Could not locate ACL object of type <%s> in the database' % self.type)
+                return invalid('Could not locate ACL object of type [%s] in the database' % self.type)
             
             # Return the ACL object
             return valid(object_details[0])
@@ -669,7 +669,7 @@ class AuthACLUpdate:
         
         # Make sure the ACL exists
         if not DBAuthACLKeys.objects.filter(uuid=self.acl).count():
-            return invalid('Failed to update ACL <%s>, not found in database' % self.acl)
+            return invalid('Failed to update ACL [%s], not found in database' % self.acl)
         
         # Get the ACL details
         acl_row  = DBAuthACLKeys.objects.filter(uuid=self.acl).values()[0]
@@ -690,9 +690,9 @@ class AuthACLUpdate:
                 type_global = acl_global,
                 type_host   = acl_host                                         
             )
-            self.api.log.info('Updated properties for ACL <%s>' % self.acl)
+            self.api.log.info('Updated properties for ACL [%s]' % self.acl)
         except Exception as e:
-            return invalid(self.api.log.exception('Failed to update details for ACL <%s>: %s' % (self.acl, str(e))))
+            return invalid(self.api.log.exception('Failed to update details for ACL [%s]: %s' % (self.acl, str(e))))
         
         # If updating ACL endpoints
         if 'endpoints' in self.api.data:
@@ -716,7 +716,7 @@ class AuthACLUpdate:
             
             # Update ACL endpoints
             for acl_type, acl_ep in endpoints.iteritems():
-                self.api.log.info('Updating access type <%s> for ACL <%s>' % (acl_type, self.acl))
+                self.api.log.info('Updating access type [%s] for ACL [%s]' % (acl_type, self.acl))
                 try:
                     
                     # Global
@@ -762,11 +762,11 @@ class AuthACLUpdate:
                             ep_obj.save()
                     
                     # All endpoints updated
-                    self.api.log.info('Updated all endpoints for ACL <%s>' % self.acl)
+                    self.api.log.info('Updated all endpoints for ACL [%s]' % self.acl)
                     
                 # Failed to update endpoints
                 except Exception as e:
-                    return invalid(self.api.log.exception('Failed to update <%s> endpoints for ACL <%s>: %s' % (acl_type, self.acl, str(e))))
+                    return invalid(self.api.log.exception('Failed to update [%s] endpoints for ACL [%s]: %s' % (acl_type, self.acl, str(e))))
         
         # ACL updated
         return valid('Succesfully updated ACL')
@@ -788,12 +788,12 @@ class AuthACLDelete:
         
         # Make sure the ACL exists
         if not DBAuthACLKeys.objects.filter(uuid=self.acl).count():
-            return invalid('Failed to delete ACL <%s>, not found in database' % self.acl)
+            return invalid('Failed to delete ACL [%s], not found in database' % self.acl)
         
         # Delete the ACL definition
         try:
             DBAuthACLKeys.objects.filter(uuid=self.acl).delete()
-            self.api.log.info('Deleted ACL definition <%s>' % self.acl)
+            self.api.log.info('Deleted ACL definition [%s]' % self.acl)
             
             # ACL deleted
             return valid('Successfully deleted ACL', {
@@ -802,7 +802,7 @@ class AuthACLDelete:
             
         # Failed to delete ACL
         except Exception as e:
-            return invalid(self.api.log.exception('Failed to delete ACL <%s>: %s' % (self.acl, str(e))))
+            return invalid(self.api.log.exception('Failed to delete ACL [%s]: %s' % (self.acl, str(e))))
         
 class AuthACLCreate:
     """
@@ -825,11 +825,9 @@ class AuthACLCreate:
         acl_type = self.api.data['type']
         acl_eps  = self.api.data['endpoints']
         
-        self.api.log.info('ACL_DATA: %s' % self.api.data)
-        
         # Make sure the ACL doesn't exist
         if DBAuthACLKeys.objects.filter(name=acl_name).count():
-            return invalid('ACL <%s> is already defined' % acl_name)
+            return invalid('ACL [%s] is already defined' % acl_name)
 
         # Create the ACL key entry
         try:
@@ -860,7 +858,7 @@ class AuthACLGet:
         self.api = parent
         
         # Target ACL definition
-        self.acl = None if not ('uuid' in self.api.data) else self.api.data['uuid']
+        self.acl = self.api.acl.target_object()
 
     def launch(self):
         """
@@ -878,7 +876,7 @@ class AuthACLGet:
                 
                 # If the ACL definition doesn't exist
                 if not acl_definition:
-                    return invalid('Could not locate ACL <%s> in the database' % self.acl)
+                    return invalid('Could not locate ACL [%s] in the database' % self.acl)
                 
                 # Return the ACL definition
                 return valid(json.dumps(acl_definition[0]))
@@ -905,11 +903,11 @@ class AuthRequest:
         """
         
         # Get the API token
-        api_token = APIToken().get(id=self.api.request.body['api_user'])
+        api_token = APIToken().get(id=self.api.request.user)
         
         # Handle token retrieval errors
         if api_token == False:
-            return invalid(self.api_log.error('Error retreiving API token for user <%s>' % self.api.request.body['api_user']))
+            return invalid(self.api.log.error('Error retreiving API token for user [%s]' % self.api.request.user))
         else:
             
             # Return the API token

@@ -9,7 +9,6 @@ from cloudscape.common import logger
 from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.engine.api.app.user.models import DBUserAPITokens, DBUser
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPITokens
-from cloudscape.common.vars import HTTP_API_USER, HTTP_API_KEY, HTTP_API_TOKEN, HTTP_API_GROUP
 
 class APIToken(object):
     """
@@ -111,19 +110,19 @@ class APIToken(object):
         self.log.info('Retrieved token for API ID [%s]: %s' % (id, api_token['content']))
         return api_token['content']
     
-    def validate(self, headers):
+    def validate(self, request):
         """
         Validate the API token in a request from either a user or host account.
         """
         
         # Missing API user and/or API token
-        if not (HTTP_API_USER in headers) or not (HTTP_API_TOKEN in headers):
+        if not hasattr(request, 'api_user') or not hasattr(request, 'api_token'):
             self.log.error('Missing required token validation headers [api_user] and/or [api_token]')
             return False
-        self.log.info('Validating API token for ID [%s]: %s' % (headers[HTTP_API_USER], headers[HTTP_API_TOKEN]))
+        self.log.info('Validating API token for ID [%s]: %s' % (request.user, request.token))
             
         # Get the users API token from the database
-        db_token = self._get_api_token(id=headers[HTTP_API_USER])
+        db_token = self._get_api_token(id=request.user)
 
         # If no API token exists yet
         if not db_token['valid']:
@@ -131,7 +130,7 @@ class APIToken(object):
             return False
 
         # Make sure the token is valid
-        if headers[HTTP_API_TOKEN] != db_token['content']:
-            self.log.error('Client [%s] has submitted an invalid API token' % headers[HTTP_API_USER])
+        if request.token != db_token['content']:
+            self.log.error('Client [%s] has submitted an invalid API token' % request.user)
             return False
         return True

@@ -10,16 +10,16 @@ from django.http import HttpResponse, HttpResponseServerError
 from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.vars import T_BASE
-from cloudscape.common.http import HEADER
 from cloudscape.engine.api.base import APIBase
+from cloudscape.common.http import HEADER, PATH
 from cloudscape.common.utils import JSONTemplate
-from cloudscape.common.errors import JSONError, JSONException
 from cloudscape.engine.api.auth.key import APIKey
-from cloudscape.engine.api.auth.acl import ACLGateway
 from cloudscape.common.utils import valid, invalid
+from cloudscape.engine.api.auth.acl import ACLGateway
 from cloudscape.engine.api.auth.token import APIToken
-from cloudscape.engine.api.app.auth.models import DBAuthEndpoints
 from cloudscape.engine.api.app.user.models import DBUser
+from cloudscape.common.errors import JSONError, JSONException
+from cloudscape.engine.api.app.auth.models import DBAuthUtilities
 
 # Configuration / Logger
 CONF = config.parse()
@@ -37,33 +37,59 @@ def dispatch(request):
     """
     try:
         
-        # Return the response from the endpoint handler
-        return EndpointManager(request).handler()
+        # Return the response from the request manager
+        return RequestManager(request).handler()
     
     # Critical server error
     except Exception as e:
         return JSONException().response()
   
-class EndpointManager:
+class RequestObject(object):
     """
-    The endpoint request manager class. Serves as the entry point for all API request,
+    Extract and construct information from the Django request object.
+    """
+    def __init__(self, request):
+    
+        # Store the raw request object
+        self.RAW         = request
+        
+        # Request data / method / headers / path / client address
+        self.data        = json.loads(self.request.body)
+        self.method      = request.META['REQUEST_METHOD']
+        self.headers     = request.META
+        self.path        = request.META['PATH_INFO'][1:]
+        self.client      = request.META['REMOTE_ADDR']
+    
+        # API authorization attributes
+        self.user        = self.headers.get(HEADER.API_USER)
+        self.group       = self.headers.get(HEADER.API_GROUP)
+        self.key         = self.headers.get(HEADER.API_KEY)
+        self.token       = self.headers.get(HEADER.API_TOKEN)
+    
+    def get_data(self, key, default=None):
+        """
+        Shortcut method for retrieving request data.
+        """
+        return self.data.get(key, default)
+    
+    @staticmethod
+    def construct(request):
+        return RequestObject(request)
+  
+class RequestManager:
+    """
+    The API request manager class. Serves as the entry point for all API request,
     both for authentication requests, and already authenticated requests. Constructs
     the base API class, loads API utilities, and performs a number of other functions
     to prepare the API for the incoming request.
     
-    The EndpointManager class is instantiated by the dispatch method, which is called
+    The RequestManager class is instantiated by the dispatch method, which is called
     by the Django URLs module file. It is initialized with the Django request object.
     """
     def __init__(self, request):
         
-        # Store the request object
-        self.request     = request
-        
-        # Request properties
-        self.body        = json.loads(self.request.body)
-        self.method      = self.request.META['REQUEST_METHOD']
-        self.headers     = self.request.META
-        self.endpoint    = self.headers['PATH_INFO'][1:]
+        # Construct a request object
+        self.request     = RequestObject.construct(request)
     
         # Request endpoint handler
         self.handler_obj = None
@@ -72,8 +98,6 @@ class EndpointManager:
         self.api_name    = None
         self.api_mod     = None
         self.api_class   = None
-        self.api_user    = self.headers.get(HEADER.API_USER)
-        self.api_group   = self.headers.get(HEADER.API_GROUP)
     
         # API base object
         self.api_base    = None
@@ -84,46 +108,46 @@ class EndpointManager:
         """
         
         # Log the user and group attempting to authenticate
-        LOG.info('Authenticating API user: %s, group=%s' % (self.api_user, repr(self.api_group)))
+        LOG.info('Authenticating API user: %s, group=%s' % (self.request.user, repr(self.request.group)))
         
         # Authenticate key for token requests
-        if self.endpoint == 'auth/get':
-            auth_status = APIKey().validate(self.headers)
+        if self.request.path == PATH.GET_TOKEN:
+            auth_status = APIKey().validate(self.request)
             
             # API key authentication failed
             if not auth_status['valid']:
                 return JSONError(error='Invalid API key', status=401).response()
             
             # API key authentication successfull
-            LOG.info('API key authentication successfull for user: %s' % self.api_user)
+            LOG.info('API key authentication successfull for user: %s' % self.request.user)
             
         # Authenticate token for API requests
         else:
             
             # Invalid API token
-            if not APIToken().validate(self.headers):
+            if not APIToken().validate(self.request):
                 return JSONError(error='Invalid API token', status=401).response()
             
             # API token looks good
-            LOG.info('API token authentication successfull for user: %s' % self.api_user)
+            LOG.info('API token authentication successfull for user: %s' % self.request.user)
     
         # Check for a user account
-        if DBUser.objects.filter(username=self.api_user).count():
+        if DBUser.objects.filter(username=self.request.user).count():
             
             # If no API group was supplied
-            if not self.api_group:
+            if not self.request.group:
                 return JSONError(error='Must submit a group UUID using the [api_group] parameter', status=401).response()
             
             # Make sure the group exists and the user is a member
             is_member = False
-            for group in DBUser.objects.filter(username=self.api_user).values()[0]['groups']:
-                if group['uuid'] == self.api_group:
+            for group in DBUser.objects.filter(username=self.request.user).values()[0]['groups']:
+                if group['uuid'] == self.request.group:
                     is_member = True
                     break
             
             # If the user is not a member of the group
             if not is_member:
-                return JSONError(error='API user [%s] is not a member of group [%s]' % (self.api_user, self.api_group), status=401).response()
+                return JSONError(error='API user [%s] is not a member of group [%s]' % (self.request.user, self.request.group), status=401).response()
     
     def _validate(self):
         """
@@ -131,12 +155,12 @@ class EndpointManager:
         """
     
         # Map the path to a module, class, and API name
-        self.handler_obj = EndpointMapper(self.endpoint, self.method).handler()
+        self.handler_obj = UtilityMapper(self.request.path, self.request.method).handler()
         if not self.handler_obj['valid']:
             return self.handler_obj['content']
     
-        # Validate the request body
-        request_err  = JSONTemplate(self.handler_obj['content']['api_map']).validate(self.request)
+        # Validate the request data
+        request_err  = JSONTemplate(self.handler_obj['content']['api_map']).validate(self.request.data)
         if request_err:
             return JSONError(error=request_err, status=400).response()
     
@@ -148,15 +172,7 @@ class EndpointManager:
     
     def handler(self):
         """
-        The endpoint manager request handler. Performs a number of validation steps before
-        passing off the request to the API utility class.
-        
-        1.) Looks for the base required request parameters
-        2.) Maps the endpoint and request action to an API utility and validates the request body
-        3.) Authenticates the user and API key/token
-        4.) Initializes any required Socket.IO connections for web clients
-        5.) Launches the API utility class to process the request
-        6.) Returns either an HTTP response with the status of the request
+        Worker method for processing the incoming API request.
         """
         
         # Validate the request
@@ -180,7 +196,7 @@ class EndpointManager:
             return JSONException().response()
         
         # Check the request against ACLs
-        acl_gateway = ACLGateway(self.request, self.endpoint, self.api_user)
+        acl_gateway = ACLGateway(self.request)
         
         # If the user is not authorized for this endpoint/object combination
         if not acl_gateway.authorized:
@@ -192,10 +208,10 @@ class EndpointManager:
             # Create an instance of the APIBase and run the constructor
             api_obj = APIBase(
                 name     = self.api_name, 
-                endpoint = self.endpoint, 
+                request  = self.request, 
                 utils    = self.api_utils,
                 acl      = acl_gateway
-            ).construct(self.request)
+            ).construct()
             
             # Make sure the construct ran successfully
             if not api_obj['valid']:
@@ -229,25 +245,22 @@ class EndpointManager:
             return self.api_base.log.success(response['content'], response['data'])
         return self.api_base.log.error(status=response['code'], log_msg=response['content'])
     
-class EndpointMapper:
+class UtilityMapper:
     """
-    API class used to construct the endpoint map. Scans the endpoint request templates
-    in the API templates directory to construct a map used to load required utilities
-    and modules, as well as validate the request for each endpoint. Each map also contains
-    ACL parameters used when constructing the ACL database tables.
+    Map a request path to an API utility. Loads the utility request details and map.
     """
-    def __init__(self, endpoint=None, method=None):
+    def __init__(self, path=None, method=None):
         """
-        Construct the EndpointMapper class.
+        Construct the UtilityMapper class.
         
-        @param endpoint: The endpoint path
-        @type  endpoint: str
-        @param method:   The request method
-        @type  method:   str
+        @param path:   The request path
+        @type  path:   str
+        @param method: The request method
+        @type  method: str
         """
-        self.endpoint = endpoint
-        self.method   = method
-        self.map      = {}
+        self.path   = path
+        self.method = method
+        self.map    = {}
         
     def _merge_socket(self,j):
         """
@@ -268,44 +281,44 @@ class EndpointMapper:
         
     def _build_map(self):
         """
-        Load all endpoint definitions.
+        Load all utility definitions.
         """
-        for endpoint in list(DBAuthEndpoints.objects.all().values()):
+        for utility in list(DBAuthUtilities.objects.all().values()):
             
             # Try to load the request map
             try:
-                endpoint_rmap = json.loads(endpoint['rmap'])
+                util_rmap = json.loads(utility['rmap'])
             
                 # Map base object
                 rmap_base = {
-                    'root': endpoint_rmap
+                    'root': util_rmap
                 }
                 
                 # Merge the web socket request validator
                 self._merge_socket(rmap_base)
             
                 # Load the endpoint request handler module string
-                self.map[endpoint['name']] = {
-                    'module': endpoint['mod'],
-                    'class':  endpoint['cls'],
-                    'name':   endpoint['name'],
-                    'desc':   endpoint['desc'],
-                    'method': endpoint['method'],
-                    'utils':  None if not endpoint['utils'] else json.loads(endpoint['utils']),
+                self.map[utility['name']] = {
+                    'module': utility['mod'],
+                    'class':  utility['cls'],
+                    'name':   utility['name'],
+                    'desc':   utility['desc'],
+                    'method': utility['method'],
+                    'utils':  None if not utility['utils'] else json.loads(utility['utils']),
                     'json':   rmap_base
                 }
             
-            # Error constructing request map, skip to next endpoint map
+            # Error constructing request map, skip to next utility map
             except Exception as e:
-                LOG.exception('Failed to load request map for endpoint [%s]: %s ' % (endpoint['name'], str(e)))
+                LOG.exception('Failed to load request map for utility [%s]: %s ' % (utility['name'], str(e)))
                 continue
                     
         # All template maps constructed
-        return valid(LOG.info('Constructed API template map'))
+        return valid(LOG.info('Constructed API utility maps'))
         
     def handler(self):
         """
-        Main method for constructing and returning the endpoint map.
+        Main method for constructing and returning the utility map.
         
         @return valid|invalid
         """
@@ -313,27 +326,27 @@ class EndpointMapper:
         if not map_rsp['valid']:
             return map_rsp
         
-        # Request endpoint missing
-        if not self.endpoint:
-            return invalid(JSONError(error='Missing request endpoint', status=400).response())
+        # Request path missing
+        if not self.path:
+            return invalid(JSONError(error='Missing request path', status=400).response())
         
         # Invalid request path
-        if not self.endpoint in self.map:
-            return invalid(JSONError(error='Unsupported request endpoint: [%s]' % self.endpoint, status=400).response())
+        if not self.path in self.map:
+            return invalid(JSONError(error='Unsupported request path: [%s]' % self.path, status=400).response())
         
         # Verify the request method
-        if self.method != self.map[self.endpoint]['method']:
-            return invalid(JSONError(error='Unsupported request method [%s] for endpoint [%s]' % (self.method, self.endpoint), status=400).response())
+        if self.method != self.map[self.path]['method']:
+            return invalid(JSONError(error='Unsupported request method [%s] for path [%s]' % (self.method, self.path), status=400).response())
         
         # Get the API module, class handler, and name
         self.handler_obj = {
-            'api_mod':   self.map[self.endpoint]['module'],
-            'api_class': self.map[self.endpoint]['class'],
-            'api_name':  self.map[self.endpoint]['name'],
-            'api_utils': self.map[self.endpoint]['utils'],
-            'api_map':   self.map[self.endpoint]['json']
+            'api_mod':   self.map[self.path]['module'],
+            'api_class': self.map[self.path]['class'],
+            'api_name':  self.map[self.path]['name'],
+            'api_utils': self.map[self.path]['utils'],
+            'api_map':   self.map[self.path]['json']
         }
-        LOG.info('Parsed handler object for API endpoint [%s]: %s' % (self.endpoint, self.handler_obj))
+        LOG.info('Parsed handler object for API utility [%s]: %s' % (self.path, self.handler_obj))
         
         # Return the handler module path
         return valid(self.handler_obj)

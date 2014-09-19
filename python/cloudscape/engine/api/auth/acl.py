@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
+from cloudscape.common.http import HEADER, PATH
 from cloudscape.common.utils import invalid, valid
 from cloudscape.common.vars import T_USER, T_HOST
 from cloudscape.common.collection import Collection
@@ -14,8 +15,8 @@ from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
 from cloudscape.engine.api.app.host.models import DBHostDetails
-from cloudscape.engine.api.app.auth.models import DBAuthACLEndpointsHost, DBAuthACLEndpointsGlobal, \
-                                                  DBAuthACLEndpointsObject, DBAuthEndpoints, DBAuthACLKeys, \
+from cloudscape.engine.api.app.auth.models import DBAuthACLAccessHost, DBAuthACLAccessGlobal, \
+                                                  DBAuthACLAccessObject, DBAuthUtilities, DBAuthACLKeys, \
                                                   DBAuthACLObjects
               
 # Configuration / Logger / Objects Manager
@@ -33,12 +34,12 @@ class ACLAuthObjects(object):
     """
     Parent class used to construct a list of objects that a user is authorized to access.
     """
-    def __init__(self, user, type, endpoint):
+    def __init__(self, user, type, path):
         
-        # ACL user object / object type / object endpoint / cache manager
+        # ACL user object / object type / object utility / cache manager
         self.user      = user
         self.type      = type
-        self.endpoint  = ACLEndpoint(endpoint).get()
+        self.utility   = ACLUtility(path).get()
         
         # Object accessor
         self.obj_def   = get_obj_def(type)
@@ -71,29 +72,29 @@ class ACLAuthObjects(object):
         
     def _check_global_access(self, global_acls):
         """
-        Determine if the user has global access to the endpoint.
+        Determine if the user has global access to the utility.
         """
         for global_acl in global_acls:
             
             # If access is explicitly denied, try another ACL
             if not global_acl['allowed'] == 'yes': continue
             
-            # Get all supported global endpoints for this ACL
-            global_endpoints = [x['endpoint_id'] for x in list(DBAuthACLEndpointsGlobal.objects.filter(acl=global_acl['uuid']).values())]
+            # Get all supported global utilities for this ACL
+            global_utilities = [x['utility_id'] for x in list(DBAuthACLAccessGlobal.objects.filter(acl=global_acl['uuid']).values())]
             
-            # If the ACL supports the target endpoint
-            if self.endpoint.uuid in global_endpoints:
+            # If the ACL supports the target utility
+            if self.utility.uuid in global_utilities:
                 
                 # Merge the object list
                 self._merge_objects(OBJECTS.get(self.type, filters=self.filters))
         
     def _check_object_access(self, object_acls, group):
         """
-        Determine if the user has access to specific objects in the endpoint.
+        Determine if the user has access to specific objects in the utility.
         """
         
-        # No endpoint object association
-        if not self.endpoint.obj['object']:
+        # No utility object association
+        if not self.utility.obj['object']:
             return
         
         # Create an instance of the ACL authorization class
@@ -127,38 +128,25 @@ class ACLAuthObjects(object):
         # Process each group the user is a member of
         for group, acl in self.user.acls.iteritems():
         
-            # Check for global access to the endpoint
+            # Check for global access to the utility
             self._check_global_access(acl['global'])
         
-            # Check for object level access to the endpoint
+            # Check for object level access to the utility
             self._check_object_access(acl['object'], group)
         
         # Return the authorized objects
         return self
-       
-class ACLRequest(object):
-    """
-    Parent class used to construct the ACL attributes for the initial request. This includes
-    request data, and any keys needed to extract information for targeting an object.
-    """
-    def __init__(self, request):
-        
-        # Request data
-        self.data = None if not ('_data' in request) else request['_data']
-    
-    def get(self):
-        return self
          
-class ACLEndpoint(object):
+class ACLUtility(object):
     """
-    Parent class used to construct the ACL attributes for a specific endpoint. This includes
-    retrieving the endpoint UUID, and any ACLs that provide access to this specific enpoint.
+    Parent class used to construct the ACL attributes for a specific utility. This includes
+    retrieving the utility UUID, and any ACLs that provide access to this specific utility.
     """
-    def __init__(self, endpoint):
+    def __init__(self, path):
         
-        # Endpoint name / UUID / object
-        self.name   = endpoint
-        self.obj    = DBAuthEndpoints.objects.filter(name=self.name).values()[0]
+        # Utility name / UUID / object
+        self.name   = path
+        self.obj    = DBAuthUtilites.objects.filter(name=self.name).values()[0]
         self.uuid   = self.obj['uuid']
         
     def get(self): 
@@ -193,7 +181,7 @@ class ACLUser(object):
         
         # Host account
         if self.type == T_HOST:
-            acls = list(DBAuthACLEndpointsHost.objects.all().values())
+            acls = list(DBAuthACLAccessHost.objects.all().values())
         
         # User account
         else:
@@ -233,12 +221,12 @@ class ACLGateway(object):
     ACL gateway class used to handle permissions for API requests prior to loading
     any API utilities. Used after key/token authorization.
     """
-    def __init__(self, request, endpoint, user):
+    def __init__(self, request):
         
-        # Base request / endpoint / API user
-        self.request       = ACLRequest(request).get()
-        self.endpoint      = ACLEndpoint(endpoint).get()
-        self.user          = ACLUser(user).get()
+        # Request object
+        self.request       = request
+        self.utility       = ACLUtility(self.request.path).get()
+        self.user          = ACLUser(self.request.user).get()
         
         # Accessible objects / object key
         self.obj_list      = []
@@ -264,56 +252,56 @@ class ACLGateway(object):
   
     def _check_host_access(self):
         """
-        Check if the managed host has access to the endpoint.
+        Check if the managed host has access to the utility.
         """
         for acl in self.user.acls:
             
-            # Get all supported host endpoints for the ACL
-            acl_endpoints = [x['endpoint_id'] for x in list(DBAuthACLEndpointsHost.objects.filter(acl=acl['acl_id']).values())]
+            # Get all supported host utilities for the ACL
+            acl_access = [x['utility_id'] for x in list(DBAuthACLAccessHost.objects.filter(acl=acl['acl_id']).values())]
             
-            # If the ACL supports the target endpoint
-            if self.endpoint.uuid in acl_endpoints:
+            # If the ACL supports the target utility
+            if self.utility.uuid in acl_access:
                 return valid()
         
         # Access denied
-        return invalid('Access denied to endpoint [%s]' % self.endpoint.name)
+        return invalid('Access denied to utility [%s]' % self.utility.name)
         
     def _check_global_access(self, global_acls):
         """
-        Determine if the user has global access to the endpoint.
+        Determine if the user has global access to the utility.
         """
         for global_acl in global_acls:
             
             # If access is explicitly denied, try another ACL
             if not global_acl['allowed'] == 'yes': continue
             
-            # Get all supported global endpoints for this ACL
-            global_endpoints = [x['endpoint_id'] for x in list(DBAuthACLEndpointsGlobal.objects.filter(acl=global_acl['uuid']).values())]
+            # Get all globally accessible utilities for this ACL
+            global_access = [x['utility_id'] for x in list(DBAuthACLAccessGlobal.objects.filter(acl=global_acl['uuid']).values())]
             
-            # If the ACL supports the target endpoint
-            if self.endpoint.uuid in global_endpoints:
-                return valid(LOG.info('Global access granted for user [%s] to endpoint [%s]' % (self.user.name, self.endpoint.name)))
+            # If the ACL supports the target utility
+            if self.utility.uuid in global_access:
+                return valid(LOG.info('Global access granted for user [%s] to utility [%s]' % (self.user.name, self.utility.name)))
         
         # Global access denied
-        return invalid('Global access denied for user [%s] to endpoint [%s]' % (self.user.name, self.endpoint.name))
+        return invalid('Global access denied for user [%s] to utility [%s]' % (self.user.name, self.utility.name))
     
     def _check_object_access(self, object_acls, group):
         """
-        Determine if the user has object level access to the endpoint.
+        Determine if the user has object level access to the utility.
         """
         
-        # Make sure the endpoint has an object type association
-        if not self.endpoint.obj['object']:
+        # Make sure the utility has an object type association
+        if not self.utility.obj['object']:
             return invalid('')
-        object_type = self.endpoint.obj['object']
+        object_type = self.utility.obj['object']
         
         # Get the object authorization class
         obj_def   = get_obj_def(object_type)
         acl_mod   = importlib.import_module(obj_def['acl_mod'])
         acl_class = getattr(acl_mod, obj_def['acl_cls'])
             
-        # Endpoint object key and target object value
-        self.obj_key = self.endpoint.obj['object_key']
+        # Utility object key and target object value
+        self.obj_key = self.utility.obj['object_key']
         
         # Specific object key found
         if (self.request.data) and (self.obj_key in self.request.data):
@@ -331,10 +319,10 @@ class ACLGateway(object):
             
                 # Check if the user has access to this object
                 if acl_class.objects.filter(**filter).count():
-                    return valid(LOG.info('Object level access granted for user [%s] to endpoint [%s] for object [%s:%s]' % (self.user.name, self.endpoint.name, self.endpoint.obj['object'], tgt_obj)))
+                    return valid(LOG.info('Object level access granted for user [%s] to utility [%s] for object [%s:%s]' % (self.user.name, self.utility.name, self.utility.obj['object'], tgt_obj)))
         
             # Access denied
-            return invalid(' for object <%s:%s>' % (self.endpoint.obj['object'], tgt_obj))
+            return invalid(' for object <%s:%s>' % (self.utility.obj['object'], tgt_obj))
         
         # User not accessing a specific object
         else:
@@ -343,7 +331,7 @@ class ACLGateway(object):
     def _check_access(self):
         """
         Make sure the user has access to the selected resource. Not sure how I want to handle a user 
-        having multiple ACLs that provided access to the same endpoint. This raises the question on 
+        having multiple ACLs that provided access to the same utility. This raises the question on 
         what to do if one ACL is allowed, and another is disabled. I can either explicitly deny access 
         if any ACL is found with a disabled flag, or just skip the ACL and look for an enabled one. 
         For now I am going to do the latter.
@@ -392,7 +380,7 @@ class ACLGateway(object):
             
             # Access denied
             else:
-                err_msg = 'Access denied to endpoint [%s]%s' % (self.endpoint.name, obj_error)
+                err_msg = 'Access denied to utility [%s]%s' % (self.utility.name, obj_error)
                 
                 # Log the error message
                 LOG.error(err_msg)
@@ -403,26 +391,26 @@ class ACLGateway(object):
     def _authorize(self):
         """
         Worker method used to make sure the API user has the appropriate permissions
-        required to access the endpoint.
+        required to access the utility.
         """
         
         # Permit access to <auth/get> for all API users with a valid API key
-        if self.endpoint.name == 'auth/get':
+        if self.utility.name == PATH.GET_TOKEN:
             return self._set_authorization(True)
             
         # Log the initial ACL authorization request
-        LOG.info('Running ACL gateway validation: endpoint=%s, %s=%s' % (self.endpoint.name, self.user.type, self.user.name))
+        LOG.info('Running ACL gateway validation: utility=%s, %s=%s' % (self.utility.name, self.user.type, self.user.name))
         
         # If the user is not a member of any groups (and not a host account type)
         if not self.user.groups and self.user.type == T_USER:
-            return self._set_authorization(False, LOG.error('User [%s] is not a member of any groups, membership required for endpoint authorization' % (self.user.name)))
+            return self._set_authorization(False, LOG.error('User [%s] is not a member of any groups, membership required for utility authorization' % (self.user.name)))
         
         # Check if the account has access
         try:
             access_status = self._check_access()
             if not access_status['valid']:
                 return self._set_authorization(False, access_status['content'])
-            LOG.info('ACL gateway authorization success: %s=%s, endpoint=%s' % (self.user.type, self.user.name, self.endpoint.name))
+            LOG.info('ACL gateway authorization success: %s=%s, utility=%s' % (self.user.type, self.user.name, self.utility.name))
             
             # Account has access
             return self._set_authorization(True)
@@ -439,14 +427,14 @@ class ACLGateway(object):
             return None if not (self.obj_key in self.request.data) else self.request.data[self.obj_key]
         return None
         
-    def authorized_objects(self, type, endpoint=None, filter=None):
+    def authorized_objects(self, type, path=None, filter=None):
         """
         Public method used to construct a list of authorized objects of a given type for the 
         API user.
         
         TODO: Need to filter out ACLs when doing the ACL object class to only include ACLs that apply for the
-        current endpoint.
+        current utility.
         """
         
         # Create the authorized objects list
-        return ACLAuthObjects(self.user, type, (endpoint if endpoint else self.endpoint.name)).get(filter)
+        return ACLAuthObjects(self.user, type, (path if path else self.utility.name)).get(filter)

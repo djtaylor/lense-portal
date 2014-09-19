@@ -78,6 +78,7 @@ class RequestObject(object):
         # GET request
         if self.method == 'GET':
             data = {}
+            LOG.info('QUERY_STRING: %s' % str(self.RAW.META['QUERY_STRING']))
             for query_pair in self.RAW.META['QUERY_STRING'].split('&'):
                 if '=' in query_pair:
                     query_set = query_pair.split('=')

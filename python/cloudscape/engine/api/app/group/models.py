@@ -9,7 +9,7 @@ from django.db import models
 from cloudscape.engine.api.app.formula.models import DBFormulaDetails
 from cloudscape.engine.api.objects.acl import ACLObjects
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostGroups, DBHostDKeys
-from cloudscape.engine.api.app.auth.models import DBAuthACLGroupGlobalPermissions, DBAuthACLEndpointsGlobal, \
+from cloudscape.engine.api.app.auth.models import DBAuthACLGroupGlobalPermissions, \
                                                   DBAuthACLGroupObjectHostPermissions, DBAuthACLGroupObjectFormulaPermissions, \
                                                   DBAuthACLGroupObjectHostGroupPermissions, DBAuthACLKeys, \
                                                   DBAuthACLGroupObjectDkeyPermissions, DBAuthACLGroupObjectUserPermissions, \

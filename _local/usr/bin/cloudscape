@@ -61,7 +61,7 @@ class CLIClient(object):
         """
         Establish an API connection using the client libraries.
         """
-        self.client, self.connect = APIConnect(user=self.api['user'], group=self.api['group'], api_key=self.api['key']).construct()
+        self.client, self.connect = APIConnect(user=self.api['user'], group=self.api['group'], api_key=self.api['key'], cli=True).construct()
     
         # If token retrieval/connection failed
         if not self.client:

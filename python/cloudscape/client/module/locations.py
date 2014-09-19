@@ -1,15 +1,30 @@
 class LocationsAPI:
+    """
+    Class wrapper for requests to the location utilities.
+    """
     def __init__(self, parent):
         self.parent = parent
        
-    def get_datacenters(self, data=None):
-        return self.parent._get(data=data, action='get', path='locations/datacenters')
+    def get_datacenter(self, data=None):
+        """
+        Get datacenter details.
+        """
+        return self.parent._get('locations/datacenters/get', data=data)
     
-    def update_datacenters(self, data={}):
-        return self.parent._post(data=data, action='update', path='locations/datacenters')
+    def update_datacenter(self, data=None):
+        """
+        Update an existing datacenter.
+        """
+        return self.parent._post('locations/datacenters/update', data=data)
     
-    def create_datacenters(self, data={}):
-        return self.parent._post(data=data, action='create', path='locations/datacenters')
+    def create_datacenter(self, data=None):
+        """
+        Create a new datacenter.
+        """
+        return self.parent._post('locations/datacenters/create', data=data)
     
-    def delete_datacenters(self, data={}):
-        return self.parent._post(data=data, action='delete', path='locations/datacenters')
+    def delete_datacenter(self, data=None):
+        """
+        Delete an existing datacenter.
+        """
+        return self.parent._post('locations/datacenters/delete', data=data)

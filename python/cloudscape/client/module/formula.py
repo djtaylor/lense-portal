@@ -1,72 +1,66 @@
-"""
-CloudScape Formula API Module
-
-API module for handling formula actions which inherits from the APIClient class found
-in the manager module. This module is responsible for submitting formula requests to
-the API server.
-"""
 class FormulaAPI:
+    """
+    Class wrapper for requests to formula utilities.
+    """
     def __init__(self, parent):
         self.parent = parent
-        
-    """
-    Create Formula
-    
-    API method to handle request to the server API to create a new formula.
-    """
-    def create(self, data={}):
-        return self.parent._post(data=data, action='create', path='formula')
-    
-    """ Run Service Formula """
-    def run_service(self, data={}):
-        return self.parent._post(data=data, action='service', path='formula/run')
-    
-    """ Run Utility Formula """
-    def run_utility(self, data={}):
-        return self.parent._post(data=data, action='utility', path='formula/run')
-    
-    """ Run Group Formula """
-    def run_group(self, data={}):
-        return self.parent._post(data=data, action='group', path='formula/run')
-    
-    """
-    Get Formula
-    
-    API method to return a JSON object of formula details.
-    """
+
     def get(self, data=None):
-        return self.parent._get(data=data, action='get', path='formula')
+        """
+        Retrieve formula details.
+        """
+        return self.parent._get('formula/get', data=data)
     
-    """
-    Verify Formula
+    def verify(self, data=None):
+        """
+        Formula formula contents.
+        """
+        return self.parent._get('formula/verify', data=data)
+
+    def create(self, data=None):
+        """
+        Create a new formula.
+        """
+        return self.parent._post('formula/create', data=data)
     
-    Verify a formula package by submitting the package UUID, checksum, and
-    host UUID.
-    """
-    def verify(self, data={}):
-        return self.parent._get(data=data, action='verify', path='formula')
+    def delete(self, data=None):
+        """
+        Delete an existing formula.
+        """
+        return self.parent._post('formula/delete', data=data)
     
-    """
-    Register Formula
+    def run_service(self, data=None):
+        """
+        Run a service formula.
+        """
+        return self.parent._post('formula/run/service', data=data)
     
-    Register the run of a formula on the target host after verification and
-    decryption.
-    """
-    def register(self, data={}):
-        return self.parent._post(data=data, action='register', path='formula')
+    def run_utility(self, data=None):
+        """
+        Run a utility formula.
+        """
+        return self.parent._post('formula/run/utility', data=data)
     
-    """ Set Formula Event """
-    def event_set(self, data={}):
-        return self.parent._post(data=data, action='set', path='formula/event')
+    def run_group(self, data=None):
+        """
+        Run a group formula.
+        """
+        return self.parent._post('formula/run/group', data=data)
     
-    """ Wait Formula Event """
-    def event_wait(self, data={}):
-        return self.parent._get(data=data, action='wait', path='formula/event')
+    def register(self, data=None):
+        """
+        Register a formula package run.
+        """
+        return self.parent._post('formula/register', data=data)
     
-    """
-    Delete Formula
+    def event_set(self, data=None):
+        """
+        Set a new formula event.
+        """
+        return self.parent._post('formula/event/set', data=data)
     
-    API method to delete an existing formula in the database.
-    """
-    def delete(self, data={}):
-        return self.parent._post(data=data, action='delete', path='formula')
+    def event_wait(self, data=None):
+        """
+        Wait for a formula event to be set.
+        """
+        return self.parent._get('formula/event/wait', data=data)

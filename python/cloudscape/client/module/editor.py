@@ -1,36 +1,35 @@
-"""
-CloudScape Editor API Module
-"""
 class EditorAPI:
+    """
+    Class wrapper for requests to editor utilities.
+    """
     def __init__(self, parent):
         self.parent = parent
-        
-    """
-    Get Formula Editor Contents
-    """
-    def get(self, data={}):
-        return self.parent._get(data=data, action='get', path='editor')
+    def get(self, data=None):
+        """
+        Get editor formula and template contents.
+        """
+        return self.parent._get('editor/get', data=data)
     
-    """
-    Open Formula Editor
-    """
-    def open(self, data={}):
-        return self.parent._get(data=data, action='open', path='editor')
+    def open(self, data=None):
+        """
+        Open a formula for editing.
+        """
+        return self.parent._get('editor/open', data=data)
     
-    """
-    Close Formula Editor
-    """
-    def close(self, data={}):
-        return self.parent._get(data=data, action='close', path='editor')
+    def close(self, data=None):
+        """
+        Close a formula and release the editing lock.
+        """
+        return self.parent._get('editor/close', data=data)
     
-    """
-    Validate Formula Contents
-    """
-    def validate(self, data={}):
-        return self.parent._post(data=data, action='validate', path='editor')
+    def validate(self, data=None):
+        """
+        Validate formula and template contents.
+        """
+        return self.parent._post('editor/validate', data=data)
     
-    """
-    Save Formula Editor
-    """
-    def save(self, data={}):
-        return self.parent._post(data=data, action='save', path='editor')
+    def save(self, data=None):
+        """
+        Save formula and template contents.
+        """
+        return self.parent._post('editor/save', data=data)

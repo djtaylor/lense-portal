@@ -62,7 +62,7 @@ class APIBase(object):
             # Set the internal attribute
             setattr(self, mod['id'], ep_inst)
 
-    def _get(self, path, params={}):
+    def _get(self, path, data={}):
         """
         Wrapper method to make GET requests to the specific API endpoint.
         """
@@ -71,9 +71,9 @@ class APIBase(object):
         get_url = '%s/%s' % (self.API_URL, path)
         
         # POST the request and return the response
-        return parse_response(requests.get(get_url, headers=self.API_HEADERS, params=params))
+        return parse_response(requests.get(get_url, headers=self.API_HEADERS, params=data))
 
-    def _post(self, path, data={}, params={}):
+    def _post(self, path, data={}):
         """
         Wrapper method to make POST requests to the specific API endpoint.
         """
@@ -82,4 +82,4 @@ class APIBase(object):
         post_url = '%s/%s' % (self.API_URL, path)
         
         # POST the request and return the response
-        return parse_response(requests.post(post_url, data=json.dumps(data), headers=self.API_HEADERS, params=params))
+        return parse_response(requests.post(post_url, data=json.dumps(data), headers=self.API_HEADERS))

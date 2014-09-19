@@ -1,6 +1,6 @@
 class GroupAPI:
     """
-    Python interface for interacting with the CloudScape groups API endpoint.
+    Class wrapper for requests to the API group utilities.
     """
     def __init__(self, parent):
         self.parent = parent
@@ -9,34 +9,34 @@ class GroupAPI:
         """
         Get details for either a single or all groups.
         """
-        return self.parent._get(data=data, action='get', path='group')
+        return self.parent._get('group/get', data=data)
     
     def create(self, data={}):
         """
         Create a new group.
         """
-        return self.parent._post(data=data, action='create', path='group')
+        return self.parent._post('group/create', data=data)
     
     def delete(self, data={}):
         """
         Delete a group.
         """
-        return self.parent._post(data=data, action='delete', path='group')
+        return self.parent._post('group/delete', data=data)
     
     def update(self, data={}):
         """
         Update a group.
         """
-        return self.parent._post(data=data, action='update', path='group')
+        return self.parent._post('group/update', data=data)
     
     def add_member(self, data={}):
         """
         Add a member to a group.
         """
-        return self.parent._post(data=data, action='add', path='group/member')
+        return self.parent._post('group/member/add', data=data)
     
     def remove_member(self, data={}):
         """
         Remove a member from the group.
         """
-        return self.parent._post(data=data, action='remove', path='group/member')
+        return self.parent._post('group/member/remove', data=data)

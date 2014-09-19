@@ -37,8 +37,6 @@ def dispatch(request):
     """
     try:
         
-        LOG.info('REQUEST_OBJ: %s' % str(request))
-        
         # Return the response from the request manager
         return RequestManager(request).handler()
     

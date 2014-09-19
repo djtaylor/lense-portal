@@ -90,7 +90,3 @@ class JSONException(JSONErrorBase):
     """
     def __init__(self):
         super(JSONException, self).__init__(exception=True)
-    
-    
-        
-    

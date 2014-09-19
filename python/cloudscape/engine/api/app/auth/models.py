@@ -10,51 +10,50 @@ from cloudscape.engine.api.app.formula.models import DBFormulaDetails
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostDKeys, DBHostGroups, DBHostFormulas
 from cloudscape.engine.api.app.network.models import DBNetworkRouters, DBNetworkSwitches, DBNetworkBlocksIPv4, DBNetworkBlocksIPv6, DBNetworkVLANs
 
-class DBAuthACLEndpointsGlobal(models.Model):
+class DBAuthACLAccessGlobal(models.Model):
     """
     Main database model for global ACL keys. These are ACL keys which are not
     attached to a specific object or limited to a specific group type.
     """
     acl        = models.ForeignKey('auth.DBAuthACLKeys', to_field='uuid', db_column='acl')
-    endpoint   = models.ForeignKey('auth.DBAuthEndpoints', to_field='uuid', db_column='endpoint')
+    utility    = models.ForeignKey('auth.DBAuthUtilities', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
-        db_table = 'acl_endpoints_global'
+        db_table = 'acl_access_global'
 
-class DBAuthACLEndpointsObject(models.Model):
+class DBAuthACLAccessObject(models.Model):
     """
     Main database model for object ACL keys. These are ACL keys which are used
     for defining granular permissions for objects, such as hosts or formulas.
     """
     acl        = models.ForeignKey('auth.DBAuthACLKeys', to_field='uuid', db_column='acl')
-    endpoint   = models.ForeignKey('auth.DBAuthEndpoints', to_field='uuid', db_column='endpoint')
+    utility    = models.ForeignKey('auth.DBAuthUtilities', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
-        db_table = 'acl_endpoints_object'
+        db_table = 'acl_access_object'
         
-class DBAuthACLEndpointsHost(models.Model):
+class DBAuthACLAccessHost(models.Model):
     """
     Main database model for host ACL keys. These are keys which define what resources
     hosts my access using their respective API keys.
     """
     acl        = models.ForeignKey('auth.DBAuthACLKeys', to_field='uuid', db_column='acl')
-    endpoint   = models.ForeignKey('auth.DBAuthEndpoints', to_field='uuid', db_column='endpoint')
+    utility    = models.ForeignKey('auth.DBAuthUtilities', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
-        db_table = 'acl_endpoints_host'
+        db_table = 'acl_access_host'
 
-class DBAuthEndpoints(models.Model):
+class DBAuthUtilities(models.Model):
     """
-    Main database model for storing endpoint details.
+    Main database model for storing API utility details.
     """
     uuid       = models.CharField(max_length=36, unique=True)
     name       = models.CharField(max_length=128, unique=True)
     desc       = models.CharField(max_length=256)
     path       = models.CharField(max_length=64)
-    action     = models.CharField(max_length=16)
     method     = models.CharField(max_length=4)
     mod        = models.CharField(max_length=128)
     cls        = models.CharField(max_length=64, unique=True)
@@ -69,7 +68,7 @@ class DBAuthEndpoints(models.Model):
     
     # Custom table metadata
     class Meta:
-        db_table = 'endpoints'
+        db_table = 'utilities'
      
 class DBAuthACLObjectsQuerySet(models.query.QuerySet):
     """
@@ -154,8 +153,8 @@ class DBAuthACLObjectsQuerySet(models.query.QuerySet):
                     'label': obj_details['label']      
                 })
         
-            # Endpoint objects
-            if acl_object['type'] == 'endpoint':
+            # Utility objects
+            if acl_object['type'] == 'utility':
                 acl_object['objects'].append({
                     'id':    obj_details[obj_key],
                     'name':  obj_details['name'],
@@ -229,9 +228,9 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
     def __init__(self, *args, **kwargs):
         super(DBAuthACLKeysQuerySet, self).__init__(*args, **kwargs)
         
-        # ACL object types / endpoints
+        # ACL object types / utilities
         self.obj_types = self._get_objects()
-        self.endpoints = {x['uuid']: x for x in list(DBAuthEndpoints.objects.all().values())}
+        self.utilities = {x['uuid']: x for x in list(DBAuthUtilities.objects.all().values())}
         
     def _get_objects(self):
         """
@@ -247,57 +246,57 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
             'details': {x['type']: x for x in acl_objects},
         }
         
-    def _extract_endpoints(self, endpoints):
+    def _extract_utilities(self, utilities):
         """
-        Extract endpoint information from an ACL endpoint assignment.
+        Extract utility information from an ACL utility assignment.
         """
         
-        # ACL endpoints return object
-        endpoints_obj = []
+        # ACL utlities return object
+        utilities_obj = []
         
         # Object type
         obj_type      = None
         
-        # Construct the ACL endpoints object
-        for ep in endpoints:
-            ep_uuid = ep['endpoint_id']
-            endpoints_obj.append({
-                'uuid':   self.endpoints[ep_uuid]['uuid'],
-                'name':   self.endpoints[ep_uuid]['name'],
-                'desc':   self.endpoints[ep_uuid]['desc'],
-                'method': self.endpoints[ep_uuid]['method'],
-                'object': self.endpoints[ep_uuid]['object']
+        # Construct the ACL utilities object
+        for util in utilities:
+            util_uuid = util['utility_id']
+            utilities_obj.append({
+                'uuid':   self.utilities[util_uuid]['uuid'],
+                'name':   self.utilities[util_uuid]['name'],
+                'desc':   self.utilities[util_uuid]['desc'],
+                'method': self.utilities[util_uuid]['method'],
+                'object': self.utilities[util_uuid]['object']
             })
             
             # If the object type is defined
-            obj_type = obj_type if not self.endpoints[ep_uuid]['object'] else self.endpoints[ep_uuid]['object']
+            obj_type = obj_type if not self.utilities[util_uuid]['object'] else self.utilities[util_uuid]['object']
             
-        # Return the ACL endpoints object and object type
-        return endpoints_obj, obj_type
+        # Return the ACL utilities object and object type
+        return utilities_obj, obj_type
         
     def _extract(self, acl):
         """
         Extract and construct each ACL definition.
         """
         
-        # Extract all endpoints
-        object_ep = self._extract_endpoints(list(DBAuthACLEndpointsObject.objects.filter(acl=acl['uuid']).values()))
-        global_ep = self._extract_endpoints(list(DBAuthACLEndpointsGlobal.objects.filter(acl=acl['uuid']).values()))
-        host_ep   = self._extract_endpoints(list(DBAuthACLEndpointsHost.objects.filter(acl=acl['uuid']).values()))
+        # Extract all utility access definitions
+        object_util = self._extract_utilities(list(DBAuthACLUtilitiesObject.objects.filter(acl=acl['uuid']).values()))
+        global_util = self._extract_utilities(list(DBAuthACLUtilitiesGlobal.objects.filter(acl=acl['uuid']).values()))
+        host_util   = self._extract_utilities(list(DBAuthACLUtilitiesHost.objects.filter(acl=acl['uuid']).values()))
         
-        # Contstruct the endpoints for each ACL
-        acl['endpoints'] = {
+        # Contstruct the utilities for each ACL access type
+        acl['utilities'] = {
             'host':   {
-                'type': host_ep[1],
-                'list': host_ep[0]
+                'type': host_util[1],
+                'list': host_util[0]
             },
             'object': {
-                'type': object_ep[1],
-                'list': object_ep[0]
+                'type': object_util[1],
+                'list': object_util[0]
             },
             'global': {
-                'type': global_ep[1],
-                'list': global_ep[0]
+                'type': global_util[1],
+                'list': global_util[0]
             }          
         }
         
@@ -339,7 +338,7 @@ class DBAuthACLKeysManager(models.Manager):
 class DBAuthACLKeys(models.Model):
     """ 
     Main database model for storing ACL keys and details. Each ACL can handle
-    authorization for any number of endpoints.
+    authorization for any number of utilities.
     """
     uuid        = models.CharField(max_length=36, unique=True)
     name        = models.CharField(max_length=128, unique=True)
@@ -433,18 +432,18 @@ class DBAuthACLGroupObjectDatacenterPermissions(models.Model):
     class Meta:
         db_table = 'acl_group_object_datacenter_permissions'
         
-class DBAuthACLGroupObjectEndpointPermissions(models.Model):
+class DBAuthACLGroupObjectUtilityPermissions(models.Model):
     """
-    Main database model for storing object ACL permissions for endpoint objects.
+    Main database model for storing object ACL permissions for utility objects.
     """
     acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    endpoint   = models.ForeignKey(DBAuthEndpoints, to_field='uuid', db_column='endpoint')
+    utility    = models.ForeignKey(DBAuthUtilities, to_field='uuid', db_column='utility')
     owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
     allowed    = models.NullBooleanField()
         
     # Custom table metadata
     class Meta:
-        db_table = 'acl_group_object_endpoint_permissions'
+        db_table = 'acl_group_object_utility_permissions'
         
 class DBAuthACLGroupObjectHostPermissions(models.Model):
     """

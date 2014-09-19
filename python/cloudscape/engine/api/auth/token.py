@@ -9,6 +9,7 @@ from cloudscape.common import logger
 from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.engine.api.app.user.models import DBUserAPITokens, DBUser
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPITokens
+from cloudscape.common.vars import HTTP_API_USER, HTTP_API_KEY, HTTP_API_TOKEN, HTTP_API_GROUP
 
 class APIToken(object):
     """
@@ -110,19 +111,19 @@ class APIToken(object):
         self.log.info('Retrieved token for API ID [%s]: %s' % (id, api_token['content']))
         return api_token['content']
     
-    def validate(self, request):
+    def validate(self, headers):
         """
         Validate the API token in a request from either a user or host account.
         """
         
         # Missing API user and/or API token
-        if not ('api_user' in request) or not ('api_token' in request):
-            self.log.error('Missing required token validation parameters [api_user] and [api_token]' % request['api_user'])
+        if not (HTTP_API_USER in headers) or not (HTTP_API_TOKEN in headers):
+            self.log.error('Missing required token validation headers [api_user] and/or [api_token]')
             return False
-        self.log.info('Validating API token for ID [%s]: %s' % (request['api_user'], request['api_token']))
+        self.log.info('Validating API token for ID [%s]: %s' % (headers[HTTP_API_USER], headers[HTTP_API_TOKEN]))
             
         # Get the users API token from the database
-        db_token = self._get_api_token(id=request['api_user'])
+        db_token = self._get_api_token(id=headers[HTTP_API_USER])
 
         # If no API token exists yet
         if not db_token['valid']:
@@ -130,7 +131,7 @@ class APIToken(object):
             return False
 
         # Make sure the token is valid
-        if request['api_token'] != db_token['content']:
-            self.log.error('Client [%s] has submitted an invalid API token' % request['api_user'])
+        if headers[HTTP_API_TOKEN] != db_token['content']:
+            self.log.error('Client [%s] has submitted an invalid API token' % headers[HTTP_API_USER])
             return False
         return True

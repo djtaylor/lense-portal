@@ -101,8 +101,6 @@ class PortalTemplate(object):
         """
         self._tdata = self._template_data(data)
        
-        self.log.info('TDATA: %s' % str(self._tdata))
-       
     def set_redirect(self, path):
         """
         Return a template data redirect attribute.

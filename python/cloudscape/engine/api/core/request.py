@@ -10,6 +10,7 @@ from django.http import HttpResponse, HttpResponseServerError
 from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.vars import T_BASE
+from cloudscape.common.http import HEADER
 from cloudscape.engine.api.base import APIBase
 from cloudscape.common.utils import JSONTemplate
 from cloudscape.common.errors import JSONError, JSONException
@@ -54,14 +55,15 @@ class EndpointManager:
     by the Django URLs module file. It is initialized with the Django request object.
     """
     def __init__(self, request):
-        self.request_raw = request
+        
+        # Store the request object
+        self.request     = request
         
         # Request properties
-        self.method      = None
-        self.request     = None
-        self.endpoint    = None
-        self.action      = None
-        self.path        = None
+        self.body        = json.loads(self.request.body)
+        self.method      = self.request.META['REQUEST_METHOD']
+        self.headers     = self.request.META
+        self.endpoint    = self.headers['PATH_INFO'][1:]
     
         # Request endpoint handler
         self.handler_obj = None
@@ -70,8 +72,8 @@ class EndpointManager:
         self.api_name    = None
         self.api_mod     = None
         self.api_class   = None
-        self.api_user    = None
-        self.api_group   = None
+        self.api_user    = self.headers.get(HEADER.API_USER)
+        self.api_group   = self.headers.get(HEADER.API_GROUP)
     
         # API base object
         self.api_base    = None
@@ -81,14 +83,12 @@ class EndpointManager:
         Authenticate the API request.
         """
         
-        # Set the API user and group
-        self.api_user  = self.request['api_user']
-        self.api_group = None if not ('api_group' in self.request) else self.request['api_group']
+        # Log the user and group attempting to authenticate
         LOG.info('Authenticating API user: %s, group=%s' % (self.api_user, repr(self.api_group)))
         
         # Authenticate key for token requests
         if self.endpoint == 'auth/get':
-            auth_status = APIKey().validate(self.request)
+            auth_status = APIKey().validate(self.headers)
             
             # API key authentication failed
             if not auth_status['valid']:
@@ -101,7 +101,7 @@ class EndpointManager:
         else:
             
             # Invalid API token
-            if not APIToken().validate(self.request):
+            if not APIToken().validate(self.headers):
                 return JSONError(error='Invalid API token', status=401).response()
             
             # API token looks good
@@ -125,30 +125,15 @@ class EndpointManager:
             if not is_member:
                 return JSONError(error='API user [%s] is not a member of group [%s]' % (self.api_user, self.api_group), status=401).response()
     
-    # Validate the request
     def _validate(self):
-        
-        # Request body / method
-        self.request = json.loads(self.request_raw.body)
-        self.method  = self.request_raw.META['REQUEST_METHOD']
-    
-        # Make sure a request action is set
-        if not 'action' in self.request:
-            return JSONError(error='Request body requires an [action] parameter for endpoint pathing', status=400)
-        
-        # Set the request action
-        self.action = self.request['action']
-    
-        # Get the request path
-        self.path     = re.compile('^\/(.*$)').sub(r'\g<1>', self.request_raw.META['PATH_INFO'])
-        
-        # Set the request endpoint
-        self.endpoint = '%s/%s' % (self.path, self.action)
+        """
+        Perform initial validation of the request.
+        """
     
         # Map the path to a module, class, and API name
         self.handler_obj = EndpointMapper(self.endpoint, self.method).handler()
         if not self.handler_obj['valid']:
-            return JSONError(error=self.handler_obj['content'], status=400).response()
+            return self.handler_obj['content']
     
         # Validate the request body
         request_err  = JSONTemplate(self.handler_obj['content']['api_map']).validate(self.request)
@@ -210,7 +195,7 @@ class EndpointManager:
                 endpoint = self.endpoint, 
                 utils    = self.api_utils,
                 acl      = acl_gateway
-            ).construct(self.request_raw)
+            ).construct(self.request)
             
             # Make sure the construct ran successfully
             if not api_obj['valid']:
@@ -264,26 +249,6 @@ class EndpointMapper:
         self.method   = method
         self.map      = {}
         
-    def _merge_auth(self,j,e):
-        """
-        Helper method used to merge token authentication parameters into the endpoint
-        request map. Mainly so I don't have to redundantly include the same code in
-        every map. Also makes modification much easier.
-        """
-        
-        # Ignore the authentication endpoint, as this is used to retrieve the token
-        if e == 'auth/get':
-            return
-        
-        # Required / optional  connection parameters
-        j['root']['_required'].extend(['api_user', 'api_token', 'action'])
-        j['root']['_optional'].extend(['api_group'])
-        
-        # Connection parameter types
-        t = { 'api_user': 'str', 'api_token': 'str', 'action': 'str', 'api_group': 'uuid4' }
-        for k,v in t.iteritems():
-            j['root']['_children'][k] = { '_type': v }
-        
     def _merge_socket(self,j):
         """
         Merge request parameters for web socket request. Used for handling connections
@@ -318,9 +283,6 @@ class EndpointMapper:
                 
                 # Merge the web socket request validator
                 self._merge_socket(rmap_base)
-                
-                # Merge the authentication request validation parameters
-                self._merge_auth(rmap_base, endpoint['name'])
             
                 # Load the endpoint request handler module string
                 self.map[endpoint['name']] = {

@@ -83,6 +83,7 @@ class CLIClient(object):
         self.ap.add_argument('-g', '--api-group', help='The API user group to authenticate with if not set as the environment variable "CS_API_GROUP"', action='append')
         self.ap.add_argument('-k', '--api-key', help='The API key to authenticate with if not set as the environment variable "CS_API_KEY"', action='append')
         self.ap.add_argument('-d', '--api-data', help='Optional data to pass during the API request', action='append')
+        self.ap.add_argument('-p', '--api-params', help='Optional query parameters to append to the request URL', action='append')
         self.ap.add_argument('-l', '--list', help='Show supported actions for a specified module', action='store_true')
       
         # Parse CLI arguments
@@ -163,7 +164,7 @@ class CLIClient(object):
                 
                 # If submitting extra data
                 if self.args['api_data']:
-                    response = act(json.loads(self.args['api_data'][0]))
+                    response = act(json.loads(data=self.args['api_data'][0]))
                 else:
                     response = act()
                 

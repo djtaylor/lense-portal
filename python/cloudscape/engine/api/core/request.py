@@ -56,17 +56,17 @@ class RequestObject(object):
         self.RAW         = request
         
         # Request data / method / headers / path / client address
-        self.data        = json.loads(self.request.body)
+        self.data        = json.loads(request.body)
         self.method      = request.META['REQUEST_METHOD']
         self.headers     = request.META
         self.path        = request.META['PATH_INFO'][1:]
         self.client      = request.META['REMOTE_ADDR']
     
         # API authorization attributes
-        self.user        = self.headers.get(HEADER.API_USER)
-        self.group       = self.headers.get(HEADER.API_GROUP)
-        self.key         = self.headers.get(HEADER.API_KEY)
-        self.token       = self.headers.get(HEADER.API_TOKEN)
+        self.user        = self.headers.get(HEADER.API_USER.upper().replace('-', '_'))
+        self.group       = self.headers.get(HEADER.API_GROUP.upper().replace('-', '_'))
+        self.key         = self.headers.get(HEADER.API_KEY.upper().replace('-', '_'))
+        self.token       = self.headers.get(HEADER.API_TOKEN.upper().replace('-', '_'))
     
     def get_data(self, key, default=None):
         """

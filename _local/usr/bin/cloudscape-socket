@@ -230,9 +230,6 @@ function SocketProxy() {
 	 */
 	this.api_submit = function(client) {
 		self.crlog(client);
-		
-		// Stringify the request body
-    	var request_data = JSON.stringify(client)
     	
     	// Options for the request
     	var request_options = {
@@ -242,7 +239,10 @@ function SocketProxy() {
     	    method: client.socket.method.toUpperCase(),
     	    headers: {
     	    	'Content-Type': 'application/json',
-    	        'Content-Length': request_data.length
+    	        'Content-Length': request_data.length,
+    	        'CS-API-User': client.auth.user,
+    	        'CS-API-Group': client.auth.group,
+    	        'CS-API-Token': client.auth.token
     	    }
     	};
     	
@@ -284,7 +284,11 @@ function SocketProxy() {
     	
     	// Submit the HTTP request
     	var request = self.http_r.request(request_options, callback);
-        request.write(request_data);
+    	
+    	// If any request data found for a POST request
+    	if (client.socket.method == 'post') && (client.hasOwnProperty('_data')) {
+    		request.write(client._data);
+    	}
         
         // Catch any connection errors
         request.on('error', function(e) {

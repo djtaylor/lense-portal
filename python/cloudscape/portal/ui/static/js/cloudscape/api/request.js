@@ -253,9 +253,11 @@ cs.import('CSAPIRequest', function() {
 		
 		// Construct the request object
 		request = {
-			'api_user':   cs.api.client.params.user,
-			'api_token':  cs.api.client.params.token,
-			'api_group':  cs.api.client.params.group,
+			'auth': {
+				'user':   cs.api.client.params.user,
+				'token':  cs.api.client.params.token,
+				'group':  cs.api.client.params.group,
+			}
 			'socket': {
 				'method': m,
 				'path':   p.path,

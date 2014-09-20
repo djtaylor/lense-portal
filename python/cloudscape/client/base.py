@@ -21,6 +21,9 @@ class APIBase(object):
         self.API_URL     = url
         self.API_HEADERS = self._construct_headers()
 
+        # Command line flag
+        self.cli         = cli
+
         # Construct the API map
         self._construct_map()
 

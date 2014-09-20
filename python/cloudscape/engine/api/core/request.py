@@ -65,6 +65,8 @@ class RequestObject(object):
         self.key         = self.headers.get('HTTP_%s' % HEADER.API_KEY.upper().replace('-', '_'))
         self.token       = self.headers.get('HTTP_%s' % HEADER.API_TOKEN.upper().replace('-', '_'))
     
+        LOG.info('REQUEST_DATA: %s' % str(self.data))
+    
     def _load_data(self):
         """
         Load request data depending on the method. For POST requests, load the request
@@ -121,7 +123,7 @@ class RequestObject(object):
         """
         return RequestObject(request)
   
-class RequestManager:
+class RequestManager(object):
     """
     The API request manager class. Serves as the entry point for all API request,
     both for authentication requests, and already authenticated requests. Constructs
@@ -289,7 +291,7 @@ class RequestManager:
             return self.api_base.log.success(response['content'], response['data'])
         return self.api_base.log.error(status=response['code'], log_msg=response['content'])
     
-class UtilityMapper:
+class UtilityMapper(object):
     """
     Map a request path to an API utility. Loads the utility request details and map.
     """

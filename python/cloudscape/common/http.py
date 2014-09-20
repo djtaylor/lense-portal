@@ -153,11 +153,11 @@ class JSONErrorBase(object):
         self.error_object = {
             'message': ERR_MESSAGE.get(self.status, 'An unknown error has occurred, please contact your administrator'),
             'code':    self.status,
-            'error':   error
+            'error':   error if not isinstance(error, (list, dict)) else json.dumps(error)
         }
         
         # If an error message is provided
-        if error:
+        if error and isinstance(error, (str, unicode, basestring)):
             LOG.error(error)
         
         # If providing a stack trace for debugging and debugging is enabled
@@ -208,5 +208,5 @@ class JSONException(JSONErrorBase):
     """
     Internal server error response object.
     """
-    def __init__(self):
-        super(JSONException, self).__init__(exception=True)
+    def __init__(self, error=None):
+        super(JSONException, self).__init__(error=error, exception=True)

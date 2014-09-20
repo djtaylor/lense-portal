@@ -73,8 +73,6 @@ class APIConnect(object):
         
         # Failed to retrieve a token
         else:
-            
-            # Return false
             return False
     
     def construct(self):

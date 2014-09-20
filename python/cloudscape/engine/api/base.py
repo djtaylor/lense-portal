@@ -237,13 +237,14 @@ class APILogger(object):
         # Log the exception
         self.api.log_int.exception('client(%s): %s' % (self.client, self.log_msg))
     
-        # If error code is specified and is an integer
+        # If returning a response to a client
         if code and isinstance(code, int):
         
-            # Return the HTTP response
-            return HttpResponse(self._api_response(False, web_data), MIME_TYPE.APPLICATION.JSON, status=code)
-        else:
-            return self.log_msg
+            # Return an error response
+            return JSONException(error=self._api_response(False, web_data)).response()
+        
+        # Return the message string if internal
+        return self.log_msg
     
     def error(self, log_msg=None, code=None, web_data={}):
         """
@@ -257,10 +258,11 @@ class APILogger(object):
         # Log the error message
         self.api.log_int.error('client(%s): %s' % (self.client, self.log_msg))
         
-        # If error code is specified and is ant integer
+        # If returning a resposne to a client
         if code and isinstance(code, int):
         
-            # Return the HTTP response
-            return HttpResponse(self._api_response(False, web_data), MIME_TYPE.APPLICATION.JSON, status=code)
-        else:
-            return self.log_msg
+            # Return an error response
+            return JSONError(error=self._api_response(False, web_data), status=code).response()
+        
+        # Return the message string if internal
+        return self.log_msg

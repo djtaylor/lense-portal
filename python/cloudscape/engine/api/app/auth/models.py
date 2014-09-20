@@ -279,9 +279,9 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
         """
         
         # Extract all utility access definitions
-        object_util = self._extract_utilities(list(DBAuthACLUtilitiesObject.objects.filter(acl=acl['uuid']).values()))
-        global_util = self._extract_utilities(list(DBAuthACLUtilitiesGlobal.objects.filter(acl=acl['uuid']).values()))
-        host_util   = self._extract_utilities(list(DBAuthACLUtilitiesHost.objects.filter(acl=acl['uuid']).values()))
+        object_util = self._extract_utilities(list(DBAuthACLAccessObject.objects.filter(acl=acl['uuid']).values()))
+        global_util = self._extract_utilities(list(DBAuthACLAccessGlobal.objects.filter(acl=acl['uuid']).values()))
+        host_util   = self._extract_utilities(list(DBAuthACLAccessHost.objects.filter(acl=acl['uuid']).values()))
         
         # Contstruct the utilities for each ACL access type
         acl['utilities'] = {

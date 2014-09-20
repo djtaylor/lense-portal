@@ -85,7 +85,7 @@ def autoquote(v):
     
     # String / Unicode / etc.
     else:
-        return '\'%s\'' % v
+        return '[%s]' % v
 
 def mod_has_class(mod, cls, no_launch=False):
     """
@@ -430,7 +430,7 @@ class FileSec(UtilsBase):
         checksum = hash_obj.hexdigest()
         
         # Log and return the checksum
-        self.log.info('Generating SHA256 checksum \'%s\' for: %s' % (checksum, filename))
+        self.log.info('Generating SHA256 checksum [%s] for: %s' % (checksum, filename))
         return checksum
     
     def encrypt(self, infile, outfile, key):
@@ -483,7 +483,7 @@ class FileSec(UtilsBase):
                     elif len(chunk) % 16 != 0:
                         chunk += b' ' * (16 - len(chunk) % 16)
                     ofh.write(encryptor.encrypt(chunk))
-        self.log.info('Encrypting file \'%s\' to \'%s\' using AES-256 and key string' % (infile, outfile))
+        self.log.info('Encrypting file [%s] to [%s] using AES-256 and key string' % (infile, outfile))
         return True
     
     def decrypt(self, infile, outfile, key):
@@ -533,16 +533,13 @@ class FileSec(UtilsBase):
                         break
                     ofh.write(decryptor.decrypt(chunk))
                 ofh.truncate(origsize)
-        self.log.info('Decrypting file \'%s\' to \'%s\' using AES-256 and key string' % (infile, outfile))
+        self.log.info('Decrypting file [%s] to [%s] using AES-256 and key string' % (infile, outfile))
         return True
 
 class JSONTemplate(UtilsBase):
     """
     A utility class designed to validate a JSON object against a template file. Used
-    to verify the structure of API requests, formula manifests, etc. For a full example
-    of how to construct a JSON validation template, please see the files in:
-    
-    /opt/cloudscape/engine/templates/api
+    to verify the structure of API requests, formula manifests, etc.
     """
     def __init__(self, template=None):
         super(JSONTemplate, self).__init__(self)
@@ -574,11 +571,11 @@ class JSONTemplate(UtilsBase):
                 return True
             return False
         if type == 'str':
-            if isinstance(var, unicode) or isinstance(var, str) or isinstance(var, basestring):
+            if isinstance(var, (str, unicode, basestring)):
                 return True
             return False
         if type == 'int':
-            if isinstance(var, int) or isinstance(var, float) or isinstance(var, long):
+            if isinstance(var, (int, float, long)):
                 return True
             return False
         if type == 'uuid4':
@@ -594,7 +591,7 @@ class JSONTemplate(UtilsBase):
         if type == '*':
             return True
     
-    def _load_json(self, obj):
+    def _load_json(self, json_obj):
         """
         Helper method to load and validate basic JSON structure to see if it is
         syntactically correct.
@@ -603,28 +600,39 @@ class JSONTemplate(UtilsBase):
         :type obj: dict|list
         :rtype: valid|invalid
         """
-        obj_valid = None
-        if self._is_type(obj, str):
+        
+        # If the object is a string type
+        if self._is_type(json_obj, 'str'):
             try:
-                obj_valid = json.loads(obj)
-            except:
-                return invalid('JSON string argument is not valid JSON')
-        else:
+                return json.loads(json_obj)
+            except Exception as e:
+                return invalid('Target object is not valid JSON: %s' % str(e))
+            
+        # If the object is a list or dictionary
+        if isinstance(json_obj, (dict, list)):
             try:
-                obj_tmp = json.dumps(obj)
-                obj_valid = obj
+                obj_tmp = json.dumps(json_obj)
+                return json_obj
             except:
-                return invalid('JSON object argument is not valid JSON')
-        return valid(obj_valid) 
+                return invalid('Target object is not valid JSON: %s' % str(e))
+            
+        # JSON object must be a string or list/dictionary
+        return invalid('Target object must be either a string or a list/dictionary')
     
-    # Try to parse the tempalte and target objects
-    def _parse_files(self, target_obj):
+    def _parse_json(self, target_obj):
+        """
+        Parse the JSON validation template and target object.
+        """
         
         # If either of the objects are not valid
         template_obj = self._load_json(self.template_obj)
         target_obj   = self._load_json(target_obj)
+        
+        # Make sure the template object is valid
         if not template_obj['valid']:
             return template_obj['content']
+        
+        # Make sure the target object is valid
         if not target_obj['valid']:
             return target_obj['content']
         
@@ -632,18 +640,21 @@ class JSONTemplate(UtilsBase):
         self.template = template_obj['content']
         self.target   = target_obj['content']
     
-    # Return path error
-    def _formula_err(self, map, msg):
-        fe_msg = 'Error at %s: %s' % (map, msg)
-        self.log.error(fe_msg)
-        return fe_msg
+    def _path_error(self, map, msg):
+        """
+        Construct and return a JSON path error, showing exactly where validation failed and why.
+        """
+        return self.log.error('Error at %s: %s' % (map, msg))
     
-    # Validate a JSON file against the template
     def validate(self, target_str=None):
-        parse_err = self._parse_files(target_str)
+        """
+        Validate a JSON object against a supplied template.
+        """
+        
+        # Parse the JSON validation template and target object
+        parse_err = self._parse_json(target_str)
         if parse_err:
             return parse_err
-        self.log.info('Validating target JSON string: %s' % target_str)
 
         # Set the parent object
         m = 'root'
@@ -667,18 +678,15 @@ class JSONTemplate(UtilsBase):
                     
                     # If the list object is empty
                     if not o:
-                        return self._formula_err(m, 'List object is empty')
+                        return self._path_error(m, 'List object is empty')
                     
                     # Validate the list object type
                     ot = t['_type']
                     if not self._is_type(o,ot):
-                        return self._formula_err(m, 'Invalid list object type')
+                        return self._path_error(m, 'Invalid list object type')
                     
                     # Set the formula map
-                    if c == 0:
-                        m += '/%d' % c
-                    else:
-                        m = re.compile('(^.*\/%s\/)[0-9]*(.*$)' % k).sub(r'\g<1>%s\g<2>' % c, m)
+                    m += '/%d' % c if (c == 0) else re.compile('(^.*\/%s\/)[0-9]*(.*$)' % k).sub(r'\g<1>%s\g<2>' % c, m)
                     
                     # Walk through nested items in the list
                     obj_err = _dict_walk(c,t,o,m)
@@ -694,7 +702,7 @@ class JSONTemplate(UtilsBase):
                 if ('_empty' in t) and (t['_empty'] == True):
                     pass
                 else:
-                    return self._formula_err(m, 'Object is an invalid type, should be %s' % dt)
+                    return self._path_error(m, 'Object is an invalid type, should be %s' % dt)
             
             # If the current level has no children
             if not '_children' in t:
@@ -704,17 +712,17 @@ class JSONTemplate(UtilsBase):
                     if self._is_type(f, 'list'):
                         for fk in f:
                             if not fk in t['_values']:
-                                return self._formula_err(m, 'Object value \'%s\' is not in supported values list: \'%s\'' % (fk, ', '.join(t['_values'])))
+                                return self._path_error(m, 'Object value [%s] is not in supported values list: [%s]' % (fk, ', '.join(t['_values'])))
                     else:
                         if f not in t['_values']:
-                            return self._formula_err(m, 'Object value \'%s\' is not in supported values list: \'%s\'' % (f, ', '.join(t['_values'])))
+                            return self._path_error(m, 'Object value [%s] is not in supported values list: [%s]' % (f, ', '.join(t['_values'])))
             
                 # Look for the integer range flag
                 if '_range' in t and self._is_type(f, 'str'):
                     b = re.compile('(^[^\/]*)\/[^\/]*$').sub(r'\g<1>', f)
                     e = re.compile('^[^\/]*\/([^\/]*$)').sub(r'\g<1>', f)
                     if not int(b) <= int(f) <= int(e):
-                        return self._formula_err(m, 'Object value \'%s\' must be between \'%s\' and \'%s\'' % (f, b, e))
+                        return self._path_error(m, 'Object value [%s] must be between [%s] and [%s]' % (f, b, e))
             
             # If the current level has children
             else:
@@ -747,7 +755,7 @@ class JSONTemplate(UtilsBase):
                 
                 # If any required keys are missing
                 if mkv:
-                    return self._formula_err(m, 'Missing required key values: %s' % ', '.join(mkv))
+                    return self._path_error(m, 'Missing required key values: %s' % ', '.join(mkv))
                 
                 # Process the formula level
                 for k,v in f.iteritems():
@@ -758,7 +766,7 @@ class JSONTemplate(UtilsBase):
                     if not k in rks:
                         if not k in ok:
                             if not '*' in ok:
-                                return self._formula_err(m, 'Using unsupported key \'%s\' without wildcard flag' % k)
+                                return self._path_error(m, 'Using unsupported key [%s] without wildcard flag' % k)
                             
                             # Current key is a wildcard entry
                             else:
@@ -788,12 +796,12 @@ class JSONTemplate(UtilsBase):
                             if ('_empty' in to) and (to['_empty'] == True):
                                 pass
                             else:
-                                return self._formula_err(m, 'Value for key \'%s\' is not defined or empty' % k)
+                                return self._path_error(m, 'Value for key [%s] is not defined or empty' % k)
                         if not self._is_type(v,tt):
                             if ('_empty' in to) and (to['_empty'] == True):
                                 pass
                             else:
-                                return self._formula_err(m, 'Invalid data type for key \'%s\', expected \'%s\'' % (k,tt))
+                                return self._path_error(m, 'Invalid data type for key [%s], expected [%s]' % (k,tt))
                          
                         # Walk through the next level of the formula
                         ferr = _dict_walk(p,to,f[k],m)
@@ -801,10 +809,7 @@ class JSONTemplate(UtilsBase):
                             return ferr
                    
                     # Reset the formula map
-                    if p == 'root':
-                        m = p
-                    else:
-                        m = re.compile('(^.*)\/[^>]*$').sub(r'\g<1>', m)
+                    m = p if (p == 'root') else re.compile('(^.*)\/[^>]*$').sub(r'\g<1>', m)
             
             # Run the callback function
             if cb: cb()
@@ -815,4 +820,4 @@ class JSONTemplate(UtilsBase):
             self.log.info('Completed template validation run')
                    
         # Walk through and validate the formula structure with the template
-        return _dict_walk('root',self.template['root'],self.target,m,rcb)
+        return _dict_walk('root', self.template['root'], self.target, m, rcb)

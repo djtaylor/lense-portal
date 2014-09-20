@@ -3,7 +3,7 @@ import json
 from types import InstanceType, ClassType
 from collections import namedtuple
 
-class Collection:
+class Collection(object):
     """
     Class used to generate a named tuple collection from any number
     of dictionaries. Returns an immutable collection oject.

@@ -3,6 +3,9 @@ import re
 import sys
 import platform
 
+# CloudScape Libraries
+from cloudscape.common.collection import Collection
+
 """
 Common attributes shared by various CloudScape modules. Defines string
 constants, messages, system paths, and other shared information.

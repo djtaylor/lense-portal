@@ -261,7 +261,7 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
             util_uuid = util['utility_id']
             utilities_obj.append({
                 'uuid':   self.utilities[util_uuid]['uuid'],
-                'name':   self.utilities[util_uuid]['name'],
+                'path':   self.utilities[util_uuid]['path'],
                 'desc':   self.utilities[util_uuid]['desc'],
                 'method': self.utilities[util_uuid]['method'],
                 'object': self.utilities[util_uuid]['object']

@@ -33,7 +33,7 @@ class APIBase(object):
         @type  name:     str
         @param request:  The request object from RequestManager
         @type  request:  RequestObject
-        @param utils:    Any external utilities required by this API endpoint
+        @param utils:    Any external utilities required by this API path
         @type  utils:    list
         @param acl:      The ACL gateway generated during request initialization
         @type  acl:      ACLGateway
@@ -64,7 +64,7 @@ class APIBase(object):
     def _utils(self):
         """
         Construct the external utilities object. Scan each item in the utilities list retrieved
-        from the endpoint database entry, and attempt to create an instance of the module/class.
+        from the utility database entry, and attempt to create an instance of the module/class.
         """
         if self.utils and isinstance(self.utils, list):
             util_obj = {}
@@ -98,7 +98,7 @@ class APIBase(object):
         
     def get_logger(self, client):
         """
-        Return an instance of the APILogger for non-endpoint classes.
+        Return an instance of the APILogger for non-utility classes.
         
         @param client: The IP address of the API client
         @type  client: str
@@ -161,7 +161,7 @@ class APILogger(object):
         return json.dumps({
             'room':     self.parent.websock['room'],
             'msg':      self.log_msg,
-            'endpoint': self.parent.endpoint,
+            'path':     self.parent.path,
             'callback': False if not ('callback' in self.parent.websock) else self.parent.websock['callback'],
             'status':   status,
             '_data':    _data
@@ -180,7 +180,7 @@ class APILogger(object):
         if self.api.websock:
             return self._websock_response(status, data)
             
-        # Any endpoints that don't supply web socket responses    
+        # Any paths that don't supply web socket responses    
         else:
             
             # Return a JSON encoded object if a dictionary or list
@@ -195,14 +195,14 @@ class APILogger(object):
         Handle the logging of information messages.
         """
         self.log_msg = log_msg
-        self.log_int.info('client(%s): %s' % (self.client, log_msg))
+        self.api.log_int.info('client(%s): %s' % (self.client, log_msg))
         return log_msg
         
     def debug(self, log_msg):
         """
         Handle the logging of debug messages.
         """
-        self.log_int.info('client(%s): %s' % (self.client, log_msg))
+        self.api.log_int.info('client(%s): %s' % (self.client, log_msg))
         return log_msg
         
     def success(self, log_msg, web_data={}):
@@ -220,7 +220,7 @@ class APILogger(object):
         self.log_msg = _set_log_msg(log_msg)
             
         # Log the success message
-        self.log_int.info('client(%s): %s' % (self.client, log_msg))
+        self.api.log_int.info('client(%s): %s' % (self.client, log_msg))
         
         # Return the HTTP response
         return HttpResponse(self._api_response(True, web_data), MIME_TYPE.APPLICATION.JSON, status=200)
@@ -235,7 +235,7 @@ class APILogger(object):
         self.log_msg = 'An exception occured when processing your API request' if not log_msg else log_msg
     
         # Log the exception
-        self.log_int.exception('client(%s): %s' % (self.client, self.log_msg))
+        self.api.log_int.exception('client(%s): %s' % (self.client, self.log_msg))
     
         # If error code is specified and is an integer
         if code and isinstance(code, int):
@@ -255,7 +255,7 @@ class APILogger(object):
         self.log_msg = 'An unknown error occured when processing your API request' if not log_msg else log_msg
         
         # Log the error message
-        self.log_int.error('client(%s): %s' % (self.client, self.log_msg))
+        self.api.log_int.error('client(%s): %s' % (self.client, self.log_msg))
         
         # If error code is specified and is ant integer
         if code and isinstance(code, int):

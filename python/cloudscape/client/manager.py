@@ -66,7 +66,7 @@ class APIConnect(object):
         if self.token_rsp['code'] == 200:
             
             # Load the authorization token
-            self.api_token = auth_obj['token']
+            self.api_token = self.token_rsp['body']['token']
         
             # Token retrieval OK
             return True

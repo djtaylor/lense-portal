@@ -116,7 +116,7 @@ class APIToken(object):
         """
         
         # Missing API user and/or API token
-        if not hasattr(request, 'api_user') or not hasattr(request, 'api_token'):
+        if not hasattr(request, 'user') or not hasattr(request, 'token'):
             self.log.error('Missing required token validation headers [api_user] and/or [api_token]')
             return False
         self.log.info('Validating API token for ID [%s]: %s' % (request.user, request.token))

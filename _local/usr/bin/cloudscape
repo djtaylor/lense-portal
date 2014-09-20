@@ -168,7 +168,7 @@ class CLIClient(object):
                     response = act()
                 
                 # Print the response
-                print 'HTTP %s: %s' % (response['code'], response['body'])
+                print 'HTTP %s: %s' % (response['code'], response['body'] if not isinstance(response['body'], (list, dict)) else json.dumps(response['body']))
                 
             # No valid action found
             else:

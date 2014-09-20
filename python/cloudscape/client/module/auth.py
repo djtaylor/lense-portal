@@ -23,29 +23,29 @@ class AuthAPI:
         """
         return self.parent._post('auth/acl/update', data=data)
     
-    def get_endpoints(self, data=None):
+    def get_utilities(self, data=None):
         """
-        Retrieve a listing of API endpoints.
+        Retrieve a listing of API utilities.
         """
-        return self.parent._get('auth/endpoints/get', data=data)
+        return self.parent._get('auth/utilities/get', data=data)
     
-    def open_endpoint(self, data=None):
+    def open_utility(self, data=None):
         """
-        Open an endpoint for editing.
+        Open a utility for editing.
         """
-        return self.parent._get('auth/endpoints/open', data=data)
+        return self.parent._get('auth/utilities/open', data=data)
     
-    def close_endpoint(self, data=None):
+    def close_utility(self, data=None):
         """
-        Check in an endpoint and release the editing lock.
+        Check in a utility and release the editing lock.
         """
-        return self.parent._get('auth/endpoints/close', data=data)
+        return self.parent._get('auth/utilities/close', data=data)
     
-    def validate_endpoint(self, data=None):
+    def validate_utility(self, data=None):
         """
-        Validate changes to an endpoint prior to saving.
+        Validate changes to a utility prior to saving.
         """
-        return self.parent._post('auth/endpoints/validate', data=data)
+        return self.parent._post('auth/utilities/validate', data=data)
     
     def create_acl_object(self, data=None):
         """

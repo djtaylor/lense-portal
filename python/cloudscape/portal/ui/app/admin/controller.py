@@ -25,8 +25,8 @@ class AppController(PortalTemplate):
                 'acls': {
                     'data': self._acls
                 },
-                'endpoints': {
-                    'data': self._endpoints,
+                'utilities': {
+                    'data': self._utilities,
                 },
                 'objects': {
                     'data': self._objects
@@ -35,7 +35,7 @@ class AppController(PortalTemplate):
                     'data': self._datacenters
                 }
             },
-            'default': 'endpoints'
+            'default': 'utilities'
         }
         
     def _datacenters(self):
@@ -169,7 +169,7 @@ class AppController(PortalTemplate):
             """
             if groups_tgt:
                 return [
-                    'app/admin/popups/group/permissions/endpoints.html'
+                    'app/admin/popups/group/permissions/utilities.html'
                 ]
             return [
                 'app/admin/popups/group/create.html',
@@ -210,20 +210,20 @@ class AppController(PortalTemplate):
         # Make all required API calls
         response = self.api_call_threaded({
             'acls':      ('auth', 'get_acl'),
-            'endpoints': ('auth', 'get_endpoints')
+            'utilities': ('auth', 'get_utilities')
         })
         
-        # All ACLS / target ACL / target object / target UUID / target endpoint list
+        # All ACLS / target ACL / target object / target UUID / target utilities list
         acl_all    = sorted(response['acls'], key=lambda k: k['name'])
         acl_target = self.get_query_key('acl')
         acl_obj    = None if not acl_target else [x for x in acl_all if x['uuid'] == acl_target][0]
-        acl_eplist = {'global':[],'object':[],'host':[]}
+        acl_utils  = {'global':[],'object':[],'host':[]}
         
         # If rendering a detailed view of a single ACL
         if acl_target:
-            for ep_type, ep_obj in acl_obj['endpoints'].iteritems():
-                for ep in ep_obj['list']:
-                    acl_eplist[ep_type].append(ep['uuid'])
+            for util_type, util_obj in acl_obj['utilities'].iteritems():
+                for util in util_obj['list']:
+                    acl_utils[util_type].append(util['uuid'])
         
         def set_contents():
             """
@@ -251,9 +251,9 @@ class AppController(PortalTemplate):
                 'target':    acl_target,
                 'uuid':      acl_target,
                 'detail':    acl_obj,
-                'endpoints': acl_eplist
+                'utilities': acl_utils
             },
-            'endpoints':     sorted(response['endpoints'], key=lambda k: k['name']),
+            'utilities':     sorted(response['utilities'], key=lambda k: k['name']),
             'page': {
                 'title': 'CloudScape Administration - ACLs',
                 'css': ['admin.css'],
@@ -319,61 +319,61 @@ class AppController(PortalTemplate):
             } 
         }
         
-    def _endpoints(self):
+    def _utilities(self):
         """
-        Helper method used to construct the template data needed to render the API endpoints
+        Helper method used to construct the template data needed to render the API utilities
         administration page.
         """
         
         # Make all required API calls
         response = self.api_call_threaded({
-            'endpoints':   ('auth', 'get_endpoints'),
+            'utilities':   ('auth', 'get_utilities'),
             'acl_objects': ('auth', 'get_acl_objects')
         })
         
-        # All endpoints / target endpoint / endpoint object
-        endpoint_all  = sorted(response['endpoints'], key=lambda k: k['name'])
-        endpoint_tgt  = self.get_query_key('endpoint')
-        endpoint_obj  = None if not endpoint_tgt else [x for x in endpoint_all if x['uuid'] == endpoint_tgt][0]
+        # All utilities / target utility / utility object
+        util_all  = sorted(response['utilities'], key=lambda k: k['path'])
+        util_tgt  = self.get_query_key('utility')
+        util_obj  = None if not util_tgt else [x for x in util_all if x['uuid'] == util_tgt][0]
         
-        # Endpoint modules / utilities / ACL objects
+        # Utility modules / external utilities / ACL objects
         utils         = []
         modules       = []
         acl_objects   = response['acl_objects']
         
         # Construct modules and utilities
-        for ep in endpoint_all:
-            utils.append(['%s.%s' % (ep['mod'], ep['cls']), ep['cls']])
-            if not ep['mod'] in modules:
-                modules.append(ep['mod'])
+        for util in util_all:
+            utils.append(['%s.%s' % (util['mod'], util['cls']), util['cls']])
+            if not util['mod'] in modules:
+                modules.append(util['mod'])
         
         def set_contents():
             """
             Set template data contents.
             """
-            if endpoint_tgt:
-                return ['app/admin/tables/endpoints/details.html']
-            return ['app/admin/tables/endpoints/list.html']
+            if util_tgt:
+                return ['app/admin/tables/utilities/details.html']
+            return ['app/admin/tables/utilities/list.html']
         
         def set_popups():
             """
             Set template data popups.
             """
-            if endpoint_tgt:
-                return ['app/admin/popups/endpoints/close.html']
+            if util_tgt:
+                return ['app/admin/popups/utilities/close.html']
             return [
-                'app/admin/popups/endpoints/create.html',
-                'app/admin/popups/endpoints/delete.html'
+                'app/admin/popups/utilities/create.html',
+                'app/admin/popups/utilities/delete.html'
             ]
         
         # Return the template data
         return {
-            'endpoints': {
-                'all':    endpoint_all,
-                'target': endpoint_tgt,
-                'uuid':   endpoint_tgt,
-                'detail': endpoint_obj,
-                'edit':   None if not endpoint_tgt else ('yes' if endpoint_obj['locked'] else 'no'),
+            'utilities': {
+                'all':    util_all,
+                'target': util_tgt,
+                'uuid':   util_tgt,
+                'detail': util_obj,
+                'edit':   None if not util_tgt else ('yes' if util_obj['locked'] else 'no'),
             },
             'modules': modules,
             'methods': ['GET', 'POST', 'PUT', 'DELETE'],
@@ -382,7 +382,7 @@ class AppController(PortalTemplate):
                 'objects': acl_objects
             },
             'page': {
-                'title': 'CloudScape Administration - Endpoints',
+                'title': 'CloudScape Administration - Utilities',
                 'css': ['admin.css'],
                 'contents': set_contents(),
                 'popups':  set_popups()

@@ -31,14 +31,14 @@ cs.import('CSAdminInterface', function() {
 			}
 		}
 		
-		// Endpoint Details
-		if (defined(cs.url.param_get('endpoint'))) {
-			cs.implement('CSAdminEndpointDetails', 'admin.endpoint')
+		// Utility Details
+		if (defined(cs.url.param_get('utility'))) {
+			cs.implement('CSAdminUtilityDetails', 'admin.utility')
 		
-		// Endpoint List
+		// Utilities List
 		} else {
-			if (cs.url.param_get('panel') == 'endpoints') {
-				cs.implement('CSAdminEndpointList', 'admin.endpoint');
+			if (cs.url.param_get('panel') == 'utilities') {
+				cs.implement('CSAdminUtilitiesList', 'admin.utility');
 			}
 		}
 		

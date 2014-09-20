@@ -1,20 +1,20 @@
-cs.import('CSAdminEndpointList', function() {
+cs.import('CSAdminUtilitiesList', function() {
 	
 	/**
-	 * Initialize CSAdminEndpointList
+	 * Initialize CSAdminUtilityList
 	 * @constructor
 	 */
 	this.__init__ = function() {
 
 		// Document ready
 		$(document).ready(function() {
-			cs.admin.endpoint.bind();
-			cs.admin.endpoint.layout();
+			cs.admin.utility.bind();
+			cs.admin.utility.layout();
 		});
 		
 		// Window resize
 		$(window).resize(function() {
-			cs.admin.endpoint.layout();
+			cs.admin.utility.layout();
 		});
 	}
 	
@@ -25,16 +25,16 @@ cs.import('CSAdminEndpointList', function() {
 		
 		// Height attributes
 		var height = {
-			table: 		  $('#endpoint_list_table').actual('outerHeight', {includeMargin: true}),
-			title:		  $('#endpoint_list_title').actual('outerHeight', {includeMargin: true}),
-			header_title: $('div[class="table_headers"][table="endpoint_list"]').actual('outerHeight', {includeMargin: true})
+			table: 		  $('#utility_list_table').actual('outerHeight', {includeMargin: true}),
+			title:		  $('#utility_list_title').actual('outerHeight', {includeMargin: true}),
+			header_title: $('div[class="table_headers"][table="utility_list"]').actual('outerHeight', {includeMargin: true})
 		}
 		
 		// Define the height of the rows container
 		var rows_height = (height.table - (height.title + height.header_title + 10));
 		
 		// Set the height of rows container
-		$('div[type="rows"][table="endpoint_list"]').height(rows_height + 'px').css('overflow', 'auto');
+		$('div[type="rows"][table="utility_list"]').height(rows_height + 'px').css('overflow', 'auto');
 	}
 	
 	/**
@@ -50,25 +50,25 @@ cs.import('CSAdminEndpointList', function() {
 		});
 		
 		// Changes to the method input
-		$('select[name="ep_method"][form="create_endpoint"]').on('change', function() {
+		$('select[name="util_method"][form="create_utility"]').on('change', function() {
 			var s = $(this).find('option:selected');
-			cs.forms.set_field('input[type="hidden"][name="ep_method"]', $(s).val());
+			cs.forms.set_field('input[type="hidden"][name="util_method"]', $(s).val());
 		});
 		
 		// Changes to the enabled input
-		$('select[name="enabled"][form="create_endpoint"]').on('change', function() {
+		$('select[name="enabled"][form="create_utility"]').on('change', function() {
 			var s = $(this).find('option:selected');
 			cs.forms.set_field('input[type="hidden"][name="enabled"]', $(s).val());
 		});
 		
 		// Changes to the protected input
-		$('select[name="protected"][form="create_endpoint"]').on('change', function() {
+		$('select[name="protected"][form="create_utility"]').on('change', function() {
 			var s = $(this).find('option:selected');
 			cs.forms.set_field('input[type="hidden"][name="protected"]', $(s).val());
 		});
 		
 		// Changes to the external utilities input
-		$('select[name="utils"][form="create_endpoint"]').on('change', function() {
+		$('select[name="utils"][form="create_utility"]').on('change', function() {
 			var u = [];
 			$($(this).find('option:selected')).each(function(i,o) {
 				if (defined($(o).val())) {
@@ -79,7 +79,7 @@ cs.import('CSAdminEndpointList', function() {
 		});
 		
 		// Select a module
-		$('select[name="mod"][form="create_endpoint"]').on('change', function() {
+		$('select[name="mod"][form="create_utility"]').on('change', function() {
 			var s = $(this).find('option:selected');
 			
 			// Custom module
@@ -87,7 +87,7 @@ cs.import('CSAdminEndpointList', function() {
 				
 				// Show the custom module text input
 				$('div[target="popup_new"]').fadeIn('fast', function() {
-					cs.forms.set_field('input[name="mod"][form="create_endpoint"]', '');
+					cs.forms.set_field('input[name="mod"][form="create_utility"]', '');
 				});
 				
 			} else {
@@ -102,49 +102,48 @@ cs.import('CSAdminEndpointList', function() {
 	}
 	
 	/**
-	 * Callback: Delete Endpoint
+	 * Callback: Delete Utility
 	 */
-	cs.register.callback('endpoint.delete', function(c,m,d,a) {
-		cs.layout.remove('div[type="row"][endpoint="' + d.uuid + '"]');
+	cs.register.callback('utility.delete', function(c,m,d,a) {
+		cs.layout.remove('div[type="row"][utility="' + d.uuid + '"]');
 	});
 	
 	/**
-	 * Callback: Create Endpoint
+	 * Callback: Create Utility
 	 */
-	cs.register.callback('endpoint.create', function(c,m,d,a) {
+	cs.register.callback('utility.create', function(c,m,d,a) {
 		if (c == 200) {
-			$('div[type="rows"][target="endpoints"]').prepend(cs.layout.create.element('div', {
+			$('div[type="rows"][target="utilities"]').prepend(cs.layout.create.element('div', {
 				css:  'table_row',
 				attr: {
 					type: 'row',
-					target: 'endpoints',
-					endpoint: d.uuid,
+					target: 'utilities',
+					utility: d.uuid,
 					children: (function() {
 						var cols = [
 						    {col: 'select', key: null},
-							{col: 'ep_name', key: 'name'},
-							{col: 'ep_path', key: 'path'},
-							{col: 'ep_action', key: 'action'},
-							{col: 'ep_method', key: 'method'},
-							{col: 'ep_desc', key: 'desc'},
-							{col: 'ep_enabled', key: 'enabled'},
-							{col: 'ep_protected', key: 'protected'},
-							{col: 'ep_locked', key: 'locked'}
+							{col: 'util_path', key: 'path'},
+							{col: 'util_action', key: 'action'},
+							{col: 'util_method', key: 'method'},
+							{col: 'util_desc', key: 'desc'},
+							{col: 'util_enabled', key: 'enabled'},
+							{col: 'util_protected', key: 'protected'},
+							{col: 'util_locked', key: 'locked'}
 						];
 						var c = [];
 						$.each(cols, function(i,o) {
-							if (o.col == 'ep_name') {
+							if (o.col == 'util_name') {
 								c.push(cs.layout.create.element('div', {
 									css:  'table_col table_link',
 									attr: {
 										type: 'button',
 										action: 'link',
-										target: 'admin?panel=endpoints&endpoint=' + d.uuid,
+										target: 'admin?panel=utilities&utility=' + d.uuid,
 										col: o.col
 									},
 									text: d.name
 								}));
-							} else if (o.col == 'ep_locked') {
+							} else if (o.col == 'util_locked') {
 								c.push(cs.layout.create.element('div', {
 									css: 'table_col',
 									attr: {
@@ -158,7 +157,7 @@ cs.import('CSAdminEndpointList', function() {
 									children: [cs.layout.create.element('input', {
 										attr: {
 											type: 'radio',
-											name: 'endpoint_uuid',
+											name: 'utility_uuid',
 											action: 'update',
 											value: d.uuid
 										}
@@ -171,7 +170,7 @@ cs.import('CSAdminEndpointList', function() {
 										col: o.col
 									},
 									text: (function() {
-										if (o.col == 'ep_enabled') {
+										if (o.col == 'util_enabled') {
 											return (d.enabled === true) ? 'Yes': 'No';
 										} else {
 											return d[o.key]

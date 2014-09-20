@@ -94,7 +94,7 @@ class APIBase(object):
         response = requests.get(get_url, headers=self.API_HEADERS, params=data)
         
         # Return a response
-        self._return(response)
+        return self._return(response)
 
     def _post(self, path, data={}):
         """
@@ -108,4 +108,4 @@ class APIBase(object):
         response = requests.post(post_url, headers=self.API_HEADERS, data=json.dumps(data))
         
         # Return a response
-        self._return(response)
+        return self._return(response)

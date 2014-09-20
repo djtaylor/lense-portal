@@ -69,6 +69,9 @@ class APIBase(object):
         # Parse the response
         parsed = parse_response(response)
         
+        # Parse the body
+        parsed['body'] = json.loads(parsed['body'])
+        
         # If there was an error during the request
         if parsed['code'] != 200:
             error_response(parsed['body']['message'], response=parsed, cli=self.cli)

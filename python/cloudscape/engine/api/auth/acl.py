@@ -146,7 +146,7 @@ class ACLUtility(object):
         
         # Utility name / UUID / object
         self.path   = path
-        self.obj    = DBAuthUtilities.objects.filter(name=self.name).values()[0]
+        self.obj    = DBAuthUtilities.objects.filter(path=self.path).values()[0]
         self.uuid   = self.obj['uuid']
         
     def get(self): 

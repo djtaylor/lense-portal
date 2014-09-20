@@ -604,7 +604,7 @@ class JSONTemplate(UtilsBase):
         # If the object is a string type
         if self._is_type(json_obj, 'str'):
             try:
-                return json.loads(json_obj)
+                return valid(json.loads(json_obj))
             except Exception as e:
                 return invalid('Target object is not valid JSON: %s' % str(e))
             
@@ -612,9 +612,9 @@ class JSONTemplate(UtilsBase):
         if isinstance(json_obj, (dict, list)):
             try:
                 obj_tmp = json.dumps(json_obj)
-                return json_obj
             except:
                 return invalid('Target object is not valid JSON: %s' % str(e))
+            return valid(json_obj)
             
         # JSON object must be a string or list/dictionary
         return invalid('Target object must be either a string or a list/dictionary')

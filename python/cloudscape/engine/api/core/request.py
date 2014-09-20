@@ -78,17 +78,47 @@ class RequestObject(object):
         # GET request
         if self.method == 'GET':
             data = {}
-            LOG.info('QUERY_STRING: %s' % str(self.RAW.META['QUERY_STRING']))
-            for query_pair in self.RAW.META['QUERY_STRING'].split('&'):
-                if '=' in query_pair:
-                    query_set = query_pair.split('=')
-                    data[query_set[0]] = query_set[1]
-                else:
-                    data[query_pair] = True
+            
+            # Store the query string
+            query_str = self.RAW.META['QUERY_STRING']
+            
+            # If the query string is not empty
+            if query_str:
+                
+                # Process each query string key
+                for query_pair in self.RAW.META['QUERY_STRING'].split('&'):
+                    
+                    # If processing a key/value pair
+                    if '=' in query_pair:
+                        query_set = query_pair.split('=')
+                        
+                        # Return JSON if possible
+                        try:
+                            data[query_set[0]] = json.loads(query_set[1])
+                            
+                        # Non-JSON parseable value
+                        except:
+                            
+                            # Integer value
+                            try:
+                                data[query_set[0]] = int(query_set[1])
+                            
+                            # String value
+                            except:
+                                data[query_set[0]] = query_set[1]
+                        
+                    # If processing a key flag
+                    else:
+                        data[query_pair] = True
+                        
+            # Return the request data
             return data
     
     @staticmethod
     def construct(request):
+        """
+        Construct and return a CloudScape request object from a Django request object.
+        """
         return RequestObject(request)
   
 class RequestManager:

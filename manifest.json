@@ -1,0 +1,4 @@
+{
+	"files": ["README.md", "LICENSE"],
+	"folders": ["_local", "build", "conf", "dbkey", "python"]
+}

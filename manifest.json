@@ -1,4 +1,21 @@
 {
-	"files": ["README.md", "LICENSE"],
-	"folders": ["_local", "build", "conf", "dbkey", "python"]
+	"files": [
+		"README.md", 
+		"LICENSE"
+	],
+	"folders": [
+		"_local", 
+		"build", 
+		"conf", 
+		"dbkey", 
+		"python", 
+		"docs"
+	],
+	"links": [
+		"/etc/profile.d/cloudscape.sh", 
+		"/usr/bin/cloudscape"
+		"/usr/bin/cloudscape-scheduler",
+		"/usr/bin/cloudscape-server",
+		"/usr/bin/cloudscape-socket"
+	]
 }

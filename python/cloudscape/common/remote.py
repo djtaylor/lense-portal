@@ -14,7 +14,7 @@ from cloudscape.common.utils import valid, invalid
 
 class RemoteConnect(object):
     """ 
-    Wapper class designed to handle remote SSH connections to both Linux
+    Wrapper class designed to handle remote SSH connections to both Linux
     and Windows hosts. Provides methods to open a connection, run remote
     commands, as well as basic SCP functionality.
     

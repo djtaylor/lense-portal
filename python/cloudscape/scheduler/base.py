@@ -13,9 +13,9 @@ from django.test.client import RequestFactory
 # CloudScape Libraries
 import cloudscape.common.config as config
 import cloudscape.common.logger as logger
-from cloudscape.common.utils import parse_response
+from cloudscape.common.http import parse_response
 import cloudscape.engine.api.core.request as request
-from cloudscape.engine.api.app.auth.utils import DBAuthEndpoints
+from cloudscape.engine.api.app.auth.models import DBAuthUtilities
 from cloudscape.engine.api.app.user.models import DBUserAPITokens
 
 class ScheduleBase(object):
@@ -68,7 +68,7 @@ class ScheduleBase(object):
         """
         
         # Load all available endpoints
-        all_endpoints = list(DBAuthEndpoints.objects.all().values())
+        all_endpoints = list(DBAuthUtilities.objects.all().values())
         
         # Construct an endpoint object with the name as the key
         endpoint_obj = {}

@@ -271,13 +271,18 @@ class CloudScapeInstaller(object):
         self.fb.show('Initialized server configuration [%s] -> [%s]' % (def_config, usr_config)).success()
 
     def _init_dbkeys(self):
-        """
-        Database encryption keys need to be initialized:
         
-        keyczart create --location=/opt/cloudscape/dbkey --purpose=crypt
-        keyczart addkey --location=/opt/cloudscape/dbkey --status=primary --size=256
-        """
-        return
+        # Database encryption key
+        dbkey = '/opt/cloudscape/dbkey'
+        
+        # Attempt to create database encryption keys
+        try:
+            os.system('keyczart create --location=/opt/cloudscape/dbkey --purpose=crypt')
+            os.system('keyczart addkey --location=/opt/cloudscape/dbkey --status=primary --size=256')
+            self.fb.show('Created database encryption keys in: %s' % dbkey)
+        except Exception as e:
+            self.fb.show('Failed to create database encryption keys: %s' % str(e)).error()
+            sys.exit(1)
 
     def _init_log(self):
         
@@ -297,13 +302,56 @@ class CloudScapeInstaller(object):
         sys.path.append('%s/python' % self.base)
         self.fb.show('Appended [%s/python] to Python path' % self.base).success()
 
-    def run(self):
-        #self._copy_local()
-        #self._symlinks()
-        #self._init_config()
+    def _deploy(self):
+        
+        # Deployed flag
+        df = 'tmp/deployed'
+        
+        # If the software has already been deployed
+        if os.path.isfile(df):
+            self.fb.show('Software deployment already completed, skipping...').info()
+            return
+        
+        # Deploy software and setup the environment
+        self._copy_local()
+        self._symlinks()
+        self._init_config()
+        self._init_dbkeys()
+    
+        # Software deployed
+        dh = open(df, 'w')
+        dh.close()
+    
+    def _install(self):
         self._set_env()
         self._find_mod()
         self._try_import()
+
+    def run(self):
+        
+        # Valid installation arguments
+        args = {
+            'deploy': {
+                'help':   '',
+                'method': self._deploy
+            },
+            'install': {
+                'help':   '',
+                'method': self._install
+            }
+        }
+        
+        # Make sure an argument is supplied
+        if not len(sys.argv == 2) or not (sys.argv[1] in args):
+            print 'Missing or invalid argument: [%s]\n' % sys.argv[1]
+            print 'Supported arguments are:'
+            for a,p in args.iteritems():
+                print '> %s: %s' % (a,p['help'])
+            print '\n'
+            sys.exit(1)
+        
+        # Run the installation step
+        self._run[sys.argv[1]]()
     
 if __name__ == '__main__':
     installer = CloudScapeInstaller()

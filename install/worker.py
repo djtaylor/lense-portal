@@ -41,7 +41,7 @@ class CloudScapeInstaller(object):
         imp_def  = {}
         from_def = {}
         
-        for r,d,f in os.walk('python/cloudscape'):
+        for r,d,f in os.walk('../python/cloudscape'):
             for _f in f:
                 
                 # Comment block marker

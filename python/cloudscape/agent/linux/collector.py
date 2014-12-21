@@ -11,7 +11,7 @@ from datetime import timedelta
 # CloudScape Libraries
 from cloudscape.common import logger
 from cloudscape.common.utils import find_restop
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 
 # Embedded 'python-iptables'
 try:

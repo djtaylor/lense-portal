@@ -16,7 +16,7 @@ from Crypto.Cipher import AES
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 from cloudscape.common.vars import SYS_TYPE, A_CONF, S_CONF, PY_WRAPPER, PY_BASE, np
 
 def rstring(length=12):

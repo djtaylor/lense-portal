@@ -5,7 +5,7 @@ from django.db import models
 
 # CloudScape Libraries
 from cloudscape.engine.api.app.locations.models import DBDatacenters
-from cloudscape.engine.api.app.schedule.models import DBSchedules
+#from cloudscape.engine.api.app.schedule.models import DBSchedules
 from cloudscape.engine.api.app.formula.models import DBFormulaDetails
 from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostDKeys, DBHostGroups, DBHostFormulas
 from cloudscape.engine.api.app.network.models import DBNetworkRouters, DBNetworkSwitches, DBNetworkBlocksIPv4, DBNetworkBlocksIPv6, DBNetworkVLANs

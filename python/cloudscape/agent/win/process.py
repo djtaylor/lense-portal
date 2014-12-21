@@ -8,7 +8,7 @@ from importlib import import_module
 
 # CloudScape Libraries
 from cloudscape.common import logger
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 
 # Configuration and logger
 CONFIG = AgentConfig().get()

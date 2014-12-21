@@ -1,21 +1,32 @@
 {
-	"files": [
-		"README.md", 
-		"LICENSE"
-	],
-	"folders": [
-		"_local", 
-		"build", 
-		"conf", 
-		"dbkey", 
-		"python", 
-		"docs"
-	],
-	"links": [
-		"/etc/profile.d/cloudscape.sh", 
-		"/usr/bin/cloudscape"
-		"/usr/bin/cloudscape-scheduler",
-		"/usr/bin/cloudscape-server",
-		"/usr/bin/cloudscape-socket"
-	]
+    "files": [
+       	"README.md",
+        "LICENSE"
+    ],
+    "folders": [
+        "_local",
+        "build",
+        "conf",
+        "dbkey",
+        "python",
+        "docs"
+    ],
+    "links": [
+        "/etc/profile.d/cloudscape.sh",
+        "/usr/bin/cloudscape",
+        "/usr/bin/cloudscape-scheduler",
+        "/usr/bin/cloudscape-server",
+        "/usr/bin/cloudscape-socket"
+    ],
+    "modules": {
+        "ignore": [
+            "win32event",
+            "win32pdh",
+            "wmi",
+            "pythoncom",
+            "win32service",
+            "win32serviceutil",
+            "win32evtlogutil"
+        ]
+    }
 }

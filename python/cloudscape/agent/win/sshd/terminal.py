@@ -13,7 +13,7 @@ from cloudscape.common.vars import C_HOME
 
 # CloudScape Libraries
 from cloudscape.common import logger
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 
 # SSHD Modules
 from cloudscape.agent.win.sshd.modules import cmd_cd

@@ -11,7 +11,7 @@ from paramiko.buffered_pipe import BufferedPipe
 
 # CloudScape Libraries
 from cloudscape.common import logger
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 
 """ SSH2 Response Codes
 

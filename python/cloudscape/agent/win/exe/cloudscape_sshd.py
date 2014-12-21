@@ -13,7 +13,7 @@ import win32serviceutil
 from cloudscape.common import logger
 from cloudscape.common.vars import C_HOME
 from cloudscape.agent.win.process import Process
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 from cloudscape.common.utils import CmdEmbedded
 
 """

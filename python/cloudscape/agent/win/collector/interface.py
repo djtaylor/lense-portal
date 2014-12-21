@@ -10,7 +10,7 @@ from datetime import timedelta
 # CloudScape Libraries
 from cloudscape.common import logger
 from cloudscape.common.collection import Collection
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 
 # CloudScape Libraries
 from cloudscape.agent.win.collector.base import CollectorBase

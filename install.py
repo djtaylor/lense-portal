@@ -4,9 +4,10 @@ import re
 import sys
 import json
 import shutil
+import traceback
 import importlib
 from distutils import dir_util
-from __builtin__ import False
+from __builtin__ import False, True
 
 # Load the feedback handler
 from python.cloudscape.common.feedback import Feedback
@@ -14,6 +15,11 @@ from python.cloudscape.common.feedback import Feedback
 class CloudScapeInstaller(object):
     """
     Class used to install CloudScape from GitHub sources.
+    
+    INSTALLATION NOTES:
+    
+    python-six: Needs to be at least version 1.6.x. Can be fixed using
+    'pip install --upgrade six'.
     """
     def __init__(self):
     
@@ -158,26 +164,47 @@ class CloudScapeInstaller(object):
         # Set the required imports objects
         self.modules = { 'import': imp_def, 'from': from_def }
     
+    def _import_wrapper(self, mod):
+        try:
+            i = importlib.import_module(mod)
+            self.fb.show('Discovered module [%s]' % mod).success()
+            return i
+        except Exception as e:
+                self.fb.show('Failed to import required module [%s]: %s' % (mod, str(e))).error()
+                traceback.print_exc()
+                sys.exit(1)
+        
+    def _skip_import(self, mod):
+        
+        # Skip Windows agent modules
+        if re.match(r'cloudscape\.agent\.win.*$', mod):
+            return True
+        
+        # Skip explicity ignored modules
+        if mod in self.manifest['modules']['ignore']:
+            return True
+        
     def _try_import(self):
         self.fb.show('Checking for required modules and objects...').info()
+        
         for o,a in self.modules['import'].iteritems():
-            try:
-                importlib.import_module(o)
-                self.fb.show('Located module [%s]' % o).success()
-            except Exception as e:
-                self.fb.show('Failed to locate required module [%s]: %s' % (o, str(e))).error()
-                sys.exit(1)
+            if self._skip_import(o):
+                continue
+            
+            # Make sure the module is available
+            self._import_wrapper(o)
             
         for f,o in self.modules['from'].iteritems():
-            try:
-                mod = importlib.import_module(f)
-            except Exception as e:
-                self.fb.show('Failed to locate required module [%s]: %s' % (f, str(e))).error()
-                sys.exit(1)
+            if self._skip_import(f):
+                continue
+            
+            # Make sure the module is available
+            i = self._import_wrapper(f)
                 
             for _o,a in o.iteritems():
-                if not hasattr(mod, _o):
-                    self.fb.show('Module [%s] has no object [%s]' % (mod, _o)).error()
+                if not hasattr(i, _o):
+                    self.fb.show('Module [%s] has no object [%s]' % (f, _o)).error()
+                    print dir(i)
                     sys.exit(1)
     
     def _load_manifest(self):
@@ -239,9 +266,48 @@ class CloudScapeInstaller(object):
                 self.fb.show('Failed to create system link [%s] -> [%s]: %s' % (src, dst, str(e))).error()
                 sys.exit(1)
 
+    def _init_config(self):
+        
+        # Default and user defined configuration files
+        def_config = '%s/conf/default/server.conf' % self.base
+        usr_config = '%s/conf/server.conf' % self.base
+        
+        # Create the user defined configuration file
+        shutil.copyfile(def_config, usr_config)
+        self.fb.show('Initialized server configuration [%s] -> [%s]' % (def_config, usr_config)).success()
+
+    def _init_dbkeys(self):
+        """
+        Database encryption keys need to be initialized:
+        
+        keyczart create --location=/opt/cloudscape/dbkey --purpose=crypt
+        keyczart addkey --location=/opt/cloudscape/dbkey --status=primary --size=256
+        """
+        return
+
+    def _init_log(self):
+        
+        # Default log directory
+        log_dir = '/var/log/cloudscape'
+        dir_util.mkpath(log_dir)
+
+    def _set_env(self):
+        
+        # CloudScape base path
+        os.environ['CLOUDSCAPE_BASE'] = self.base
+        
+        # Django settings module
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'cloudscape.engine.api.core.settings'
+        
+        # Make Python modules accessible
+        sys.path.append('%s/python' % self.base)
+        self.fb.show('Appended [%s/python] to Python path' % self.base).success()
+
     def run(self):
-        self._copy_local()
-        self._symlinks()
+        #self._copy_local()
+        #self._symlinks()
+        #self._init_config()
+        self._set_env()
         self._find_mod()
         self._try_import()
     

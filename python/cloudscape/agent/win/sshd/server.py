@@ -14,7 +14,7 @@ from paramiko.message import Message
 # CloudScape Libraries
 from cloudscape.common import logger
 from cloudscape.common.vars import C_HOME, SSH_AUTHKEYS, SSH_HOSTKEY, SSH_DIR
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 from cloudscape.agent.win.base import AgentHandler
 from cloudscape.agent.win.sshd.scp import SCPInterface
 from cloudscape.agent.win.sshd.terminal import WinTerminal

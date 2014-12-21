@@ -16,7 +16,7 @@ from cloudscape.common.vars import A_RUNNING, A_ERROR, A_STOPPED, \
 from cloudscape.common import logger
 from cloudscape.common.utils import pyexec, format_action
 from cloudscape.client.manager import APIConnect
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 from cloudscape.agent.win.collector.interface import CollectorInterface
 from cloudscape.agent.formula import AgentFormulaParse, AgentFormulaExec
 

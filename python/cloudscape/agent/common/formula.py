@@ -11,7 +11,7 @@ from cloudscape.common import logger
 from cloudscape.common.vars import SYS_TYPE, FORMULA_DIR, FORMULA_LOG, np
 from cloudscape.common.utils import FileSec, pyexec
 from cloudscape.client.manager import APIConnect
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 
 # Configuration and logger objects
 CONFIG = AgentConfig().get()

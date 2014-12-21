@@ -19,7 +19,7 @@ from cloudscape.common import logger
 from cloudscape.common.utils import format_action
 from cloudscape.common.feedback import Feedback
 from cloudscape.client.manager import APIConnect
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 from cloudscape.agent.linux.collector import AgentCollector
 from cloudscape.agent.formula import AgentFormulaExec, AgentFormulaParse
 

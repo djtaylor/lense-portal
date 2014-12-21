@@ -13,7 +13,7 @@ import win32serviceutil
 # CloudScape Libraries
 from cloudscape.common import logger
 from cloudscape.agent.win.process import Process
-from cloudscape.agent.config import AgentConfig
+from cloudscape.agent.common.config import AgentConfig
 from cloudscape.agent.win.base import AgentHandler
 from cloudscape.common.utils import CmdEmbedded
 

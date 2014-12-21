@@ -21,7 +21,7 @@ from cloudscape.common.feedback import Feedback
 from cloudscape.client.manager import APIConnect
 from cloudscape.agent.common.config import AgentConfig
 from cloudscape.agent.linux.collector import AgentCollector
-from cloudscape.agent.formula import AgentFormulaExec, AgentFormulaParse
+from cloudscape.agent.common.formula import AgentFormulaExec, AgentFormulaParse
 
 # Configuration and logger objects
 CONFIG = AgentConfig().get()

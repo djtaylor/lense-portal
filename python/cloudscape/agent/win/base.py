@@ -18,7 +18,7 @@ from cloudscape.common.utils import pyexec, format_action
 from cloudscape.client.manager import APIConnect
 from cloudscape.agent.common.config import AgentConfig
 from cloudscape.agent.win.collector.interface import CollectorInterface
-from cloudscape.agent.formula import AgentFormulaParse, AgentFormulaExec
+from cloudscape.agent.common.formula import AgentFormulaParse, AgentFormulaExec
 
 # Configuration and logger objects
 CONFIG = AgentConfig().get()

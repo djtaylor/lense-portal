@@ -199,13 +199,7 @@ class CloudScapeInstaller(object):
                 continue
             
             # Make sure the module is available
-            i = self._import_wrapper(f)
-                
-            for _o,a in o.iteritems():
-                if not hasattr(i, _o):
-                    self.fb.show('Module [%s] has no object [%s]' % (f, _o)).error()
-                    print dir(i)
-                    sys.exit(1)
+            self._import_wrapper(f)
     
     def _load_manifest(self):
         if not os.path.isfile('manifest.json'):

@@ -74,31 +74,31 @@ class ClusterIndex:
         self.map      = {
             'host': {
                 'extract':  self._extract_hosts,
-                'endpoint': 'host/get'
+                'utility': 'host/get'
             },
             'formula': {
                 'extract':  self._extract_formulas,
-                'endpoint': 'formula/get'
+                'utility': 'formula/get'
             },
             'datacenter': {
                 'extract':  self._extract_datacenters,
-                'endpoint': 'locations/datacenters/get'
+                'utility': 'locations/datacenters/get'
             },
             'hgroup': {
                 'extract':  self._extract_hgroups,
-                'endpoint': 'host/group/get'
+                'utility': 'host/group/get'
             },
             'user': {
                 'extract':  self._extract_users,
-                'endpoint': 'user/get'
+                'utility': 'user/get'
             },
             'group': {
                 'extract':  self._extract_groups,
-                'endpoint': 'group/get'
+                'utility': 'group/get'
             },
-            'endpoint': {
-                'extract':  self._extract_endpoints,
-                'endpoint': 'auth/endpoints/get'
+            'utility': {
+                'extract':  self._extract_utils,
+                'utility': 'auth/utility/get'
             }
         }
         
@@ -108,17 +108,17 @@ class ClusterIndex:
         # Index rows
         self.rows     = []
         
-    def _extract_endpoints(self, endpoints):
+    def _extract_utils(self, utils):
         """
-        Extract only the details required for an endpoint object row.
+        Extract only the details required for a utility object row.
         """
         ret = []
-        for endpoint in endpoints:
+        for util in utils:
             ret.append({
-                'type':   'endpoint',
-                'string': '%s %s %s %s %s' % (endpoint['name'], endpoint['desc'], endpoint['method'], endpoint['cls'], endpoint['mod']),
-                'label':  '%s:%s' % (endpoint['name'], endpoint['method']),
-                'url':    '%s/admin?panel=endpoints&endpoint=%s' % (self.base_url, endpoint['uuid']) 
+                'type':   'utility',
+                'string': '%s %s %s %s %s' % (util['name'], util['desc'], util['method'], util['cls'], util['mod']),
+                'label':  '%s:%s' % (util['name'], util['method']),
+                'url':    '%s/admin?panel=utilities&utility=%s' % (self.base_url, util['uuid']) 
             })
         return ret
         
@@ -217,7 +217,7 @@ class ClusterIndex:
         Walk through the map and extract all objects.
         """
         for t,o in self.map.iteritems():
-            self.rows = self.rows + o['extract'](self.api.acl.authorized_objects(t, o['endpoint']).details)
+            self.rows = self.rows + o['extract'](self.api.acl.authorized_objects(t, o['utility']).details)
         
     def launch(self):
         """

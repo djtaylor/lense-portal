@@ -10,7 +10,37 @@ from distutils import dir_util
 from __builtin__ import False, True
 
 # Load the feedback handler
-from python.cloudscape.common.feedback import Feedback
+sys.path.append('../python')
+from cloudscape.common.feedback import Feedback
+from cloudscape.common.collection import Collection
+import cloudscape.common.config as config  
+
+class CloudScapeConfig(object):
+    """
+    Object used to store user/default configuration values.
+    """
+    def __init__(self):
+        
+        # Configuration file / parsed object
+        self._ci = self._config_exists()
+        self._co = None
+        
+        # Default configuration values
+        self._dc = {
+            'paths': {
+                'base': '/opt/cloudscape'
+            }
+        }
+        
+    def _config_exists(self):
+        if not os.path.isfile('config.ini'):
+            return False
+        return True
+
+    def construct(self):
+        if not self._ci:
+            return Collection(self._dc).get()
+        return config.parse('config.ini')
 
 class CloudScapeInstaller(object):
     """
@@ -232,17 +262,19 @@ class CloudScapeInstaller(object):
                 
         # Copy folders
         for f in self.manifest['folders']:
+            _f = '../%s' % f
             try:
-                dir_util.copy_tree(f, '%s/%s' % (self.base, f))
+                dir_util.copy_tree(_f, '%s/%s' % (self.base, f))
                 self.fb.show('Copying directory [%s] to [%s/%s]' % (f, self.base, f)).success()
             except Exception as e:
                 self.fb.show('Failed to copy directory [%s] to [%s/%s]: %s' % (f, self.base, f, str(e))).error()
                 sys.exit(1)
             
         # Copy files
-        for f in self.manifest['files']:
+        for file in self.manifest['files']:
+            _f = '../%s' % f
             try:
-                shutil.copyfile(f, '%s/%s' % (self.base, f))
+                shutil.copyfile(_f, '%s/%s' % (self.base, f))
                 self.fb.show('Copying file [%s] to [%s/%s]' % (f, self.base, f)).success()
             except Exception as e:
                 self.fb.show('Failed to copy file [%s] to [%s/%s]: %s' % (f, self.base, f, str(e))).error()
@@ -342,7 +374,7 @@ class CloudScapeInstaller(object):
         }
         
         # Make sure an argument is supplied
-        if not len(sys.argv == 2) or not (sys.argv[1] in args):
+        if not (len(sys.argv) == 2) or not (sys.argv[1] in args):
             print 'Missing or invalid argument: [%s]\n' % sys.argv[1]
             print 'Supported arguments are:'
             for a,p in args.iteritems():
@@ -351,7 +383,7 @@ class CloudScapeInstaller(object):
             sys.exit(1)
         
         # Run the installation step
-        self._run[sys.argv[1]]()
+        args[sys.argv[1]]['method']()
     
 if __name__ == '__main__':
     installer = CloudScapeInstaller()

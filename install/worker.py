@@ -7,13 +7,12 @@ import shutil
 import traceback
 import importlib
 from distutils import dir_util
-from __builtin__ import False, True
+from __builtin__ import False, True  
 
-# Load the feedback handler
-sys.path.append('../python')
-from cloudscape.common.feedback import Feedback
-from cloudscape.common.collection import Collection
-import cloudscape.common.config as config  
+# Feedback / collection / configuration objects
+Feedback   = None
+Collection = None
+config     = None
 
 class CloudScapeConfig(object):
     """
@@ -56,11 +55,9 @@ class CloudScapeInstaller(object):
         # These values should be user configurable
         self.base     = '/opt/cloudscape'
     
-        # Feedback handler
-        self.fb       = Feedback()
-    
-        # Load the installation manifest
-        self.manifest = self._load_manifest()
+        # Feedback handler / manifest
+        self.fb       = None
+        self.manifest = None
     
         # Required modules and imports
         self.modules  = {}
@@ -334,7 +331,25 @@ class CloudScapeInstaller(object):
         sys.path.append('%s/python' % self.base)
         self.fb.show('Appended [%s/python] to Python path' % self.base).success()
 
+    def _load_mods(self):
+        
+        # Make the import variables global
+        global Feedback, Collection, config
+        
+        # Import the modules into the global namespace
+        from cloudscape.common.feedback import Feedback
+        from cloudscape.common.collection import Collection
+        import cloudscape.common.config as config
+
     def _deploy(self):
+        
+        # Enable access to CloudScape modules prior to deployment
+        sys.path.append('../python')
+        self._load_mods()
+        
+        # Load the feedback handler and manifest
+        self.fb       = Feedback()
+        self.manifest = self._load_manifest()
         
         # Deployed flag
         df = 'tmp/deployed'
@@ -355,6 +370,14 @@ class CloudScapeInstaller(object):
         dh.close()
     
     def _install(self):
+        
+        # Load CloudScape modules
+        self._load_mods()
+        
+        # Load the feedback handler and manifest
+        self.fb       = Feedback()
+        self.manifest = self._load_manifest()
+        
         self._set_env()
         self._find_mod()
         self._try_import()

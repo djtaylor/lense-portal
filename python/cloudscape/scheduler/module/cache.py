@@ -2,7 +2,7 @@ import importlib
 
 # CloudScape Libraries
 from cloudscape.scheduler.base import ScheduleBase
-from cloudscape.engine.api.core.cache import CacheManager
+from cloudscape.engine.api.objects.cache import CacheManager
 from cloudscape.engine.api.app.auth.models import DBAuthACLObjects
 
 class ScheduleModule(ScheduleBase):

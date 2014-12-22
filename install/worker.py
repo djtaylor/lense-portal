@@ -271,7 +271,7 @@ class CloudScapeInstaller(object):
                 sys.exit(1)
             
         # Copy files
-        for file in self.manifest['files']:
+        for f in self.manifest['files']:
             _f = '../%s' % f
             try:
                 shutil.copyfile(_f, '%s/%s' % (self.base, f))
@@ -364,22 +364,22 @@ class CloudScapeInstaller(object):
         # Valid installation arguments
         args = {
             'deploy': {
-                'help':   '',
+                'help':   'Deploy CloudScape files and configure the environment and libraries',
                 'method': self._deploy
             },
             'install': {
-                'help':   '',
+                'help':   'Run the installation script to bootstrap the CloudScape environment',
                 'method': self._install
             }
         }
         
         # Make sure an argument is supplied
         if not (len(sys.argv) == 2) or not (sys.argv[1] in args):
-            print 'Missing or invalid argument: [%s]\n' % sys.argv[1]
+            print '\nworker.py: Missing or invalid argument: [%s]\n' % 'none' if not (len(sys.argv) == 2) else sys.argv[1]
             print 'Supported arguments are:'
             for a,p in args.iteritems():
                 print '> %s: %s' % (a,p['help'])
-            print '\n'
+            print ''
             sys.exit(1)
         
         # Run the installation step

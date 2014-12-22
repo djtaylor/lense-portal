@@ -14,7 +14,6 @@ from django.http import HttpResponseRedirect, HttpResponseServerError
 # CloudScape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
-from cloudscape.portal.ui.core import utils
 from cloudscape.portal.ui.core.filter import APIFilter
 
 class PortalTemplate(object):

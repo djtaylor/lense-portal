@@ -2,6 +2,13 @@
 #
 # Manager script for accessing the Python worker installation script.
 
+worker() {
+	./worker "$1"
+	if [ $(echo $?) != 0]; then
+		exit $?
+	fi 	
+}
+
 # Current / installation locations
 C_LOCATION=$(pwd)
 I_LOCATION=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -13,19 +20,13 @@ cd $I_LOCATION
 mkdir -p tmp
 
 # Deploy local files and configure the environment
-./worker.py "deploy"
-if [ $(echo $?) != 0 ]; then
-	exit $?
-fi
+worker "deploy"
 
 # Reload the environment and static library paths
 source /etc/profile && ldconfig
 
 # Run the main installation step
-./worker.py "install"
-if [ $(echo $?) != 0 ]; then
-	exit $?
-fi
+worker "install"
 
 # Return the the initial directory
 cd $C_LOCATION

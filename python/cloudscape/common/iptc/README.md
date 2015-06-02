@@ -1,1 +1,0 @@
-Embedded copy of the 'python-iptables' module.

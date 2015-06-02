@@ -46,7 +46,7 @@ C_USER         = 'cloudscape'
 # Static System Definitions
 W_BASE         = 'C:\\CloudScapeAgent'
 W_HOME         = '%s\\home' % W_BASE
-L_BASE         = '/opt/cloudscape'
+L_BASE         = '/home/cloudscape'
 L_HOME         = '/home/cloudscape'
 
 # Host types

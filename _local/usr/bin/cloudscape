@@ -18,7 +18,7 @@ class CLIClient(object):
     def __init__(self):
         
         # API connection attributes
-        self.api     = self._api_env()
+        self._get_api_env()
     
         # API client and connection parameters
         self.client  = None
@@ -34,30 +34,24 @@ class CLIClient(object):
         # Parse CLI arguments
         self._parse_args()
     
-    def _api_env(self):
+    def _get_api_env(self):
         """
         Look for API connection environment variables.
         """
         
-        # Look for the following environment variables
-        api_env = {
+        # Look for environment connection variables
+        # If any are found, store them and return
+        _api = {}
+        for k,v in {
             'user':  'CS_API_USER',
             'key':   'CS_API_KEY',
             'group': 'CS_API_GROUP'
-        }
-        
-        # Return the API connection attributes
-        api_ret = {}
-        
-        # Scan environment variables and look for connection attributes
-        for k,v in api_env.iteritems():
+        }.iteritems():
             if v in os.environ:
-                api_ret[k] = os.environ[v] 
-                
-        # Return any discovered connection attributes
-        return api_ret
+                _api[k] = os.environ[v] 
+        return _api
     
-    def _api_connect(self):
+    def _connect_api(self):
         """
         Establish an API connection using the client libraries.
         """
@@ -130,16 +124,32 @@ class CLIClient(object):
         Handle any command line arguments.
         """
         
+        # Argument errors
+        _req_args = {
+            'api_user': 'Missing required argument "api_user"',
+            'api_group': 'Missing required argument "api_group"',
+            'api_key': 'Missing required argum'
+        }
+        
+        _abort = False
+        for k,v in self.args.iteritems():
+            if not k in self._req_args:
+                _abort = True
+                print 'ERROR: %s' % self._req_args[k]
+        
+        if _abort:
+            sys.exit(1)
+        
         # Make sure the required authentication parameters are set
         if not 'user' in self.api:
             if not 'api_user' in self.args:
-                print 'API user not found in environment variables or as an argument'
+                print ''
                 sys.exit(1)
             else:
                 self.api['user'] = self.args['api_user']
         if not 'group' in self.api:
             if not 'api_group' in self.args:
-                print 'API user group not found in environment variables or as an argument'
+                print ''
                 sys.exit(1)
             else:
                 self.api['group'] = self.args['api_group']

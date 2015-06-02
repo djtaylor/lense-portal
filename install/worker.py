@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import re
+import apt
 import sys
 import json
 import shutil
@@ -9,37 +10,17 @@ import importlib
 from distutils import dir_util
 from __builtin__ import False, True  
 
-# Feedback / collection / configuration objects
-Feedback   = None
-Collection = None
-config     = None
+# Installation libraries
+from lib.db import CloudScapeDatabase
+from lib.util import CloudScapeUtils
+from lib.config import CloudScapeConfig
+from lib.apache import CloudScapeApache
+from lib.nodejs import CloudScapeNodeJS
+from lib.modules import CloudScapeModules
 
-class CloudScapeConfig(object):
-    """
-    Object used to store user/default configuration values.
-    """
-    def __init__(self):
-        
-        # Configuration file / parsed object
-        self._ci = self._config_exists()
-        self._co = None
-        
-        # Default configuration values
-        self._dc = {
-            'paths': {
-                'base': '/opt/cloudscape'
-            }
-        }
-        
-    def _config_exists(self):
-        if not os.path.isfile('config.ini'):
-            return False
-        return True
-
-    def construct(self):
-        if not self._ci:
-            return Collection(self._dc).get()
-        return config.parse('config.ini')
+# Installer utilities
+UTIL = CloudScapeUtils()
+CONF = CloudScapeConfig().construct()
 
 class CloudScapeInstaller(object):
     """
@@ -52,152 +33,34 @@ class CloudScapeInstaller(object):
     """
     def __init__(self):
     
-        # These values should be user configurable
-        self.base     = '/opt/cloudscape'
-    
-        # Feedback handler / manifest
-        self.fb       = None
+        # Installation manifest
         self.manifest = None
     
+        # Installation utilities
+        self.db = CloudScapeDatabase(CONF)
+    
+        # Set up logging
+        self._bootstrap_log()
+    
         # Required modules and imports
-        self.modules  = {}
+        self.modules  = CloudScapeModules().construct()
     
-    def _find_mod(self):
+    def _bootstrap_log(self):
+        _log_dir = '/var/log/cloudscape'
+        _log_file = '%s/server.log' % _log_dir
         
-        # Store all imported modules
-        imp_def  = {}
-        from_def = {}
-        
-        for r,d,f in os.walk('../python/cloudscape'):
-            for _f in f:
-                
-                # Comment block marker
-                is_comment = False
-                
-                # If scanning a regular Python file
-                if re.match(r'^.*\.py$', _f):
-                    file = '%s/%s' % (r, _f)
-                    contents = open(file, 'r').read()
-
-                    # If processing a multi-line import statement                    
-                    is_from  = False
-                    from_mod = None
-                    is_imp   = False
-                
-                    # Process each file line
-                    for l in contents.splitlines():
-                        
-                        # If processing a single line comment block
-                        if re.match(r'^[ ]*"""[^"]*"""$', l):
-                            continue
-                        
-                        # If processing a comment block
-                        if is_comment:
-                            if '"""' in l:
-                                is_comment = False
-                            continue    
-                    
-                        # If processing the opening of a comment block
-                        if '"""' in l:
-                            is_comment = True
-                            continue
-                    
-                        # If processing a single line comment
-                        if re.match(r'^[ ]*#.*$', l):
-                            continue
-                        
-                        # If processing a multi-line import statement
-                        if is_imp:
-                            for i in l.strip().split(','):
-                                is_imp = False if not '\\' in i else True
-                        
-                                if i.strip():
-                                    if not i in imp_def:
-                                        as_name = False
-                                        m_name  = i.strip()
-                                        if ' as ' in i:
-                                            i_name  = re.compile(r'(^[^ ]*)[ ]*as[ ]*.*$').sub(r'\g<1>', i)
-                                            as_name = re.compile(r'^[^ ]*[ ]*as[ ]*(.*$)').sub(r'\g<1>', i)
-                                        if i != '\\':
-                                            imp_def[i_name.replace('(', '').replace(')', '')] = as_name
-                            continue
-                        
-                        # If processing a multi-line from statement
-                        if is_from:
-                            for f in l.strip().split(','):
-                                is_from = False if not '\\' in f else True
-                                
-                                if not f in from_def[from_mod]:
-                                    as_name  = False
-                                    obj_name = f.strip()
-                                    if ' as ' in f:
-                                        obj_name = re.compile(r'(^[^ ]*)[ ]*as[ ]*.*$').sub(r'\g<1>', f)
-                                        as_name  = re.compile(r'^[^ ]*[ ]*as[ ]*(.*$)').sub(r'\g<1>', f)
-                                    if obj_name != '\\':
-                                        from_def[from_mod][obj_name.replace('(', '').replace(')', '')] = as_name
-                            continue
-                        
-                        # Look for either entire module or module object imports
-                        imp_match = re.match(r'^import[ ]*.*$', l)
-                        from_match = re.match(r'^from[ ]*.*$', l)
-                        if imp_match or from_match:
-                            
-                            # If importing entire module(s)
-                            if imp_match:
-                                imp_mods = re.compile(r'^import[ ]*(.*$)').sub(r'\g<1>', l)
-                                for m in imp_mods.split(','):
-                                    
-                                    # If continuing import statements on the next line
-                                    if '\\' in m:
-                                        is_imp = True
-                                    
-                                    if m.strip():
-                                        if not m in imp_def:
-                                            as_name = False
-                                            m_name  = m.strip()
-                                            if ' as ' in m:
-                                                m_name  = re.compile(r'(^[^ ]*)[ ]*as[ ]*.*$').sub(r'\g<1>', m)
-                                                as_name = re.compile(r'^[^ ]*[ ]*as[ ]*(.*$)').sub(r'\g<1>', m)
-                                            imp_def[m_name.replace('(', '').replace(')', '')] = as_name
-                                
-                            # If importing specific objects from module(s)
-                            if from_match:
-                                from_regex = re.compile(r'^from[ ]*([^ ]*)[ ]*import[ ]*(.*$)')
-                                from_mod   = from_regex.sub(r'\g<1>', l)
-                                from_objs  = from_regex.sub(r'\g<2>', l)
-                                
-                                if not from_mod in from_def:
-                                    from_def[from_mod] = {}
-                                    
-                                # Get each object being imported from the module
-                                for _obj in from_objs.split(','):
-                                    obj = _obj.strip()
-                                    if not obj:
-                                        continue
-                                    
-                                    # If continuing import statements on the next line
-                                    if '\\' in obj:
-                                        is_from = True
-                                    
-                                    if not obj in from_def[from_mod]:
-                                        as_name  = False
-                                        obj_name = obj.strip()
-                                        if ' as ' in obj:
-                                            obj_name = re.compile(r'(^[^ ]*)[ ]*as[ ]*.*$').sub(r'\g<1>', obj)
-                                            as_name  = re.compile(r'^[^ ]*[ ]*as[ ]*(.*$)').sub(r'\g<1>', obj)
-                                        if obj_name != '\\':
-                                            from_def[from_mod][obj_name.replace('(', '').replace(')', '')] = as_name
-    
-        # Set the required imports objects
-        self.modules = { 'import': imp_def, 'from': from_def }
+        if not os.path.isdir(_log_dir):
+            os.mkdir(_log_dir)
+        if not os.path.isfile(_log_file):
+            open(_log_file, 'a')
     
     def _import_wrapper(self, mod):
         try:
             i = importlib.import_module(mod)
-            self.fb.show('Discovered module [%s]' % mod).success()
+            UTIL.fb.show('Discovered module [%s]' % mod).success()
             return i
         except Exception as e:
-                self.fb.show('Failed to import required module [%s]: %s' % (mod, str(e))).error()
+                UTIL.fb.show('Failed to import required module [%s]: %s' % (mod, str(e))).error()
                 traceback.print_exc()
                 sys.exit(1)
         
@@ -211,8 +74,29 @@ class CloudScapeInstaller(object):
         if mod in self.manifest['modules']['ignore']:
             return True
         
+    def _install_apt(self):
+        cache = apt.cache.Cache()
+        cache.update()
+        for pkg in self.manifest['packages']['apt']:
+            pkg = cache[pkg_name]   
+            if pkg.is_installed:
+                UTIL.fb.show('apt: Package "%s" already installed' % pkg_name).info()
+            else:
+                pkg.mark_install()
+
+                try:
+                    cache.commit()
+                    UTIL.fb.show('apt: Package "%s" successfully installed' % pkg_name).success()
+                except Exception as e:
+                    UTIL.fb.show('apt: Failed to install package "%s"' % pkg_name).error()
+                    sys.exit(1)
+        
+    def _install_pip(self):
+        import pip
+        pip.main(['install', self.manifest['packages']['pip']])
+        
     def _try_import(self):
-        self.fb.show('Checking for required modules and objects...').info()
+        UTIL.fb.show('Checking for required modules and objects...').info()
         
         for o,a in self.modules['import'].iteritems():
             if self._skip_import(o):
@@ -228,18 +112,21 @@ class CloudScapeInstaller(object):
             # Make sure the module is available
             self._import_wrapper(f)
     
+        # All modules discovered
+        UTIL.fb.show('All required modules discovered in system Python path!').success()
+    
     def _load_manifest(self):
         if not os.path.isfile('manifest.json'):
-            self.fb.show('Missing installation manifest file [manifest.json]').error()
+            UTIL.fb.show('Missing installation manifest file [manifest.json]').error()
             sys.exit(1)
-        self.fb.show('Discovered installation manifest file [manifest.json]').success()
+        UTIL.fb.show('Discovered installation manifest file [manifest.json]').success()
     
         try:
             _manifest = json.loads(open('manifest.json', 'r').read())    
-            self.fb.show('Parsed installation manifest file [manifest.json]').success()
+            UTIL.fb.show('Parsed installation manifest file [manifest.json]').success()
             return _manifest
         except Exception as e:
-            self.fb.show('Failed to parse manifest file [manifest.json]: %s' % str(e)).error()
+            UTIL.fb.show('Failed to parse manifest file [manifest.json]: %s' % str(e)).error()
             sys.exit(1)
     
     def _mkdir(self, path):
@@ -249,114 +136,95 @@ class CloudScapeInstaller(object):
             return
     
     def _copy_local(self):
-        self.fb.show('Copying CloudScape files to installation directory [%s]' % self.base).info()
+        UTIL.fb.show('Copying CloudScape files to installation directory [%s]' % CONF.paths.base).info()
         
         # Make sure the base directory is available
-        if os.path.isdir(self.base):
-            self.fb.show('CloudScape base directory [%s] already exists' % self.base).error()
+        if os.path.isdir(CONF.paths.base):
+            UTIL.fb.show('CloudScape base directory [%s] already exists' % CONF.paths.base).error()
             sys.exit(1)
-        self._mkdir(self.base)
+        self._mkdir(CONF.paths.base)
                 
         # Copy folders
         for f in self.manifest['folders']:
             _f = '../%s' % f
             try:
-                dir_util.copy_tree(_f, '%s/%s' % (self.base, f))
-                self.fb.show('Copying directory [%s] to [%s/%s]' % (f, self.base, f)).success()
+                dir_util.copy_tree(_f, '%s/%s' % (CONF.paths.base, f))
+                UTIL.fb.show('Copying directory [%s] to [%s/%s]' % (f, CONF.paths.base, f)).success()
             except Exception as e:
-                self.fb.show('Failed to copy directory [%s] to [%s/%s]: %s' % (f, self.base, f, str(e))).error()
+                UTIL.fb.show('Failed to copy directory [%s] to [%s/%s]: %s' % (f, CONF.paths.base, f, str(e))).error()
                 sys.exit(1)
             
         # Copy files
         for f in self.manifest['files']:
             _f = '../%s' % f
             try:
-                shutil.copyfile(_f, '%s/%s' % (self.base, f))
-                self.fb.show('Copying file [%s] to [%s/%s]' % (f, self.base, f)).success()
+                shutil.copyfile(_f, '%s/%s' % (CONF.paths.base, f))
+                UTIL.fb.show('Copying file [%s] to [%s/%s]' % (f, CONF.paths.base, f)).success()
             except Exception as e:
-                self.fb.show('Failed to copy file [%s] to [%s/%s]: %s' % (f, self.base, f, str(e))).error()
+                UTIL.fb.show('Failed to copy file [%s] to [%s/%s]: %s' % (f, CONF.paths.base, f, str(e))).error()
                 sys.exit(1)
 
     def _symlinks(self):
-        self.fb.show('Creating system links...').info()
+        UTIL.fb.show('Creating system links...').info()
         for l in self.manifest['links']:
-            src = '%s/_local%s' % (self.base, l)
+            src = '%s/_local%s' % (CONF.paths.base, l)
             dst = l
             try:
                 os.symlink(src, dst)
-                self.fb.show('Created system link [%s] -> [%s]' % (src, dst)).success()
+                UTIL.fb.show('Created system link [%s] -> [%s]' % (src, dst)).success()
             except Exception as e:
-                self.fb.show('Failed to create system link [%s] -> [%s]: %s' % (src, dst, str(e))).error()
+                UTIL.fb.show('Failed to create system link [%s] -> [%s]: %s' % (src, dst, str(e))).error()
                 sys.exit(1)
 
     def _init_config(self):
         
         # Default and user defined configuration files
-        def_config = '%s/conf/default/server.conf' % self.base
-        usr_config = '%s/conf/server.conf' % self.base
+        def_config = '%s/conf/default/server.conf' % CONF.paths.base
+        usr_config = '%s/conf/server.conf' % CONF.paths.base
         
         # Create the user defined configuration file
         shutil.copyfile(def_config, usr_config)
-        self.fb.show('Initialized server configuration [%s] -> [%s]' % (def_config, usr_config)).success()
+        UTIL.fb.show('Initialized server configuration [%s] -> [%s]' % (def_config, usr_config)).success()
 
     def _init_dbkeys(self):
         
-        # Database encryption key
-        dbkey = '/opt/cloudscape/dbkey'
-        
         # Attempt to create database encryption keys
         try:
-            os.system('keyczart create --location=/opt/cloudscape/dbkey --purpose=crypt')
-            os.system('keyczart addkey --location=/opt/cloudscape/dbkey --status=primary --size=256')
-            self.fb.show('Created database encryption keys in: %s' % dbkey)
+            os.system('keyczart create --location=%s --purpose=crypt' % CONF.paths.dbkey)
+            os.system('keyczart addkey --location=%s --status=primary --size=256' % CONF.paths.dbkey)
+            UTIL.fb.show('Created database encryption keys in: %s' % CONF.paths.dbkey)
         except Exception as e:
-            self.fb.show('Failed to create database encryption keys: %s' % str(e)).error()
+            UTIL.fb.show('Failed to create database encryption keys: %s' % str(e)).error()
             sys.exit(1)
 
     def _init_log(self):
         
         # Default log directory
-        log_dir = '/var/log/cloudscape'
-        dir_util.mkpath(log_dir)
+        dir_util.mkpath(CONF.paths.log)
 
     def _set_env(self):
         
         # CloudScape base path
-        os.environ['CLOUDSCAPE_BASE'] = self.base
+        os.environ['CLOUDSCAPE_BASE'] = CONF.paths.base
         
         # Django settings module
         os.environ['DJANGO_SETTINGS_MODULE'] = 'cloudscape.engine.api.core.settings'
         
         # Make Python modules accessible
-        sys.path.append('%s/python' % self.base)
-        self.fb.show('Appended [%s/python] to Python path' % self.base).success()
-
-    def _load_mods(self):
-        
-        # Make the import variables global
-        global Feedback, Collection, config
-        
-        # Import the modules into the global namespace
-        from cloudscape.common.feedback import Feedback
-        from cloudscape.common.collection import Collection
-        import cloudscape.common.config as config
+        sys.path.append('%s/python' % CONF.paths.base)
+        UTIL.fb.show('Appended [%s/python] to Python path' % CONF.paths.base).success()
 
     def _deploy(self):
         
         # Enable access to CloudScape modules prior to deployment
-        sys.path.append('../python')
         self._load_mods()
-        
-        # Load the feedback handler and manifest
-        self.fb       = Feedback()
-        self.manifest = self._load_manifest()
         
         # Deployed flag
         df = 'tmp/deployed'
         
         # If the software has already been deployed
         if os.path.isfile(df):
-            self.fb.show('Software deployment already completed, skipping...').info()
+            UTIL.fb.show('Software deployment already completed, skipping...').info()
             return
         
         # Deploy software and setup the environment
@@ -370,19 +238,22 @@ class CloudScapeInstaller(object):
         dh.close()
     
     def _install(self):
+        self._install_apt()
+        self._install_pip()
         
         # Load CloudScape modules
         self._load_mods()
         
-        # Load the feedback handler and manifest
-        self.fb       = Feedback()
-        self.manifest = self._load_manifest()
-        
         self._set_env()
-        self._find_mod()
         self._try_import()
 
+        # Setup the database
+        self.db.setup()
+
     def run(self):
+        
+        # Load the manifest
+        self.manifest = self._load_manifest()
         
         # Valid installation arguments
         args = {

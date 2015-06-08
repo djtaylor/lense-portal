@@ -1,30 +1,38 @@
-CloudScape
+Project Cloudscape Overview
 =========
-CloudScape is a host management and software deployment system. It is based on the [Django] web framework, and contains the following key components:
 
 ----------------------
-### CloudScape Engine ###
+### Current State of Project Cloudscape ###
 ----------------------
-This component is the API backbone of CloudScape. It handles saving and retrieving information from the database, and also takes care of all API calls made by the other components.
+
+  The code itself is in good condition, but documentation is terrible (basically non-existent). Most of the files have adequate commenting to make sense, but a layout of the overall structure and architecture is lacking.
+  Good luck trying to get it installed. I’ve made a few efforts, but for now its the painful process of fixing module and package dependencies to get it to work. On a fresh system it can prove to be tedious.
+  Hopefully my code is at least entertaining to read (for good or bad reasons).
 
 ----------------------
-### CloudScape Portal ###
+### Project Cloudscape Overview ###
 ----------------------
-This component is the web front-end for CloudScape. It uses a combination of a server-side Python client and a client-side Socket.IO client to retrieve and update information from the engine component. All data retrieval and updates are done using API calls.
+
+  In the grand scheme of things, I suppose I would like to see Cloudscape become a user driven cloud platform, providing access to a high quality IT infrastructure, with an emphasis on HCI principles and flexibility. Originally this started as a management platform for both cloud and physical IT assets, but as my views on IT have changed a lot in the past year, so has my view on Cloudscape. I’m going to start by breaking it down into two separate components.
 
 ----------------------
-### CloudScape Socket ###
+### Cloudscape Nexus ###
 ----------------------
-This component is a Socket.IO proxy server used to handle API calls from the portal client-side Socket.IO library. The socket proxy requires the availability of Node.JS as well as Socket.IO.
+
+	Nexus will be the API engine and proxy server from the original Cloudscape project. I want Nexus to be highly configurable and intuitive to use. I want a user to be able to construct an API system from modular components, via a drag and drop style web interface. User APIs can be saved and ported to other systems, and used in almost any application.
+  This is definitely the focus of attention for now. I suppose it could be classed as “API as a Service”. Don’t know if that exists yet (I’ll research it later). 
 
 ----------------------
-### CloudScape Scheduler ###
+### Cloudscape Datacenter ###
 ----------------------
-This component runs scheduled tasks for database and API maintenace, such as rebuilding search indexes, monitoring managed hosts, and caching data.
+
+	Datacenter will be consist of a Nexus configuration, a user interface, as well as a collection of agent software. Most likely Datacenter will be broken into further subsections.
 
 ----------------------
-### CloudScape Agent ###
+### Challenges ###
 ----------------------
-This component is installed on managed hosts, and runs as a server. It keeps track of system information, collects polling data, and manages software deployment. It uses a Python client to connect to the API cluster, to retrieve and update host information.
 
-[Django]:https://www.djangoproject.com/
+* Documentation. This is first and foremost. I need to document what I have done so far.
+* Making utility processing modular. Right now I feel like you will simply have to have enough options in the user interface to create what is needed, so the utility handler can easily be ported to other systems
+* Making a configuration UI for Nexus. Mainly because it is time consuming and my poor familiarity with advanced web UIs.
+* Handling security properly. As this is my first major project, I am by no means an expert in securing API communications and proper protocol. This will definitely need improvement.

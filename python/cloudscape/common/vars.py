@@ -18,7 +18,7 @@ SYS_TYPE       = platform.system().lower()
 C_USER         = 'cloudscape'
 
 # Static System Definitions
-L_BASE         = os.getenv('~', 'HOME')
+L_BASE         = os.getenv('HOME', '/home/cloudscape')
 
 # Host types
 H_LINUX        = 'linux'
@@ -49,7 +49,7 @@ T_USER         = 'user'
 T_HOST         = 'host'
 
 # Log Directory
-LOG_DIR        = '%/log' % L_BASE
+LOG_DIR        = '%s/log' % L_BASE
 
 # Embedded Python paths
 PY_BASE        = '%s/python' % L_BASE

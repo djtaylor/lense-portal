@@ -38,8 +38,7 @@ ROOT_URLCONF     = 'cloudscape.engine.api.core.urls'
 # API WSGI application
 WSGI_APPLICATION = 'cloudscape.engine.api.core.wsgi.application'
 
-# Formula JSON and API request templates
-FORMULA_TEMPLATE = os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/engine/templates/formula/json.template')
+# API request templates
 API_TEMPLATES    = os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/engine/templates/api')
 
 # Template directories
@@ -62,14 +61,6 @@ DATABASES = {
         'PASSWORD': CONFIG.db.password,
         'HOST':     CONFIG.db.host,
         'PORT':     CONFIG.db.port
-    },
-    'host_stats': {
-        'ENGINE':   'django.db.backends.mysql',
-        'NAME':     'cloudscape_host_stats',
-        'USER':     CONFIG.db.user,
-        'PASSWORD': CONFIG.db.password,
-        'HOST':     CONFIG.db.host,
-        'PORT':     CONFIG.db.port
     }
 }
 
@@ -81,13 +72,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'cloudscape.engine.api.app.auth',
-    'cloudscape.engine.api.app.formula',
-    'cloudscape.engine.api.app.host',
     'cloudscape.engine.api.app.user',
     'cloudscape.engine.api.app.group',
-    'cloudscape.engine.api.app.locations',
-    'cloudscape.engine.api.app.cluster',
-    'cloudscape.engine.api.app.network',
 )
 
 # Django middleware classes

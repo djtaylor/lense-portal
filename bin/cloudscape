@@ -7,9 +7,9 @@ import argparse
 import importlib
 
 # Cloudscape Libraries
-from Cloudscape.common.vars import C_CLIENT
-from Cloudscape.client.manager import APIConnect
-from Cloudscape.common.utils import format_action
+from cloudscape.common.vars import C_CLIENT
+from cloudscape.client.manager import APIConnect
+from cloudscape.common.utils import format_action
 
 class CLIClient(object):
     """

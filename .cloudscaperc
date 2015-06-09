@@ -4,18 +4,14 @@
 # the installation location of Cloudscape, you should adjust the CLOUDSCAPE_BASE
 # value in this file.
 
-# CloudScape Base Directory
+# Executables
+export PATH=$PATH:~/bin
+
+# Cloudscape Base Directory
 export CLOUDSCAPE_BASE=~
 
-# CloudScape Python Path
+# Cloudscape Python Path
 export PYTHONPATH="$CLOUDSCAPE_BASE/python"
-
-# CloudScape Static Libraries
-if [ ! -z $LD_LIBRARY_PATH ]; then
-	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CLOUDSCAPE_BASE/python/lib"
-else
-	export LD_LIBRARY_PATH="$CLOUDSCAPE_BASE/python/lib"
-fi
 
 # API Client Connection Settings
 # API user

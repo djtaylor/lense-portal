@@ -172,9 +172,4 @@ def parse(file=None):
     # If manually specifying a file
     if file:
         return _construct(file)
-    
-    # Server Configuration
-    if os.path.isfile(S_CONF_DEF):
-        return ServerConfig().construct()
-
-    raise Exception('No configuration file found')
+    return ServerConfig().construct()

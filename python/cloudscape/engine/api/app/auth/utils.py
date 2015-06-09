@@ -9,10 +9,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid, mod_has_class
 from cloudscape.engine.api.auth.token import APIToken
-from cloudscape.common.vars import T_ACL, C_BASE
+from cloudscape.common.vars import T_ACL, L_BASE
 from cloudscape.engine.api.app.auth.models import DBAuthACLKeys, DBAuthACLAccessGlobal, \
-                                                  DBAuthACLAccessHost, DBAuthACLAccessObject, \
-                                                  DBAuthUtilities, DBAuthACLObjects
+                                                  DBAuthACLAccessObject, DBAuthUtilities, DBAuthACLObjects
 
 class AuthUtilitiesDelete:
     """
@@ -241,7 +240,7 @@ class AuthUtilitiesValidate:
     
         # Validate the module
         mod_path = mod.replace('.', '/')
-        if not os.path.isfile('%s/python/%s.py' % (C_BASE, mod_path)):
+        if not os.path.isfile('%s/python/%s.py' % (L_BASE, mod_path)):
             return invalid('Failed to validate utility [%s], module [%s] not found' % (self.utility, mod))
     
         # Validate the class
@@ -643,8 +642,7 @@ class AuthACLUpdate:
             'name': self.api.data.get('name', acl_row['name']),
             'desc': self.api.data.get('desc', acl_row['desc']),
             'type_object': self.api.data.get('type_object', acl_row['type_object']),
-            'type_global': self.api.data.get('type_global', acl_row['type_global']),
-            'type_host': self.api.data.get('type_host', acl_row['type_host'])
+            'type_global': self.api.data.get('type_global', acl_row['type_global'])
         }
         
         # Update ACL details
@@ -701,19 +699,6 @@ class AuthACLUpdate:
                         # Put in new definitions
                         for util in acl_util:
                             DBAuthACLAccessObject(
-                                acl     = acl_obj,
-                                utility = DBAuthUtilities.objects.get(uuid=util)
-                            ).save()
-                    
-                    # Host
-                    if acl_type == 'host':
-                        
-                        # Clear old definitions
-                        DBAuthACLAccessHost.objects.filter(acl=self.acl).delete()
-                        
-                        # Put in new definitions
-                        for util in acl_util:
-                            DBAuthACLAccessHost(
                                 acl     = acl_obj,
                                 utility = DBAuthUtilities.objects.get(uuid=util)
                             ).save()
@@ -785,8 +770,7 @@ class AuthACLCreate:
             'name': self.api.data['name'],
             'desc': self.api.data['desc'],
             'type_object': True if ('object' in acl_type) else False,
-            'type_global': True if ('global' in acl_type) else False,
-            'type_host':   True if ('host' in acl_type) else False
+            'type_global': True if ('global' in acl_type) else False
         }
         
         # Make sure the ACL doesn't exist

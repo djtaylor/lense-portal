@@ -1,0 +1,26 @@
+# Cloudscape Environment
+# 
+# Shell script that sets up environment variables. If you want to change
+# the installation location of Cloudscape, you should adjust the CLOUDSCAPE_BASE
+# value in this file.
+
+# CloudScape Base Directory
+export CLOUDSCAPE_BASE=~
+
+# CloudScape Python Path
+export PYTHONPATH="$CLOUDSCAPE_BASE/python"
+
+# CloudScape Static Libraries
+if [ ! -z $LD_LIBRARY_PATH ]; then
+	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$CLOUDSCAPE_BASE/python/lib"
+else
+	export LD_LIBRARY_PATH="$CLOUDSCAPE_BASE/python/lib"
+fi
+
+# API Client Connection Settings
+# API user
+#export CS_API_USER="cloudscape"
+# API group
+#export CS_API_GROUP="cloudscape"
+# API key
+#export CS_API_KEY="<your_key_here>"

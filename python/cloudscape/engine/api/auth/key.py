@@ -4,7 +4,6 @@ import json
 from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.engine.api.app.user.models import DBUserAPIKeys, DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails
-from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPIKeys
 
 class APIKey(object):
     """
@@ -21,34 +20,20 @@ class APIKey(object):
         Retrieve the API key for a user or host account.
         """
         
-        # Check if a user or host
+        # Check if the user exists
         api_user = DBUser.objects.filter(username=id).count()
-        api_host = DBHostDetails.objects.filter(uuid=id).count()
+        if not api_user:
+            return invalid('Authentication failed, account [%s] not found')
 
-        # If not an existing host or user
-        if not api_user and not api_host:
-            return invalid('Authentication failed, account [%s] not found in the database' % id)
+        # Make sure the user is enabled
+        user_obj = DBUser.objects.get(username=id)
+        if not user_obj.is_active:
+            return invalid('Authentication failed, account [%s] is disabled' % id)
         
-        # If for some reason both a user and host
-        if api_user and api_host:
-            return invalid('Authentication failed, account [%s] is both user and host' % id)
+        # Return the API key row
+        api_key_row = list(DBUserAPIKeys.objects.filter(user=user_obj.uuid).values())
 
-        # Retrieve API key for a user account
-        if api_user:
-            
-            # Make sure the user is enabled
-            user_obj = DBUser.objects.get(username=id)
-            if not user_obj.is_active:
-                return invalid('Authentication failed, account [%s] is disabled' % id)
-            
-            # Return the API key row
-            api_key_row = list(DBUserAPIKeys.objects.filter(user=user_obj.uuid).values())
-            
-        # Retrieve API key for a host account
-        if api_host:
-            api_key_row = list(DBHostAPIKeys.objects.filter(host=id).values())
-
-        # User or host has no API key
+        # User has no API key
         if not api_key_row: 
             return invalid('Authentication failed, no API key found for account [%s]' % id)
         return valid(api_key_row[0]['api_key'])

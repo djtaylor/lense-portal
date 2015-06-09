@@ -2,7 +2,7 @@ import os.path
 import ConfigParser
 
 # CloudScape Libraries
-from cloudscape.common.vars import S_CONF, S_CONF_DEF, A_CONF, C_BASE
+from cloudscape.common.vars import S_CONF, S_CONF_DEF
 from cloudscape.common.collection import Collection
 
 # Boolean string values
@@ -174,9 +174,7 @@ def parse(file=None):
         return _construct(file)
     
     # Server Configuration
-    if os.path.isfile(S_CONF):
+    if os.path.isfile(S_CONF_DEF):
         return ServerConfig().construct()
-    
-    # Agent Configuration
-    else:
-        return _construct(A_CONF)
+
+    raise Exception('No configuration file found')

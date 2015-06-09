@@ -8,7 +8,6 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.engine.api.app.user.models import DBUserAPITokens, DBUser
-from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostAPITokens
 
 class APIToken(object):
     """
@@ -25,39 +24,25 @@ class APIToken(object):
         Retrieve the API token for a user or host account.
         """
         
-        # Check if a user or host
+        # Check if the user exists
         api_user = DBUser.objects.filter(username=id).count()
-        api_host = DBHostDetails.objects.filter(uuid=id).count()
-
-        # If not an existing host or user
-        if not api_user and not api_host:
-            return invalid('Authentication failed, account [%s] not found in the database' % id)
+        if not api_user:
+            return invalid('Authentication failed, account [%s] not found' % id)
+            
+        # Make sure the user is enabled
+        user_obj = DBUser.objects.get(username=id)
+        if not user_obj.is_active:
+            return invalid('Authentication failed, account [%s] is disabled' % id)
         
-        # If for some reason both a user and host
-        if api_user and api_host:
-            return invalid('Authentication failed, account [%s] is both user and host' % id)
+        # Return the API token row
+        api_token_row = list(DBUserAPITokens.objects.filter(user=user_obj.uuid).values())
 
-        # Retrieve API token for a user account
-        if api_user:
-            
-            # Make sure the user is enabled
-            user_obj = DBUser.objects.get(username=id)
-            if not user_obj.is_active:
-                return invalid('Authentication failed, account [%s] is disabled' % id)
-            
-            # Return the API token row
-            api_token_row = list(DBUserAPITokens.objects.filter(user=user_obj.uuid).values())
-            
-        # Retrieve API token for a host account
-        if api_host:
-            api_token_row = list(DBHostAPITokens.objects.filter(host=id).values())
-
-        # User or host has no API key
+        # User has no API key
         if not api_token_row:
             return valid(None)
         return valid(api_token_row[0]['token'])
     
-    def create(self, type=None, id=None):
+    def create(self, id=None):
         """
         Generate a new API authentication token.
         """
@@ -65,24 +50,12 @@ class APIToken(object):
         expires   = datetime.datetime.now() + datetime.timedelta(hours=settings.API_TOKEN_LIFE)
             
         # Create a new API token
-        self.log.info('Generating API token for client [%s] of type [%s]' % (id, type))
+        self.log.info('Generating API token for client [%s]' % id)
+        db_token  = DBUserAPITokens(id = None, user=DBUser.objects.get(username=id), token=token_str, expires=expires)
+        db_token.save()
         
-        # Host API token
-        if type == 'host':
-            db_token  = DBHostAPITokens(id = None, host=DBHostDetails.objects.get(uuid=id), token=token_str, expires=expires)
-            db_token.save()
-            return token_str
-        
-        # User API token
-        elif type == 'user':
-            db_token  = DBUserAPITokens(id = None, user=DBUser.objects.get(username=id), token=token_str, expires=expires)
-            db_token.save()
-            return token_str
-        
-        # Invalid account type
-        else:
-            self.log.error('Failed to generate token for client [%s]' % id)
-            return False
+        # Return the token
+        return token_str
     
     def get(self, id):
         """
@@ -90,9 +63,8 @@ class APIToken(object):
         """
         self.log.info('Retrieving API token for ID [%s]' % id)
             
-        # Check if a user or host
+        # Check if the user exists
         api_user  = DBUser.objects.filter(username=id).count()
-        api_host  = DBHostDetails.objects.filter(uuid=id).count()
         
         # Attempt to retrieve an existing token
         api_token = self._get_api_token(id=id)
@@ -103,10 +75,7 @@ class APIToken(object):
         
         # If the user doesn't have a token yet
         if api_token['content'] == None:
-            if api_user:
-                api_token['content'] = self.create(id=id, type='user')
-            if api_host:
-                api_token['content'] = self.create(id=id, type='host')
+            api_token['content'] = self.create(id=id, type='user')
         self.log.info('Retrieved token for API ID [%s]: %s' % (id, api_token['content']))
         return api_token['content']
     

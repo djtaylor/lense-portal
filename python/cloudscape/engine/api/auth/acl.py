@@ -14,9 +14,8 @@ from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
-from cloudscape.engine.api.app.host.models import DBHostDetails
-from cloudscape.engine.api.app.auth.models import DBAuthACLAccessHost, DBAuthACLAccessGlobal, \
-                                                  DBAuthACLAccessObject, DBAuthUtilities, DBAuthACLKeys, \
+from cloudscape.engine.api.app.auth.models import DBAuthACLAccessGlobal, DBAuthACLAccessObject, \
+                                                  DBAuthUtilities, DBAuthACLKeys, \
                                                   DBAuthACLObjects
               
 # Configuration / Logger / Objects Manager
@@ -163,7 +162,7 @@ class ACLUser(object):
         # Username / groups / ACLs
         self.name   = user
         self.type   = self._get_acc_type()
-        self.groups = [] if (self.type == T_HOST) else self._get_groups()
+        self.groups = self._get_groups() 
         self.acls   = self._get_acls()
    
     def _get_acc_type(self):
@@ -175,22 +174,15 @@ class ACLUser(object):
     def _get_acls(self):
         """
         Construct and return an object containing enabled ACLs for all groups the user
-        is currently a member of, or host permissions if the account type is T_HOST.
+        is currently a member of.
         """
         acls = {}
-        
-        # Host account
-        if self.type == T_HOST:
-            acls = list(DBAuthACLAccessHost.objects.all().values())
-        
-        # User account
-        else:
-            for group in self.groups:
-                group_details = list(DBGroupDetails.objects.filter(uuid=group).values())[0]
-                acls[group] = {
-                    'object': group_details['permissions']['object'],
-                    'global': group_details['permissions']['global'],
-                }
+        for group in self.groups:
+            group_details = list(DBGroupDetails.objects.filter(uuid=group).values())[0]
+            acls[group] = {
+                'object': group_details['permissions']['object'],
+                'global': group_details['permissions']['global'],
+            }
                 
         # Return the ACLs object
         return acls
@@ -249,22 +241,6 @@ class ACLGateway(object):
         
         # Return the ACL gateway
         return self
-  
-    def _check_host_access(self):
-        """
-        Check if the managed host has access to the utility.
-        """
-        for acl in self.user.acls:
-            
-            # Get all supported host utilities for the ACL
-            acl_access = [x['utility_id'] for x in list(DBAuthACLAccessHost.objects.filter(acl=acl['acl_id']).values())]
-            
-            # If the ACL supports the target utility
-            if self.utility.uuid in acl_access:
-                return valid()
-        
-        # Access denied
-        return invalid('Access denied to utility [%s]' % self.utility.path)
         
     def _check_global_access(self, global_acls):
         """
@@ -337,56 +313,46 @@ class ACLGateway(object):
         For now I am going to do the latter.
         """    
         
-        # Check host access
-        if self.user.type == T_HOST:
-            access_status = self._check_host_access()
-            if not access_status['valid']:
-                return access_status
-            return valid()
+        # Access status object
+        group_access = {}
+    
+        # Look through each ACL grouping
+        for group, acl_obj in self.user.acls.iteritems():
             
-        # Check user access
+            # Group level access
+            group_access[group] = {}
+            
+            # Check object and global access
+            group_access[group] = {
+                'global': self._check_global_access(acl_obj['global']),
+                'object': self._check_object_access(acl_obj['object'], group)
+            } 
+            
+        # Check the group access object
+        obj_error  = ''
+        can_access = False
+        for group, access in group_access.iteritems():
+            for type, status in access.iteritems():
+                if status['valid']:
+                    can_access = status
+                
+                # Capture any object errors
+                if (type == 'object') and not (status['valid']):
+                    obj_error = status['content']
+        
+        # Access allowed
+        if can_access:
+            return can_access
+        
+        # Access denied
         else:
-        
-            # Access status object
-            group_access = {}
-        
-            # Look through each ACL grouping
-            for group, acl_obj in self.user.acls.iteritems():
-                
-                # Group level access
-                group_access[group] = {}
-                
-                # Check object and global access
-                group_access[group] = {
-                    'global': self._check_global_access(acl_obj['global']),
-                    'object': self._check_object_access(acl_obj['object'], group)
-                } 
-                
-            # Check the group access object
-            obj_error  = ''
-            can_access = False
-            for group, access in group_access.iteritems():
-                for type, status in access.iteritems():
-                    if status['valid']:
-                        can_access = status
-                    
-                    # Capture any object errors
-                    if (type == 'object') and not (status['valid']):
-                        obj_error = status['content']
+            err_msg = 'Access denied to utility [%s]%s' % (self.utility.path, obj_error)
             
-            # Access allowed
-            if can_access:
-                return can_access
+            # Log the error message
+            LOG.error(err_msg)
             
-            # Access denied
-            else:
-                err_msg = 'Access denied to utility [%s]%s' % (self.utility.path, obj_error)
-                
-                # Log the error message
-                LOG.error(err_msg)
-                
-                # Return the authentication error
-                return invalid(err_msg)
+            # Return the authentication error
+            return invalid(err_msg)
         
     def _authorize(self):
         """

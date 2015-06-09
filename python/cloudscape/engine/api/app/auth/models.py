@@ -3,13 +3,6 @@ import importlib
 # Django Libraries
 from django.db import models
 
-# CloudScape Libraries
-from cloudscape.engine.api.app.locations.models import DBDatacenters
-#from cloudscape.engine.api.app.schedule.models import DBSchedules
-from cloudscape.engine.api.app.formula.models import DBFormulaDetails
-from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostDKeys, DBHostGroups, DBHostFormulas
-from cloudscape.engine.api.app.network.models import DBNetworkRouters, DBNetworkSwitches, DBNetworkBlocksIPv4, DBNetworkBlocksIPv6, DBNetworkVLANs
-
 class DBAuthACLAccessGlobal(models.Model):
     """
     Main database model for global ACL keys. These are ACL keys which are not
@@ -33,18 +26,6 @@ class DBAuthACLAccessObject(models.Model):
     # Custom table metadata
     class Meta:
         db_table = 'acl_access_object'
-        
-class DBAuthACLAccessHost(models.Model):
-    """
-    Main database model for host ACL keys. These are keys which define what resources
-    hosts my access using their respective API keys.
-    """
-    acl        = models.ForeignKey('auth.DBAuthACLKeys', to_field='uuid', db_column='acl')
-    utility    = models.ForeignKey('auth.DBAuthUtilities', to_field='uuid', db_column='utility')
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_access_host'
 
 class DBAuthUtilities(models.Model):
     """
@@ -97,36 +78,6 @@ class DBAuthACLObjectsQuerySet(models.query.QuerySet):
         # Define the detailed objects container
         acl_object['objects'] = []
         for obj_details in list(obj_class.objects.all().values()):
-            
-            # Host objects
-            if acl_object['type'] == 'host':
-                acl_object['objects'].append({
-                    'id':    obj_details[obj_key],
-                    'name':  obj_details['name'],
-                    'label': '%s - %s %s %s' % (obj_details['ip'], obj_details['sys']['os']['distro'], obj_details['sys']['os']['version'], obj_details['sys']['os']['arch'])           
-                })
-                
-            # Formula objects
-            if acl_object['type'] == 'formula':
-                acl_object['objects'].append({
-                    'id':    obj_details[obj_key],
-                    'name':  obj_details['name'],
-                    'label': obj_details['label']            
-                })
-                
-            # Deployment key objects
-            if acl_object['type'] == 'dkey':
-                acl_object['objects'].append({
-                    'id':    obj_details[obj_key],
-                    'name':  obj_details['name']            
-                })
-                
-            # Host group objects
-            if acl_object['type'] == 'hgroup':
-                acl_object['objects'].append({
-                    'id':    obj_details[obj_key],
-                    'name':  obj_details['name']            
-                })
                 
             # API user objects
             if acl_object['type'] == 'user':
@@ -142,14 +93,6 @@ class DBAuthACLObjectsQuerySet(models.query.QuerySet):
                     'id':    obj_details[obj_key],
                     'name':  obj_details['name'],
                     'label': obj_details['desc']            
-                })
-                
-            # Datacenter objects
-            if acl_object['type'] == 'datacenter':
-                acl_object['objects'].append({
-                    'id':    obj_details[obj_key],
-                    'name':  obj_details['name'],
-                    'label': obj_details['label']      
                 })
         
             # Utility objects
@@ -281,7 +224,6 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
         # Extract all utility access definitions
         object_util = self._extract_utilities(list(DBAuthACLAccessObject.objects.filter(acl=acl['uuid']).values()))
         global_util = self._extract_utilities(list(DBAuthACLAccessGlobal.objects.filter(acl=acl['uuid']).values()))
-        host_util   = self._extract_utilities(list(DBAuthACLAccessHost.objects.filter(acl=acl['uuid']).values()))
         
         # Contstruct the utilities for each ACL access type
         acl['utilities'] = {
@@ -378,58 +320,6 @@ class DBAuthACLGroupObjectUserPermissions(models.Model):
     # Custom table metadata
     class Meta:
         db_table = 'acl_group_object_user_permissions'
-    
-class DBAuthACLGroupObjectHostGroupPermissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for host group objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    hgroup     = models.ForeignKey(DBHostGroups, to_field='uuid', db_column='hgroup')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_hgroup_permissions'
-    
-class DBAuthACLGroupObjectDkeyPermissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for deployment key objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    dkey       = models.ForeignKey(DBHostDKeys, to_field='uuid', db_column='dkey')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_dkey_permissions'
-        
-class DBAuthACLGroupObjectFormulaPermissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for formula objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    formula    = models.ForeignKey(DBFormulaDetails, to_field='uuid', db_column='formula')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_formula_permissions'
-        
-class DBAuthACLGroupObjectDatacenterPermissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for datacenter objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    datacenter = models.ForeignKey(DBDatacenters, to_field='uuid', db_column='datacenter')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_datacenter_permissions'
         
 class DBAuthACLGroupObjectUtilityPermissions(models.Model):
     """
@@ -443,84 +333,6 @@ class DBAuthACLGroupObjectUtilityPermissions(models.Model):
     # Custom table metadata
     class Meta:
         db_table = 'acl_group_object_utility_permissions'
-        
-class DBAuthACLGroupObjectHostPermissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for host objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    host       = models.ForeignKey(DBHostDetails, to_field='uuid', db_column='host')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_host_permissions'
-        
-class DBAuthACLGroupObjectNetworkRouterPermissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for network router objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    router     = models.ForeignKey(DBNetworkRouters, to_field='uuid', db_column='router')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_network_router_permissions'
-        
-class DBAuthACLGroupObjectNetworkSwitchPermissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for network switch objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    switch     = models.ForeignKey(DBNetworkSwitches, to_field='uuid', db_column='switch')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_network_switch_permissions'
-        
-class DBAuthACLGroupObjectNetworkBlockIPv4Permissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for network IPv4 block objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    block      = models.ForeignKey(DBNetworkBlocksIPv4, to_field='uuid', db_column='block')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_network_ipv4_block_permissions'
-        
-class DBAuthACLGroupObjectNetworkBlockIPv6Permissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for network IPv6 block objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    block      = models.ForeignKey(DBNetworkBlocksIPv6, to_field='uuid', db_column='block')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_network_ipv6_block_permissions'
-        
-class DBAuthACLGroupObjectNetworkVLANPermissions(models.Model):
-    """
-    Main database model for storing object ACL permissions for network VLAN objects.
-    """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    vlan       = models.ForeignKey(DBNetworkVLANs, to_field='uuid', db_column='vlan')
-    owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
-    allowed    = models.NullBooleanField()
-    
-    # Custom table metadata
-    class Meta:
-        db_table = 'acl_group_object_network_vlan_permissions'
         
 class DBAuthACLGroupGlobalPermissions(models.Model):
     """

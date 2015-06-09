@@ -1,16 +1,5 @@
 [
     {
-    	"name": "host.add",
-    	"desc": "Add a new managed host.",
-    	"endpoints": [
-			{
-				"path": "host",
-				"action": "add",
-				"desc": "Add a new managed host."
-			}              
-    	]
-    },
-    {
     	"name": "user.create",
     	"desc": "Create a new API user.",
     	"endpoints": [
@@ -29,28 +18,6 @@
 				"path": "group",
 				"action": "create",
 				"desc": "Create a new API user group."
-			}              
-    	]
-    },
-    {
-    	"name": "formula.create",
-    	"desc": "Create a new formula.",
-    	"endpoints": [
-			{
-				"path": "formula",
-				"action": "create",
-				"desc": "Create a new formula."
-			}              
-    	]
-    },
-    {
-    	"name": "cluster.stats",
-    	"desc": "Retrieve cluster statistics for managed hosts.",
-    	"endpoints": [
-			{
-				"path": "cluster",
-				"action": "stats",
-				"desc": "Retrieve cluster statistics for managed hosts."
 			}              
     	]
     },

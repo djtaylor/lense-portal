@@ -6,10 +6,10 @@ import json
 import argparse
 import importlib
 
-# CloudScape Libraries
-from cloudscape.common.vars import C_CLIENT
-from cloudscape.client.manager import APIConnect
-from cloudscape.common.utils import format_action
+# Cloudscape Libraries
+from Cloudscape.common.vars import C_CLIENT
+from Cloudscape.client.manager import APIConnect
+from Cloudscape.common.utils import format_action
 
 class CLIClient(object):
     """
@@ -84,8 +84,8 @@ class CLIClient(object):
         self.args = vars(self.ap.parse_args(sys.argv))
 
     def _return_help(self):
-         return ("CloudScape Client\n\n"
-                 "A utility designed to handle interactions with the CloudScape API client manager.\n"
+         return ("Cloudscape Client\n\n"
+                 "A utility designed to handle interactions with the Cloudscape API client manager.\n"
                  "Supports most of the API endpoints available.\n")
     
     def _return_modules(self):
@@ -128,7 +128,7 @@ class CLIClient(object):
         _req_args = {
             'api_user': 'Missing required argument "api_user"',
             'api_group': 'Missing required argument "api_group"',
-            'api_key': 'Missing required argum'
+            'api_key': 'Missing required argument "api_key"'
         }
         
         _abort = False

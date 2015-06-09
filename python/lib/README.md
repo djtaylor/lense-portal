@@ -1,1 +1,0 @@
-Local copy of a static library used for 'python-iptables'. Not exactly optimal, but it gets the job done. Mainly used when installing agent software on managed Linux hosts.

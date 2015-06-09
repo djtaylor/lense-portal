@@ -13,60 +13,16 @@ import importlib
 import subprocess
 from Crypto.Cipher import AES
 
-# CloudScape Libraries
+# Cloudscape Libraries
 from cloudscape.common import config
 from cloudscape.common import logger
-from cloudscape.agent.common.config import AgentConfig
-from cloudscape.common.vars import SYS_TYPE, A_CONF, S_CONF, PY_WRAPPER, PY_BASE, np
+from cloudscape.common.vars import S_CONF, PY_BASE
 
 def rstring(length=12):
     """
     Helper method used to generate a random string.
     """
     return ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(length)])
-
-def pyexec(script, **kwargs):
-    """
-    Run a Python script using the embedded Python library in the Windows CloudScape
-    agent. Executes a batch script that acts as the Python wrapper, setting environment
-    variables such as PATH and PYTHONPATH during runtime.
-    
-    Excepts and API URL and token as optional arguments if running a formula package
-    that needs to connect to the API server.
-    
-    Running a script using the embedded Python library::
-    
-        # Import the utility
-        from cloudscape.common.utils import pyexec
-        
-        # Run the sript
-        code, err = pyexec('C:\path\to\script.py')
-        
-        # Check for an error code
-        if code != 0:
-            raise Exception(str(e))
-    
-    :param script: The path to the script to execute
-    :type script: str
-    """
-    
-    # Make sure the script exists
-    if not os.path.isfile(script):
-        return 1, 'File not found: %s' % script
-        
-    # Set API parameters
-    api_url   = None if not ('api_url' in kwargs) else (kwargs['api_url'])
-    api_token = None if not ('api_token' in kwargs) else (kwargs['api_token'])
-        
-    # Run the script
-    proc = subprocess.Popen([PY_WRAPPER, PY_BASE, script, api_url, api_token], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = proc.communicate()
-    
-    # Get the exit code
-    exit_code = proc.returncode
-    if not exit_code == 0:
-        return exit_code, str(err)
-    return exit_code, None
 
 def autoquote(v):
     """
@@ -225,56 +181,6 @@ def find_restop(type='memory', c=10):
             top_r.append({'pid': pid, 'name': res_map[pid]['name'], 'percent': res_map[pid]['percent']})
     return top_r
 
-class CmdEmbedded:
-    """
-    Helper class used by the Windows agent to intercept embedded commands
-    that should be passed directly to the application instead of being handled
-    by the Windows service classes.
-    """
-    def __init__(self, cli_args):
-        """
-        Initialize the embedded command filter.
-        
-        :param cli_args: Any command line arguments
-        :type cli_args: list
-        """
-        self.cli_args  = cli_args
-
-        # Embedded command map
-        self._cmd      = None
-        self._cmd_map  = {}
-
-    def set_embedded(self, cmd_map):
-        """
-        Set a map of command arguments and handler methods.
-        
-        :param cmd_map: A dictionary of command arguments and helper methods
-        :type cmd_map: dict
-        """
-        for cmd, handler in cmd_map.iteritems():
-            self._cmd_map[cmd] = handler
-            
-    def is_embedded(self):
-        """
-        Check if running an embedded command by scanning the command line arguments.
-        Set the embedded command handler if found. Return true if found, false otherwise.
-        
-        :rtype: boolean
-        """
-        for cmd, handler in self._cmd_map.iteritems():
-            if cmd in self.cli_args:
-                self._cmd = cmd
-                return True
-        return False
-    
-    def get_embedded(self):
-        """
-        If running an embedded command, return the command handler method.
-        
-        :rtype: method
-        """
-        return self._cmd_map[self._cmd]
-
 def valid(msg=None, data=None):
     """
     Return valid request object. Used internally by the API to pass data between methods.
@@ -348,7 +254,7 @@ def invalid(msg, code=400):
 
 def format_action(a, m, w=10, b=False):
     """
-    Simple helper method used to format action entries in the help prompt for the CloudScape
+    Simple helper method used to format action entries in the help prompt for the Cloudscape
     agent.
     
     :param a: The action string
@@ -384,11 +290,6 @@ class UtilsBase(object):
         if os.path.isfile(S_CONF):
             self.conf = config.parse()
             self.log  = logger.create(log_name, self.conf.utils.log)
-            
-        # Agent Configuration
-        elif (os.path.isfile(A_CONF)):
-            self.conf = AgentConfig().get()
-            self.log  = logger.create(log_name, self.conf.agent.log)
             
         # Raise an exception if neither the server nor agent configuration is found
         else:
@@ -539,7 +440,7 @@ class FileSec(UtilsBase):
 class JSONTemplate(UtilsBase):
     """
     A utility class designed to validate a JSON object against a template file. Used
-    to verify the structure of API requests, formula manifests, etc.
+    to verify the structure of API requests.
     """
     def __init__(self, template=None):
         super(JSONTemplate, self).__init__(self)

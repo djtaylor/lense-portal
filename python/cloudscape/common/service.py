@@ -6,16 +6,16 @@ import argparse
 import platform
 import subprocess
 
-# CloudScape Libraries
-from cloudscape.common import config
-from cloudscape.common import logger
-from cloudscape.common.vars import L_BASE
-from cloudscape.common.feedback import Feedback
+# Cloudscape Libraries
+from Cloudscape.common import config
+from Cloudscape.common import logger
+from Cloudscape.common.vars import L_BASE
+from Cloudscape.common.feedback import Feedback
 
 class ServiceManager:
     """
-    CloudScape services manager class designed to handle starting/stopping/restarting all
-    CloudScape services. This includes the API server, Socket.IO proxy server, and the
+    Cloudscape services manager class designed to handle starting/stopping/restarting all
+    Cloudscape services. This includes the API server, Socket.IO proxy server, and the
     scheduler service.
     """
     def __init__(self, args):
@@ -107,9 +107,9 @@ class ServiceManager:
         """
         Return the utility help prompt.
         """
-        return ('CloudScape Server Manager\n\n'
-                'Manage the available CloudScape server processes. This utility is used to start, stop, and\n'
-                'restart the CloudScape portal, API, socket proxy, and task scheduler. You may specify an\n'
+        return ('Cloudscape Server Manager\n\n'
+                'Manage the available Cloudscape server processes. This utility is used to start, stop, and\n'
+                'restart the Cloudscape portal, API, socket proxy, and task scheduler. You may specify an\n'
                 'optional service argument to manage individual services.')
     
     def _return_actions(self):
@@ -202,11 +202,11 @@ class ServiceManager:
                     
                     # Failed to start Apache
                     except Exception as e:
-                        self.fb.show('CloudScape %s failed to start...' % srv_attr['label']).error()
+                        self.fb.show('Cloudscape %s failed to start...' % srv_attr['label']).error()
                         sys.exit(1)
                     
                     # Apache started
-                    self.fb.show('Starting CloudScape %s...' % srv_attr['label']).success()
+                    self.fb.show('Starting Cloudscape %s...' % srv_attr['label']).success()
                     apache_started = True
                     
                 # If Apache is already running
@@ -214,9 +214,9 @@ class ServiceManager:
                     
                     # If Apache was started earlier
                     if apache_started:
-                        self.fb.show('Starting CloudScape %s...' % srv_attr['label']).success()
+                        self.fb.show('Starting Cloudscape %s...' % srv_attr['label']).success()
                     else:
-                        self.fb.show('CloudScape %s already running...' % srv_attr['label']).info()
+                        self.fb.show('Cloudscape %s already running...' % srv_attr['label']).info()
                 
             # If the service is an independent process
             else:
@@ -237,11 +237,11 @@ class ServiceManager:
                         
                     # Failed to start the process
                     except Exception as e:
-                        self.fb.show('Failed to start CloudScape %s...' % srv_attr['label']).error()
+                        self.fb.show('Failed to start Cloudscape %s...' % srv_attr['label']).error()
                         sys.exit(1)
                         
                     # Service started
-                    self.fb.show('Starting CloudScape %s [PID %s]...' % (srv_attr['label'], pnum)).success()
+                    self.fb.show('Starting Cloudscape %s [PID %s]...' % (srv_attr['label'], pnum)).success()
                     
                     # Make sure the PID file directory exists
                     if not os.path.exists('%s/run' % L_BASE):
@@ -252,11 +252,11 @@ class ServiceManager:
                     
                 # If the service is already running
                 else:
-                    self.fb.show('CloudScape %s already running [PID %s]...' % (srv_attr['label'], pid)).info()
+                    self.fb.show('Cloudscape %s already running [PID %s]...' % (srv_attr['label'], pid)).info()
     
     def _stop(self):
         """
-        Stop the CloudScape services.
+        Stop the Cloudscape services.
         """
         
         # Apache stop flag
@@ -282,11 +282,11 @@ class ServiceManager:
                     
                     # Failed to stop Apache
                     except Exception as e:
-                        self.fb.show('Failed to stop CloudScape %s...' % srv_attr['label']).error()
+                        self.fb.show('Failed to stop Cloudscape %s...' % srv_attr['label']).error()
                         sys.exit(1)
                         
                     # Apache stopped
-                    self.fb.show('Stopping CloudScape %s...' % srv_attr['label']).success()
+                    self.fb.show('Stopping Cloudscape %s...' % srv_attr['label']).success()
                     apache_stopped = True
                     
                 # If Apache is already stopped
@@ -294,9 +294,9 @@ class ServiceManager:
                     
                     # If Apache was stopped earlier
                     if apache_started:
-                        self.fb.show('Stopping CloudScape %s...' % srv_attr['label']).success()
+                        self.fb.show('Stopping Cloudscape %s...' % srv_attr['label']).success()
                     else:
-                        self.fb.show('CloudScape %s already stopped...' % srv_attr['label']).info()
+                        self.fb.show('Cloudscape %s already stopped...' % srv_attr['label']).info()
                 
             # If the service is an independent process
             else:
@@ -313,27 +313,27 @@ class ServiceManager:
                     
                     # If the process failed to stop
                     if self._is_running(srv_attr['pid']):
-                        self.fb.show('Failed to stop CloudScape %s...' % srv_attr['label']).error()
+                        self.fb.show('Failed to stop Cloudscape %s...' % srv_attr['label']).error()
                         sys.exit(1)
                         
                     # Process successfully stopped
                     else:
-                        self.fb.show('Stopping CloudScape %s...' % srv_attr['label']).success()
+                        self.fb.show('Stopping Cloudscape %s...' % srv_attr['label']).success()
                     
                 # If the service is already stopped
                 else:
-                    self.fb.show('CloudScape %s already stopped...' % srv_attr['label']).info()
+                    self.fb.show('Cloudscape %s already stopped...' % srv_attr['label']).info()
     
     def _restart(self):
         """
-        Restart the CloudScape services.
+        Restart the Cloudscape services.
         """
         self._stop()
         self._start()
     
     def _status(self):
         """
-        Get the CloudScape service status.
+        Get the Cloudscape service status.
         """
         for srv_name, srv_attr in self.services.iteritems():
             
@@ -349,7 +349,7 @@ class ServiceManager:
                 status = 'running' if (self._apache_running()) else 'stopped'
                 
                 # Show the managed service status
-                self.fb.show('CloudScape %s is %s...' % (srv_attr['label'], status)).info()
+                self.fb.show('Cloudscape %s is %s...' % (srv_attr['label'], status)).info()
                     
             # If the service is an independent process
             else:
@@ -361,7 +361,7 @@ class ServiceManager:
                 status = 'running [PID %s]' % pid if pid else 'stopped'
         
                 # Show the service status
-                self.fb.show('CloudScape %s is %s...' % (srv_attr['label'], status)).info()
+                self.fb.show('Cloudscape %s is %s...' % (srv_attr['label'], status)).info()
         
     def handler(self):
         """

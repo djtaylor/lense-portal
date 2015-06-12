@@ -7,6 +7,9 @@ from getpass import getpass
 # cs
 from cloudscape.common.feedback import Feedback
 from cloudscape.common.vars import L_BASE
+from cloudscape.engine.api.base import APIBaseBare
+from cloudscape.engine.api.app.group.utils import GroupCreate
+from cloudscape.engine.api.app.user.utils import UserCreate
 
 class Bootstrap(object):
     """
@@ -104,6 +107,41 @@ class Bootstrap(object):
             return self.feedback.show('Failed to add database encryption key').error()
         self.feedback.show('Added database encryption key').success()
     
+    def _database_seed(self):
+        """
+        Seed the database with the base information needed to run Cloudscape.
+        """
+        
+        # Create the administrator group
+        try:
+            group = GroupCreate(APIBaseBare(data = {
+                'name': 'cloudscape',
+                'desc': 'Default administrator group',
+                'protected': True
+            }))
+            self.feedback.show('Created default Cloudscape administrator group').success()
+            
+        # Failed to create the administrator group
+        except Exception as e:
+            self.feedback.show('Failed to create Cloudscape administrator group: %s' % str(e)).error()
+            sys.exit(1)
+        
+        # Create the administrator
+        try:
+            UserCreate(APIBaseBare(data = {
+                'username': 'cloudscape',
+                'group': group['data']['uuid'],
+                'email': self.params['api_admin_email']['value'],
+                'password': self.params['api_admin_password']['value'],
+                'password_confirm': self.params['api_admin_password']['value']
+            }))
+            self.feedback.show('Created default Cloudscape administrator account').success()
+            
+        # Failed to create the administrator user
+        except Exception as e:
+            self.feedback.show('Failed to create Cloudscape administrator account: %s' % str(e)).error()
+            sys.exit(1)
+    
     def _database(self):
         
         # Parameters required to connect to, create, and populate the database
@@ -142,6 +180,18 @@ class Bootstrap(object):
                 'type': 'pass',
                 'default': None,
                 'prompt': 'Please enter the root password for the database server: ',
+                'value': None
+            },
+            'api_admin_password': {
+                'type': 'pass',
+                'default': None,
+                'prompt': 'Please enter a password for the default administrator account: ',
+                'value': None
+            },
+            'api_admin_email': {
+                'type': 'str',
+                'default': None,
+                'promopt': 'Please enter the email address for the default administrator account: ',
                 'value': None
             }
         }
@@ -185,7 +235,7 @@ class Bootstrap(object):
         # Run Django syncdb
         try:
             app  = '%s/python/cloudscape/engine/api/manage.py' % L_BASE
-            proc = Popen(['python', app, 'syncdb'])
+            proc = Popen(['python', app, 'migrate'])
             proc.communicate()
             
             # Make sure the command ran successfully
@@ -201,6 +251,9 @@ class Bootstrap(object):
             
         # Set up database encryption
         self._database_encryption()
+            
+        # Set up the database seed data
+        self._database_seed()
             
     def run(self):
         """

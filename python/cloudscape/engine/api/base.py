@@ -16,6 +16,29 @@ from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.cache import CacheManager
 from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.core.socket import SocketResponse
+from aifc import data
+
+class APIBaseBare(object):
+    """
+    APIBaseBare
+    
+    Bare-bones base API object mainly for use when running utilities from a script,
+    the bootstrap module for example.
+    """
+    def __init__(self, data=None):
+        """
+        Initialize the APIBaseBare class.
+        
+        @param data:  The API request data
+        @type data:   dict
+        """
+        
+        # Request data
+        self.data = data
+        
+        # Configuration / logger
+        self.conf = config.parse()
+        self.log  = APILogger(self)
 
 class APIBase(object):
     """
@@ -29,16 +52,12 @@ class APIBase(object):
         """
         Initialize the APIBase class.
         
-        @param name:     The module name used for the logger 
-        @type  name:     str
         @param request:  The request object from RequestManager
         @type  request:  RequestObject
         @param utils:    Any external utilities required by this API path
         @type  utils:    list
         @param acl:      The ACL gateway generated during request initialization
         @type  acl:      ACLGateway
-        @param cache:    The CacheManager class instance
-        @param cache:    CacheManager
         """
         
         # Request object / data / path

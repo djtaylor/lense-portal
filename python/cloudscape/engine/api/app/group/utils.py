@@ -339,9 +339,6 @@ class GroupCreate:
         except Exception as e:
             return invalid(self.api.log.exception('Failed to create group: %s' % str(e)))
         
-        # Update the cached group data
-        self.api.cache.save_object('group', self.group)
-        
         # Return the response
         return valid('Successfully created group', {
             'name':      self.api.data['name'],

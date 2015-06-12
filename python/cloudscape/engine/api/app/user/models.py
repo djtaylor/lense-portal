@@ -22,7 +22,7 @@ class DBUserAPIKeys(models.Model):
     
     # Custom model metadata
     class Meta:
-        db_table = 'auth_user_api_keys'
+        db_table = 'api_user_keys'
         
 class DBUserAPITokens(models.Model):
     """
@@ -36,7 +36,7 @@ class DBUserAPITokens(models.Model):
     
     # Custom model metadata
     class Meta:
-        db_table = 'auth_user_api_tokens'
+        db_table = 'api_user_tokens'
 
 class DBUserQuerySet(models.query.QuerySet):
     """
@@ -226,6 +226,6 @@ class DBUser(AbstractBaseUser):
 
     # Model metadata
     class Meta:
-        db_table = 'auth_user'
+        db_table = 'api_users'
         verbose_name = _('user')
         verbose_name_plural = _('users')

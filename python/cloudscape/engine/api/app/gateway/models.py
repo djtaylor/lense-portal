@@ -8,8 +8,8 @@ class DBGatewayACLAccessGlobal(models.Model):
     Main database model for global ACL keys. These are ACL keys which are not
     attached to a specific object or limited to a specific group type.
     """
-    acl        = models.ForeignKey('auth.DBGatewayACLKeys', to_field='uuid', db_column='acl')
-    utility    = models.ForeignKey('auth.DBGatewayUtilities', to_field='uuid', db_column='utility')
+    acl        = models.ForeignKey('gateway.DBGatewayACLKeys', to_field='uuid', db_column='acl')
+    utility    = models.ForeignKey('gateway.DBGatewayUtilities', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
@@ -20,8 +20,8 @@ class DBGatewayACLAccessObject(models.Model):
     Main database model for object ACL keys. These are ACL keys which are used
     for defining granular permissions for objects, such as hosts or formulas.
     """
-    acl        = models.ForeignKey('auth.DBGatewayACLKeys', to_field='uuid', db_column='acl')
-    utility    = models.ForeignKey('auth.DBGatewayUtilities', to_field='uuid', db_column='utility')
+    acl        = models.ForeignKey('gateway.DBGatewayACLKeys', to_field='uuid', db_column='acl')
+    utility    = models.ForeignKey('gateway.DBGatewayUtilities', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
@@ -153,7 +153,7 @@ class DBGatewayACLObjects(models.Model):
     obj_mod    = models.CharField(max_length=128)
     obj_cls    = models.CharField(max_length=64)
     obj_key    = models.CharField(max_length=36)
-    def_acl    = models.ForeignKey('auth.DBGatewayACLKeys', to_field='uuid', db_column='def_acl', null=True, blank=True, on_delete=models.SET_NULL)
+    def_acl    = models.ForeignKey('gateway.DBGatewayACLKeys', to_field='uuid', db_column='def_acl', null=True, blank=True, on_delete=models.SET_NULL)
 
     # Custom objects manager
     objects    = DBGatewayACLObjectsManager()

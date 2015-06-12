@@ -10,6 +10,7 @@ from cloudscape.common.vars import L_BASE
 from cloudscape.engine.api.base import APIBaseBare
 from cloudscape.engine.api.app.group.utils import GroupCreate
 from cloudscape.engine.api.app.user.utils import UserCreate
+from cloudscape.engine.api.app.gateway.utils import GatewayUtilitiesCreate
 
 class Bootstrap(object):
     """
@@ -140,6 +141,25 @@ class Bootstrap(object):
         # Failed to create the administrator user
         except Exception as e:
             self.feedback.show('Failed to create Cloudscape administrator account: %s' % str(e)).error()
+            sys.exit(1)
+    
+        # Create the authentication gateway utility entry
+        try:
+            utility = GatewayUtilitiesCreate(APIBaseBare(data = {
+                'path': 'gateway/auth',
+                'desc': 'Make a token request to the API gateway',
+                'method': 'launch',
+                'mod': 'cloudscape.engine.api.app.gateway.utils',
+                'protected': True,
+                'enabled': True,
+                'object': '',
+                'object_key': ''
+            }))
+            self.feedback.show('Created token authentication utility').success()
+    
+        # Failed to create token authentication utility
+        except Exception as e:
+            self.feedback.show('Failed to create token authentication utility: %s' % str(e)).error()
             sys.exit(1)
     
     def _database(self):

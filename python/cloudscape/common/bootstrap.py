@@ -77,6 +77,33 @@ class Bootstrap(object):
         print 'running as quickly as possible. This will set up the database, make sure'
         print 'any required users exists, and populate the tables with seed data.\n'
     
+    def _database_encryption(self):
+        """
+        Bootstrap the database encryption keys.
+        """
+        
+        # Encryption key / metadata file
+        _dbkey  = '%s/dbkey/1'
+        _dbmeta = '%s/dbkey/meta'
+        
+        # Make sure neither file exists
+        if os.path.isfile(_dbkey) or os.path.isfile(_dbmeta):
+            return self.feedback.show('Database encryption key/meta properties already exist').warn()
+        
+        # Generate the encryption key
+        p_keycreate = Popen(['keyczart', 'create', '--location=%s/dbkey' % L_BASE, '--purpose=crypt'])
+        p_keycreate.communicate()
+        if not p_keycreate.returncode == 0:
+            return self.feedback.show('Failed to create database encryption key').error()
+        self.feedback.show('Created database encryption key').success()
+    
+        # Add the encryption key
+        p_keyadd = Popen(['keyczart', 'addkey', '--location=%s/dbkey' % L_BASE, '--status=primary', '--size=256'])
+        p_keyadd.communicate()
+        if not p_keyadd.returncode == 0:
+            return self.feedback.show('Failed to add database encryption key').error()
+        self.feedback.show('Added database encryption key').success()
+    
     def _database(self):
         
         # Parameters required to connect to, create, and populate the database
@@ -171,6 +198,9 @@ class Bootstrap(object):
         except Exception as e:
             self.feedback.show('Failed to sync Django application database: %s' % str(e)).error()
             sys.exit(1) 
+            
+        # Set up database encryption
+        self._database_encryption()
             
     def run(self):
         """

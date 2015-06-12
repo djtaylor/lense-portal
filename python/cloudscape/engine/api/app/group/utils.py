@@ -7,8 +7,7 @@ from cloudscape.common.utils import valid, invalid
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
 from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
-from cloudscape.engine.api.app.auth.models import DBAuthACLGroupGlobalPermissions, DBAuthACLEndpointsGlobal
-from cloudscape.engine.api.app.host.models import DBHostOwner
+from cloudscape.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions, DBGatewayACLEndpointsGlobal
 
 class GroupMemberRemove:
     """
@@ -165,10 +164,6 @@ class GroupDelete:
         # If the group is protected
         if auth_groups.extract(self.group)['protected']:
             return invalid('Failed to delete group <%s>, group is protected')
-
-        # If the group is the owner of any hosts
-        if DBHostOwner.objects.filter(owner=self.group).count():
-            return invalid('Failed to delete group <%s>, must remove all host ownership first' % self.group)
 
         # If the group has any members
         if DBGroupMembers.objects.filter(group=self.group).count():

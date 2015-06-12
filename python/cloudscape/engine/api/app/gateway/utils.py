@@ -10,10 +10,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 from cloudscape.common.utils import valid, invalid, mod_has_class
 from cloudscape.engine.api.auth.token import APIToken
 from cloudscape.common.vars import T_ACL, L_BASE
-from cloudscape.engine.api.app.auth.models import DBAuthACLKeys, DBAuthACLAccessGlobal, \
-                                                  DBAuthACLAccessObject, DBAuthUtilities, DBAuthACLObjects
+from cloudscape.engine.api.app.gateway.models import DBGatewayACLKeys, DBGatewayACLAccessGlobal, \
+                                                  DBGatewayACLAccessObject, DBGatewayUtilities, DBGatewayACLObjects
 
-class AuthUtilitiesDelete:
+class GatewayUtilitiesDelete:
     """
     Delete an existing API utility.
     """
@@ -29,11 +29,11 @@ class AuthUtilitiesDelete:
         """
         
         # Make sure the utility exists
-        if not DBAuthUtilities.objects.filter(uuid=self.utility).count():
+        if not DBGatewayUtilities.objects.filter(uuid=self.utility).count():
             return invalid(self.api.log.error('Could not delete utility [%s], not found in database' % self.utility))
         
         # Get the utility details
-        utility_row = DBAuthUtilities.objects.filter(uuid=self.utility).values()[0]
+        utility_row = DBGatewayUtilities.objects.filter(uuid=self.utility).values()[0]
         
         # Make sure the utility isn't protected
         if utility_row['protected']:
@@ -41,7 +41,7 @@ class AuthUtilitiesDelete:
         
         # Delete the utility
         try:
-            DBAuthUtilities.objects.filter(uuid=self.utility).delete()
+            DBGatewayUtilities.objects.filter(uuid=self.utility).delete()
         except Exception as e:
             return invalid(self.api.log.exeption('Failed to delete utility: %s' % str(e)))
         
@@ -51,7 +51,7 @@ class AuthUtilitiesDelete:
         }
         return valid('Successfully deleted utility', web_data)
 
-class AuthUtilitiesCreate:
+class GatewayUtilitiesCreate:
     """
     Create a new API utility.
     """
@@ -86,7 +86,7 @@ class AuthUtilitiesCreate:
         }
         
         # Make sure the name isn't taken already
-        if DBAuthUtilities.objects.filter(path=params['path']).count():
+        if DBGatewayUtilities.objects.filter(path=params['path']).count():
             return invalid('The utility [%s] already exists, please use a different [path] parameter' % params['path'])
         
         # Try to import the module and make sure it contains the class definition
@@ -96,7 +96,7 @@ class AuthUtilitiesCreate:
         
         # Save the utility
         try:
-            DBAuthUtilities(**params).save()
+            DBGatewayUtilities(**params).save()
             
             # Return the response
             return valid('Successfully created utility', {
@@ -112,7 +112,7 @@ class AuthUtilitiesCreate:
         except Exception as e:
             return invalid('Failed to create utility: %s' % str(e))
 
-class AuthUtilitiesSave:
+class GatewayUtilitiesSave:
     """
     Save changes to an API utility.
     """
@@ -128,16 +128,16 @@ class AuthUtilitiesSave:
         """
 
         # Make sure the utility exists
-        if not DBAuthUtilities.objects.filter(uuid=self.utility).count():
+        if not DBGatewayUtilities.objects.filter(uuid=self.utility).count():
             return invalid(self.api.log.error('Could not save utility [%s], not found in database' % self.utility))
 
         # Validate the utility attributes
-        #util_status = self.api.util.AuthUtilitiesValidate.launch()
+        #util_status = self.api.util.GatewayUtilitiesValidate.launch()
         #if not util_status['valid']:
         #    return util_status
 
         # Get the utility details
-        util_row = DBAuthUtilities.objects.filter(uuid=self.utility).values()[0]
+        util_row = DBGatewayUtilities.objects.filter(uuid=self.utility).values()[0]
     
         # Update parameters
         params = {
@@ -163,7 +163,7 @@ class AuthUtilitiesSave:
 
         # Attempt to update the utility
         try:
-            DBAuthUtilities.objects.filter(uuid=self.utility).update(**params)
+            DBGatewayUtilities.objects.filter(uuid=self.utility).update(**params)
             
         # Critical error when updating utility
         except Exception as e:
@@ -172,7 +172,7 @@ class AuthUtilitiesSave:
         # Successfully updated utility
         return valid('Successfully updated utility.')
 
-class AuthUtilitiesValidate:
+class GatewayUtilitiesValidate:
     """
     Validate changes to an API utility prior to saving.
     """
@@ -188,10 +188,10 @@ class AuthUtilitiesValidate:
         """
     
         # Get all utilities
-        util_all = DBAuthUtilities.objects.all().values()
+        util_all = DBGatewayUtilities.objects.all().values()
     
         # ACL objects
-        acl_objects  = list(DBAuthACLObjects.objects.all().values())
+        acl_objects  = list(DBGatewayACLObjects.objects.all().values())
     
         # Construct available external utilities
         util_ext = []
@@ -199,7 +199,7 @@ class AuthUtilitiesValidate:
             util_ext.append('%s.%s' % (util['mod'], util['cls']))
     
         # Get the utility details
-        util_row = DBAuthUtilities.objects.filter(uuid=self.utility).values()[0]
+        util_row = DBGatewayUtilities.objects.filter(uuid=self.utility).values()[0]
     
         # Default values
         default = {
@@ -262,7 +262,7 @@ class AuthUtilitiesValidate:
         """
         
         # Make sure the utility exists
-        if not DBAuthUtilities.objects.filter(uuid=self.utility).count():
+        if not DBGatewayUtilities.objects.filter(uuid=self.utility).count():
             return invalid(self.api.log.error('Could not validate utility [%s], not found in database' % self.utility))
 
         # Validate the utility attributes
@@ -273,7 +273,7 @@ class AuthUtilitiesValidate:
         # Utility is valid
         return valid('Utility validation succeeded.')
 
-class AuthUtilitiesClose:
+class GatewayUtilitiesClose:
     """
     Close an API utility and release the editing lock.
     """
@@ -289,11 +289,11 @@ class AuthUtilitiesClose:
         """
     
         # Make sure the utility exists
-        if not DBAuthUtilities.objects.filter(uuid=self.utility).count():
+        if not DBGatewayUtilities.objects.filter(uuid=self.utility).count():
             return invalid(self.api.log.error('Could not check in utility [%s], not found in database' % self.utility))
         
         # Get the utility details row
-        util_row = DBAuthUtilities.objects.filter(uuid=self.utility).values()[0]
+        util_row = DBGatewayUtilities.objects.filter(uuid=self.utility).values()[0]
         
         # Check if the utility is already checked out
         if util_row['locked'] == False:
@@ -302,7 +302,7 @@ class AuthUtilitiesClose:
         # Unlock the utility
         self.api.log.info('Checked in utility [%s] by user [%s]' % (self.utility, self.api.user))
         try:
-            DBAuthUtilities.objects.filter(uuid=self.utility).update(
+            DBGatewayUtilities.objects.filter(uuid=self.utility).update(
                 locked    = False,
                 locked_by = None
             )
@@ -312,7 +312,7 @@ class AuthUtilitiesClose:
         except Exception as e:
             return invalid(self.api.log.error('Failed to check in utility with error: %s' % str(e)))
 
-class AuthUtilitiesOpen:
+class GatewayUtilitiesOpen:
     """
     Open an API utility for editing.
     """
@@ -329,11 +329,11 @@ class AuthUtilitiesOpen:
         self.api.log.info('Preparing to checkout utility [%s] for editing' % self.utility)
     
         # Make sure the utility exists
-        if not DBAuthUtilities.objects.filter(uuid=self.utility).count():
+        if not DBGatewayUtilities.objects.filter(uuid=self.utility).count():
             return invalid(self.api.log.error('Could not open utility [%s] for editing, not found in database' % self.utility))
         
         # Get the utility details row
-        util_row = DBAuthUtilities.objects.filter(uuid=self.utility).values()[0]
+        util_row = DBGatewayUtilities.objects.filter(uuid=self.utility).values()[0]
         
         # Check if the utility is locked
         if util_row['locked'] == True:
@@ -352,7 +352,7 @@ class AuthUtilitiesOpen:
         # Lock the utility for editing
         self.api.log.info('Checkout out utility [%s] for editing by user [%s]' % (self.utility, locked_by))
         try:
-            DBAuthUtilities.objects.filter(uuid=self.utility).update(
+            DBGatewayUtilities.objects.filter(uuid=self.utility).update(
                 locked    = True,
                 locked_by = self.api.user
             )
@@ -362,7 +362,7 @@ class AuthUtilitiesOpen:
         except Exception as e:
             return invalid(self.api.log.error('Failed to check out utility for editing with error: %s' % str(e)))
 
-class AuthUtilitiesGet:
+class GatewayUtilitiesGet:
     """
     Retrieve a listing of API utilities.
     """
@@ -379,17 +379,17 @@ class AuthUtilitiesGet:
             if 'uuid' in self.api.data:
                 
                 # If the utility doesn't exist
-                if not DBAuthUtilities.objects.filter(uuid=self.api.data['uuid']).count():
+                if not DBGatewayUtilities.objects.filter(uuid=self.api.data['uuid']).count():
                     return invalid('Utility [%s] does not exist' % self.api.data['uuid'])
-                return valid(json.dumps(DBAuthUtilities.objects.filter(uuid=self.api.data['uuid']).values()[0]))
+                return valid(json.dumps(DBGatewayUtilities.objects.filter(uuid=self.api.data['uuid']).values()[0]))
                 
             # Return all utilities
             else:
-                return valid(json.dumps(list(DBAuthUtilities.objects.all().values())))
+                return valid(json.dumps(list(DBGatewayUtilities.objects.all().values())))
         except Exception as e:
             return invalid(self.api.log.exception('Failed to retrieve utilities listing: %s' % str(e)))
 
-class AuthACLObjectsDelete:
+class GatewayACLObjectsDelete:
     """
     Delete an existing ACL object definition.
     """
@@ -405,12 +405,12 @@ class AuthACLObjectsDelete:
         """
         
         # If the ACL object doesn't exist
-        if not DBAuthACLObjects.objects.filter(type=self.type).count():
+        if not DBGatewayACLObjects.objects.filter(type=self.type).count():
             return invalid('Cannot delete ACL object [%s], not found in database' % self.type)
         self.api.log.info('BLARGLE')
         
         # Get the ACL object definition
-        acl_object = DBAuthACLObjects.objects.filter(type=self.type).values(detailed=True)[0]
+        acl_object = DBGatewayACLObjects.objects.filter(type=self.type).values(detailed=True)[0]
         
         # If the ACL object has any assigned object
         if acl_object['objects']:
@@ -418,7 +418,7 @@ class AuthACLObjectsDelete:
 
         # Delete the ACL object definition
         try:
-            DBAuthACLObjects.objects.filter(type=self.type).delete()
+            DBGatewayACLObjects.objects.filter(type=self.type).delete()
             
         # Critical error when deleting ACL object
         except Exception as e:
@@ -429,7 +429,7 @@ class AuthACLObjectsDelete:
             'type': self.type
         })
 
-class AuthACLObjectsCreate:
+class GatewayACLObjectsCreate:
     """
     Create a new ACL object definition.
     """
@@ -465,7 +465,7 @@ class AuthACLObjectsCreate:
         """
         
         # Make sure the type definition is not already used
-        if DBAuthACLObjects.objects.filter(type=self.attr['type']).count():
+        if DBGatewayACLObjects.objects.filter(type=self.attr['type']).count():
             return invalid('Failed to create ACL object type [%s], already defined' % self.attr['type'])
         
         # Check the ACL and object module/class definitions
@@ -478,11 +478,11 @@ class AuthACLObjectsCreate:
         
         # If a default ACL UUID is supplied
         if ('def_acl' in self.api.data):
-            if not DBAuthACLKeys.objects.filter(uuid=self.attr['def_acl']).count():
+            if not DBGatewayACLKeys.objects.filter(uuid=self.attr['def_acl']).count():
                 return invalid('Failed to create ACL object type [%s], default ACL [%s] not found' % (self.attr['type'], self.attr['def_acl']))
         
             # Get the default ACL object
-            self.attr['def_acl'] = DBAuthACLKeys.objects.get(uuid=self.api.data['def_acl'])
+            self.attr['def_acl'] = DBGatewayACLKeys.objects.get(uuid=self.api.data['def_acl'])
             
             # Make sure the ACL has object type authentication enabled
             if not self.attr['def_acl']['type_object']:
@@ -490,7 +490,7 @@ class AuthACLObjectsCreate:
         
         # Create the ACL object definition
         try:
-            DBAuthACLObjects(**self.attr).save()
+            DBGatewayACLObjects(**self.attr).save()
             
         # Critical error when saving ACL object definition
         except Exception as e:
@@ -502,7 +502,7 @@ class AuthACLObjectsCreate:
             'name': self.attr['name']
         })
 
-class AuthACLObjectsUpdate:
+class GatewayACLObjectsUpdate:
     """
     Update attributes for an ACL object.
     """
@@ -518,11 +518,11 @@ class AuthACLObjectsUpdate:
         """
         
         # Make sure the object definition exists
-        if not DBAuthACLObjects.objects.filter(type=self.type).count():
+        if not DBGatewayACLObjects.objects.filter(type=self.type).count():
             return invalid('Failed to update ACL object, type definition [%s] not found' % self.type)
         
         # Get the existing ACL object definition
-        acl_obj = DBAuthACLObjects.objects.filter(type=self.type).values()[0]
+        acl_obj = DBGatewayACLObjects.objects.filter(type=self.type).values()[0]
         
         # ACL module / class
         acl_mod = acl_obj['acl_mod'] if not ('acl_mod' in self.api.data) else self.api.data['acl_mod']
@@ -547,11 +547,11 @@ class AuthACLObjectsUpdate:
         if 'def_acl' in self.api.data:
             
             # Make sure the default ACL exists
-            if not DBAuthACLKeys.objects.filter(uuid=self.api.data['def_acl']).count():
+            if not DBGatewayACLKeys.objects.filter(uuid=self.api.data['def_acl']).count():
                 return invalid('Failed to update ACL object type [%s], default ACL [%s] not found' % (self.type, self.api.data['def_acl']))
         
             # Get the default ACL object
-            def_acl = DBAuthACLKeys.objects.get(uuid=self.api.data['def_acl'])
+            def_acl = DBGatewayACLKeys.objects.get(uuid=self.api.data['def_acl'])
             
             # Make sure the ACL has object type authentication enabled
             if not def_acl.type_object:
@@ -564,11 +564,11 @@ class AuthACLObjectsUpdate:
         try:
             
             # Update string values
-            DBAuthACLObjects.objects.filter(type=self.type).update(**self.api.data)
+            DBGatewayACLObjects.objects.filter(type=self.type).update(**self.api.data)
             
             # If changing the default ACL
             if def_acl:
-                acl_obj = DBAuthACLObjects.objects.get(type=self.type)
+                acl_obj = DBGatewayACLObjects.objects.get(type=self.type)
                 acl_obj.def_acl = def_acl
                 acl_obj.save()
         
@@ -579,7 +579,7 @@ class AuthACLObjectsUpdate:
         # Successfully updated object
         return valid('Successfully updated ACL object')
 
-class AuthACLObjectsGet:
+class GatewayACLObjectsGet:
     """
     Retrieve a list of supported ACL object types.
     """
@@ -591,7 +591,7 @@ class AuthACLObjectsGet:
         self.detailed = self.api.get_data('detailed')
 
         # Extract all ACL objects
-        self.objects  = list(DBAuthACLObjects.objects.all().values(detailed=self.detailed))
+        self.objects  = list(DBGatewayACLObjects.objects.all().values(detailed=self.detailed))
 
     def launch(self):
         """
@@ -615,7 +615,7 @@ class AuthACLObjectsGet:
             # Return ACL object definitions
             return valid(self.objects)
      
-class AuthACLUpdate:
+class GatewayACLUpdate:
     """
     Update an existing ACL definition.
     """
@@ -631,11 +631,11 @@ class AuthACLUpdate:
         """
         
         # Make sure the ACL exists
-        if not DBAuthACLKeys.objects.filter(uuid=self.acl).count():
+        if not DBGatewayACLKeys.objects.filter(uuid=self.acl).count():
             return invalid('Failed to update ACL [%s], not found in database' % self.acl)
         
         # Get the ACL details
-        acl_row  = DBAuthACLKeys.objects.filter(uuid=self.acl).values()[0]
+        acl_row  = DBGatewayACLKeys.objects.filter(uuid=self.acl).values()[0]
         
         # ACL parameters
         params = {
@@ -647,7 +647,7 @@ class AuthACLUpdate:
         
         # Update ACL details
         try:
-            DBAuthACLKeys.objects.filter(uuid=self.acl).update(**params)
+            DBGatewayACLKeys.objects.filter(uuid=self.acl).update(**params)
             self.api.log.info('Updated properties for ACL [%s]' % self.acl)
         except Exception as e:
             return invalid(self.api.log.exception('Failed to update details for ACL [%s]: %s' % (self.acl, str(e))))
@@ -657,7 +657,7 @@ class AuthACLUpdate:
             utilities     = self.api.data['utilities']
             
             # Get all utilities
-            util_all = list(DBAuthUtilities.objects.all().values())
+            util_all = list(DBGatewayUtilities.objects.all().values())
             
             # Only support one object type per ACL object access definition
             if 'object' in utilities:
@@ -670,7 +670,7 @@ class AuthACLUpdate:
                             return invalid('Object type mismatch <%s -> %s>, ACLs only support one object type per definition.' % (obj_last, util['object']))
             
             # Get the current ACL object
-            acl_obj = DBAuthACLKeys.objects.get(uuid=self.acl)
+            acl_obj = DBGatewayACLKeys.objects.get(uuid=self.acl)
             
             # Update ACL utilities
             for acl_type, acl_util in utilities.iteritems():
@@ -681,26 +681,26 @@ class AuthACLUpdate:
                     if acl_type == 'global':
                         
                         # Clear old definitions
-                        DBAuthACLAccessGlobal.objects.filter(acl=self.acl).delete()
+                        DBGatewayACLAccessGlobal.objects.filter(acl=self.acl).delete()
                         
                         # Put in new definitions
                         for util in acl_util:
-                            DBAuthACLAccessGlobal(
+                            DBGatewayACLAccessGlobal(
                                 acl     = acl_obj,
-                                utility = DBAuthUtilities.objects.get(uuid=util)
+                                utility = DBGatewayUtilities.objects.get(uuid=util)
                             ).save()
                     
                     # Object
                     if acl_type == 'object':
                         
                         # Clear old definitions
-                        DBAuthACLAccessObject.objects.filter(acl=self.acl).delete()
+                        DBGatewayACLAccessObject.objects.filter(acl=self.acl).delete()
                         
                         # Put in new definitions
                         for util in acl_util:
-                            DBAuthACLAccessObject(
+                            DBGatewayACLAccessObject(
                                 acl     = acl_obj,
-                                utility = DBAuthUtilities.objects.get(uuid=util)
+                                utility = DBGatewayUtilities.objects.get(uuid=util)
                             ).save()
                     
                     # All utilities updated
@@ -713,7 +713,7 @@ class AuthACLUpdate:
         # ACL updated
         return valid('Succesfully updated ACL')
         
-class AuthACLDelete:
+class GatewayACLDelete:
     """
     Delete an existing ACL.
     """            
@@ -729,12 +729,12 @@ class AuthACLDelete:
         """
         
         # Make sure the ACL exists
-        if not DBAuthACLKeys.objects.filter(uuid=self.acl).count():
+        if not DBGatewayACLKeys.objects.filter(uuid=self.acl).count():
             return invalid('Failed to delete ACL [%s], not found in database' % self.acl)
         
         # Delete the ACL definition
         try:
-            DBAuthACLKeys.objects.filter(uuid=self.acl).delete()
+            DBGatewayACLKeys.objects.filter(uuid=self.acl).delete()
             self.api.log.info('Deleted ACL definition [%s]' % self.acl)
             
             # ACL deleted
@@ -746,7 +746,7 @@ class AuthACLDelete:
         except Exception as e:
             return invalid(self.api.log.exception('Failed to delete ACL [%s]: %s' % (self.acl, str(e))))
         
-class AuthACLCreate:
+class GatewayACLCreate:
     """
     Create a new ACL definition.
     """
@@ -774,12 +774,12 @@ class AuthACLCreate:
         }
         
         # Make sure the ACL doesn't exist
-        if DBAuthACLKeys.objects.filter(name=params['name']).count():
+        if DBGatewayACLKeys.objects.filter(name=params['name']).count():
             return invalid('ACL [%s] is already defined' % acl_name)
 
         # Create the ACL key entry
         try:
-            DBAuthACLKeys(**params).save()
+            DBGatewayACLKeys(**params).save()
         except Exception as e:
             return invalid(self.api.log.exception('Failed to create ACL definition: %s' % str(e)))
             
@@ -790,7 +790,7 @@ class AuthACLCreate:
             'desc': params['desc']
         })
 
-class AuthACLGet:
+class GatewayACLGet:
     """
     Return an object with all ACL definitions.
     """
@@ -812,7 +812,7 @@ class AuthACLGet:
             if self.acl:
                 
                 # Get the ACL definition
-                acl_definition = DBAuthACLKeys.objects.filter(uuid=self.acl).values()
+                acl_definition = DBGatewayACLKeys.objects.filter(uuid=self.acl).values()
                 
                 # If the ACL definition doesn't exist
                 if not acl_definition:
@@ -823,13 +823,13 @@ class AuthACLGet:
             
             # If retrieving all ACL definitions
             else:
-                return valid(json.dumps(list(DBAuthACLKeys.objects.all().values())))
+                return valid(json.dumps(list(DBGatewayACLKeys.objects.all().values())))
             
         # Error during ACL construction
         except Exception as e:
             return invalid(self.api.log.exception('Failed to retrieve ACL definition(s): %s' % str(e)))
 
-class AuthRequest:
+class GatewayRequest:
     """
     Class used to handle token requests.
     """

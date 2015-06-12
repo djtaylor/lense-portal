@@ -3,31 +3,31 @@ import importlib
 # Django Libraries
 from django.db import models
 
-class DBAuthACLAccessGlobal(models.Model):
+class DBGatewayACLAccessGlobal(models.Model):
     """
     Main database model for global ACL keys. These are ACL keys which are not
     attached to a specific object or limited to a specific group type.
     """
-    acl        = models.ForeignKey('auth.DBAuthACLKeys', to_field='uuid', db_column='acl')
-    utility    = models.ForeignKey('auth.DBAuthUtilities', to_field='uuid', db_column='utility')
+    acl        = models.ForeignKey('auth.DBGatewayACLKeys', to_field='uuid', db_column='acl')
+    utility    = models.ForeignKey('auth.DBGatewayUtilities', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
         db_table = 'acl_access_global'
 
-class DBAuthACLAccessObject(models.Model):
+class DBGatewayACLAccessObject(models.Model):
     """
     Main database model for object ACL keys. These are ACL keys which are used
     for defining granular permissions for objects, such as hosts or formulas.
     """
-    acl        = models.ForeignKey('auth.DBAuthACLKeys', to_field='uuid', db_column='acl')
-    utility    = models.ForeignKey('auth.DBAuthUtilities', to_field='uuid', db_column='utility')
+    acl        = models.ForeignKey('auth.DBGatewayACLKeys', to_field='uuid', db_column='acl')
+    utility    = models.ForeignKey('auth.DBGatewayUtilities', to_field='uuid', db_column='utility')
     
     # Custom table metadata
     class Meta:
         db_table = 'acl_access_object'
 
-class DBAuthUtilities(models.Model):
+class DBGatewayUtilities(models.Model):
     """
     Main database model for storing API utility details.
     """
@@ -50,13 +50,13 @@ class DBAuthUtilities(models.Model):
     class Meta:
         db_table = 'utilities'
      
-class DBAuthACLObjectsQuerySet(models.query.QuerySet):
+class DBGatewayACLObjectsQuerySet(models.query.QuerySet):
     """
-    Custom queryset manager for the DBAuthACLObjects model. This allows customization of the returned
+    Custom queryset manager for the DBGatewayACLObjects model. This allows customization of the returned
     QuerySet when extracting host details from the database.
     """
     def __init__(self, *args, **kwargs):
-        super(DBAuthACLObjectsQuerySet, self).__init__(*args, **kwargs)
+        super(DBGatewayACLObjectsQuerySet, self).__init__(*args, **kwargs)
         
         # Detailed object list
         self._detailed = False
@@ -115,7 +115,7 @@ class DBAuthACLObjectsQuerySet(models.query.QuerySet):
         self._detailed = detailed
         
         # Store the initial results
-        _r = super(DBAuthACLObjectsQuerySet, self).values(*fields)
+        _r = super(DBGatewayACLObjectsQuerySet, self).values(*fields)
         
         # ACL return object
         _a = []
@@ -127,21 +127,21 @@ class DBAuthACLObjectsQuerySet(models.query.QuerySet):
         # Return the constructed ACL results
         return _a
         
-class DBAuthACLObjectsManager(models.Manager):
+class DBGatewayACLObjectsManager(models.Manager):
     """
-    Custom objects manager for the DBAuthACLObjects model. Acts as a link between the main DBAuthACLObjects
-    model and the custom DBAuthACLObjectsQuerySet model.
+    Custom objects manager for the DBGatewayACLObjects model. Acts as a link between the main DBGatewayACLObjects
+    model and the custom DBGatewayACLObjectsQuerySet model.
     """
     def __init__(self, *args, **kwargs):
-        super(DBAuthACLObjectsManager, self).__init__()
+        super(DBGatewayACLObjectsManager, self).__init__()
     
     def get_queryset(self, *args, **kwargs):
         """
         Wrapper method for the internal get_queryset() method.
         """
-        return DBAuthACLObjectsQuerySet(model=self.model)
+        return DBGatewayACLObjectsQuerySet(model=self.model)
 
-class DBAuthACLObjects(models.Model):
+class DBGatewayACLObjects(models.Model):
     """
     Main database model for storing ACL object types.
     """
@@ -153,26 +153,26 @@ class DBAuthACLObjects(models.Model):
     obj_mod    = models.CharField(max_length=128)
     obj_cls    = models.CharField(max_length=64)
     obj_key    = models.CharField(max_length=36)
-    def_acl    = models.ForeignKey('auth.DBAuthACLKeys', to_field='uuid', db_column='def_acl', null=True, blank=True, on_delete=models.SET_NULL)
+    def_acl    = models.ForeignKey('auth.DBGatewayACLKeys', to_field='uuid', db_column='def_acl', null=True, blank=True, on_delete=models.SET_NULL)
 
     # Custom objects manager
-    objects    = DBAuthACLObjectsManager()
+    objects    = DBGatewayACLObjectsManager()
 
     # Custom table metadata
     class Meta:
         db_table = 'acl_objects'
 
-class DBAuthACLKeysQuerySet(models.query.QuerySet):
+class DBGatewayACLKeysQuerySet(models.query.QuerySet):
     """
     Custom queryset manager for the DBHostManager model. This allows customization of the returned
     QuerySet when extracting host details from the database.
     """
     def __init__(self, *args, **kwargs):
-        super(DBAuthACLKeysQuerySet, self).__init__(*args, **kwargs)
+        super(DBGatewayACLKeysQuerySet, self).__init__(*args, **kwargs)
         
         # ACL object types / utilities
         self.obj_types = self._get_objects()
-        self.utilities = {x['uuid']: x for x in list(DBAuthUtilities.objects.all().values())}
+        self.utilities = {x['uuid']: x for x in list(DBGatewayUtilities.objects.all().values())}
         
     def _get_objects(self):
         """
@@ -180,7 +180,7 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
         """
         
         # Query all ACL object types
-        acl_objects = list(DBAuthACLObjects.objects.all().values())
+        acl_objects = list(DBGatewayACLObjects.objects.all().values())
         
         # Construct and return the definition
         return {
@@ -222,8 +222,8 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
         """
         
         # Extract all utility access definitions
-        object_util = self._extract_utilities(list(DBAuthACLAccessObject.objects.filter(acl=acl['uuid']).values()))
-        global_util = self._extract_utilities(list(DBAuthACLAccessGlobal.objects.filter(acl=acl['uuid']).values()))
+        object_util = self._extract_utilities(list(DBGatewayACLAccessObject.objects.filter(acl=acl['uuid']).values()))
+        global_util = self._extract_utilities(list(DBGatewayACLAccessGlobal.objects.filter(acl=acl['uuid']).values()))
         
         # Contstruct the utilities for each ACL access type
         acl['utilities'] = {
@@ -250,7 +250,7 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
         """
         
         # Store the initial results
-        _r = super(DBAuthACLKeysQuerySet, self).values(*fields)
+        _r = super(DBGatewayACLKeysQuerySet, self).values(*fields)
         
         # ACL return object
         _a = []
@@ -262,21 +262,21 @@ class DBAuthACLKeysQuerySet(models.query.QuerySet):
         # Return the constructed ACL results
         return _a
 
-class DBAuthACLKeysManager(models.Manager):
+class DBGatewayACLKeysManager(models.Manager):
     """
-    Custom objects manager for the DBAuthACLKeys model. Acts as a link between the main DBAuthACLKeys
-    model and the custom DBAuthACLKeysQuerySet model.
+    Custom objects manager for the DBGatewayACLKeys model. Acts as a link between the main DBGatewayACLKeys
+    model and the custom DBGatewayACLKeysQuerySet model.
     """
     def __init__(self, *args, **kwargs):
-        super(DBAuthACLKeysManager, self).__init__()
+        super(DBGatewayACLKeysManager, self).__init__()
     
     def get_queryset(self, *args, **kwargs):
         """
         Wrapper method for the internal get_queryset() method.
         """
-        return DBAuthACLKeysQuerySet(model=self.model)
+        return DBGatewayACLKeysQuerySet(model=self.model)
 
-class DBAuthACLKeys(models.Model):
+class DBGatewayACLKeys(models.Model):
     """ 
     Main database model for storing ACL keys and details. Each ACL can handle
     authorization for any number of utilities.
@@ -289,17 +289,17 @@ class DBAuthACLKeys(models.Model):
     type_global = models.BooleanField()
     
     # Custom objects manager
-    objects     = DBAuthACLKeysManager()
+    objects     = DBGatewayACLKeysManager()
     
     # Custom table metadata
     class Meta:
         db_table = 'acl_keys'
     
-class DBAuthACLGroupObjectGroupPermissions(models.Model):
+class DBGatewayACLGroupObjectGroupPermissions(models.Model):
     """
     Main database model for storing object ACL permissions for group objects.
     """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
+    acl        = models.ForeignKey(DBGatewayACLKeys, to_field='uuid', db_column='acl')
     group      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='group', related_name='group_target')
     owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner', related_name='group_owner')
     allowed    = models.NullBooleanField()
@@ -308,11 +308,11 @@ class DBAuthACLGroupObjectGroupPermissions(models.Model):
     class Meta:
         db_table = 'acl_group_object_group_permissions'
     
-class DBAuthACLGroupObjectUserPermissions(models.Model):
+class DBGatewayACLGroupObjectUserPermissions(models.Model):
     """
     Main database model for storing object ACL permissions for group objects.
     """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
+    acl        = models.ForeignKey(DBGatewayACLKeys, to_field='uuid', db_column='acl')
     user       = models.ForeignKey('user.DBUser', to_field='uuid', db_column='user')
     owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
     allowed    = models.NullBooleanField()
@@ -321,12 +321,12 @@ class DBAuthACLGroupObjectUserPermissions(models.Model):
     class Meta:
         db_table = 'acl_group_object_user_permissions'
         
-class DBAuthACLGroupObjectUtilityPermissions(models.Model):
+class DBGatewayACLGroupObjectUtilityPermissions(models.Model):
     """
     Main database model for storing object ACL permissions for utility objects.
     """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
-    utility    = models.ForeignKey(DBAuthUtilities, to_field='uuid', db_column='utility')
+    acl        = models.ForeignKey(DBGatewayACLKeys, to_field='uuid', db_column='acl')
+    utility    = models.ForeignKey(DBGatewayUtilities, to_field='uuid', db_column='utility')
     owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
     allowed    = models.NullBooleanField()
         
@@ -334,11 +334,11 @@ class DBAuthACLGroupObjectUtilityPermissions(models.Model):
     class Meta:
         db_table = 'acl_group_object_utility_permissions'
         
-class DBAuthACLGroupGlobalPermissions(models.Model):
+class DBGatewayACLGroupGlobalPermissions(models.Model):
     """
     Main database model for storing global ACL permissions for groups.
     """
-    acl        = models.ForeignKey(DBAuthACLKeys, to_field='uuid', db_column='acl')
+    acl        = models.ForeignKey(DBGatewayACLKeys, to_field='uuid', db_column='acl')
     owner      = models.ForeignKey('group.DBGroupDetails', to_field='uuid', db_column='owner')
     allowed    = models.NullBooleanField()
     

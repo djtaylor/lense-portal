@@ -14,9 +14,9 @@ from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
-from cloudscape.engine.api.app.auth.models import DBAuthACLAccessGlobal, DBAuthACLAccessObject, \
-                                                  DBAuthUtilities, DBAuthACLKeys, \
-                                                  DBAuthACLObjects
+from cloudscape.engine.api.app.gateway.models import DBGatewayACLAccessGlobal, DBGatewayACLAccessObject, \
+                                                  DBGatewayUtilities, DBGatewayACLKeys, \
+                                                  DBGatewayACLObjects
               
 # Configuration / Logger / Objects Manager
 CONF    = config.parse()
@@ -27,7 +27,7 @@ def get_obj_def(type):
     """
     Retrieve the object definition for a specific type.
     """
-    return [x for x in list(DBAuthACLObjects.objects.all().values()) if x['type'] == type][0]
+    return [x for x in list(DBGatewayACLObjects.objects.all().values()) if x['type'] == type][0]
          
 class ACLAuthObjects(object):
     """
@@ -79,7 +79,7 @@ class ACLAuthObjects(object):
             if not global_acl['allowed'] == 'yes': continue
             
             # Get all supported global utilities for this ACL
-            global_utilities = [x['utility_id'] for x in list(DBAuthACLAccessGlobal.objects.filter(acl=global_acl['uuid']).values())]
+            global_utilities = [x['utility_id'] for x in list(DBGatewayACLAccessGlobal.objects.filter(acl=global_acl['uuid']).values())]
             
             # If the ACL supports the target utility
             if self.utility.uuid in global_utilities:
@@ -145,7 +145,7 @@ class ACLUtility(object):
         
         # Utility name / UUID / object
         self.path   = path
-        self.obj    = DBAuthUtilities.objects.filter(path=self.path).values()[0]
+        self.obj    = DBGatewayUtilities.objects.filter(path=self.path).values()[0]
         self.uuid   = self.obj['uuid']
         
     def get(self): 
@@ -252,7 +252,7 @@ class ACLGateway(object):
             if not global_acl['allowed'] == 'yes': continue
             
             # Get all globally accessible utilities for this ACL
-            global_access = [x['utility_id'] for x in list(DBAuthACLAccessGlobal.objects.filter(acl=global_acl['uuid']).values())]
+            global_access = [x['utility_id'] for x in list(DBGatewayACLAccessGlobal.objects.filter(acl=global_acl['uuid']).values())]
             
             # If the ACL supports the target utility
             if self.utility.uuid in global_access:

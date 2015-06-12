@@ -1,9 +1,0 @@
-{% for ak,ap in formula.actions.iteritems %}
-			
-	{# API Requests #}
-	{% if ak == 'api' %}
-		{% for api in ap %}
-			<action t="api" i="{{ api.id }}" p="{{ api.request.path }}" a="{{ api.request.action }}" m="{{ api.request.method }}" c="{{ api.callback }}"></action>
-		{% endfor %}
-	{% endif %}
-{% endfor %}

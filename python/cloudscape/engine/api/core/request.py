@@ -18,7 +18,7 @@ from cloudscape.common.utils import valid, invalid
 from cloudscape.engine.api.auth.acl import ACLGateway
 from cloudscape.engine.api.auth.token import APIToken
 from cloudscape.engine.api.app.user.models import DBUser
-from cloudscape.engine.api.app.auth.models import DBAuthUtilities
+from cloudscape.engine.api.app.gateway.models import DBGatewayUtilities
 
 # Configuration / Logger
 CONF = config.parse()
@@ -327,7 +327,7 @@ class UtilityMapper(object):
         """
         Load all utility definitions.
         """
-        for utility in list(DBAuthUtilities.objects.all().values()):
+        for utility in list(DBGatewayUtilities.objects.all().values()):
             
             # Try to load the request map
             try:

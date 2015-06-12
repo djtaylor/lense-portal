@@ -6,14 +6,11 @@ import importlib
 from django.db import models
 
 # CloudScape Libraries
-from cloudscape.engine.api.app.formula.models import DBFormulaDetails
 from cloudscape.engine.api.objects.acl import ACLObjects
-from cloudscape.engine.api.app.host.models import DBHostDetails, DBHostGroups, DBHostDKeys
-from cloudscape.engine.api.app.auth.models import DBAuthACLGroupGlobalPermissions, \
-                                                  DBAuthACLGroupObjectHostPermissions, DBAuthACLGroupObjectFormulaPermissions, \
-                                                  DBAuthACLGroupObjectHostGroupPermissions, DBAuthACLKeys, \
-                                                  DBAuthACLGroupObjectDkeyPermissions, DBAuthACLGroupObjectUserPermissions, \
-                                                  DBAuthACLGroupObjectGroupPermissions
+from cloudscape.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions, \
+                                                  DBGatewayACLKeys, \
+                                                  DBGatewayACLGroupObjectUserPermissions, \
+                                                  DBGatewayACLGroupObjectGroupPermissions
 
 class DBGroupMembers(models.Model):
     """
@@ -87,10 +84,10 @@ class DBGroupDetailsQuerySet(models.query.QuerySet):
         global_permissions = []
         
         # Process each global permission definition for the group
-        for global_permission in DBAuthACLGroupGlobalPermissions.objects.filter(owner=group['uuid']).values():
+        for global_permission in DBGatewayACLGroupGlobalPermissions.objects.filter(owner=group['uuid']).values():
             
             # Get the ACL details for this permission definition
-            acl_details = DBAuthACLKeys.objects.filter(uuid=global_permission['acl_id']).values()[0]
+            acl_details = DBGatewayACLKeys.objects.filter(uuid=global_permission['acl_id']).values()[0]
         
             # Update the return object
             global_permissions.append({
@@ -250,7 +247,7 @@ class DBGroupDetails(models.Model):
                                 
                                 # Model fields
                                 fields = {}
-                                fields['acl']     = DBAuthACLKeys.objects.get(uuid=acl_id)
+                                fields['acl']     = DBGatewayACLKeys.objects.get(uuid=acl_id)
                                 fields['owner']   = self
                                 fields[obj_type]  = obj_class.objects.get(**obj_filter)
                                 fields['allowed'] = acl_val
@@ -271,7 +268,7 @@ class DBGroupDetails(models.Model):
         """
         
         # Get any existing global permissions
-        gp_current = [x['acl_id'] for x in list(DBAuthACLGroupGlobalPermissions.objects.filter(owner=self.uuid).values())]
+        gp_current = [x['acl_id'] for x in list(DBGatewayACLGroupGlobalPermissions.objects.filter(owner=self.uuid).values())]
         
         # Process each permission definition
         for key,value in permissions.iteritems():
@@ -281,18 +278,18 @@ class DBGroupDetails(models.Model):
                 
                 # If removing the ACL completely
                 if value == 'remove':
-                    DBAuthACLGroupGlobalPermissions.objects.filter(owner=self.uuid, acl=key).delete()
+                    DBGatewayACLGroupGlobalPermissions.objects.filter(owner=self.uuid, acl=key).delete()
                 
                 # If updating the ACL
                 else:
-                    acl = DBAuthACLGroupGlobalPermissions.objects.get(owner=self.uuid, acl=key)
+                    acl = DBGatewayACLGroupGlobalPermissions.objects.get(owner=self.uuid, acl=key)
                     acl.allowed = value
                     acl.save()
                 
             # If adding a new ACL
             else:
-                acl = DBAuthACLGroupGlobalPermissions(
-                    acl     = DBAuthACLKeys.objects.get(uuid=key),
+                acl = DBGatewayACLGroupGlobalPermissions(
+                    acl     = DBGatewayACLKeys.objects.get(uuid=key),
                     owner   = self,
                     allowed = value
                 )

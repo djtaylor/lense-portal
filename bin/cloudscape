@@ -10,6 +10,7 @@ import importlib
 from cloudscape.common.vars import C_CLIENT
 from cloudscape.client.manager import APIConnect
 from cloudscape.common.utils import format_action
+from cloudscape.common.bootstrap import Bootstrap
 
 class CLIClient(object):
     """
@@ -124,6 +125,11 @@ class CLIClient(object):
         Handle any command line arguments.
         """
         
+        # If bootstrapping the platform
+        if self.args['module'] == 'bootstrap':
+            bootstrap = Bootstrap()
+            return bootstrap.run()
+        
         # Argument errors
         _req_args = {
             'api_user': 'Missing required argument "api_user"',
@@ -133,9 +139,9 @@ class CLIClient(object):
         
         _abort = False
         for k,v in self.args.iteritems():
-            if not k in self._req_args:
+            if not k in _req_args:
                 _abort = True
-                print 'ERROR: %s' % self._req_args[k]
+                print 'ERROR: %s' % _req_args[k]
         
         if _abort:
             sys.exit(1)

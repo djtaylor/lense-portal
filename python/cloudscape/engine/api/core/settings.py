@@ -67,11 +67,12 @@ DATABASES = {
 # Managed applications
 INSTALLED_APPS = (
     'django.contrib.admin',
+    'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudscape.engine.api.app.auth',
+    'cloudscape.engine.api.app.gateway',
     'cloudscape.engine.api.app.user',
     'cloudscape.engine.api.app.group',
 )

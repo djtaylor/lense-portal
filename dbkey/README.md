@@ -8,8 +8,8 @@ Generating Keys
 ----------------
 
 ```sh
-keyczart create --location=/opt/cloudscape/dbkey --purpose=crypt
-keyczart addkey --location=/opt/cloudscape/dbkey --status=primary --size=256
+keyczart create --location=/home/cloudscape/dbkey --purpose=crypt
+keyczart addkey --location=/home/cloudscape/dbkey --status=primary --size=256
 ```
 
 [Django]:https://www.djangoproject.com/

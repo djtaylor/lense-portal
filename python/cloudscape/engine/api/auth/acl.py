@@ -161,15 +161,9 @@ class ACLUser(object):
        
         # Username / groups / ACLs
         self.name   = user
-        self.type   = self._get_acc_type()
+        self.type   = T_USER
         self.groups = self._get_groups() 
         self.acls   = self._get_acls()
-   
-    def _get_acc_type(self):
-        """
-        Determine if the API account is a user or a host.
-        """
-        return T_HOST if DBHostDetails.objects.filter(uuid=self.name).count() else T_USER
    
     def _get_acls(self):
         """

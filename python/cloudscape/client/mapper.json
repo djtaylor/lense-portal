@@ -14,9 +14,9 @@
 	    	"desc": "Manage CloudScape groups."
 	    },
 	    {
-	    	"id": "auth",
-	    	"module": "auth",
-	    	"class": "AuthAPI",
+	    	"id": "gateway",
+	    	"module": "gateway",
+	    	"class": "GatewayAPI",
 	    	"desc": "Manage CloudScape authentication."
 	    }
 	]

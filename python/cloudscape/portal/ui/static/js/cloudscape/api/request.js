@@ -10,33 +10,6 @@ cs.import('CSAPIRequest', function() {
 	 * Request Attributes
 	 */
 	this.attrs = {
-		'formula/create': {
-			'msg': 'Creating new formula...'
-		},
-		'formula/run/service': {
-			'msg': 'Submitting formula service run request...'
-		},
-		'formula/run/utility': {
-			'msg': 'Submitting formula utility run request...'
-		},
-		'formula/run/group': {
-			'msg': 'Submitting formula group run request...'
-		},
-		'formula/delete': {
-			'msg': 'Deleting formula...'
-		},
-		'host/add': {
-			'msg': 'Adding new managed host...'
-		},
-		'host/delete': {
-			'msg': 'Deleting managed host...'
-		},
-		'host/formula/remove': {
-			'msg': 'Removing host formula...'
-		},
-		'host/group/delete': {
-			'msg': 'Deleting host group...'
-		},
 		'user/create': {
 			'msg': 'Creating user account...'
 		},
@@ -55,13 +28,13 @@ cs.import('CSAPIRequest', function() {
 		'group/member/remove': {
 			'msg': 'Removing member from group...'
 		},
-		'auth/endpoints/create': {
-			'msg': 'Creating new endpoint...'
+		'gateway/utilities/create': {
+			'msg': 'Creating new utility...'
 		},
-		'auth/endpoints/delete': {
-			'msg': 'Deleteing endpoint definition...'
+		'gateway/utilities/delete': {
+			'msg': 'Deleting utility definition...'
 		},
-		'auth/acl/create': {
+		'gateway/acl/create': {
 			'msg': 'Creating new ACL...'
 		}
 	};

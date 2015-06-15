@@ -13,7 +13,6 @@
 		<div class="table_header table_header_md" col="acl_desc">Description</div>
 		<div class="table_header table_header_md" col="acl_global">Global Access</div>
 		<div class="table_header table_header_md" col="acl_object">Object Access</div>
-		<div class="table_header table_header_md" col="acl_host">Host Access</div>
 	</div>
 	<div type="rows" table="acl_list">
 		{% for acl in acls.all %}
@@ -33,11 +32,6 @@
 					<div class="table_col" col="acl_object">Yes</div>
 				{% else %}
 					<div class="table_col" col="acl_object">No</div>
-				{% endif %}
-				{% if acl.type_host == True %}
-					<div class="table_col" col="acl_host">Yes</div>
-				{% else %}
-					<div class="table_col" col="acl_host">No</div>
 				{% endif %}
 			</div>
 		{% endfor %}

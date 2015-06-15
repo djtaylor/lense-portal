@@ -86,7 +86,7 @@ cs.import('CSAdminACLObjectsList', function() {
 		// Submit the API request
 		cs.layout.popup_toggle(false, 'acl.create_object', false, function() {
 			cs.api.request.post({
-				path:     'auth/acl/objects',
+				path:     'gateway/acl/objects',
 				action:   'create',
 				callback: {
 					id: 'acl.create_object'
@@ -122,7 +122,7 @@ cs.import('CSAdminACLObjectsList', function() {
 			// Submit the API request
 			cs.layout.popup_toggle(false, 'acl.delete_object', false, function() {
 				cs.api.request.post({
-					path:     'auth/acl/objects',
+					path:     'gateway/acl/objects',
 					action:   'delete',
 					callback: {
 						id: 'acl.delete_object'

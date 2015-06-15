@@ -88,21 +88,6 @@ cs.import('CSBaseInterface', function() {
 					$('#change_group_form').submit();
 				});
 			}
-		});
-		
-		// Agent controller
-		$(document).on('click', 'div[class="agent_control"][active="yes"]', function() {
-			var a = get_attr(this);
-			cs.layout.loading(true, 'Setting host agent state [' + a.action + ']...', function() {
-				cs.api.request.post({
-					path:   'host/agent',
-					action: 'control',
-					_data:  {
-						uuid:  a.host,
-						state: a.action
-					}
-				});
-			});
-		});		
+		});	
 	}
 });

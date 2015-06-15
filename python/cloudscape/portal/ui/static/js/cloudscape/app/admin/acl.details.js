@@ -44,18 +44,17 @@ cs.import('CSAdminACLDetails', function() {
 		// Data object
 		var data = {
 			uuid: cs.admin.acl.active(),
-			endpoints: {
+			utilities: {
 				global: [],
-				object: [],
-				host:   []
+				object: []
 			}
 		};
 		
-		// Construct the managed endpoints object
-		$('div[group="acl_endpoints"][acl_type]').each(function(i,g) {
+		// Construct the managed utilities object
+		$('div[group="acl_utilities"][acl_type]').each(function(i,g) {
 			var ga = get_attr(g);
 			$($('#acl_' + ga.acl_type + '_managed').find('.table_sortable_item')).each(function(i,e) {
-				data.endpoints[ga.acl_type].push($(e).attr('endpoint'));
+				data.utilities[ga.acl_type].push($(e).attr('utility'));
 			});
 		});
 		
@@ -171,7 +170,7 @@ cs.import('CSAdminACLDetails', function() {
 	cs.register.method('acl.save', function() {
 		cs.layout.loading(true, 'Updating ACL properties...', function() {
 			cs.api.request.post({
-				path: 'auth/acl',
+				path: 'gateway/acl',
 				action: 'update',
 				_data: cs.admin.acl.construct_request(),
 				callback: {

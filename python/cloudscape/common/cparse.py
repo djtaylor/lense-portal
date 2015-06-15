@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 
-class CParse:
+class CParse(object):
     """
     Helper class designed to parse and set options in configuration files. Should
     be able to handle different configuration formats, such as:

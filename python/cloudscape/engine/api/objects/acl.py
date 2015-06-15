@@ -9,8 +9,8 @@ class ACLObjects(object):
     def get_values(cls, obj_type=None):
         
         # Import the required module and create a class instance
-        mod = import_module('cloudscape.engine.api.app.auth.models')
-        cls = getattr(mod, 'DBAuthACLObjects')
+        mod = import_module('cloudscape.engine.api.app.gateway.models')
+        cls = getattr(mod, 'DBGatewayACLObjects')
         
         # If an object type is specified
         if obj_type:
@@ -23,8 +23,8 @@ class ACLObjects(object):
     def get(self, obj_type=None):
         
         # Import the required module and create a class instance
-        mod = import_module('cloudscape.engine.api.app.auth.models')
-        cls = getattr(mod, 'DBAuthACLObjects')
+        mod = import_module('cloudscape.engine.api.app.gateway.models')
+        cls = getattr(mod, 'DBGatewayACLObjects')
         
         # If an object type is specified
         if obj_type:

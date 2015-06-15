@@ -237,9 +237,15 @@ class UserCreate:
                 
                 # Set the password
                 password = self.api.data['password']
+            
+            # Check if specifying a manual user UUID
+            if self.api.data.get('uuid', False):
+                if DBUser.objects.filter(uuid=self.api.data['uuid']).count():
+                    return invalid(self.api.log.error('Cannot create user with duplicate UUID <%s>' % self.api.data['uuid']))
                 
             # Create the user account
             new_user = DBUser.objects.create_user(
+                uuid         = self.api.data.get('uuid', None),
                 group        = self.api.data['group'],
                 username     = self.api.data['username'],
                 email        = self.api.data['email'],
@@ -274,14 +280,17 @@ class UserCreate:
         except Exception as e:
             return invalid(self.api.log.exception('Failed to create user account [%s]: %s' % (self.api.data['username'], str(e))))
         
+        # Get the new user's API key
+        api_key = DBUserAPIKeys.objects.filter(user=new_user.uuid).get()[0]['api_key']
+        
         # Return the response
         return valid('Successfully created user account', {
             'uuid':       new_user.uuid,
             'username':   new_user.username,
             'first_name': new_user.first_name,
             'last_name':  new_user.last_name,
-            'is_admin':   new_user.is_admin,
-            'email':      new_user.email
+            'email':      new_user.email,
+            'api_key':    api_key
         })
 
 class UserGet:

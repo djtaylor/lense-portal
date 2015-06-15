@@ -5,6 +5,7 @@ import importlib
 
 # Django Libraries
 from django.http import HttpResponse
+from django.test.client import RequestFactory
 from django.core.serializers.json import DjangoJSONEncoder
 
 # CloudScape Libraries
@@ -16,16 +17,15 @@ from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.cache import CacheManager
 from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.core.socket import SocketResponse
-from aifc import data
 
-class APIBaseBare(object):
+class APIBare(object):
     """
-    APIBaseBare
+    APIBare
     
     Bare-bones base API object mainly for use when running utilities from a script,
     the bootstrap module for example.
     """
-    def __init__(self, data=None):
+    def __init__(self, path=None, data=None, method='GET', host='localhost'):
         """
         Initialize the APIBaseBare class.
         
@@ -33,12 +33,36 @@ class APIBaseBare(object):
         @type data:   dict
         """
         
-        # Request data
-        self.data = data
+        # Request object / data
+        self.request = self._get_request(path, method, host)
+        self.data    = data
         
         # Configuration / logger
-        self.conf = config.parse()
-        self.log  = APILogger(self)
+        self.conf    = config.parse()
+        self.log     = APILogger(self)
+        self.log_int = logger.create(path, self.conf.server.log)
+        
+    def _get_request(self, path, method, host):
+        """
+        Generate and return a Django request object.
+        """
+        
+        # Define the request defaults
+        defaults = {
+            'REQUEST_METHOD': method,
+            'SERVER_NAME':    host,
+            'PATH_INFO':      '/%s' % path,
+            'REQUEST_URI':    '/api/%s' % path,
+            'SCRIPT_NAME':    '/api',
+            'SERVER_PORT':    '10550',
+            'CONTENT_TYPE':   'application/json'
+        }
+        
+        # Create a new instance of the request factory
+        rf = RequestFactory(**defaults)
+        
+        # Construct and return the request object
+        return rf.request()
 
 class APIBase(object):
     """

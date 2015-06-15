@@ -88,7 +88,7 @@ cs.import('CSAdminACLList', function() {
 			cs.layout.popup_toggle(false, 'acl.delete', false, function() { 
 				cs.layout.loading(true, 'Deleting ACL...', function() {
 					cs.api.request.post({
-						path: 'auth/acl',
+						path: 'gateway/acl',
 						action: 'delete',
 						_data: {
 							uuid: s

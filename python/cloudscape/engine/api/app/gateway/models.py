@@ -227,10 +227,6 @@ class DBGatewayACLKeysQuerySet(models.query.QuerySet):
         
         # Contstruct the utilities for each ACL access type
         acl['utilities'] = {
-            'host':   {
-                'type': host_util[1],
-                'list': host_util[0]
-            },
             'object': {
                 'type': object_util[1],
                 'list': object_util[0]
@@ -285,7 +281,6 @@ class DBGatewayACLKeys(models.Model):
     name        = models.CharField(max_length=128, unique=True)
     desc        = models.CharField(max_length=128)
     type_object = models.BooleanField()
-    type_host   = models.BooleanField()
     type_global = models.BooleanField()
     
     # Custom objects manager

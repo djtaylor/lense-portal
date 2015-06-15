@@ -829,7 +829,7 @@ class GatewayACLGet:
         except Exception as e:
             return invalid(self.api.log.exception('Failed to retrieve ACL definition(s): %s' % str(e)))
 
-class GatewayRequest:
+class GatewayTokenGet:
     """
     Class used to handle token requests.
     """

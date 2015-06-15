@@ -7,7 +7,6 @@ from cloudscape.common.utils import valid, invalid
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
 from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
-from cloudscape.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions, DBGatewayACLEndpointsGlobal
 
 class GroupMemberRemove:
     """
@@ -324,15 +323,23 @@ class GroupCreate:
             return invalid(self.api.log.error('Group name <%s> already exists' % self.api.data['name']))
         
         # Generate a unique ID for the group
-        group_uuid = uuid4()
+        group_uuid = str(uuid4())
         
+        # If manually specifying a UUID
+        if self.api.data.get('uuid', False):
+            if DBGroupDetails.objects.filter(uuid=self.api.data['uuid']).count():
+                return invalid(self.api.log.error('Cannot create group with duplicate UUID <%s>' % self.api.data['uuid']))
+        
+            # Set the manual UUID
+            group_uuid = self.api.data['uuid']
+            
         # Create the group
         try:
             DBGroupDetails(
-                uuid      = str(group_uuid),
+                uuid      = group_uuid,
                 name      = self.api.data['name'],
                 desc      = self.api.data['desc'],
-                protected = self.api.get_data('protected')
+                protected = self.api.data.get('protected', False)
             ).save()
             
         # Failed to create group
@@ -344,7 +351,7 @@ class GroupCreate:
             'name':      self.api.data['name'],
             'desc':      self.api.data['desc'],
             'uuid':      str(group_uuid),
-            'protected': self.api.get_data('protected')
+            'protected': self.api.data.get('protected', False)
         })
 
 class GroupGet:

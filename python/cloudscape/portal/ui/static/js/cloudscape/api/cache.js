@@ -15,19 +15,12 @@ cs.import('CSAPICache', function() {
 	this.endpoints = [];
 	
 	/**
-	 * Callback: Cache Endpoints
+	 * Callback: Cache Utilities
 	 */
-	cs.register.callback('api.cache_endpoints', function(c,m,d,a) {
+	cs.register.callback('api.cache_utilities', function(c,m,d,a) {
 		if (cs.api.client.params.is_admin === true) {
-			cs.api.cache.endpoints = m;
+			cs.api.cache.utilities = m;
 		}
-	});
-	
-	/**
-	 * Callback: Cache Formulas
-	 */
-	cs.register.callback('api.cache_formulas', function(c,m,d,a) {
-		cs.api.cache.formulas = m;
 	});
 	
 	/**
@@ -37,20 +30,6 @@ cs.import('CSAPICache', function() {
 		if (cs.api.client.params.is_admin === true) {
 			cs.api.cache.acls = m;
 		}
-	});
-	
-	/**
-	 * Callback: Cache Host Groups
-	 */
-	cs.register.callback('api.cache_hgroups', function(c,m,d,a) {
-		cs.api.cache.hgroups = m;
-	});
-	
-	/**
-	 * Callback: Cache Hosts
-	 */
-	cs.register.callback('api.cache_host', function(c,m,d,a) {
-		cs.api.cache.hosts = m;
 	});
 	
 	/**
@@ -152,10 +131,10 @@ cs.import('CSAPICache', function() {
 		},
 			
 		/**
-		 * Endpoints
+		 * Utilities
 		 */
-		endpoints: function(e) {
-			var ea = clone(cs.api.cache.endpoints);
+		utilities: function(e) {
+			var ea = clone(cs.api.cache.utilities);
 			var ef = [];
 			$.each(ea, function(i,_e) {
 				var a = true;
@@ -169,66 +148,6 @@ cs.import('CSAPICache', function() {
 				}
 			});
 			return (ef.length > 1) ? ef : ef[0];
-		},
-		
-		/**
-		 * Formulas
-		 */
-		formula: function(f) {
-			var fa = clone(cs.api.cache.formulas);
-			var ff = [];
-			$.each(fa, function(i,_f) {
-				var a = true;
-				$.each(f, function(k,v) {
-					if (!_f.hasOwnProperty(k) || _f[k] !== v) {
-						a = false;
-					}
-				});
-				if (a === true) {
-					ff.push(_f);
-				}
-			});
-			return (ff.length > 1) ? ff : ff[0];
-		},
-		
-		/**
-		 * Host Groups
-		 */	
-		hgroup: function(f) {
-			var ha = clone(cs.api.cache.hgroups);
-			var hf = [];
-			$.each(ha, function(i,h) {
-				var a = true;
-				$.each(f, function(k,v) {
-					if (!h.hasOwnProperty(k) || h[k] !== v) {
-						a = false;
-					}
-				});
-				if (a === true) {
-					hf.push(h);
-				}
-			});
-			return (hf.length > 1) ? hf : hf[0];
-		},
-		
-		/**
-		 * Hosts
-		 */	
-		host: function(f) {
-			var ha = clone(cs.api.cache.hosts);
-			var hf = [];
-			$.each(ha, function(i,h) {
-				var a = true;
-				$.each(f, function(k,v) {
-					if (!h.hasOwnProperty(k) || h[k] !== v) {
-						a = false;
-					}
-				});
-				if (a === true) {
-					hf.push(h);
-				}
-			});
-			return (hf.length > 1) ? hf : hf[0];
 		}
 	}
 	
@@ -247,79 +166,16 @@ cs.import('CSAPICache', function() {
 	}
 	
 	/**
-	 * Host Group UUID to Name
-	 * 
-	 * Map a host group UUID to its relative name using the cached API data.
-	 * 
-	 * @param {u} The host group UUID to map
-	 */
-	this.hgroup_uuid2name = function(u) {
-		var name = undefined;
-		$.each(cs.api.cache.hgroups, function(i,o) {
-			if (o.uuid == u) {
-				name = o.name;
-				return false;
-			}
-		});
-		return name;
-	}
-	
-	/**
-	 * Host UUID to Name
-	 * 
-	 * Map a host UUID to its relative name using the cached API data.
-	 * 
-	 * @param {u} The host UUID to map
-	 */
-	this.host_uuid2name = function(u) {
-		var name = undefined;
-		$.each(cs.api.cache.hosts, function(i,o) {
-			if (o.uuid == u) {
-				name = o.name;
-				return false;
-			}
-		});
-		return name;
-	}
-	
-	/**
-	 * Host Name to UUID
-	 * 
-	 * Map a host name to its relative UUID using the cached API data.
-	 * 
-	 * @param {n} The host name to map
-	 */
-	this.host_name2uuid = function(n) {
-		var uuid = undefined;
-		$.each(cs.api.cache.hosts, function(i,o) {
-			if (o.name == n) {
-				uuid = o.uuid;
-				return false;
-			}
-		});
-		return uuid;
-	}
-	
-	/**
 	 * Cache API Data
 	 */
 	this.construct = function() {
 		
-		// Endpoints
+		// Utilities
 		cs.api.request.get({
-			path:     'auth/endpoints',
+			path:     'gateway/utilities',
 			action:   'get',
 			callback: {
-				id: 'api.cache_endpoints'
-			}
-		});
-		
-		// Formulas
-		cs.api.request.get({
-			path:     'formula',
-			action:   'get',
-			callback: {
-				id: 'api.cache_formulas'
+				id: 'api.cache_utilities'
 			}
 		});
 		
@@ -329,24 +185,6 @@ cs.import('CSAPICache', function() {
 			action:   'get',
 			callback: {
 				id: 'api.cache_acls'
-			}
-		});
-		
-		// Host Groups
-		cs.api.request.get({
-			path:     'host/group',
-			action:   'get',
-			callback: {
-				id: 'api.cache_hgroups'
-			}
-		});
-		
-		// Hosts
-		cs.api.request.get({
-			path:     'host',
-			action:   'get',
-			callback: {
-				id: 'api.cache_host'
 			}
 		});
 		

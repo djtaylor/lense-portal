@@ -24,23 +24,6 @@ cs.import('CSAPIResponse', function() {
 					cs.layout.loading('update', response.content); 
 				}
 				
-				// Update agent status
-				if (response.type == 'agent.status') {
-					
-					// Update any rendered agent status markers
-					$('div[type="agent.status"][host="' + response.content.uuid + '"]').attr('state', response.content.status).text(response.content.status);
-					
-					// Update any render agent controls
-					$('div[type="agent.control"][host="' + response.content.uuid + '"]').find('.agent_control').each(function(i,c) {
-						var a = get_attr(c);
-						if (a.action == 'start') {
-							$(c).attr('active', ((response.content.status == 'RUNNING') ? 'no': 'yes'));
-						} else {
-							$(c).attr('active', ((response.content.status == 'RUNNING') ? 'yes': 'no'));
-						}
-					});
-				}
-				
 			// Catch exceptions
 			} catch (e) { 
 				return false; 

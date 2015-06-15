@@ -2,6 +2,7 @@ import os
 
 # CloudScape Libraries
 import cloudscape.common.config as config
+from cloudscape.common.vars import L_BASE
 
 # Configuration
 CONFIG           = config.parse()
@@ -39,18 +40,18 @@ ROOT_URLCONF     = 'cloudscape.engine.api.core.urls'
 WSGI_APPLICATION = 'cloudscape.engine.api.core.wsgi.application'
 
 # API request templates
-API_TEMPLATES    = os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/engine/templates/api')
+API_TEMPLATES    = '%s/python/cloudscape/engine/templates/api' % L_BASE
 
 # Template directories
 TEMPLATE_DIRS = (
-    os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/engine/templates'),
+    '%s/python/cloudscape/engine/templates' % L_BASE,
 )
 
 # SMTP backend
 EMAIL_HOST       = CONFIG.email.smtp_host
 
 # Database encryption keys
-ENCRYPTED_FIELDS_KEYDIR = os.path.expandvars('$CLOUDSCAPE_BASE/dbkey')
+ENCRYPTED_FIELDS_KEYDIR = '%s/dbkey' % L_BASE
 
 # Database connections
 DATABASES = {

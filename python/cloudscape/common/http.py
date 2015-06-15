@@ -21,9 +21,15 @@ ERR_MESSAGE = {
     401: 'An error occured while authorizing the request'
 }
 
+# HTTP methods
+HTTP_GET = 'GET'
+HTTP_PUT = 'PUT'
+HTTP_POST = 'POST'
+HTTP_DELETE = 'DELETE'
+
 # HTTP Paths
 PATH = Collection({
-    'GET_TOKEN':    'auth/get'
+    'GET_TOKEN':    'gateway/token'
 }).get()
 
 # HTTP Headers

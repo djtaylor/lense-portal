@@ -108,45 +108,6 @@
 					</div>
 				</div>
 			</div>
-			
-			{# Host Endpoints #}
-			<div class="table_window" type="grouptoggle" group="acl_endpoints" name="acl_host" acl_type="host" style="display:none;">
-				<div class="table_panel_title">Host Endpoints</div>
-				<div class="table_50_outer">
-					<div class="table_50_editor">
-						<div class="table_title_inner">Available</div>
-						<div class="table_sortable_inner" id="acl_host_available">
-							{% for endpoint in endpoints %}
-								{% if not endpoint.uuid in acls.endpoints.host %}
-									<div class="table_sortable_item" type="acl_host" endpoint="{{ endpoint.uuid }}" available>
-										<div class="table_sortable_text">
-											<div class="table_sortable_epname" col="epname">{{ endpoint.name }}</div>
-											<div class="table_sortable_epdesc">{{ endpoint.desc }}</div>
-										</div>
-										<div class="table_sortable_icon" icon="add" editing="no"></div>
-									</div>
-								{% endif %}
-							{% endfor %}
-						</div>
-					</div>
-					<div class="table_50_editor">
-						<div class="table_title_inner">Managed</div>
-						<div class="table_sortable_inner" id="acl_host_managed">
-							{% for endpoint in endpoints %}
-								{% if endpoint.uuid in acls.endpoints.host %}
-									<div class="table_sortable_item" type="acl_host" endpoint="{{ endpoint.uuid }}" managed>
-										<div class="table_sortable_text">
-											<div class="table_sortable_epname" col="epname">{{ endpoint.name }}</div>
-											<div class="table_sortable_epdesc">{{ endpoint.desc }}</div>
-										</div>
-										<div class="table_sortable_icon" icon="remove" editing="no"></div>
-									</div>
-								{% endif %}
-							{% endfor %}
-						</div>
-					</div>
-				</div>
-			</div>
 		</div>
 	</div>
 	<div class="sidebar">
@@ -205,22 +166,6 @@
 						<div class="sidebar_group_detail_input">
 							<select name="type_object" form="edit_acl" disabled="">
 								{% if acls.detail.type_object == True %}
-									<option value="bool:true" selected="selected">Yes</option>
-									<option value="bool:false">No</option>
-								{% else %}
-									<option value="bool:true">Yes</option>
-									<option value="bool:false" selected="selected">No</option>
-								{% endif %}
-							</select>
-						</div>
-					</div>
-					
-					{# ACL Host Type Flag #}
-					<div class="sidebar_group_detail">
-						<div class="sidebar_group_detail_label">Host Access:</div>
-						<div class="sidebar_group_detail_input">
-							<select name="type_host" form="edit_acl" disabled="">
-								{% if acls.detail.type_host == True %}
 									<option value="bool:true" selected="selected">Yes</option>
 									<option value="bool:false">No</option>
 								{% else %}

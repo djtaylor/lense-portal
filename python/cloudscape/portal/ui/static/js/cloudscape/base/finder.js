@@ -15,26 +15,18 @@ cs.import('CSBaseFinder', function() {
 	// Search shortcuts
 	this.shortcuts = {
 		home:        '/home',
-		hosts:       '/hosts?panel=list',
-		hgroups:     '/hosts?panel=groups',
-		formulas:    '/formula?panel=overview',
 		users:       '/admin?panel=users',
 		groups:      '/admin?panel=groups',
 		acls:        '/admin?panel=acls',
-		endpoints:   '/admin?panel=endpoints',
-		objects:     '/admin?panel=objects',
-		datacenters: '/admin?panel=datacenters'
+		utilities:   '/admin?panel=utilities',
+		objects:     '/admin?panel=objects'
 	}
 	
 	// Object type labels
 	this.otype_labels = {
-		host:   	'Hosts',
-		hgroup: 	'Host Groups',
-		datacenter: 'Datacenters',
-		formula:    'Formulas',
 		user:       'API Users',
 		group:      'API Groups',
-		endpoint:   'Endpoints'
+		utility:    'Utilities'
 	};
 	
 	/**

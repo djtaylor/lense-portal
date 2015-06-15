@@ -31,7 +31,7 @@ class APIClient:
         
         # Return the API client object
         return APIConnect(
-            user    = user, 
-            group   = group,
-            api_key = api_key
+            api_user  = user, 
+            api_group = group,
+            api_key   = api_key
         ).construct()

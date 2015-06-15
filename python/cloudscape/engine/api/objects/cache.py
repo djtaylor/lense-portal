@@ -12,7 +12,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.engine.api.objects.acl import ACLObjects
-from cloudscape.engine.api.app.cluster.models import DBClusterCache
 
 class CacheManager(object):
     """
@@ -37,63 +36,10 @@ class CacheManager(object):
         # If retrieving a single object
         if obj_id:
             obj_filter['object_id'] = obj_id
+        self.log.info('No cached data for object <%s> of type <%s> found' % (obj_id, obj_type))
         
-        # If the object(s) exists
-        if DBClusterCache.objects.filter(**obj_filter).count():
-            
-            # Get the cached data row(s)
-            data_rows = list(DBClusterCache.objects.filter(**obj_filter).values())
-            
-            # If retrieving all objects
-            if not obj_id:
-                self.log.info('Retrieving cached data for all objects of type <%s>' % obj_type)
-                
-                # Return object
-                cached_data = []
-                
-                # Process each data row
-                for data_row in data_rows:
-            
-                    # If decoding the data
-                    if decode:
-                        cached_data.append(json.loads(base64.decodestring(data_row['object_data'])))
-                        continue
-                    
-                    # Append data as a string
-                    cached_data.append(data_row['object_data'])
-                
-                # If filtering data
-                if filters:
-                    filtered_data = []
-                    for data in cached_data:
-                        for k,v in filters:
-                            if data[k] == v:
-                                filtered_data.append(data)
-                    cached_data = filtered_data
-                
-                # Return the cached data
-                return cached_data
-                
-            # If retrieving a single object
-            else:
-                self.log.info('Retrieved cached data for object <%s> of type <%s>: bytes_cached=%s, decode=%s, hash=%s' % (obj_id, obj_type, str(data_row['object_size'], repr(decode), data_row['object_hash'])))
-                
-                # Get the cached data
-                cached_data = data_rows[0]['object_data']
-                
-                # If decoding the data
-                if decode:
-                    return json.loads(base64.decodestring(cached_data))
-                
-                # Return data as a string
-                return cached_data
-            
-        # Object not found
-        else:
-            self.log.info('No cached data for object <%s> of type <%s> found' % (obj_id, obj_type))
-        
-            # Return empty data
-            return False
+        # Return empty data
+        return False
         
     def save_object(self, obj_type, obj_id, values={}):
         """

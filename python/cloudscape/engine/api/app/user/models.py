@@ -130,7 +130,7 @@ class DBUserManager(BaseUserManager):
         # Return the created user
         return user, True
         
-    def create_user(self, group=G_DEFAULT, **attrs):
+    def create_user(self, group=G_DEFAULT, uuid=None, **attrs):
         """
         Create a new user account.
         """
@@ -146,9 +146,16 @@ class DBUserManager(BaseUserManager):
         # Get the current timestamp
         now = timezone.now()
         
+        # Generate a unique ID for the user
+        user_uuid = str(uuid4())
+        
+        # If manually specifying a UUID
+        if uuid:
+            user_uuid = uuid
+        
         # Update the user creation attributes
         attrs.update({
-            'uuid':        str(uuid4()),
+            'uuid':        user_uuid,
             'is_active':   True,
             'last_login':  now,
             'date_joined': now

@@ -28,7 +28,7 @@
 		CSAPIInterface:     	   'api/interface.js'
 	}, {
 		url: {
-			path: ['home', 'hosts', 'formula', 'admin', 'network']
+			path: ['home', 'admin']
 		}
 	}, function() {
 		c.push('api.CSAPIInterface');
@@ -55,51 +55,6 @@
 	}, function() {
 		c.push('home.CSHomeInterface');
 	});
-
-	// CloudScape: Network
-	include({
-		CSNetworkRoutersList:      'app/network/router.list.js',
-		CSNetworkRouterDetails:    'app/network/router.details.js',
-		CSNetworkInterface:        'app/network/interface.js',
-		CSNetworkIPBlocksList:     'app/network/ipblock.list.js',
-		CSNetworkIPBlockDetails:   'app/network/ipblock.details.js'
-	}, {
-		url: {
-			path: 'network'
-		}
-	}, function() {
-		c.push('network.CSNetworkInterface');
-	});
-	
-	// CloudScape: Hosts
-	include({
-		CSHostsList:    	       'app/hosts/host.list.js',
-		CSHostDetails:      	   'app/hosts/host.details.js',
-		CSHostGroupsList:          'app/hosts/group.list.js',
-		CSHostGroupEditor:		   'app/hosts/group.editor.js',
-		CSHostGroupDetails:        'app/hosts/group.details.js',
-		CSHostsInterface:   	   'app/hosts/interface.js'
-	}, {
-		url: {
-			path: 'hosts'
-		}
-	}, function() {
-		c.push('hosts.CSHostsInterface');
-	});
-	
-	// CloudScape: Formulas
-	include({
-		CSFormulaOverview:  	   'app/formula/overview.js',
-		CSFormulaDetails:  		   'app/formula/details.js',
-		CSFormulaRun:       	   'app/formula/run.js',
-		CSFormulaInterface:        'app/formula/interface.js'
-	}, {
-		url: {
-			path: 'formula'
-		}
-	}, function() {
-		c.push('formula.CSFormulaInterface');
-	});
 	
 	// CloudScape: Admin
 	include({
@@ -112,8 +67,6 @@
 		CSAdminUtilitiesList:      'app/admin/utility.list.js',
 		CSAdminACLObjectsList:     'app/admin/object.list.js',
 		CSAdminACLObjectDetails:   'app/admin/object.details.js',
-		CSAdminDatacentersList:    'app/admin/datacenter.list.js',
-		CSAdminDatacentersDetails: 'app/admin/datacenter.details.js',
 		CSAdminInterface:          'app/admin/interface.js'
 	}, {
 		url: {

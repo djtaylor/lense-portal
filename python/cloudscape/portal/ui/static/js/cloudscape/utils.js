@@ -44,7 +44,7 @@ function get_attr(e) {
 			attrs[a.nodeName] = a.value;
 		});
 	} else {
-		$.each(e[0].attributes, function(key, a) {
+		$.each($(e)[0].attributes, function(key, a) {
 			attrs[a.nodeName] = a.value;
 		});
 	}

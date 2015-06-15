@@ -394,7 +394,7 @@ cs.import('CSAdminUtilityDetails', function() {
 	cs.register.method('utility.save', function() {
 		cs.layout.loading(true, 'Saving utility changes...', function() {
 			cs.api.request.post({
-				path: 'auth/utilities/save',
+				path: 'gateway/utilities/save',
 				_data: cs.admin.utility.construct_request(),
 				callback: {
 					id: 'utility.save'
@@ -409,7 +409,7 @@ cs.import('CSAdminUtilityDetails', function() {
 	cs.register.method('utility.validate', function() {
 		cs.layout.loading(true, 'Validating utility changes...', function() {
 			cs.api.request.post({
-				path: 'auth/utilities/validate',
+				path: 'gateway/utilities/validate',
 				_data: cs.admin.utility.construct_request(),
 				callback: {
 					id: 'utility.validate'
@@ -431,7 +431,7 @@ cs.import('CSAdminUtilityDetails', function() {
 		} else {
 			cs.layout.loading(true, 'Closing edit mode for utility...', function() {
 				cs.api.request.get({
-					path: 'auth/utilities/close',
+					path: 'gateway/utilities/close',
 					_data: {
 						uuid: cs.admin.utility.active()
 					},
@@ -450,7 +450,7 @@ cs.import('CSAdminUtilityDetails', function() {
 		cs.layout.popup_toggle(false, 'utility.close_confirm', false, function() {
 			cs.layout.loading(true, 'Closing edit mode for utility...', function() {
 				cs.api.request.get({
-					path: 'auth/utilities/close',
+					path: 'gateway/utilities/close',
 					_data: {
 						uuid: cs.admin.utility.active()
 					},
@@ -468,7 +468,7 @@ cs.import('CSAdminUtilityDetails', function() {
 	cs.register.method('utility.open', function() {
 		cs.layout.loading(true, 'Opening utility for editing...', function() {
 			cs.api.request.get({
-				path: 'auth/utilities/open',
+				path: 'gateway/utilities/open',
 				_data: {
 					uuid: cs.admin.utility.active()
 				},

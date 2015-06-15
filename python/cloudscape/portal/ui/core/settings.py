@@ -3,6 +3,7 @@ import os
 # CloudScape Libraries
 import cloudscape.common.config as config
 from cloudscape.common.auth.utils import AuthGroupsLDAP
+from cloudscape.common.vars import L_BASE
 
 # Configuration
 CONFIG           = config.parse()
@@ -38,7 +39,7 @@ WSGI_APPLICATION = 'cloudscape.portal.ui.core.wsgi.application'
 
 # Template directories
 TEMPLATE_DIRS = (
-    os.path.expandvars('$CLOUDSCAPE_BASE/python/cloudscape/portal/ui/templates'),
+    '%s/python/cloudscape/portal/ui/templates' % L_BASE,
 )
 
 # Database connections
@@ -62,7 +63,7 @@ DATABASES = {
 }
 
 # Database encryption keys
-ENCRYPTED_FIELDS_KEYDIR = os.path.expandvars('$CLOUDSCAPE_BASE/dbkey')
+ENCRYPTED_FIELDS_KEYDIR = '%s/dbkey' % L_BASE
 
 # CORS configuration
 CORS_ORIGIN_ALLOW_ALL = True
@@ -98,7 +99,6 @@ AUTH_LDAP_USER_SEARCH = AuthGroupsLDAP.construct()
 # Django middleware classes
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

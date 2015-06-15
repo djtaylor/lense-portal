@@ -7,10 +7,10 @@ import platform
 import subprocess
 
 # Cloudscape Libraries
-from Cloudscape.common import config
-from Cloudscape.common import logger
-from Cloudscape.common.vars import L_BASE
-from Cloudscape.common.feedback import Feedback
+from cloudscape.common import config
+from cloudscape.common import logger
+from cloudscape.common.vars import L_BASE
+from cloudscape.common.feedback import Feedback
 
 class ServiceManager:
     """

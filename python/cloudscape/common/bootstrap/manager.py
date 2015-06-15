@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import shutil
 import MySQLdb
 from subprocess import Popen
 from getpass import getpass
@@ -54,6 +55,15 @@ class Bootstrap(object):
                 self.feedback.show('File <%s> deployed' % p[1]).success()
             else:
                 self.feedback.show('File <%s> already deployed, skipping...' % p[1]).info()
+    
+        # Create the log and run directories
+        for _dir in ['log', 'run']:
+            dir = '%s/%s' % (L_BASE, _dir)
+            if not os.path.isdir(dir):
+                os.mkdir(dir)
+                self.feedback.show('Created directory "%s"' % dir)
+            else:
+                self.feedback.show('Directory "" already exists, skipping...' % dir)
     
     def _get_password(self, prompt, min_length=8):
         _pass = getpass(prompt)

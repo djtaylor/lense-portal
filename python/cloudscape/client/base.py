@@ -81,10 +81,38 @@ class APIBase(object):
 
         # Return a successfull response
         return parsed
+    
+    def _delete(self, path, data={}):
+        """
+        Wrapper method to make DELETE requestes to an API utility.
+        """
+        
+        # Set the request URL to the API endpoint path
+        get_url = '%s/%s' % (self.API_URL, path)
+        
+        # POST the request and get the response
+        response = requests.delete(get_url, headers=self.API_HEADERS, params=data)
+        
+        # Return a response
+        return self._return(response)
+
+    def _put(self, path, data={}):
+        """
+        Wrapper method to make PUT requests to an API utility.
+        """
+        
+        # Set the request URL to the API endpoint path
+        get_url = '%s/%s' % (self.API_URL, path)
+        
+        # POST the request and get the response
+        response = requests.put(get_url, headers=self.API_HEADERS, params=data)
+        
+        # Return a response
+        return self._return(response)
 
     def _get(self, path, data={}):
         """
-        Wrapper method to make GET requests to the specific API endpoint.
+        Wrapper method to make GET requests to an API utility.
         """
         
         # Set the request URL to the API endpoint path
@@ -98,7 +126,7 @@ class APIBase(object):
 
     def _post(self, path, data={}):
         """
-        Wrapper method to make POST requests to the specific API endpoint.
+        Wrapper method to make POST requests an API utility.
         """
         
         # Set the request URL to the API endpoint path

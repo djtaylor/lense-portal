@@ -88,10 +88,9 @@ class ServerConfig(object):
         Construct the configuration and return an immutable collection object.
         """
 
-        # Make sure the required configuration files exist
-        for file in [S_CONF, S_CONF_DEF]:
-            if not os.path.isfile(file):
-                raise Exception('Missing required configuration file: %s' % file)
+        # Load the default configuration if the user-defined configuration doesn't exist
+        if not os.path.isfile(S_CONF):
+            return Collection(self._parse(S_CONF_DEF)).get()
 
         # Parse the default and user configuration files
         def_config = self._parse(S_CONF_DEF)

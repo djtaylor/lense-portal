@@ -10,10 +10,6 @@ from cloudscape.common import logger
 # CloudScape Libraries
 from cloudscape.common.collection import Collection
 
-# Configuration / Logger
-CONF = config.parse()
-LOG  = logger.create(__name__, CONF.server.log)
-
 # Error codes to message mappings
 ERR_MESSAGE = {
     500: 'An internal server error occurred, please contact your administrator',
@@ -152,6 +148,10 @@ class JSONErrorBase(object):
     """
     def __init__(self, error=None, status=500, exception=False):
 
+        # Configuration / logger
+        self.conf = config.parse()
+        self.log  = logger.create(__name__, self.conf.server.log)
+
         # Store the response status code
         self.status = status
 
@@ -164,10 +164,10 @@ class JSONErrorBase(object):
         
         # If an error message is provided
         if error and isinstance(error, (str, unicode, basestring)):
-            LOG.error(error)
+            self.log.error(error)
         
         # If providing a stack trace for debugging and debugging is enabled
-        if exception and CONF.server.debug:
+        if exception and self.conf.server.debug:
             self.error_object.update({
                 'debug': self._extract_trace()
             })
@@ -185,7 +185,7 @@ class JSONErrorBase(object):
             e_msg = '%s: %s' % (e_type.__name__, e_info)
         
             # Log the exception
-            LOG.exception(e_msg)
+            self.log.exception(e_msg)
         
             # Return the exception message and traceback
             return {

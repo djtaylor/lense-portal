@@ -281,7 +281,7 @@ class UserCreate:
             return invalid(self.api.log.exception('Failed to create user account [%s]: %s' % (self.api.data['username'], str(e))))
         
         # Get the new user's API key
-        api_key = DBUserAPIKeys.objects.filter(user=new_user.uuid).get()[0]['api_key']
+        api_key = DBUserAPIKeys.objects.filter(user=new_user.uuid).values()[0]['api_key']
         
         # Return the response
         return valid('Successfully created user account', {

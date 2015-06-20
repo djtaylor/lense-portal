@@ -338,19 +338,22 @@ class UtilityMapper(object):
                     'root': util_rmap
                 }
                 
-                # Merge the web socket request validator
-                self._merge_socket(rmap_base)
-            
-                # Load the endpoint request handler module string
-                self.map[utility['path']] = {
-                    'module': utility['mod'],
-                    'class':  utility['cls'],
-                    'path':   utility['path'],
-                    'desc':   utility['desc'],
-                    'method': utility['method'],
-                    'utils':  None if not utility['utils'] else json.loads(utility['utils']),
-                    'json':   rmap_base
-                }
+                # Map to the request path and method
+                if (utility['path'] == self.path) and (utility['method'] == self.method):
+                
+                    # Merge the web socket request validator
+                    self._merge_socket(rmap_base)
+                
+                    # Load the endpoint request handler module string
+                    self.map[utility['path']] = {
+                        'module': utility['mod'],
+                        'class':  utility['cls'],
+                        'path':   utility['path'],
+                        'desc':   utility['desc'],
+                        'method': utility['method'],
+                        'utils':  None if not utility['utils'] else json.loads(utility['utils']),
+                        'json':   rmap_base
+                    }
             
             # Error constructing request map, skip to next utility map
             except Exception as e:

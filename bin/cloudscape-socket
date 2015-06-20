@@ -283,7 +283,7 @@ function SocketProxy() {
     	var request = self.http_r.request(request_options, callback);
     	
     	// If any request data found for a POST request
-    	if (client.socket.method == 'post') && (client.hasOwnProperty('_data')) {
+    	if (client.socket.method == 'post' && client.hasOwnProperty('_data')) {
     		request.write(client._data);
     	}
         

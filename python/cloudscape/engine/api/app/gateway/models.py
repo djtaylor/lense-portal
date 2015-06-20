@@ -32,9 +32,9 @@ class DBGatewayUtilities(models.Model):
     Main database model for storing API utility details.
     """
     uuid       = models.CharField(max_length=36, unique=True)
-    path       = models.CharField(max_length=128, unique=True)
+    path       = models.CharField(max_length=128)
     desc       = models.CharField(max_length=256)
-    method     = models.CharField(max_length=4)
+    method     = models.CharField(max_length=6)
     mod        = models.CharField(max_length=128)
     cls        = models.CharField(max_length=64, unique=True)
     utils      = models.TextField()
@@ -145,6 +145,7 @@ class DBGatewayACLObjects(models.Model):
     """
     Main database model for storing ACL object types.
     """
+    uuid       = models.CharField(max_length=36, unique=True)
     type       = models.CharField(max_length=36, unique=True)
     name       = models.CharField(max_length=36)
     acl_mod    = models.CharField(max_length=128)

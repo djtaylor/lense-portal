@@ -15,7 +15,7 @@ import cloudscape.common.config as config
 import cloudscape.common.logger as logger
 from cloudscape.common.http import parse_response
 import cloudscape.engine.api.core.request as request
-from cloudscape.engine.api.app.auth.models import DBAuthUtilities
+from cloudscape.engine.api.app.gateway.models import DBGatewayUtilities
 from cloudscape.engine.api.app.user.models import DBUserAPITokens
 
 class ScheduleBase(object):
@@ -67,16 +67,16 @@ class ScheduleBase(object):
         Load all endpoint objects
         """
         
-        # Load all available endpoints
-        all_endpoints = list(DBAuthUtilities.objects.all().values())
+        # Load all available utilities
+        all_utils = list(DBGatewayUtilities.objects.all().values())
         
-        # Construct an endpoint object with the name as the key
-        endpoint_obj = {}
-        for endpoint in all_endpoints:
-            endpoint_obj[endpoint['name']] = endpoint
+        # Construct a utility object with the name as the key
+        util_obj = {}
+        for util in all_utils:
+            util_obj[util['name']] = util
             
-        # Set the endpoint object
-        return endpoint_obj
+        # Set the utility object
+        return util_obj
         
     def request(self, path, action, data=None):
         """
@@ -87,8 +87,8 @@ class ScheduleBase(object):
         if not self.api_user or not self.api_token:
             return self.log.error('Failed to make API request, API user and/or token not set')
         
-        # Define the full endpoint
-        endpoint = '%s/%s' % (path, action)
+        # Define the full utility
+        util = '%s/%s' % (path, action)
         
         # If data is supplied, make sure it is valid
         if data and not isinstance(data, dict):

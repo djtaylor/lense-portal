@@ -85,10 +85,6 @@ class GatewayUtilitiesCreate:
             })
         }
         
-        # Make sure the name isn't taken already
-        if DBGatewayUtilities.objects.filter(path=params['path']).count():
-            return invalid('The utility [%s] already exists, please use a different [path] parameter' % params['path'])
-        
         # Try to import the module and make sure it contains the class definition
         mod_status = mod_has_class(params['mod'], params['cls'])
         if not mod_status['valid']:
@@ -476,6 +472,9 @@ class GatewayACLObjectsCreate:
             if not status['valid']:
                 return status
         
+        # Set a unique ID for the ACL object
+        self.attr['uuid'] = str(uuid4())
+        
         # If a default ACL UUID is supplied
         if ('def_acl' in self.api.data):
             if not DBGatewayACLKeys.objects.filter(uuid=self.attr['def_acl']).count():
@@ -499,6 +498,7 @@ class GatewayACLObjectsCreate:
         # Return the response
         return valid('Successfully created ACL object definition', {
             'type': self.attr['type'],
+            'uuid': self.attr['uuid'],
             'name': self.attr['name']
         })
 
@@ -769,8 +769,8 @@ class GatewayACLCreate:
             'uuid': str(uuid4()),
             'name': self.api.data['name'],
             'desc': self.api.data['desc'],
-            'type_object': True if ('object' in acl_type) else False,
-            'type_global': True if ('global' in acl_type) else False
+            'type_object': self.api.data['object'],
+            'type_global': self.api.data['global']
         }
         
         # Make sure the ACL doesn't exist

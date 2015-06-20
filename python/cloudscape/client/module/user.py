@@ -9,10 +9,10 @@ class UserAPI:
         """
         Get details for either a single or all users.
         """
-        return self.parent._get('user/get', data=data)
+        return self.parent._get('user', data=data)
     
     def create(self, data={}):
         """
         Create a new user account.
         """
-        return self.parent._post('user/create', data=data)
+        return self.parent._post('user', data=data)

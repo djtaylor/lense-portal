@@ -75,7 +75,7 @@ class APIToken(object):
         
         # If the user doesn't have a token yet
         if api_token['content'] == None:
-            api_token['content'] = self.create(id=id, type='user')
+            api_token['content'] = self.create(id=id)
         self.log.info('Retrieved token for API ID [%s]: %s' % (id, api_token['content']))
         return api_token['content']
     

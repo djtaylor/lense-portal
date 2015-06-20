@@ -221,17 +221,18 @@ class CParse(object):
         """
         if self.is_ini:
             keyset = False
-            for _k,_v in self.target_attr.iteritems():
-                if k in _v:
-                    _v[k] = [d, v]
-                    keyset = True
-                    break
+            for _section, _pairs in self.target_attr.iteritems():
+                if s == _section:
+                    if k in _pairs:
+                        _pairs[k] = [d, v]
+                        keyset = True
+                        break
             if not keyset:
                 if not s:
                     raise Exception('Key [%s] not found, must specify a section to insert new parameter into an INI file' % k)
                 else:
                     if not s in self.target_attr:
-                        raise Exception('Section [%s] not found, must add first using \'add_section("section")\'')
+                        raise Exception('Section [%s] not found, must add first using \'add_section("section")\'' % s)
                     self.target_attr[s][k] = [d, v]
                     return True
             return True

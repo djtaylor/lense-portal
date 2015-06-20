@@ -47,20 +47,13 @@ class ServiceManager:
                 'apache': False,
                 'pid':    self.conf.socket.pid,
                 'label':  'API socket proxy',
-                'start':  ['nohup', 'node', 
-                    self.conf.socket.exe,
-                    self.conf.socket.host, 
-                    self.conf.socket.port, 
-                    self.conf.socket.proto
-                ]
+                'start':  ['nohup', 'nodejs', self.conf.socket.exe]
             },
             'scheduler': {
                 'apache': False,    
                 'pid':    self.conf.scheduler.pid,
                 'label':  'API scheduler',
-                'start':  ['nohup', 'python',
-                    self.conf.scheduler.exe 
-                ]
+                'start':  ['nohup', 'python', self.conf.scheduler.exe]
             }
         }
         

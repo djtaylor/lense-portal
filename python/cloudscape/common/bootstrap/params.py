@@ -12,13 +12,28 @@ class _BootstrapACL(object):
     def __init__(self):
         self.objects = self._set_objects()
         self.keys    = self._set_keys()
+        self.access  = self._set_access()
+        
+    def set_access(self, acls):
+        """
+        Set ACL access keys for the administrator group.
+        """
+        _access = []
+        for acl in acls:
+            _access.append({
+                "acl": acl['data']['uuid'],
+                "acl_name": acl['data']['name'],
+                "owner": G_ADMIN,
+                "allowed": True          
+            })
+        return _access
         
     def _set_objects(self):
         """
         Set attributes for ACL objects.
         """
-        return {
-            "utility": {
+        return [
+            {
                 "type": "object",
                 "name": "utility",
                 "acl_mod": "cloudscape.engine.api.app.gateway.models",
@@ -29,7 +44,7 @@ class _BootstrapACL(object):
                 "obj_key": "uuid",
                 "def_acl": ""
             },
-            "group": {
+            {
                 "type": "object",
                 "name": "group",
                 "acl_mod": "cloudscape.engine.api.app.gateway.models",
@@ -40,7 +55,7 @@ class _BootstrapACL(object):
                 "obj_key": "uuid",
                 "def_acl": ""
             },
-            "user": {
+            {
                 "type": "object",
                 "name": "user",
                 "acl_mod": "cloudscape.engine.api.app.gateway.models",
@@ -51,20 +66,38 @@ class _BootstrapACL(object):
                 "obj_key": "uuid",
                 "def_acl": ""
             }
-        }
+        ]
     
     def _set_keys(self):
         """
         Set attributes for ACL keys.
         """
-        return {
-            "administrator": {
-                "name": "administrator",
-                "desc": "ACL for allowing global administrator access.",
+        return [
+            {
+                "name": "token.get",
+                "desc": "ACL for allowing API token requests.",
                 "type_object": False,
                 "type_global": True
-            }
-        }
+            },
+            {
+                "name": "user.admin",
+                "desc": "ACL for allowing global administration of users.",
+                "type_object": False,
+                "type_global": True
+            },
+            {
+                "name": "group.admin",
+                "desc": "ACL for allowing global administration of groups.",
+                "type_object": False,
+                "type_global": True
+            },
+            {
+                "name": "util.admin",
+                "desc": "ACL for allowing administration of API utilities.",
+                "type_object": False,
+                "type_global": True
+            },
+        ]
 
 class _BootstrapInput(object):
     """
@@ -341,8 +374,9 @@ class BootstrapParams(object):
         mod_user    = 'cloudscape.engine.api.app.user.utils'
         
         # Return the database parameters
-        return {
-            "GatewayTokenGet": {
+        return [
+            {
+                "cls": "GatewayTokenGet",
                 "path": "gateway/token",
                 "method": HTTP_GET,
                 "desc": "Make a token request to the API gateway",
@@ -356,7 +390,8 @@ class BootstrapParams(object):
                     "_optional": []
                 }
             },
-            "GatewayACLGet": {
+            {
+                "cls": "GatewayACLGet",
                 "path": "gateway/acl",
                 "method": HTTP_GET,
                 "desc": "Retrieve an ACL definition",
@@ -376,7 +411,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayACLCreate": {
+            {
+                "cls": "GatewayACLCreate",
                 "path": "gateway/acl",
                 "method": HTTP_POST,
                 "desc": "Create a new ACL definition",
@@ -405,7 +441,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayACLDelete": {
+            {
+                "cls": "GatewayACLDelete",
                 "path": "gateway/acl",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing ACL definition",
@@ -425,7 +462,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayACLUpdate": {
+            {
+                "cls": "GatewayACLUpdate",
                 "path": "gateway/acl",
                 "method": HTTP_PUT,
                 "desc": "Update an existing ACL definition",
@@ -457,7 +495,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayACLObjectsGet": {
+            {
+                "cls": "GatewayACLObjectsGet",
                 "path": "gateway/acl/objects",
                 "method": HTTP_GET,
                 "desc": "Get a listing of ACL objects",
@@ -477,7 +516,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayACLObjectsUpdate": {
+            {
+                "cls": "GatewayACLObjectsUpdate",
                 "path": "gateway/acl/objects",
                 "method": HTTP_PUT,
                 "desc": "Update an ACL object definition",
@@ -524,7 +564,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayACLObjectsCreate": {
+            {
+                "cls": "GatewayACLObjectsCreate",
                 "path": "gateway/acl/objects",
                 "method": HTTP_POST,
                 "desc": "Create a new ACL object definition",
@@ -568,7 +609,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayACLObjectsDelete": {
+            {
+                "cls": "GatewayACLObjectsDelete",
                 "path": "gateway/acl/objects",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing ACL object definition",
@@ -588,7 +630,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayUtilitiesGet": {
+            {
+                "cls": "GatewayUtilitiesGet",
                 "path": "gateway/utilities",
                 "method": HTTP_GET,
                 "desc": "Get a listing of API utilities",
@@ -608,7 +651,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayUtilitiesOpen": {
+            {
+                "cls": "GatewayUtilitiesOpen",
                 "path": "gateway/utilities/open",
                 "method": HTTP_PUT,
                 "desc": "Open an API utility for editing",
@@ -628,7 +672,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayUtilitiesClose": {
+            {
+                "cls": "GatewayUtilitiesClose",
                 "path": "gateway/utilities/close",
                 "method": HTTP_PUT,
                 "desc": "Close the editing lock on an API utility",
@@ -648,7 +693,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayUtilitiesValidate": {
+            {
+                "cls": "GatewayUtilitiesValidate",
                 "path": "gateway/utilities/validate",
                 "method": HTTP_PUT,
                 "desc": "Validate changes to an API utility",
@@ -702,7 +748,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayUtilitiesSave": {
+            {
+                "cls": "GatewayUtilitiesSave",
                 "path": "gateway/utilities",
                 "method": HTTP_PUT,
                 "desc": "Save changes to an API utility",
@@ -756,7 +803,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayUtilitiesCreate": {
+            {
+                "cls": "GatewayUtilitiesCreate",
                 "path": "gateway/utilities",
                 "method": HTTP_POST,
                 "desc": "Create a new API utility",
@@ -807,7 +855,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GatewayUtilitiesDelete": {
+            {
+                "cls": "GatewayUtilitiesDelete",
                 "path": "gateway/utilities",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API utility",
@@ -827,7 +876,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GroupMemberRemove": {
+            {
+                "cls": "GroupMemberRemove",
                 "path": "group/member",
                 "method": HTTP_DELETE,
                 "desc": "Remove a user from an API group",
@@ -838,7 +888,8 @@ class BootstrapParams(object):
                 "object_key": "uuid",
                 "rmap": {}
             },
-            "GroupMemberAdd": {
+            {
+                "cls": "GroupMemberAdd",
                 "path": "group/member",
                 "method": HTTP_POST,
                 "desc": "Add a user to an API group",
@@ -849,7 +900,8 @@ class BootstrapParams(object):
                 "object_key": "uuid",
                 "rmap": {}
             },
-            "GroupUpdate": {
+            {
+                "cls": "GroupUpdate",
                 "path": "group",
                 "method": HTTP_PUT,
                 "desc": "Update an existing API group",
@@ -878,7 +930,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GroupCreate": {
+            {
+                "cls": "GroupCreate",
                 "path": "group",
                 "method": HTTP_POST,
                 "desc": "Create a new API group",
@@ -907,7 +960,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GroupDelete": {
+            {
+                "cls": "GroupDelete",
                 "path": "group",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API group",
@@ -927,7 +981,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "GroupGet": {
+            {
+                "cls": "GroupGet",
                 "path": "group",
                 "method": HTTP_GET,
                 "desc": "Get details for an API group",
@@ -947,7 +1002,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "UserEnable": {
+            {
+                "cls": "UserEnable",
                 "path": "user/enable",
                 "method": HTTP_PUT,
                 "desc": "Enable a user account",
@@ -967,7 +1023,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "UserDisable": {
+            {
+                "cls": "UserDisable",
                 "path": "user/disable",
                 "method": HTTP_PUT,
                 "desc": "Disable a user account",
@@ -987,7 +1044,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "UserResetPassword": {
+            {
+                "cls": "UserResetPassword",
                 "path": "user/pwreset",
                 "method": HTTP_PUT,
                 "desc": "Reset a user's password",
@@ -1005,9 +1063,10 @@ class BootstrapParams(object):
                             "_type": "uuid"
                         }
                     }
-                },
+                }
             },
-            "UserDelete": {
+            {
+                "cls": "UserDelete",
                 "path": "user",
                 "method": HTTP_DELETE,
                 "desc": "Delete an existing API user",
@@ -1027,7 +1086,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "UserCreate": {
+            {
+                "cls": "UserCreate",
                 "path": "user",
                 "method": HTTP_POST,
                 "desc": "Create a new API user",
@@ -1058,7 +1118,8 @@ class BootstrapParams(object):
                     }
                 }
             },
-            "UserGet": {
+            {
+                "cls": "UserGet",
                 "path": "user",
                 "method": HTTP_GET,
                 "desc": "Get API user details",
@@ -1078,4 +1139,4 @@ class BootstrapParams(object):
                     }
                 }
             }
-        } 
+        ]

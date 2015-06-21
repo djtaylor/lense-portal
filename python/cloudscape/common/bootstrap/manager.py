@@ -170,28 +170,18 @@ class Bootstrap(object):
             return self.feedback.show('Failed to add database encryption key').error()
         self.feedback.show('Added database encryption key').success()
     
-    def _database_seed(self):
+    def _create_group(self, obj):
         """
-        Seed the database with the base information needed to run Cloudscape.
+        Create the default administrator group.
         """
-        
-        # Import modules now to get the new configuration
-        from cloudscape.engine.api.app.group.utils import GroupCreate
-        from cloudscape.engine.api.app.user.utils import UserCreate
-        from cloudscape.engine.api.app.gateway.utils import GatewayUtilitiesCreate, GatewayACLObjectsCreate, GatewayACLCreate
-        
-        # Setup Django models
-        django.setup()
-        
-        # Create the administrator group
-        group = GroupCreate(APIBare(
+        group = obj(APIBare(
             data = {
                 'uuid': self.params.group['uuid'],
                 'name': self.params.group['name'],
                 'desc': self.params.group['desc'],
                 'protected': self.params.group['protected']
             },
-            path = 'group/create'
+            path = 'group'
         )).launch()
         
         # If the group was not created
@@ -199,12 +189,20 @@ class Bootstrap(object):
             self._die('HTTP %s: %s' % (group['code'], group['content']))
         self.feedback.show('Created default Cloudscape administrator group').success()
         
+        # Return the group object
+        return group
+    
+    def _create_user(self, obj):
+        """
+        Create the default administrator user account.
+        """
+        
         # Set the new user email/password
         user_email = self.params.input.response.get('api_admin_email', self.params.user['email'])
         user_passwd = self.params.input.response.get('api_admin_password', self.params.user['password'])
         
-        # Create the administrator
-        user = UserCreate(APIBare(
+        # Create a new user object
+        user = obj(APIBare(
             data = {
                 'username': self.params.user['username'],
                 'group': self.params.user['group'],
@@ -212,7 +210,7 @@ class Bootstrap(object):
                 'password': user_passwd,
                 'password_confirm': user_passwd
             },
-            path = 'user/create'
+            path = 'user'             
         )).launch()
         
         # If the user was not created
@@ -220,29 +218,26 @@ class Bootstrap(object):
             self._die('HTTP %s: %s' % (user['code'], user['content']))
         self.feedback.show('Created default Cloudscape administrator account').success()
     
-        # Update administrator info in the server configuration
-        cp = CParse()
-        cp.select(self.server_conf)
-        cp.set_key('user', user['data']['username'], s='admin')
-        cp.set_key('group', self.params.user['group'], s='admin')
-        cp.set_key('key', user['data']['api_key'], s='admin')
-        cp.apply()
-        self.feedback.show('[%s] Set API administrator values' % self.server_conf).success()
+        # Return the user object
+        return user
     
-        # Create each database utility entry
-        for c,a in self.params.utils.iteritems():
-            utility = GatewayUtilitiesCreate(APIBare(
+    def _create_utils(self, obj):
+        """
+        Create API utility entries.
+        """
+        for _util in self.params.utils:
+            utility = obj(APIBare(
                 data = {
-                    'path': a['path'],
-                    'desc': a['desc'],
-                    'method': a['method'],
-                    'mod': a['mod'],
-                    'cls': c,
-                    'protected': a['protected'],
-                    'enabled': a['enabled'],
-                    'object': a['object'],
-                    'object_key': a['object_key'],
-                    'rmap': json.dumps(a['rmap'])
+                    'path': _util['path'],
+                    'desc': _util['desc'],
+                    'method': _util['method'],
+                    'mod': _util['mod'],
+                    'cls': _util['cls'],
+                    'protected': _util['protected'],
+                    'enabled': _util['enabled'],
+                    'object': _util['object'],
+                    'object_key': _util['object_key'],
+                    'rmap': json.dumps(_util['rmap'])
                 },
                 path = 'utilities'
             )).launch()
@@ -250,12 +245,14 @@ class Bootstrap(object):
             # If the utility was not created
             if not utility['valid']:
                 self._die('HTTP %s: %s' % (utility['code'], utility['content']))
-            self.feedback.show('Created database entry for utility "%s": Path=%s, Method=%s' % (c, a['path'], a['method'])).success()
+            self.feedback.show('Created database entry for utility "%s": Path=%s, Method=%s' % (_util['cls'], _util['path'], _util['method'])).success()
     
-    
-        # Create each ACL object entry
-        for key, obj in self.params.acl.objects.iteritems():
-            acl_obj = GatewayACLObjectsCreate(APIBare(
+    def _create_acl_objs(self, obj):
+        """
+        Create ACL object definitions.
+        """
+        for obj in self.params.acl.objects.iteritems():
+            acl_obj = obj(APIBare(
                 data = {
                     "type": obj['type'],
                     "name": obj['name'],
@@ -274,15 +271,18 @@ class Bootstrap(object):
             if not acl_obj['valid']:
                 self._die('HTTP %s: %s' % (acl_obj['code'], acl_obj['content']))
             self.feedback.show('Created database entry for ACL object "%s->%s"' % (obj['type'], obj['name'])).success()
-            
-        # Create each ACL key entry
-        for key, obj in self.params.acl.keys.iteritems():
-            acl_key = GatewayACLCreate(APIBare(
+    
+    def _create_acl_keys(self, obj):
+        """
+        Create ACL key definitions.
+        """
+        for key in self.params.acl.keys:
+            acl_key = obj(APIBare(
                 data = {
-                    "name": obj['name'],
-                    "desc": obj['desc'],
-                    "type_object": obj['type_object'],
-                    "type_global": obj['type_global']
+                    "name": acl['name'],
+                    "desc": acl['desc'],
+                    "type_object": acl['type_object'],
+                    "type_global": acl['type_global']
                 },
                 path = 'gateway/acl/objects'
             )).launch()
@@ -290,7 +290,59 @@ class Bootstrap(object):
             # If the ACL key was not created
             if not acl_key['valid']:
                 self._die('HTTP %s: %s' % (acl_key['code'], acl_key['content']))
+                
+            # Store the new ACL key UUID
+            acl['uuid'] = acl_key['data']['uuid']
             self.feedback.show('Created database entry for ACL key "%s"' % obj['name']).success()
+    
+    def _create_acl_access(self, obj):
+        """
+        Setup ACL group access definitions.
+        """
+        for access in self.params.acl.set_access(self.params.acl.keys):
+            try:
+                obj.objects.create(
+                    acl = access['acl'],
+                    owner = access['owner'],
+                    allowed = access['allowed']
+                ).save()
+                self.feedback.show('Granted global administrator access for ACL "%s"' % access['acl_name']).success()
+            except Exception as e:
+                self._die('Failed to grant global access for ACL "%s": %s' % (access['acl_name'], str(e)))
+    
+    def _database_seed(self):
+        """
+        Seed the database with the base information needed to run Cloudscape.
+        """
+        
+        # Import modules now to get the new configuration
+        from cloudscape.engine.api.app.group.utils import GroupCreate
+        from cloudscape.engine.api.app.user.utils import UserCreate
+        from cloudscape.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions
+        from cloudscape.engine.api.app.gateway.utils import GatewayUtilitiesCreate, GatewayACLObjectsCreate, \
+                                                            GatewayACLCreate
+        
+        # Setup Django models
+        django.setup()
+        
+        # Create the administrator group and user
+        group = self._create_group(GroupCreate)
+        user = self._create_user(UserCreate)
+    
+        # Update administrator info in the server configuration
+        cp = CParse()
+        cp.select(self.server_conf)
+        cp.set_key('user', user['data']['username'], s='admin')
+        cp.set_key('group', self.params.user['group'], s='admin')
+        cp.set_key('key', user['data']['api_key'], s='admin')
+        cp.apply()
+        self.feedback.show('[%s] Set API administrator values' % self.server_conf).success()
+    
+        # Create API utilities / ACL objects / ACL keys / access entries
+        self._create_utils(GatewayUtilitiesCreate)
+        self._create_acl_objs(GatewayACLObjectsCreate)
+        self._create_acl_keys(GatewayACLCreate)
+        self._create_acl_access(DBGatewayACLGroupGlobalPermissions)
     
     def _read_input(self):
         """

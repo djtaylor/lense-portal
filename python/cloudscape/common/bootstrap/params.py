@@ -10,9 +10,9 @@ class _BootstrapACL(object):
     Handle bootstrapping ACL definitions.
     """
     def __init__(self):
-        self.objects = self._set_objects()
         self.keys    = self._set_keys()
-        self.access  = self._set_access()
+        self.objects = None
+        self.access  = None
         
     def set_access(self, acls):
         """
@@ -26,45 +26,54 @@ class _BootstrapACL(object):
                 "owner": G_ADMIN,
                 "allowed": True          
             })
+        self.access = _access
         return _access
         
-    def _set_objects(self):
+    def _get_acl_key(self, name):
+        """
+        Return the UUID for an ACL key by name.
+        """
+        for k in self.keys:
+            if k['name'] == name:
+                return k['uuid']
+        
+    def set_objects(self):
         """
         Set attributes for ACL objects.
         """
-        return [
+        self.objects = [
             {
-                "type": "object",
-                "name": "utility",
+                "type": "utility",
+                "name": "API Utility",
                 "acl_mod": "cloudscape.engine.api.app.gateway.models",
                 "acl_cls": "DBGatewayACLGroupObjectUtilityPermissions",
                 "acl_key": "utility",
                 "obj_mod": "cloudscape.engine.api.app.gateway.models",
                 "obj_cls": "DBGatewayUtilities",
                 "obj_key": "uuid",
-                "def_acl": ""
+                "def_acl": self._get_acl_key('utility.view')
             },
             {
-                "type": "object",
-                "name": "group",
+                "type": "group",
+                "name": "API Group",
                 "acl_mod": "cloudscape.engine.api.app.gateway.models",
                 "acl_cls": "DBGatewayACLGroupObjectGroupPermissions",
                 "acl_key": "group",
                 "obj_mod": "cloudscape.engine.api.app.group.models",
                 "obj_cls": "DBGroupDetails",
                 "obj_key": "uuid",
-                "def_acl": ""
+                "def_acl": self._get_acl_key('group.view')
             },
             {
-                "type": "object",
-                "name": "user",
+                "type": "user",
+                "name": "API User",
                 "acl_mod": "cloudscape.engine.api.app.gateway.models",
                 "acl_cls": "DBGatewayACLGroupObjectUserPermissions",
                 "acl_key": "user",
                 "obj_mod": "cloudscape.engine.api.app.user.models",
                 "obj_cls": "DBUser",
                 "obj_key": "uuid",
-                "def_acl": ""
+                "def_acl": self._get_acl_key('user.view')
             }
         ]
     
@@ -86,10 +95,22 @@ class _BootstrapACL(object):
                 "type_global": True
             },
             {
+                "name": "user.view",
+                "desc": "ACL for allowing read-only access to user objects.",
+                "type_object": True,
+                "type_global": False
+            },
+            {
                 "name": "group.admin",
                 "desc": "ACL for allowing global administration of groups.",
                 "type_object": False,
                 "type_global": True
+            },
+            {
+                "name": "group.view",
+                "desc": "ACL for allowing read-only access to group objects.",
+                "type_object": True,
+                "type_global": False
             },
             {
                 "name": "util.admin",
@@ -97,6 +118,12 @@ class _BootstrapACL(object):
                 "type_object": False,
                 "type_global": True
             },
+            {
+                "name": "util.view",
+                "desc": "ACL for allowing read-only access to utility objects.",
+                "type_object": True,
+                "type_global": False
+            }
         ]
 
 class _BootstrapInput(object):

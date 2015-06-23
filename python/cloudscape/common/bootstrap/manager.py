@@ -226,7 +226,7 @@ class Bootstrap(object):
         Create API utility entries.
         """
         for _util in self.params.utils:
-            utility = obj(APIBare(
+            util = obj(APIBare(
                 data = {
                     'path': _util['path'],
                     'desc': _util['desc'],
@@ -243,46 +243,21 @@ class Bootstrap(object):
             )).launch()
             
             # If the utility was not created
-            if not utility['valid']:
-                self._die('HTTP %s: %s' % (utility['code'], utility['content']))
+            if not util['valid']:
+                self._die('HTTP %s: %s' % (util['code'], util['content']))
             self.feedback.show('Created database entry for utility "%s": Path=%s, Method=%s' % (_util['cls'], _util['path'], _util['method'])).success()
-    
-    def _create_acl_objs(self, obj):
-        """
-        Create ACL object definitions.
-        """
-        for obj in self.params.acl.objects.iteritems():
-            acl_obj = obj(APIBare(
-                data = {
-                    "type": obj['type'],
-                    "name": obj['name'],
-                    "acl_mod": obj['acl_mod'],
-                    "acl_cls": obj['acl_cls'],
-                    "acl_key": obj['acl_key'],
-                    "obj_mod": obj['obj_mod'],
-                    "obj_cls": obj['obj_cls'],
-                    "obj_key": obj['obj_key'],
-                    "def_acl": obj['def_acl']
-                },
-                path = 'gateway/acl/objects'
-            )).launch()
-            
-            # If the ACL object was not created
-            if not acl_obj['valid']:
-                self._die('HTTP %s: %s' % (acl_obj['code'], acl_obj['content']))
-            self.feedback.show('Created database entry for ACL object "%s->%s"' % (obj['type'], obj['name'])).success()
     
     def _create_acl_keys(self, obj):
         """
         Create ACL key definitions.
         """
-        for key in self.params.acl.keys:
+        for _acl_key in self.params.acl.keys:
             acl_key = obj(APIBare(
                 data = {
-                    "name": acl['name'],
-                    "desc": acl['desc'],
-                    "type_object": acl['type_object'],
-                    "type_global": acl['type_global']
+                    "name": _acl_key['name'],
+                    "desc": _acl_key['desc'],
+                    "type_object": _acl_key['type_object'],
+                    "type_global": _acl_key['type_global']
                 },
                 path = 'gateway/acl/objects'
             )).launch()
@@ -292,8 +267,36 @@ class Bootstrap(object):
                 self._die('HTTP %s: %s' % (acl_key['code'], acl_key['content']))
                 
             # Store the new ACL key UUID
-            acl['uuid'] = acl_key['data']['uuid']
-            self.feedback.show('Created database entry for ACL key "%s"' % obj['name']).success()
+            _acl_key['uuid'] = acl_key['data']['uuid']
+            self.feedback.show('Created database entry for ACL key "%s"' % _acl_key['name']).success()
+            
+        # Setup ACL objects
+        self.params.acl.set_objects()
+    
+    def _create_acl_objects(self, obj):
+        """
+        Create ACL object definitions.
+        """
+        for _acl_obj in self.params.acl.objects:
+            acl_obj = obj(APIBare(
+                data = {
+                    "type": _acl_obj['type'],
+                    "name": _acl_obj['name'],
+                    "acl_mod": _acl_obj['acl_mod'],
+                    "acl_cls": _acl_obj['acl_cls'],
+                    "acl_key": _acl_obj['acl_key'],
+                    "obj_mod": _acl_obj['obj_mod'],
+                    "obj_cls": _acl_obj['obj_cls'],
+                    "obj_key": _acl_obj['obj_key'],
+                    "def_acl": _acl_obj['def_acl']
+                },
+                path = 'gateway/acl/objects'
+            )).launch()
+            
+            # If the ACL object was not created
+            if not acl_obj['valid']:
+                self._die('HTTP %s: %s' % (acl_obj['code'], acl_obj['content']))
+            self.feedback.show('Created database entry for ACL object "%s->%s"' % (_acl_obj['type'], _acl_obj['name'])).success()
     
     def _create_acl_access(self, obj):
         """
@@ -340,8 +343,8 @@ class Bootstrap(object):
     
         # Create API utilities / ACL objects / ACL keys / access entries
         self._create_utils(GatewayUtilitiesCreate)
-        self._create_acl_objs(GatewayACLObjectsCreate)
         self._create_acl_keys(GatewayACLCreate)
+        self._create_acl_objects(GatewayACLObjectsCreate)
         self._create_acl_access(DBGatewayACLGroupGlobalPermissions)
     
     def _read_input(self):

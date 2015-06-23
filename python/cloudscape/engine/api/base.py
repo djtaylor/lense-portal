@@ -5,6 +5,7 @@ import importlib
 
 # Django Libraries
 from django.http import HttpResponse
+from django.core.mail import send_mail
 from django.test.client import RequestFactory
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -17,6 +18,35 @@ from cloudscape.common.collection import Collection
 from cloudscape.engine.api.objects.cache import CacheManager
 from cloudscape.engine.api.objects.manager import ObjectsManager
 from cloudscape.engine.api.core.socket import SocketResponse
+
+class APIEmail(object):
+    """
+    Wrapper class for handling emails.
+    """
+    def __init__(self):
+        self.conf = config.parse()
+        self.log  = logger.create('APIEmail', self.conf.server.log)
+    
+    def send(self, subject, body, sender, recipient):
+        """
+        Send an email.
+        """
+        if self.conf.smtp.smtp_enable:
+                
+            # Send the email
+            try:
+                send_mail(subject, body, from_email=sender, recipient_list=[recipient], fail_silently=False)
+                self.log.info('Sent email to "%s"' % recipient)
+                return True
+            
+            # Failed to send email
+            except Exception as e:
+                self.log.exception('Failed to send email to "%s": %s' % (recipient, str(e)))
+                return False
+
+        # SMTP disabled
+        else:
+            return False
 
 class APIBare(object):
     """
@@ -33,9 +63,10 @@ class APIBare(object):
         @type data:   dict
         """
         
-        # Request object / data
+        # Request object / data / email handler
         self.request = self._get_request(path, method, host)
         self.data    = data
+        self.email   = APIEmail()
         
         # Configuration / logger
         self.conf    = config.parse()
@@ -84,10 +115,11 @@ class APIBase(object):
         @type  acl:      ACLGateway
         """
         
-        # Request object / data / path
+        # Request object / data / path / email handler
         self.request      = request
         self.data         = request.data
         self.path         = request.path
+        self.email        = APIEmail()
         
         # Configuration / internal logger
         self.conf         = config.parse()

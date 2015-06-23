@@ -121,66 +121,6 @@ def obj_extract(obj, id=None, filter=None, auto_quote=True):
                         return _inner(v, _fv)
     return _inner(base_obj, fv)
 
-def find_restop(type='memory', c=10):
-    """
-    Helper method to find the top processes consuming system resources. Can find
-    either CPU or memory usage with a variable number of processes. Defaults to 
-    finding the top 10 processes using memory.
-    
-    Processes are sorted by most intensive.
-    
-    Finding resource consuming processes::
-    
-        # Import the utility
-        from cloudscape.common.utis import find_restop
-        
-        # Find memory intensive processes
-        mem = find_restop(type='memory', c=20)
-        
-        # Find CPU intensive processes
-        cpu = find_restop(type='cpu', c=10)
-    
-    :param type: Find 'memory' or 'cpu' usage
-    :type type: str
-    :param c: The number of processes to find
-    :type c: int
-    :rtype: list
-    """
-    res_sort = {}
-    res_map  = {}
-    for proc in psutil.process_iter():
-        try:
-            pd = psutil.Process(proc.pid)
-            if callable(pd.name):
-                pn = pd.name()
-            else:
-                pn = pd.name
-
-            # Filter by memory usage
-            if type == 'memory':
-                pm = pd.get_memory_info()
-                res_sort[proc.pid] = pm.rss
-                res_map[proc.pid] = {'name': pn, 'pid': proc.pid, 'rss': pm.rss, 'vms': pm.vms}
-
-            # Filter by CPU usage
-            if type == 'cpu':
-                pm = pd.get_cpu_percent(interval=0.1)
-                res_sort[proc.pid] = pm
-                res_map[proc.pid] = {'name': pn, 'pid': proc.pid, 'percent': pm}
-        except:
-            pass
-    _sort = sorted(res_sort.iteritems(), key=operator.itemgetter(1))
-    top   = _sort[-c:]
-    top.reverse()
-    top_r = []
-    for i in top:
-        pid = i[0]
-        if type == 'memory':
-            top_r.append({'pid': pid, 'name': res_map[pid]['name'], 'rss': res_map[pid]['rss'], 'vms': res_map[pid]['vms']})
-        if type == 'cpu':
-            top_r.append({'pid': pid, 'name': res_map[pid]['name'], 'percent': res_map[pid]['percent']})
-    return top_r
-
 def valid(msg=None, data=None):
     """
     Return valid request object. Used internally by the API to pass data between methods.

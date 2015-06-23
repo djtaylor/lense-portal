@@ -393,7 +393,7 @@ class GatewayACLObjectsDelete:
         self.api  = parent
         
         # Get the target ACL object
-        self.type = self.api.get_data('type')
+        self.type = self.api.data.get('type')
 
     def launch(self):
         """
@@ -449,11 +449,12 @@ class GatewayACLObjectsCreate:
             'acl_key', 
             'obj_mod', 
             'obj_cls', 
-            'obj_key'
+            'obj_key',
+            'def_acl'
         ]
         
         # Construct and return the attributes object
-        return {k:self.api.get_data(k) for k in attr_keys}
+        return {k:self.api.data.get(k) for k in attr_keys}
         
     def launch(self):
         """
@@ -510,7 +511,7 @@ class GatewayACLObjectsUpdate:
         self.api = parent
 
         # Target object type
-        self.type = self.api.get_data('type')
+        self.type = self.api.data.get('type')
 
     def launch(self):
         """
@@ -587,8 +588,8 @@ class GatewayACLObjectsGet:
         self.api      = parent
 
         # Type filter / detailed return
-        self.type     = self.api.get_data('type')
-        self.detailed = self.api.get_data('detailed')
+        self.type     = self.api.data.get('type')
+        self.detailed = self.api.data.get('detailed')
 
         # Extract all ACL objects
         self.objects  = list(DBGatewayACLObjects.objects.all().values(detailed=self.detailed))
@@ -762,15 +763,15 @@ class GatewayACLCreate:
         acl_uuid = str(uuid4())
         
         # Utilities (not used for now)
-        utils = self.api.data['utilities']
+        #utils = self.api.data['utilities']
         
         # ACL parameters
         params = {
             'uuid': str(uuid4()),
             'name': self.api.data['name'],
             'desc': self.api.data['desc'],
-            'type_object': self.api.data['object'],
-            'type_global': self.api.data['global']
+            'type_object': self.api.data['type_object'],
+            'type_global': self.api.data['type_global']
         }
         
         # Make sure the ACL doesn't exist

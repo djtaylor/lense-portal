@@ -1,8 +1,5 @@
 import re
 
-# Django Libraries
-from django.core.mail import send_mail
-
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
@@ -165,8 +162,8 @@ class UserResetPassword:
             email_to   = [user_obj.email]
             
             # Send the email
-            send_mail(email_sub, email_txt, from_email=email_from, recipient_list=email_to, fail_silently=False)
-            self.api.log.info('Sent email confirmation for password reset to user [%s]' % self.user)
+            if self.api.email.send(email_sub, email_txt, email_from, email_to):
+                self.api.log.info('Sent email confirmation for password reset to user [%s]' % self.user)
             
             # Return the response
             return valid('Successfully reset user password')

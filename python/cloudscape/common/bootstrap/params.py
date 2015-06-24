@@ -21,8 +21,8 @@ class _BootstrapACL(object):
         _access = []
         for acl in acls:
             _access.append({
-                "acl": acl['data']['uuid'],
-                "acl_name": acl['data']['name'],
+                "acl": acl['uuid'],
+                "acl_name": acl['name'],
                 "owner": G_ADMIN,
                 "allowed": True          
             })
@@ -51,7 +51,7 @@ class _BootstrapACL(object):
                 "obj_mod": "cloudscape.engine.api.app.gateway.models",
                 "obj_cls": "DBGatewayUtilities",
                 "obj_key": "uuid",
-                "def_acl": self._get_acl_key('utility.view')
+                "def_acl": self._get_acl_key('util.view')
             },
             {
                 "type": "group",

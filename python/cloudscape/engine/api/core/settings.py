@@ -43,9 +43,26 @@ WSGI_APPLICATION = 'cloudscape.engine.api.core.wsgi.application'
 API_TEMPLATES    = '%s/python/cloudscape/engine/templates/api' % L_BASE
 
 # Template directories
-TEMPLATE_DIRS = (
-    '%s/python/cloudscape/engine/templates' % L_BASE,
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+           '%s/python/cloudscape/engine/templates' % L_BASE
+        ],
+        'APP_DIRS': False,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 # SMTP backend
 EMAIL_HOST       = CONFIG.email.smtp_host

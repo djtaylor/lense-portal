@@ -33,12 +33,12 @@ class ACLAuthObjects(object):
     """
     Parent class used to construct a list of objects that a user is authorized to access.
     """
-    def __init__(self, user, type, path):
+    def __init__(self, user, type, path, method):
         
         # ACL user object / object type / object utility / cache manager
         self.user      = user
         self.type      = type
-        self.utility   = ACLUtility(path).get()
+        self.utility   = ACLUtility(path, method).get()
         
         # Object accessor
         self.obj_def   = get_obj_def(type)
@@ -141,11 +141,12 @@ class ACLUtility(object):
     Parent class used to construct the ACL attributes for a specific utility. This includes
     retrieving the utility UUID, and any ACLs that provide access to this specific utility.
     """
-    def __init__(self, path):
+    def __init__(self, path, method):
         
         # Utility name / UUID / object
         self.path   = path
-        self.obj    = DBGatewayUtilities.objects.filter(path=self.path).values()[0]
+        self.method = method
+        self.obj    = DBGatewayUtilities.objects.filter(path=self.path).filter(method=self.method).values()[0]
         self.uuid   = self.obj['uuid']
         
     def get(self): 
@@ -211,7 +212,7 @@ class ACLGateway(object):
         
         # Request object
         self.request       = request
-        self.utility       = ACLUtility(self.request.path).get()
+        self.utility       = ACLUtility(self.request.path, self.request.method).get()
         self.user          = ACLUser(self.request.user).get()
         
         # Accessible objects / object key
@@ -387,7 +388,7 @@ class ACLGateway(object):
             return None if not (self.obj_key in self.request.data) else self.request.data[self.obj_key]
         return None
         
-    def authorized_objects(self, type, path=None, filter=None):
+    def authorized_objects(self, type, path=None, method=None, filter=None):
         """
         Public method used to construct a list of authorized objects of a given type for the 
         API user.
@@ -397,4 +398,4 @@ class ACLGateway(object):
         """
         
         # Create the authorized objects list
-        return ACLAuthObjects(self.user, type, (path if path else self.utility.path)).get(filter)
+        return ACLAuthObjects(self.user, type, (path if path else self.utility.path), (method if method else self.utility.method)).get(filter)

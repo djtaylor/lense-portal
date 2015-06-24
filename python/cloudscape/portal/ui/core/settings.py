@@ -38,23 +38,32 @@ ROOT_URLCONF     = 'cloudscape.portal.ui.core.urls'
 WSGI_APPLICATION = 'cloudscape.portal.ui.core.wsgi.application'
 
 # Template directories
-TEMPLATE_DIRS = (
-    '%s/python/cloudscape/portal/ui/templates' % L_BASE,
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+           '%s/python/cloudscape/portal/ui/templates' % L_BASE,
+        ],
+        'APP_DIRS': False,
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 # Database connections
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'cloudscape',
-        'USER':     CONFIG.db.user,
-        'PASSWORD': CONFIG.db.password,
-        'HOST':     CONFIG.db.host,
-        'PORT':     CONFIG.db.port
-    },
-    'host_resource': {
-        'ENGINE':   'django.db.backends.mysql',
-        'NAME':     'cloudscape_host_resource',
         'USER':     CONFIG.db.user,
         'PASSWORD': CONFIG.db.password,
         'HOST':     CONFIG.db.host,

@@ -124,14 +124,14 @@ function SocketProxy() {
     	// Set up the listener
     	try {
     		
-    		// HTTPS
+    		// HTTP
         	if (self.conf.socket.proto == 'http') {
         		self.http_l = self.http_l.createServer();
         		self.http_l.listen(self.conf.socket.port, self.conf.socket.bind_ip);
         		self.sock = self.io.listen(self.http_l);
         	}
         	
-        	// HTTP
+        	// HTTPS
         	if (self.conf.socket.proto == 'https') {
             	var ssl_options = {
             		key:    self.fs.readFileSync(self.conf.socket.ssl_key),
@@ -142,9 +142,6 @@ function SocketProxy() {
             	self.https_l.listen(self.conf.socket.port, self.conf.socket.host);
             	self.sock  = self.io.listen(self.https_l);
         	}
-        	
-        	// Set the transports
-        	self.sock.set('transports', ['xhr-polling', 'jsonp-polling']);
         	
         	// Listener is running
         	self.log.info('Started Socket.IO listener');

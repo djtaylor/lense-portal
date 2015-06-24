@@ -22,7 +22,7 @@ class UserDelete:
         """
         
         # Construct a list of authorized users
-        auth_users = self.api.acl.authorized_objects('user', 'user/get')
+        auth_users = self.api.acl.authorized_objects('user', path='user', method=HTTP_GET)
         
         # If the user does not exist or access is denied
         if not self.user in auth_users.ids:
@@ -57,7 +57,7 @@ class UserEnable:
         """
         
         # Construct a list of authorized users
-        auth_users = self.api.acl.authorized_objects('user', 'user/get')
+        auth_users = self.api.acl.authorized_objects('user', path='user', method=HTTP_GET)
         
         # If the user does not exist or access is denied
         if not self.user in auth_users.ids:
@@ -94,7 +94,7 @@ class UserDisable:
         """
         
         # Construct a list of authorized users
-        auth_users = self.api.acl.authorized_objects('user', 'user/get')
+        auth_users = self.api.acl.authorized_objects('user', path='user', method=HTTP_GET)
         
         # If the user does not exist or access is denied
         if not self.user in auth_users.ids:
@@ -131,7 +131,7 @@ class UserResetPassword:
         """
         
         # Construct a list of authorized users
-        auth_users = self.api.acl.authorized_objects('user', 'user/get')
+        auth_users = self.api.acl.authorized_objects('user', path='user', method=HTTP_GET)
         
         # If the user does not exist or access is denied
         if not self.user in auth_users.ids:
@@ -263,11 +263,11 @@ class UserCreate:
                 email_to   = [new_user.email]
                 
                 # Send the email
-                send_mail(email_sub, email_txt, from_email=email_from, recipient_list=email_to, fail_silently=False)
-                self.api.log.info('Sent email confirmation for new account [%s] to [%s]' % (new_user.username, new_user.email))
+                if self.api.email.send(email_sub, email_txt, email_from, email_to):
+                    self.api.log.info('Sent email confirmation for new account [%s] to [%s]' % (new_user.username, new_user.email))
                 
-                # Return valid
-                return valid('Successfully sent account creation confirmation')
+                    # Return valid
+                    return valid('Successfully sent account creation confirmation')
             
             # Critical error when sending email confirmation, continue but log exception
             except Exception as e:
@@ -315,7 +315,7 @@ class UserGet:
         """
         
         # Construct a list of authorized user objects
-        auth_users = self.api.acl.authorized_objects('user')
+        auth_users = self.api.acl.authorized_objects('user', path='user', method=HTTP_GET)
         
         # If retrieving a specific user
         if self.user:

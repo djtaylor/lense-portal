@@ -11,6 +11,8 @@ from getpass import getpass
 os.environ['DJANGO_SETTINGS_MODULE'] = 'cloudscape.engine.api.core.settings'
 
 # cs
+import cloudscape.common.logger as logger
+import cloudscape.common.config as config
 from cloudscape.common.feedback import Feedback
 from cloudscape.common.vars import L_BASE
 from cloudscape.common.cparse import CParse
@@ -25,6 +27,10 @@ class Bootstrap(object):
     def __init__(self):
         self.feedback = Feedback()
     
+        # Configuration / logger
+        self.conf   = config.parse()
+        self.log    = logger.create('bootstrap', '%s/log/bootstrap.log' % L_BASE)
+    
         # Bootstrap parameters
         self.params = BootstrapParams()
     
@@ -38,6 +44,7 @@ class Bootstrap(object):
         """
         Quit the program
         """
+        self.log.error(msg)
         self.feedback.show(msg).error()
         sys.exit(1)
     
@@ -183,6 +190,7 @@ class Bootstrap(object):
             },
             path = 'group'
         )).launch()
+        self.log.info('Received response from <%s>: %s' % (str(obj), json.dumps(group)))
         
         # If the group was not created
         if not group['valid']:
@@ -212,6 +220,7 @@ class Bootstrap(object):
             },
             path = 'user'             
         )).launch()
+        self.log.info('Received response from <%s>: %s' % (str(obj), json.dumps(user)))
         
         # If the user was not created
         if not user['valid']:
@@ -270,6 +279,8 @@ class Bootstrap(object):
             _acl_key['uuid'] = acl_key['data']['uuid']
             self.feedback.show('Created database entry for ACL key "%s"' % _acl_key['name']).success()
             
+        self.log.info('ACL_KEYS: %s' % json.dumps(self.params.acl.keys, indent=4))
+            
         # Setup ACL objects
         self.params.acl.set_objects()
     
@@ -278,6 +289,7 @@ class Bootstrap(object):
         Create ACL object definitions.
         """
         for _acl_obj in self.params.acl.objects:
+            self.log.info('ACL_OBJ: %s' % json.dumps(_acl_obj, indent=4))
             acl_obj = obj(APIBare(
                 data = {
                     "type": _acl_obj['type'],
@@ -298,15 +310,15 @@ class Bootstrap(object):
                 self._die('HTTP %s: %s' % (acl_obj['code'], acl_obj['content']))
             self.feedback.show('Created database entry for ACL object "%s->%s"' % (_acl_obj['type'], _acl_obj['name'])).success()
     
-    def _create_acl_access(self, obj):
+    def _create_acl_access(self, obj, keys, groups):
         """
         Setup ACL group access definitions.
         """
         for access in self.params.acl.set_access(self.params.acl.keys):
             try:
                 obj.objects.create(
-                    acl = access['acl'],
-                    owner = access['owner'],
+                    acl = keys.objects.get(uuid=access['acl']),
+                    owner = groups.objects.get(uuid=access['owner']),
                     allowed = access['allowed']
                 ).save()
                 self.feedback.show('Granted global administrator access for ACL "%s"' % access['acl_name']).success()
@@ -321,7 +333,8 @@ class Bootstrap(object):
         # Import modules now to get the new configuration
         from cloudscape.engine.api.app.group.utils import GroupCreate
         from cloudscape.engine.api.app.user.utils import UserCreate
-        from cloudscape.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions
+        from cloudscape.engine.api.app.group.models import DBGroupDetails
+        from cloudscape.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions, DBGatewayACLKeys
         from cloudscape.engine.api.app.gateway.utils import GatewayUtilitiesCreate, GatewayACLObjectsCreate, \
                                                             GatewayACLCreate
         
@@ -345,7 +358,7 @@ class Bootstrap(object):
         self._create_utils(GatewayUtilitiesCreate)
         self._create_acl_keys(GatewayACLCreate)
         self._create_acl_objects(GatewayACLObjectsCreate)
-        self._create_acl_access(DBGatewayACLGroupGlobalPermissions)
+        self._create_acl_access(DBGatewayACLGroupGlobalPermissions, DBGatewayACLKeys, DBGroupDetails)
     
     def _read_input(self):
         """

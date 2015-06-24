@@ -18,9 +18,6 @@ class AppController(PortalTemplate):
                 'title': 'CloudScape Home',
                 'css': [
                     'home.css'
-                ],
-                'contents': [
-                    'app/home/tables/cluster.html'
                 ]
             }
         })

@@ -435,6 +435,9 @@ class GatewayACLObjectsCreate:
         # API object attributes
         self.attr = self._set_attr()
         
+        self.api.log.info('SET_ATTR: %s' % json.dumps(self.attr, indent=4))
+        self.api.log.info('API_DATA: %s' % json.dumps(self.api.data, indent=4))
+        
     def _set_attr(self):
         """
         Set the attributes for the new ACL object.
@@ -485,7 +488,7 @@ class GatewayACLObjectsCreate:
             self.attr['def_acl'] = DBGatewayACLKeys.objects.get(uuid=self.api.data['def_acl'])
             
             # Make sure the ACL has object type authentication enabled
-            if not self.attr['def_acl']['type_object']:
+            if not self.attr['def_acl'].type_object:
                 return invalid('Failed to create ACL object type [%s], default ACL [%s] must have object authentication enabled' % (self.attr['type'], self.attr['def_acl']['uuid']))
         
         # Create the ACL object definition

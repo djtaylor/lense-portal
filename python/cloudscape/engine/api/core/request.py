@@ -11,7 +11,7 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.vars import T_BASE
 from cloudscape.engine.api.base import APIBase
-from cloudscape.common.http import HEADER, PATH, JSONError, JSONException
+from cloudscape.common.http import HEADER, PATH, JSONError, JSONException, HTTP_GET
 from cloudscape.common.utils import JSONTemplate
 from cloudscape.engine.api.auth.key import APIKey
 from cloudscape.common.utils import valid, invalid
@@ -71,12 +71,12 @@ class RequestObject(object):
         body, for GET requests, load the query string.
         """
     
-        # POST request
-        if self.method == 'POST':
+        # PUT/POST/DELETE requests
+        if self.method != HTTP_GET:
             return json.loads(getattr(self.RAW, 'body', '{}'))
-    
-        # GET request
-        if self.method == 'GET':
+        
+        # GET requests
+        else:
             data = {}
             
             # Store the query string

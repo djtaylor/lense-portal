@@ -5,6 +5,7 @@ from uuid import uuid4
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
+from cloudscape.common.http import HTTP_GET
 from cloudscape.engine.api.app.user.models import DBUser
 from cloudscape.engine.api.app.group.models import DBGroupDetails, DBGroupMembers
 
@@ -31,8 +32,8 @@ class GroupMemberRemove:
         """
 
         # Construct a list of authorized groups / users
-        auth_groups = self.api.acl.authorized_objects('group', 'group/get')
-        auth_users  = self.api.acl.authorized_objects('user', 'user/get')
+        auth_groups = self.api.acl.authorized_objects('group', path='group', method=HTTP_GET)
+        auth_users  = self.api.acl.authorized_objects('user', path='user', method=HTTP_GET)
 
         # If the group does not exist or access denied
         if not self.group in auth_groups.ids:
@@ -91,8 +92,8 @@ class GroupMemberAdd:
         """
 
         # Construct a list of authorized groups / users
-        auth_groups = self.api.acl.authorized_objects('group', 'group/get')
-        auth_users  = self.api.acl.authorized_objects('user', 'user/get')
+        auth_groups = self.api.acl.authorized_objects('group', path='group', method=HTTP_GET)
+        auth_users  = self.api.acl.authorized_objects('user', path='user', method=HTTP_GET)
 
         # If the group does not exist or access denied
         if not self.group in auth_groups.ids:
@@ -154,7 +155,7 @@ class GroupDelete:
         """
 
         # Construct a list of authorized groups
-        auth_groups = self.api.acl.authorized_objects('group', 'group/get')
+        auth_groups = self.api.acl.authorized_objects('group', path='group', method=HTTP_GET)
 
         # If the group does not exist or access denied
         if not self.group in auth_groups.ids:
@@ -265,7 +266,7 @@ class GroupUpdate:
         """
     
         # Construct a list of authorized groups
-        auth_groups = self.api.acl.authorized_objects('group', 'group/get')
+        auth_groups = self.api.acl.authorized_objects('group', path='group', method=HTTP_GET)
 
         # If the group does not exist or access denied
         if not self.group in auth_groups.ids:
@@ -377,7 +378,7 @@ class GroupGet:
         """
         
         # Construct a list of authorized groups
-        auth_groups = self.api.acl.authorized_objects('group', 'group/get')
+        auth_groups = self.api.acl.authorized_objects('group', path='group', method=HTTP_GET)
         
         # If retrieving details for a single group
         if self.group:

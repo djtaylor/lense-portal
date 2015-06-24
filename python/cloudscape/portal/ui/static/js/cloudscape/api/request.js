@@ -230,7 +230,7 @@ cs.import('CSAPIRequest', function() {
 				'user':   cs.api.client.params.user,
 				'token':  cs.api.client.params.token,
 				'group':  cs.api.client.params.group,
-			}
+			},
 			'socket': {
 				'method': m,
 				'path':   p.path,

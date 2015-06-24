@@ -31,7 +31,7 @@ class APIEmail(object):
         """
         Send an email.
         """
-        if self.conf.smtp.smtp_enable:
+        if self.conf.email.smtp_enable:
                 
             # Send the email
             try:
@@ -119,11 +119,12 @@ class APIBase(object):
         self.request      = request
         self.data         = request.data
         self.path         = request.path
+        self.method       = request.method
         self.email        = APIEmail()
         
         # Configuration / internal logger
         self.conf         = config.parse()
-        self.log_int      = logger.create(self.path, self.conf.server.log)
+        self.log_int      = logger.create('%s:%s' % (self.path, self.method), self.conf.server.log)
 
         # External utilities / utilities object / cache manager / objects manager / ACL gateway
         self.utils        = utils

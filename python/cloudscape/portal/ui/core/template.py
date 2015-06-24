@@ -7,7 +7,7 @@ from threading import Thread
 from collections import OrderedDict
 
 # Django Libraries
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template import RequestContext, Context, loader
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
@@ -217,7 +217,7 @@ class PortalTemplate(object):
         
         # Return the template response
         try:
-            return render_to_response('interface.html', self._tdata, context_instance=RequestContext(self.portal.request.RAW))
+            return render(self.portal.request.RAW, 'interface.html', self._tdata)
         
         # Failed to render template
         except Exception as e:

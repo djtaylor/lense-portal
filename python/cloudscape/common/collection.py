@@ -155,6 +155,10 @@ class Collection(object):
         if (type(obj) is InstanceType):
             return True
         
+        # Test for a class object
+        if (re.match(r'^<cloudscape\..[^>]*>$', str(obj))):
+            return True
+        
         # Test for a new style class
         if ((hasattr(obj, '__class__')) and (re.match(r'^<class \'cloudscape\..*\.%s\'>$' % cls, repr(obj.__class__)))):
             return True

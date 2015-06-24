@@ -30,76 +30,9 @@ class AppController(PortalTemplate):
                 },
                 'objects': {
                     'data': self._objects
-                },
-                'datacenters': {
-                    'data': self._datacenters
                 }
             },
             'default': 'utilities'
-        }
-        
-    def _datacenters(self):
-        """
-        Helper method used to construct the template data needed to render the datacenters
-        administration pages.
-        """
-        
-        # Look for a target datacenter
-        dc_target = self.get_query_key('datacenter')
-        
-        # API request parameters
-        request   = {
-            'datacenters': ('locations', 'get_datacenters')
-        }
-        
-        # If loading details for a datacenter
-        if dc_target:
-            request['hosts'] = ('host', 'get', {'filter':{'datacenter':dc_target}})
-        
-        # Make all required API calls
-        response = self.api_call_threaded(request)
-        
-        # If no datacenter targeted
-        if not dc_target:
-            response['hosts'] = None
-        
-        # Target details / datacenter hosts
-        dc_detail = None if not dc_target else [x for x in response['datacenters'] if x['uuid'] == dc_target][0]
-        dc_hosts  = None if not dc_target else response['hosts']
-        
-        def set_contents():
-            """
-            Set template data contents.
-            """
-            if dc_target:
-                return ['app/admin/tables/datacenters/details.html']
-            return ['app/admin/tables/datacenters/list.html']
-        
-        def set_popups():
-            """
-            Set template data popups.
-            """
-            if dc_target:
-                return []
-            return [
-                'app/admin/popups/datacenters/create.html',
-                'app/admin/popups/datacenters/delete.html'
-            ]
-        
-        # Return the template data
-        return {
-            'datacenters': {
-                'all':    response['datacenters'],
-                'detail': dc_detail,
-                'hosts':  response['hosts'],
-                'target': dc_target
-            },
-            'page': {
-                'title': 'CloudScape Administration - Datacenters',
-                'css': ['admin.css'],
-                'contents': set_contents(),
-                'popups':  set_popups()
-            }
         }
         
     def _users(self):

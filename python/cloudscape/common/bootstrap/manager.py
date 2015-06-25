@@ -251,6 +251,9 @@ class Bootstrap(object):
                 path = 'utilities'
             )).launch()
             
+            # Store the utility UUID
+            _util['uuid'] = util['data']['uuid']
+            
             # If the utility was not created
             if not util['valid']:
                 self._die('HTTP %s: %s' % (util['code'], util['content']))
@@ -283,6 +286,28 @@ class Bootstrap(object):
             
         # Setup ACL objects
         self.params.acl.set_objects()
+    
+    def _create_utils_access(self, g_access, key, util):
+        """
+        Permit access to utilities by ACL key.
+        
+        @param g_access: Global ACL access model
+        @type  g_access: DBGatewayACLAccessGlobal
+        @param key:      ACL key database model
+        @type  key:      DBGatewayACLKeys
+        @param util:     Utility database model
+        @type  util:     DBGatewayUtilities
+        """
+        
+        # Process ACL keys
+        for k in self.params.acl.keys:
+            if k['type_global']:
+                for u in k['util_classes']:
+                    g_access.objects.create(
+                        acl = key.objects.get(uuid=k['uuid']),
+                        utility = util.objects.get(cls=u)
+                    ).save()
+                    self.feedback.show('Granted global access to utility "%s" with ACL "%s"' % (u, k['name'])).success()
     
     def _create_acl_objects(self, obj):
         """
@@ -334,7 +359,8 @@ class Bootstrap(object):
         from cloudscape.engine.api.app.group.utils import GroupCreate
         from cloudscape.engine.api.app.user.utils import UserCreate
         from cloudscape.engine.api.app.group.models import DBGroupDetails
-        from cloudscape.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions, DBGatewayACLKeys
+        from cloudscape.engine.api.app.gateway.models import DBGatewayACLGroupGlobalPermissions, DBGatewayACLKeys, \
+                                                             DBGatewayACLAccessGlobal, DBGatewayUtilities
         from cloudscape.engine.api.app.gateway.utils import GatewayUtilitiesCreate, GatewayACLObjectsCreate, \
                                                             GatewayACLCreate
         
@@ -357,6 +383,7 @@ class Bootstrap(object):
         # Create API utilities / ACL objects / ACL keys / access entries
         self._create_utils(GatewayUtilitiesCreate)
         self._create_acl_keys(GatewayACLCreate)
+        self._create_utils_access(DBGatewayACLAccessGlobal, DBGatewayACLKeys, DBGatewayUtilities)
         self._create_acl_objects(GatewayACLObjectsCreate)
         self._create_acl_access(DBGatewayACLGroupGlobalPermissions, DBGatewayACLKeys, DBGroupDetails)
     

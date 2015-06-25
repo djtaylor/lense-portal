@@ -17,6 +17,9 @@ class _BootstrapACL(object):
     def set_access(self, acls):
         """
         Set ACL access keys for the administrator group.
+        
+        @param acls: List of ACLs to grant the administrator group
+        @type  acls: list
         """
         _access = []
         for acl in acls:
@@ -86,43 +89,80 @@ class _BootstrapACL(object):
                 "name": "token.get",
                 "desc": "ACL for allowing API token requests.",
                 "type_object": False,
-                "type_global": True
+                "type_global": True,
+                "util_classes": [
+                    "GatewayTokenGet"
+                ]
             },
             {
                 "name": "user.admin",
                 "desc": "ACL for allowing global administration of users.",
                 "type_object": False,
-                "type_global": True
+                "type_global": True,
+                "util_classes": [
+                    "UserGet",
+                    "UserCreate",
+                    "UserDelete",
+                    "UserEnable",
+                    "UserDisable",
+                    "UserResetPassword"
+                ]
             },
             {
                 "name": "user.view",
                 "desc": "ACL for allowing read-only access to user objects.",
                 "type_object": True,
-                "type_global": False
+                "type_global": False,
+                "util_classes": [
+                    "UserGet"
+                ]
             },
             {
                 "name": "group.admin",
                 "desc": "ACL for allowing global administration of groups.",
                 "type_object": False,
-                "type_global": True
+                "type_global": True,
+                "util_classes": [
+                    "GroupGet",
+                    "GroupCreate",
+                    "GroupUpdate",
+                    "GroupDelete",
+                    "GroupMemberAdd",
+                    "GroupMemberRemove"
+                ]
             },
             {
                 "name": "group.view",
                 "desc": "ACL for allowing read-only access to group objects.",
                 "type_object": True,
-                "type_global": False
+                "type_global": False,
+                "util_classes": [
+                    "GroupGet"
+                ]
             },
             {
                 "name": "util.admin",
                 "desc": "ACL for allowing administration of API utilities.",
                 "type_object": False,
-                "type_global": True
+                "type_global": True,
+                "util_classes": [
+                    "GatewayUtilitiesGet",
+                    "GatewayUtilitiesCreate",
+                    "GatewayUtilitiesSave",
+                    "GatewayUtilitiesValidate",
+                    "GatewayUtilitiesDelete",
+                    "GatewayUtilitiesClose",
+                    "GatewayUtilitiesOpen"
+                ]
             },
             {
                 "name": "util.view",
                 "desc": "ACL for allowing read-only access to utility objects.",
                 "type_object": True,
-                "type_global": False
+                "type_global": False,
+                "util_classes": [
+                    "GatewayUtilitiesGet"
+                ]
             }
         ]
 

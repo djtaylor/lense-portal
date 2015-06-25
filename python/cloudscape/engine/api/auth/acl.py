@@ -82,7 +82,7 @@ class ACLAuthObjects(object):
             
             # Get all supported global utilities for this ACL
             global_utilities = [x['utility_id'] for x in list(DBGatewayACLAccessGlobal.objects.filter(acl=global_acl['uuid']).values())]
-            LOG.info('Retrieved utilities for ACL "%s": %s' % (global_acl['name'], str(global_utilities)))
+            LOG.info('Retrieved utilities for ACL "%s": %s' % (global_acl['acl'], str(global_utilities)))
             
             # If the ACL supports the target utility
             if self.utility.uuid in global_utilities:
@@ -95,6 +95,7 @@ class ACLAuthObjects(object):
         """
         Determine if the user has access to specific objects in the utility.
         """
+        LOG.info('Checking object access: group=%s, objects=%s' % (group, str(object_acls)))
         
         # No utility object association
         if not self.utility.model.object:
@@ -424,6 +425,6 @@ class ACLGateway(object):
         return ACLAuthObjects(
             user     = self.user, 
             obj_type = obj_type, 
-            path     = (path if path else self.utility.path), 
-            method   = (method if method else self.utility.method)
+            path     = getattr(self.utility, 'path', path), 
+            method   = getattr(self.utility, 'method', method)
         ).get(filter)

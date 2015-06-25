@@ -73,7 +73,10 @@ class APIBase(object):
         parsed = parse_response(response)
         
         # Parse the body
-        parsed['body'] = json.loads(parsed['body'])
+        try:
+            parsed['body'] = json.loads(parsed['body'])
+        except:
+            pass
         
         # If there was an error during the request
         if parsed['code'] != 200:

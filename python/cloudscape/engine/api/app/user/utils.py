@@ -3,6 +3,7 @@ import re
 # CloudScape Libraries
 from cloudscape.common.utils import valid, invalid, rstring
 from cloudscape.common.vars import G_ADMIN, U_ADMIN
+from cloudscape.common.http import HTTP_GET
 from cloudscape.engine.api.app.user.models import DBUser, DBUserAPIKeys
 from cloudscape.engine.api.app.group.models import DBGroupDetails
 

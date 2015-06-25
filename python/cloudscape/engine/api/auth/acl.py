@@ -23,25 +23,25 @@ CONF    = config.parse()
 LOG     = logger.create('cloudscape.engine.api.auth.acl', CONF.server.log)
 OBJECTS = ObjectsManager()
          
-def get_obj_def(type):
+def get_obj_def(obj_type):
     """
     Retrieve the object definition for a specific type.
     """
-    return [x for x in list(DBGatewayACLObjects.objects.all().values()) if x['type'] == type][0]
+    return [x for x in list(DBGatewayACLObjects.objects.all().values()) if x['type'] == obj_type][0]
          
 class ACLAuthObjects(object):
     """
     Parent class used to construct a list of objects that a user is authorized to access.
     """
-    def __init__(self, user, type, path, method):
+    def __init__(self, user, obj_type, path, method):
         
         # ACL user object / object type / object utility / cache manager
         self.user      = user
-        self.type      = type
+        self.type      = obj_type
         self.utility   = ACLUtility(path, method).get()
         
         # Object accessor
-        self.obj_def   = get_obj_def(type)
+        self.obj_def   = get_obj_def(obj_type)
         
         # Search filters
         self.filters   = {}
@@ -52,7 +52,7 @@ class ACLAuthObjects(object):
         
     def extract(self, idstr):
         """
-        Extract a specific objecy from the details list.
+        Extract a specific object from the details list.
         """
         for i in self.details:
             if i[self.obj_def['obj_key']] == idstr:
@@ -66,6 +66,7 @@ class ACLAuthObjects(object):
         if isinstance(new_objs, list):
             for i in new_objs:
                 if not (i[self.obj_def['obj_key']] in self.ids):
+                    LOG.info('Merging into objects list: %s' % str(i))
                     self.ids.append(i[self.obj_def['obj_key']])
                     self.details.append(i)
         
@@ -74,15 +75,18 @@ class ACLAuthObjects(object):
         Determine if the user has global access to the utility.
         """
         for global_acl in global_acls:
+            LOG.info('Processing global ACL: %s' % str(global_acl))
             
             # If access is explicitly denied, try another ACL
             if not global_acl['allowed'] == 'yes': continue
             
             # Get all supported global utilities for this ACL
             global_utilities = [x['utility_id'] for x in list(DBGatewayACLAccessGlobal.objects.filter(acl=global_acl['uuid']).values())]
+            LOG.info('Retrieved utilities for ACL "%s": %s' % (global_acl['name'], str(global_utilities)))
             
             # If the ACL supports the target utility
             if self.utility.uuid in global_utilities:
+                LOG.info('Global access allowed for utility: cls=%s, uuid=%s' % (self.utility.model.cls, self.utility.uuid))
                 
                 # Merge the object list
                 self._merge_objects(OBJECTS.get(self.type, filters=self.filters))
@@ -93,7 +97,7 @@ class ACLAuthObjects(object):
         """
         
         # No utility object association
-        if not self.utility.obj['object']:
+        if not self.utility.model.object:
             return
         
         # Create an instance of the ACL authorization class
@@ -102,6 +106,7 @@ class ACLAuthObjects(object):
         
         # Process each object ACL
         for object_acl in object_acls[self.type]['details']:
+            LOG.info('Processing object ACL: %s' % str(object_acl))
             
             # ACL access filter
             acl_filter = { 'owner': group }
@@ -111,6 +116,7 @@ class ACLAuthObjects(object):
             # Begin constructing a list of accessible objects
             for access_object in list(acl_class.objects.filter(**acl_filter).values()):
                 acl_key = '%s_id' % self.obj_def['acl_key']
+                LOG.info('Object access allowed for utility: cls=%s, uuid=%s, object=%s' % (self.utility.model.cls, self.utility.uuid, str(access_object)))
                 
                 # Get the accessible object
                 self._merge_objects(OBJECTS.get(self.type, access_object[acl_key], filters=self.filters))
@@ -123,6 +129,7 @@ class ACLAuthObjects(object):
         
         # Set any filters
         self.filters = filters
+        LOG.info('User ACLs: %s' % self.user.acls)
         
         # Process each group the user is a member of
         for group, acl in self.user.acls.iteritems():
@@ -146,8 +153,11 @@ class ACLUtility(object):
         # Utility name / UUID / object
         self.path   = path
         self.method = method
-        self.obj    = DBGatewayUtilities.objects.filter(path=self.path).filter(method=self.method).values()[0]
-        self.uuid   = self.obj['uuid']
+        self.model  = DBGatewayUtilities.objects.get(path=self.path, method=self.method)
+        self.uuid   = self.model.uuid
+        
+        # Log utility retrieval
+        LOG.info('Constructed API utility: path=%s, method=%s, obj=%s, uuid=%s' % (self.path, self.method, str(self.model), self.uuid))
         
     def get(self): 
         return self
@@ -262,9 +272,9 @@ class ACLGateway(object):
         """
         
         # Make sure the utility has an object type association
-        if not self.utility.obj['object']:
+        if not self.utility.model.object:
             return invalid('')
-        object_type = self.utility.obj['object']
+        object_type = self.utility.model.object
         
         # Get the object authorization class
         obj_def   = get_obj_def(object_type)
@@ -272,7 +282,7 @@ class ACLGateway(object):
         acl_class = getattr(acl_mod, obj_def['acl_cls'])
             
         # Utility object key and target object value
-        self.obj_key = self.utility.obj['object_key']
+        self.obj_key = self.utility.model.object_key
         
         # Specific object key found
         if (self.request.data) and (self.obj_key in self.request.data):
@@ -290,10 +300,10 @@ class ACLGateway(object):
             
                 # Check if the user has access to this object
                 if acl_class.objects.filter(**filter).count():
-                    return valid(LOG.info('Object level access granted for user [%s] to utility [%s] for object [%s:%s]' % (self.user.name, self.utility.path, self.utility.obj['object'], tgt_obj)))
+                    return valid(LOG.info('Object level access granted for user [%s] to utility [%s] for object [%s:%s]' % (self.user.name, self.utility.path, self.utility.model.object, tgt_obj)))
         
             # Access denied
-            return invalid(' for object <%s:%s>' % (self.utility.obj['object'], tgt_obj))
+            return invalid(' for object <%s:%s>' % (self.utility.model.object, tgt_obj))
         
         # User not accessing a specific object
         else:
@@ -360,7 +370,7 @@ class ACLGateway(object):
             return self._set_authorization(True)
             
         # Log the initial ACL authorization request
-        LOG.info('Running ACL gateway validation: utility=%s, %s=%s' % (self.utility.path, self.user.type, self.user.name))
+        LOG.info('Running ACL gateway validation: path=%s, method=%s, user=%s' % (self.utility.path, self.utility.method, self.user.name))
         
         # If the user is not a member of any groups (and not a host account type)
         if not self.user.groups and self.user.type == T_USER:
@@ -371,7 +381,7 @@ class ACLGateway(object):
             access_status = self._check_access()
             if not access_status['valid']:
                 return self._set_authorization(False, access_status['content'])
-            LOG.info('ACL gateway authorization success: %s=%s, utility=%s' % (self.user.type, self.user.name, self.utility.path))
+            LOG.info('ACL gateway authorization success: path=%s, method=%s, user=%s' % (self.utility.path, self.utility.method, self.user.name))
             
             # Account has access
             return self._set_authorization(True)
@@ -385,17 +395,35 @@ class ACLGateway(object):
         Public method used to extract the target object ID from the API data.
         """
         if self.request.data:
-            return None if not (self.obj_key in self.request.data) else self.request.data[self.obj_key]
+            _object = None if not (self.obj_key in self.request.data) else self.request.data[self.obj_key]
+            
+            # Log and return the object
+            LOG.info('Retrieved target object: %s' % str(_object))
+            return _object
         return None
         
-    def authorized_objects(self, type, path=None, method=None, filter=None):
+    def authorized_objects(self, obj_type, path=None, method=None, filter=None):
         """
         Public method used to construct a list of authorized objects of a given type for the 
         API user.
         
         TODO: Need to filter out ACLs when doing the ACL object class to only include ACLs that apply for the
         current utility.
+        
+        @param obj_type: The type of objects to retrieve
+        @type  obj_type: str
+        @param path:     The API request path
+        @type  path:     str
+        @param method:   The API request method
+        @type  method:   str
+        @param filter:   Optional object filteres
+        @type  filter:   dict
         """
         
         # Create the authorized objects list
-        return ACLAuthObjects(self.user, type, (path if path else self.utility.path), (method if method else self.utility.method)).get(filter)
+        return ACLAuthObjects(
+            user     = self.user, 
+            obj_type = obj_type, 
+            path     = (path if path else self.utility.path), 
+            method   = (method if method else self.utility.method)
+        ).get(filter)

@@ -35,6 +35,8 @@ class ObjectsManager(object):
         @type  obj_id:   str
         @param values:   Extra parameters to pass to the values QuerySet method
         @type  values:   dict
+        @param filters:  Extra filter parameters
+        @type  filters:  dict
         """
         self.log.info('Retrieving object data from model: type=%s, id=%s' % (obj_type, repr(obj_id)))
         
@@ -102,6 +104,8 @@ class ObjectsManager(object):
         @type  cache:    bool
         @param values:   Extra parameters to pass to the values QuerySet method
         @type  values:   dict
+        @param filters:  Extra filter parameters
+        @type  filters:  dict
         """
         
         # If the ACL object exists

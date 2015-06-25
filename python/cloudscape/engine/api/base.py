@@ -25,23 +25,37 @@ class APIEmail(object):
     """
     def __init__(self):
         self.conf = config.parse()
-        self.log  = logger.create('APIEmail', self.conf.server.log)
+        self.log  = logger.create(__name__, self.conf.server.log)
     
     def send(self, subject, body, sender, recipient):
         """
         Send an email.
+        
+        @param subject:   The subject of the email
+        @type  subject:   str
+        @param body:      The body of the email
+        @type  body:      str
+        @param sender:    The sender's email
+        @type  sender:    str
+        @param recipient: Email recipients
+        @type  list|str   A list of recipient emails, or a single email string
         """
         if self.conf.email.smtp_enable:
                 
             # Send the email
             try:
-                send_mail(subject, body, from_email=sender, recipient_list=[recipient], fail_silently=False)
-                self.log.info('Sent email to "%s"' % recipient)
+                
+                # Supports a single or list of recipients
+                _recipient = recipient if isinstance(recipient, list) else [recipient]
+                
+                # Send the email
+                send_mail(subject, body, from_email=sender, recipient_list=_recipient, fail_silently=False)
+                self.log.info('Sent email to "%s"' % str(_recipient))
                 return True
             
             # Failed to send email
             except Exception as e:
-                self.log.exception('Failed to send email to "%s": %s' % (recipient, str(e)))
+                self.log.exception('Failed to send email to "%s": %s' % (str(_recipient), str(e)))
                 return False
 
         # SMTP disabled
@@ -52,19 +66,30 @@ class APIBare(object):
     """
     APIBare
     
-    Bare-bones base API object mainly for use when running utilities from a script,
+    Bare-bones base API object mainly used when running utilities from a script,
     the bootstrap module for example.
     """
     def __init__(self, path=None, data=None, method='GET', host='localhost'):
         """
         Initialize the APIBaseBare class.
         
-        @param data:  The API request data
-        @type data:   dict
+        @param path:   The API request path
+        @type  path:   str
+        @param data:   The API request data
+        @type  data:   dict
+        @param method: The API request method
+        @param type:   str
+        @param host:   The host to submit the request
+        @type  host:   str
         """
         
+        # Request path / method / host
+        self.path    = path
+        self.method  = method
+        self.host    = host
+        
         # Request object / data / email handler
-        self.request = self._get_request(path, method, host)
+        self.request = self._get_request()
         self.data    = data
         self.email   = APIEmail()
         
@@ -73,7 +98,7 @@ class APIBare(object):
         self.log     = APILogger(self)
         self.log_int = logger.create(path, self.conf.server.log)
         
-    def _get_request(self, path, method, host):
+    def _get_request(self):
         """
         Generate and return a Django request object.
         """
@@ -156,6 +181,8 @@ class APIBase(object):
                 
                 # Add to the utilities object
                 util_obj[class_name] = class_inst
+                
+            # Store the utility instance
             self.util = Collection(util_obj).get()
         
     def _set_websock(self):
@@ -247,6 +274,11 @@ class APILogger(object):
         """
         Construct the API response body to send back to clients. Constructs the websocket data
         to be interpreted by the Socket.IO proxy server if relaying back to a web client.
+        
+        @param ok:   Has the request been successfull or not
+        @type  ok:   bool
+        @param data: Any data to return in the SocketIO response
+        @type  data: dict
         """
         
         # Status flag
@@ -269,6 +301,9 @@ class APILogger(object):
     def info(self, log_msg):
         """
         Handle the logging of information messages.
+        
+        @param log_msg:  The message to log/return to the client
+        @type  log_msg:  str
         """
         self.log_msg = log_msg
         self.api.log_int.info('client(%s): %s' % (self.client, log_msg))
@@ -277,6 +312,9 @@ class APILogger(object):
     def debug(self, log_msg):
         """
         Handle the logging of debug messages.
+        
+        @param log_msg:  The message to log/return to the client
+        @type  log_msg:  str
         """
         self.api.log_int.info('client(%s): %s' % (self.client, log_msg))
         return log_msg
@@ -285,6 +323,11 @@ class APILogger(object):
         """
         Handle the logging of success messages. Returns an HTTP response object that can be
         sent by the API request handler back to the client.
+        
+        @param log_msg:  The message to log/return to the client
+        @type  log_msg:  str
+        @param web_data: Any additional data to return to a web client via SocketIO
+        @type  web_data: dict
         """
         def _set_log_msg(log_msg):
             if not isinstance(log_msg, list) and not isinstance(log_msg, dict):
@@ -305,6 +348,13 @@ class APILogger(object):
         """
         Handle the logging of exception messages. Returns an HTTP response object that can be
         sent by the API request handler back to the client.
+        
+        @param log_msg:  The message to log/return to the client
+        @type  log_msg:  str
+        @param code:     The HTTP status code
+        @type  code:     int
+        @param web_data: Any additional data to return to a web client via SocketIO
+        @type  web_data: dict
         """
         
         # Default log message if not specified
@@ -326,6 +376,13 @@ class APILogger(object):
         """
         Handle the logging of error messages. Returns an HTTP response object that can be
         sent by the API request handler back to the client.
+        
+        @param log_msg:  The message to log/return to the client
+        @type  log_msg:  str
+        @param code:     The HTTP status code
+        @type  code:     int
+        @param web_data: Any additional data to return to a web client via SocketIO
+        @type  web_data: dict
         """
         
         # Default log message if not specified

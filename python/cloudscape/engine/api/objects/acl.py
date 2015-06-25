@@ -6,7 +6,13 @@ class ACLObjects(object):
     """
     
     @classmethod
-    def get_values(cls, obj_type=None):
+    def get_values(obj_type=None):
+        """
+        Retrieve a list of values for objects by type.
+        
+        @param obj_type: The type of object to retrieve
+        @type  obj_type: str
+        """
         
         # Import the required module and create a class instance
         mod = import_module('cloudscape.engine.api.app.gateway.models')
@@ -20,7 +26,13 @@ class ACLObjects(object):
         return list(cls.objects.all().values())
     
     @classmethod
-    def get(self, obj_type=None):
+    def get(obj_type=None):
+        """
+        Retrieve a collection of objects by type.
+        
+        @param obj_type: The type of object to retrieve
+        @type  obj_type: str
+        """
         
         # Import the required module and create a class instance
         mod = import_module('cloudscape.engine.api.app.gateway.models')

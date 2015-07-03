@@ -105,10 +105,10 @@ class APIBare(object):
         
         # Define the request defaults
         defaults = {
-            'REQUEST_METHOD': method,
-            'SERVER_NAME':    host,
-            'PATH_INFO':      '/%s' % path,
-            'REQUEST_URI':    '/api/%s' % path,
+            'REQUEST_METHOD': self.method,
+            'SERVER_NAME':    self.host,
+            'PATH_INFO':      '/%s' % self.path,
+            'REQUEST_URI':    '/api/%s' % self.path,
             'SCRIPT_NAME':    '/api',
             'SERVER_PORT':    '10550',
             'CONTENT_TYPE':   'application/json'

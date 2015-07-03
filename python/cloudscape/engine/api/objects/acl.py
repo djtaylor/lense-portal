@@ -6,7 +6,7 @@ class ACLObjects(object):
     """
     
     @classmethod
-    def get_values(obj_type=None):
+    def get_values(cls, obj_type=None):
         """
         Retrieve a list of values for objects by type.
         
@@ -26,7 +26,7 @@ class ACLObjects(object):
         return list(cls.objects.all().values())
     
     @classmethod
-    def get(obj_type=None):
+    def get(self, obj_type=None):
         """
         Retrieve a collection of objects by type.
         

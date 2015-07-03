@@ -27,6 +27,9 @@ H_WINDOWS      = 'windows'
 # Cloudscape API Client
 C_CLIENT       = '%s/python/cloudscape/client' % L_BASE
 
+# Client input mapper
+C_MAPPER       = '%s/conf/client/mapper.json' % L_BASE
+
 # Server configuration / default configuration
 S_CONF         = '%s/conf/server.conf' % L_BASE
 S_CONF_DEF     = '%s/conf/default/server.conf' % L_BASE

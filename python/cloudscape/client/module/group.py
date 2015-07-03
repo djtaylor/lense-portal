@@ -1,4 +1,4 @@
-class GroupAPI:
+class ModGroup:
     """
     Class wrapper for requests to the API group utilities.
     """

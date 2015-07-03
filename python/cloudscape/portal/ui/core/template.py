@@ -154,21 +154,21 @@ class PortalTemplate(object):
         # Return the template data object
         return params
        
-    def api_call(self, base, method, data=None):
+    def api_call(self, module, method, data=None):
         """
         Wrapper method for the APIClient class instance.
         """
         
         # Make sure the base attribute exists
-        if hasattr(self.portal.api.client, base):
-            api_base = getattr(self.portal.api.client, base)
+        if hasattr(self.portal.api.client, module):
+            api_base = getattr(self.portal.api.client, module)
             
             # Make sure the method attribute exists
             if hasattr(api_base, method):
                 api_method = getattr(api_base, method)
        
                 # Run the API request and return a filtered response
-                return self.filter.object(self.portal.api.response(api_method(data))).map('%s.%s' % (base, method))
+                return self.filter.object(self.portal.api.response(api_method(data))).map('%s.%s' % (module, method))
        
         # Invalid base/method attribute
         return False    
@@ -202,6 +202,7 @@ class PortalTemplate(object):
         # Wait for the API calls to complete
         for thread in threads:
             thread.join()
+        self.log.info('API_CALL_THREADED: %s' % str(self._response))
             
         # Return the response object
         return self._response

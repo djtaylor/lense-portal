@@ -1,4 +1,4 @@
-class UserAPI:
+class ModUser:
     """
     Class wrapper for requests to the user utilities.
     """

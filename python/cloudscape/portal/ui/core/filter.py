@@ -26,6 +26,7 @@ class APIFilter(object):
         
         # Set the internal object container
         self._object = obj
+        self.log.info('FILTER_OBJ: %s' % str(obj))
         
         # Return the class
         return self

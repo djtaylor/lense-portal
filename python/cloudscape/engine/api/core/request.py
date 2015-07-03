@@ -14,7 +14,7 @@ from cloudscape.engine.api.base import APIBase
 from cloudscape.common.http import HEADER, PATH, JSONError, JSONException, HTTP_GET
 from cloudscape.common.utils import JSONTemplate
 from cloudscape.engine.api.auth.key import APIKey
-from cloudscape.common.utils import valid, invalid
+from cloudscape.common.utils import valid, invalid, truncate
 from cloudscape.engine.api.auth.acl import ACLGateway
 from cloudscape.engine.api.auth.token import APIToken
 from cloudscape.engine.api.app.user.models import DBUser
@@ -62,8 +62,26 @@ class RequestObject(object):
         # API authorization attributes
         self.user        = self.headers.get('HTTP_%s' % HEADER.API_USER.upper().replace('-', '_'))
         self.group       = self.headers.get('HTTP_%s' % HEADER.API_GROUP.upper().replace('-', '_'))
-        self.key         = self.headers.get('HTTP_%s' % HEADER.API_KEY.upper().replace('-', '_'))
-        self.token       = self.headers.get('HTTP_%s' % HEADER.API_TOKEN.upper().replace('-', '_'))
+        self.key         = self.headers.get('HTTP_%s' % HEADER.API_KEY.upper().replace('-', '_'), '')
+        self.token       = self.headers.get('HTTP_%s' % HEADER.API_TOKEN.upper().replace('-', '_'), '')
+    
+        # Debug logging for each request
+        self._log_request()
+        
+    def _log_request(self):
+        """
+        Helper method for debug logging for each request.
+        """
+        LOG.info('REQUEST_OBJECT: method=%s, path=%s, client=%s, user=%s, group=%s, key=%s, token=%s, data=%s' % (
+            self.method,
+            self.path,
+            self.client,
+            self.user,
+            self.group,
+            self.key,
+            self.token,
+            truncate(str(self.data))
+        ))
     
     def _load_data(self):
         """
@@ -287,7 +305,7 @@ class RequestManager(object):
         # Return either a valid or invalid request response
         if response['valid']:
             return self.api_base.log.success(response['content'], response['data'])
-        return self.api_base.log.error(status=response['code'], log_msg=response['content'])
+        return self.api_base.log.error(code=response['code'], log_msg=response['content'])
     
 class UtilityMapper(object):
     """

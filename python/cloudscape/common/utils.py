@@ -18,6 +18,12 @@ from cloudscape.common import config
 from cloudscape.common import logger
 from cloudscape.common.vars import S_CONF, PY_BASE
 
+def truncate(string, length=75):
+    """
+    Return a truncated string.
+    """
+    return (string[:75] + '...') if len(string) > 75 else string
+
 def rstring(length=12):
     """
     Helper method used to generate a random string.

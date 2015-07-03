@@ -1,4 +1,4 @@
-class GatewayAPI:
+class ModGateway:
     """
     Class wrapper for authorization utilities.
     """

@@ -4,6 +4,7 @@ import sys
 import json
 
 # cs
+from cloudscape.common.utils import truncate
 from cloudscape.common.exceptions import JSONException
 
 class JSONObject(object):
@@ -42,20 +43,20 @@ class JSONObject(object):
         except Exception, e:
             raise JSONException('Failed to read string: %s' % str(e))
         
-    def search(self, filter):
+    def search(self, filter, delimiter='/'):
         """
         Search through the JSON object for a value.
         """
         
         # Search filter must be a list or string
-        if not (isinstance(filter, list) or isinstance(filter, string)):
+        if not (isinstance(filter, list) or isinstance(filter, str)):
             raise JSONException('Search parameter must be a list or string, not "%s"' % type(filter))
         
         # Construct the search path
-        search_path = filter if (isinstance(filter, list)) else '/'.split(filter)
+        search_path = filter if (isinstance(filter, list)) else filter.split(delimiter)
         
         # List filter regex
-        _list_regex = re.compile(r'^\[([^=]*)="([^"]*)"\]$')
+        _list_regex = re.compile(r'^\[([^=]*)=["\']([^"\']*)["\']\]$')
         
         # Process the search path
         def _search(_path, _json):
@@ -75,7 +76,8 @@ class JSONObject(object):
                     
                     # More search keys to go
                     else:
-                        return _search(_path.pop(0), _json[_search_key])
+                        _path.pop(0)
+                        return _search(_path, _json[_search_key])
                     
                 # Search key not found
                 else:
@@ -84,8 +86,13 @@ class JSONObject(object):
             # Searching a list
             else:
                 for o in _json:
-                    if (_search_key in o) and (o[_search_key] == _search_val):
-                        return _search(_path.pop(0), o)
+                    
+                    # Search key found
+                    if (_search_key in o):
+                        _path.pop(0)
+                        return o if not _path else _search(_path, o)
+                            
+                    # No list match found
                     else:
                         continue
                     

@@ -28,36 +28,42 @@
 	],
 	"args": [
 	    {
-	    	"api_user": {
-	    		"short": "-u",
-	    		"long": "--api-user"
-	    		"help": "The API user to authenticate with if not set as the environment variable 'CS_API_USER'",
-	    		"action": "append"
-	    	},
-	    	"api_group": {
-	    		"short": "-g",
-	    		"long": "--api-group",
-	    		"help": "The API user group to authenticate with if not set as the environment variable 'CS_API_GROUP'",
-	    		"action": "append"
-	    	},
-	    	"api_key": {
-	    		"short": "-k",
-	    		"long": "--api-key",
-	    		"help": "The API key to authenticate with if not set as the environment variable 'CS_API_KEY'",
-	    		"action": "append"
-	    	},
-	    	"api_data": {
-	    		"short": "-d",
-	    		"long": "--api-data",
-	    		"help": "Optional data to pass during the API request, must be a valid JSON string",
-	    		"action": "append"
-	    	},
-	    	"list": {
-	    		"short": "-l",
-	    		"long": "--list",
-	    		"help": "Show supported actions for a specified module",
-	    		"action": "store_true"
-	    	}
-	    }
+    		"id": "api_user",
+    		"short": "-u",
+    		"long": "--api-user",
+    		"help": "The API user to authenticate with if not set as the environment variable 'CS_API_USER'",
+    		"action": "append",
+    		"required": true
+    	},
+    	{
+    		"id": "api_group",
+    		"short": "-g",
+    		"long": "--api-group",
+    		"help": "The API user group to authenticate with if not set as the environment variable 'CS_API_GROUP'",
+    		"action": "append",
+    		"required": true
+    	},
+    	{
+    		"id": "api_key",
+    		"short": "-k",
+    		"long": "--api-key",
+    		"help": "The API key to authenticate with if not set as the environment variable 'CS_API_KEY'",
+    		"action": "append",
+    		"required": true
+    	},
+    	{
+    		"id": "api_data",
+    		"short": "-d",
+    		"long": "--api-data",
+    		"help": "Optional data to pass during the API request, must be a valid JSON string",
+    		"action": "append"
+    	},
+    	{
+    		"id": "list",
+    		"short": "-l",
+    		"long": "--list",
+    		"help": "Show supported actions for a specified module",
+    		"action": "store_true"
+    	}
 	]
 }

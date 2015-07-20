@@ -27,6 +27,9 @@ class _CLIModules(object):
         # Help prompt
         self.help_prompt = None
         
+        # Construct the modules object
+        self._construct()
+        
     def _construct(self):
         """
         Return a list of supported module arguments.
@@ -39,23 +42,23 @@ class _CLIModules(object):
         mod_base = MAP_JSON.search('base')
         
         # Process each module definition
-        for mod in MAP_JSON['modules']:
+        for mod in MAP_JSON.search('modules'):
             self._modules[mod['id']] = []
             
             # Load the interface module
-            iface_mod = '%s.%s' % (mbase, mod['module'])
+            iface_mod = '%s.%s' % (mod_base, mod.get('module'))
             
             # Load the interface request handler
             re_mod   = importlib.import_module(iface_mod)
-            re_class = getattr(re_mod, mod['class'])
+            re_class = getattr(re_mod, mod.get('class'))
             
             # Load the public classes for the interface module
             for attr in dir(re_class):
                 if not re.match(r'^__.*$', attr):
-                    self._modules[mod['id']].append(attr)
+                    self._modules[mod.get('id')].append(attr)
             
             # Add the module to the help menu
-            help_prompt += '' if (attr == '_default') else format_action(mod['id'], mod['desc'])
+            help_prompt += format_action(mod.get('id'), mod.get('desc'))
         
         # Set the help prompt
         self.help_prompt = help_prompt
@@ -76,14 +79,14 @@ class _CLIArgs(object):
     """
     Class object for handling command line arguments.
     """
-    def __init__(self):
+    def __init__(self, mod_help=None):
 
         # Arguments parser / object
         self.parser  = None
         self._args   = None
         
         # Module help prompt
-        self._mhelp  = None
+        self._mhelp  = mod_help
         
         # Construct arguments
         self._construct()
@@ -98,12 +101,6 @@ class _CLIArgs(object):
          return ("Cloudscape Client\n\n"
                  "A utility designed to handle interactions with the Cloudscape API client manager.\n"
                  "Supports most of the API endpoints available.\n")
-        
-    def set_modules_help(self, mhelp):
-        """
-        Set the modules help prompt.
-        """
-        self._mhelp = mhelp
         
     def _construct(self):
         """
@@ -153,10 +150,7 @@ class CLIClient(object):
     
         # Arguments / modules objects
         self.modules = _CLIModules()
-        self.args    = _CLIArgs()
-        
-        # Set the modles help prompt
-        self.args.set_modules_help(self.modules.help_prompt)
+        self.args    = _CLIArgs(mod_help=self.modules.help_prompt)
     
         # API connection attributes
         self._get_api_env()
@@ -171,7 +165,7 @@ class CLIClient(object):
             pre()
         
         # Write the error message to stderr
-        sys.stderr.write(msg)
+        sys.stderr.write('%s\n' % msg)
         
         # Optional post-failure method
         if post and callable(post):
@@ -203,10 +197,10 @@ class CLIClient(object):
         
         # Connection parameters
         params = {
-            user: self.args['api_user'], 
-            group: self.args['api_group'], 
-            api_key: self.args['api_key'], 
-            cli: True    
+            'user': self.args.get('api_user'), 
+            'group': self.args.get('api_group'), 
+            'api_key': self.args.get('api_key'), 
+            'cli': True    
         }
         
         # Create the API client and connection objects

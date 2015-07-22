@@ -3,7 +3,6 @@ import re
 import os
 import sys
 import apt
-import pip
 import imp
 import pwd
 import json
@@ -272,6 +271,9 @@ class _SETUP(_BASE):
     def __init__(self):
         super(_SETUP, self).__init__()
 
+        # Container for a pip module instances
+        self.pip = None
+
         # Flag to check if we are using a local MySQL server or not
         self.mysql_use_local = False
 
@@ -371,7 +373,7 @@ class _SETUP(_BASE):
         """
         self.feedback.show('[pip]: Finding installed packages...').info()
         with _CAPTURE() as output:
-            pip.main(['list'])
+            self.pip.main(['list'])
             
         # Construct the PIP packages/versions list
         _pkgs = {}
@@ -406,7 +408,7 @@ class _SETUP(_BASE):
             # Install any required packages
             try:
                 self.feedback.show('[pip]: Installing missing packages...').info()
-                pip.main(install_cmd)
+                self.pip.main(install_cmd)
                 self.feedback.show('[pip]: Package installation complete...').success()
                 
             # Failed to install package
@@ -446,6 +448,7 @@ class _SETUP(_BASE):
         self.feedback.show('[apt-get]: Building cache...').info()
         cache = apt.cache.Cache()
         cache.update()
+        cache.open(None)
         
         # Flag to run installer
         run_install = False
@@ -473,6 +476,10 @@ class _SETUP(_BASE):
                 self._die('[apt-get]: Failed to install missing packages: %s' % str(e))
         else:
             self.feedback.show('[apt-get]: All packages installed...').info()
+            
+        # Load the pip module
+        import pip
+        self.pip = pip
 
     def run(self):
         """

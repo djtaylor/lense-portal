@@ -154,20 +154,8 @@ class _PREFLIGHT(_BASE):
         """
         
         # Password prompt
-        passwd_prompt = lambda: (getpass('Please enter a password: '), getpass('Please confirm the password: '))
-        
-        # Get a password for the user
-        def _get_password():
-            passwd, passwd_confirm = passwd_prompt()
-            
-            # Make sure the passwords match
-            if not passwd == passwd_confirm:
-                self.feedback.show('Passwords do not match...').error()
-                return _get_password()
-            return passwd
-        
-        # Invoke the password prompt
-        passwd  = _get_password()
+        self.feedback.show('Please enter a password: ').input(secure=True, confirm=True)
+        passwd = self.feedback.get_response()
         
         # Add user command
         adduser = ['/usr/sbin/useradd', '-m', '-d', self.CS_HOME, '-s', self.CS_SHELL, self.CS_USER]
@@ -207,26 +195,17 @@ class _PREFLIGHT(_BASE):
         
         # If the user doesn't exist
         if not user_exists:
-            def _create_user():
-                response    = raw_input('User account "%s" not found. Create the account now? (y/n): ' % self.CS_USER)
-                create_user = response.lower()
-        
-                # Make sure the answer is valid
-                if (create_user != 'y') and (create_user != 'n'):
-                    self.feedback.show('Answer must be "y" or "n"...').error()
-                    _create_user()
-                    
-                # If skipping user creation
-                if create_user == 'n':
-                    self.feedback.show('Skipping user creation. User "cloudscape" must exist prior to completing setup').info()
-                    sys.exit(0)
-                    
-                # If creating the user
-                if create_user == 'y':
-                    self._cs_create_user()
-        
-            # Prompt to create the user
-            _create_user()
+            self.feedback.show('User account "%s" not found. Create the account now? (y/n): ' % self.CS_USER).input(yes_no=True)
+            create_user = self.feedback.get_response()
+            
+            # If skipping user creation
+            if not create_user:
+                self.feedback.show('Skipping user creation. User "cloudscape" must exist prior to completing setup').info()
+                sys.exit(0)
+                
+            # If creating the user
+            else:
+                self._cs_create_user()
         
         # User exists
         else:
@@ -244,9 +223,15 @@ class _PREFLIGHT(_BASE):
         """
         Run all preflight setup checks.
         """
-        self.feedback.show('Cloudscape Setup').info()
-        self.feedback.show('--------------------------------').info()
-        self.feedback.show('Running setup preflight checks...').info()
+        self.feedback.show([
+            'Cloudscape Setup',
+            '-' * 60,
+            'The following script will perform setup steps required to run',
+            'the Cloudscape platform. This script must be run either with',
+            'sudo or the root account. After setup is complete, you will be',
+            'able to bootstrap the installation.',
+            '-' * 60
+        ]).block(label='ABOUT')
         
         # Make sure running as root
         if not self._using_root():
@@ -281,20 +266,16 @@ class _SETUP(_BASE):
         """
         Update the Apache configuration to read configuration files.
         """
-        print '\n' \
-        'The setup script can automatically update your Apache\n' \
-        'configuration file to include Cloudscape virtual host\n' \
-        'configuration files. If you skip this step, you will have\n' \
-        'to update the main Apache configuration manually.\n'
+        self.feedback.show([
+            'The setup script can automatically update your Apache',
+            'configuration file to include Cloudscape virtual host',
+            'configuration files. If you skip this step, you will have',
+            'to update the main Apache configuration manually.'
+        ]).block(lable='APACHE')
         
         # Ask if we should update the Apache config file
-        def _update_config_prompt():
-            update_rsp = raw_input('Update the Apache configuration file? (y/n): ')
-            update_apache = update_rsp.lower()
-            if update_apache != 'y' or update_apache != 'n':
-                self.feedback.show('Answer must be "y" or "n"...').error()
-                return _update_config_prompt
-            return True if update_apache == 'y' else False
+        self.feedback.show('Update the Apache configuration file? (y/n): ').input(yes_no=True)
+        update_apache = self.feedback.get_response()
 
         # If updating the config file
         if update_apache:
@@ -421,16 +402,10 @@ class _SETUP(_BASE):
         """
         Give the option to install MySQL server on the local system.
         """
-        def _mysql_local_prompt():
-            mysql_rsp = raw_input('Would you like to use a MySQL server on the local system? (y/n): ')
-            mysql_local = mysql_rsp.lower()
-            if mysql_local != 'y' and mysql_local != 'n':
-                self.feedback.show('Answer must be "y" or "n"...').error()
-                return _mysql_local_prompt()
-            return True if mysql_local == 'y' else False
 
         # Check to see if we should use a local MySQL server
-        self.use_mysql_local = _mysql_local_prompt()
+        self.feedback.show('Would you like to use a MySQL server on the local system? (y/n): ').input(yes_no=True)
+        self.use_mysql_local = self.feedback.get_response()
         
         # If using a local MySQL server
         if self.use_mysql_local:

@@ -267,11 +267,15 @@ class _SETUP(_BASE):
         Update the Apache configuration to read configuration files.
         """
         self.feedback.show([
+            '-' * 60,
+            'Apache Configuration',
+            '-' * 60,
             'The setup script can automatically update your Apache',
             'configuration file to include Cloudscape virtual host',
             'configuration files. If you skip this step, you will have',
-            'to update the main Apache configuration manually.'
-        ]).block(lable='APACHE')
+            'to update the main Apache configuration manually.',
+            '-' * 60
+        ]).block(label='APACHE')
         
         # Ask if we should update the Apache config file
         self.feedback.show('Update the Apache configuration file? (y/n): ').input(yes_no=True)

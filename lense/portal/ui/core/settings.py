@@ -1,12 +1,12 @@
 import os
 
 # CloudScape Libraries
+from lense import PKG_ROOT
 import cloudscape.common.config as config
 from cloudscape.common.auth.utils import AuthGroupsLDAP
-from cloudscape.common.vars import L_BASE
 
 # Configuration
-CONFIG           = config.parse()
+CONFIG           = config.parse('PORTAL')
 
 # Project base directory
 BASE_DIR         = os.path.dirname(os.path.dirname(__file__))
@@ -32,10 +32,10 @@ USE_TZ           = True
 STATIC_URL       = '/static/'
 
 # URL processor
-ROOT_URLCONF     = 'cloudscape.portal.ui.core.urls'
+ROOT_URLCONF     = 'lense.portal.ui.core.urls'
 
 # API WSGI application
-WSGI_APPLICATION = 'cloudscape.portal.ui.core.wsgi.application'
+WSGI_APPLICATION = 'lense.portal.ui.core.wsgi.application'
 
 # Template directories
 TEMPLATES = [
@@ -63,7 +63,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql',
-        'NAME':     'cloudscape',
+        'NAME':     'lense',
         'USER':     CONFIG.db.user,
         'PASSWORD': CONFIG.db.password,
         'HOST':     CONFIG.db.host,

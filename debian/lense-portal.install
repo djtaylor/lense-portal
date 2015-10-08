@@ -1,4 +1,3 @@
-etc/init.d/lense-socket etc/init.d/
 etc/lense/portal-wsgi.conf etc/lense/
 etc/lense/portal-wsgi.default.conf etc/lense/
 etc/lense/portal.default.json etc/lense

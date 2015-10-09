@@ -1,1 +1,7 @@
-define("ace/snippets/golang",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="golang"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./golang.snippets");
+exports.scope = "golang";
+
+});

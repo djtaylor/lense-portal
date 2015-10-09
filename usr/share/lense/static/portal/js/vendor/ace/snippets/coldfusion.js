@@ -1,1 +1,7 @@
-define("ace/snippets/coldfusion",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="coldfusion"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./coldfusion.snippets");
+exports.scope = "coldfusion";
+
+});

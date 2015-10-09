@@ -1,1 +1,7 @@
-define("ace/snippets/apache_conf",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="apache_conf"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./apache_conf.snippets");
+exports.scope = "apache_conf";
+
+});

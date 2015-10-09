@@ -1,1 +1,7 @@
-define("ace/snippets/asciidoc",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="asciidoc"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./asciidoc.snippets");
+exports.scope = "asciidoc";
+
+});

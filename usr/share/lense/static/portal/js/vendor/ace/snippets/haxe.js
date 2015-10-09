@@ -1,1 +1,7 @@
-define("ace/snippets/haxe",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="haxe"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./haxe.snippets");
+exports.scope = "haxe";
+
+});

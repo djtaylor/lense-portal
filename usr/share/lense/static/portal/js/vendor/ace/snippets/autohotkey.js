@@ -1,1 +1,7 @@
-define("ace/snippets/autohotkey",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="autohotkey"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./autohotkey.snippets");
+exports.scope = "autohotkey";
+
+});

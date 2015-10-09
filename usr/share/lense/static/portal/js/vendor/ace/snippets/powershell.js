@@ -1,1 +1,7 @@
-define("ace/snippets/powershell",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="powershell"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./powershell.snippets");
+exports.scope = "powershell";
+
+});

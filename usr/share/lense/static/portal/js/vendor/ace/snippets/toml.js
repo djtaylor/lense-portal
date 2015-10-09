@@ -1,1 +1,7 @@
-define("ace/snippets/toml",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="toml"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./toml.snippets");
+exports.scope = "toml";
+
+});

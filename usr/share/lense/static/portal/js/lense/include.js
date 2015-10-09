@@ -11,7 +11,6 @@
 		CSBaseLayout:       	   'base/layout.js',
 		CSBaseButton:       	   'base/button.js',
 		CSBaseRegister:     	   'base/register.js',
-		CSBaseD3:           	   'base/d3.js',
 		CSBaseInterface:    	   'base/interface.js',
 		CSBaseIPAddr:              'base/ipaddr.js',
 		CSBaseFinder:              'base/finder.js'

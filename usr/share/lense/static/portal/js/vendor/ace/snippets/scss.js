@@ -1,1 +1,7 @@
-define("ace/snippets/scss",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="scss"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./scss.snippets");
+exports.scope = "scss";
+
+});

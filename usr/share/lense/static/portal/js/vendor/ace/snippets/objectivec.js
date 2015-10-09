@@ -1,1 +1,7 @@
-define("ace/snippets/objectivec",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="objectivec"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./objectivec.snippets");
+exports.scope = "objectivec";
+
+});

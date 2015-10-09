@@ -1,1 +1,7 @@
-define("ace/snippets/svg",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="svg"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./svg.snippets");
+exports.scope = "svg";
+
+});

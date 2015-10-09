@@ -1,1 +1,7 @@
-define("ace/snippets/scala",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="scala"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./scala.snippets");
+exports.scope = "scala";
+
+});

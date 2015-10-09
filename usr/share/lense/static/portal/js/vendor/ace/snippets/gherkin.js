@@ -1,1 +1,7 @@
-define("ace/snippets/gherkin",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="gherkin"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./gherkin.snippets");
+exports.scope = "gherkin";
+
+});

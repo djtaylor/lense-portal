@@ -1,1 +1,7 @@
-define("ace/snippets/twig",["require","exports","module"],function(e,t,n){t.snippetText="",t.scope="twig"})
+define(function(require, exports, module) {
+"use strict";
+
+exports.snippetText = require("../requirejs/text!./twig.snippets");
+exports.scope = "twig";
+
+});

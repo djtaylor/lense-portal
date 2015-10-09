@@ -1,7 +1,4 @@
-etc/lense/portal-wsgi.conf etc/lense/
-etc/lense/portal-wsgi.default.conf etc/lense/
-etc/lense/portal.default.json etc/lense
-etc/lense/portal.json etc/lense
+etc/lense/portal etc/lense/
 usr/lib/python2.7/dist-packages/lense/portal usr/lib/python2.7/dist-packages/lense/
 usr/share/lense/templates/portal usr/share/lense/templates/
 usr/share/lense/static/portal usr/share/lense/static/

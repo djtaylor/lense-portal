@@ -1,0 +1,53 @@
+{
+	// API Administrator
+	//
+	// Define API administrator attributes used when creating the
+	// administrator account, as well as used when established a
+	// connection with internal utilities.
+	"admin": {
+		"user": "lense",
+		"group": "00000000-0000-0000-0000-000000000000",
+		"key": ""
+	},
+	
+	// Engine Configuration
+	//
+	// Define settings to use for connecting to the Lense engine.
+	"engine": {
+		"host": "localhost",
+		"proto": "http",
+		"port": 10550
+	},
+	
+	// Database Configuration
+	//
+	// Define settings used to connect to the Lense database.
+	"db": {
+		"host": "localhost",
+		"user": "lense",
+		"port": 3306,
+		"password": ""
+	},
+	
+	// Portal Configuration
+	//
+	// Define settings used when setting up the Lense web portal.
+	"portal": {
+		"host": "localhost",
+		"port": 80,
+		"proto": "http",
+		"log": "{LOG_DIR}/portal.log",
+		"secret": "DJANGO_SECRET",
+		"timeout": 60,
+		"debug": true
+	},
+
+	// SocketIO Configuration
+	//
+	// Define configuration settings connecting to the SocketIO proxy server.
+	"socket": {
+		"host": "localhost",
+		"proto": "http",
+		"port": 10551
+	}
+}

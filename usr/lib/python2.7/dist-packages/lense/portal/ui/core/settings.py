@@ -1,9 +1,9 @@
 import os
 
 # CloudScape Libraries
-from lense import PKG_ROOT
-import cloudscape.common.config as config
-from cloudscape.common.auth.utils import AuthGroupsLDAP
+from lense.common.vars import TEMPLATES, DB_ENCRYPT_DIR
+import lense.common.config as config
+from lense.common.auth.utils import AuthGroupsLDAP
 
 # Configuration
 CONFIG           = config.parse('PORTAL')
@@ -42,7 +42,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-           '%s/python/cloudscape/portal/ui/templates' % L_BASE,
+           TEMPLATES.PORTAL,
         ],
         'APP_DIRS': False,
         'OPTIONS': {
@@ -72,7 +72,7 @@ DATABASES = {
 }
 
 # Database encryption keys
-ENCRYPTED_FIELDS_KEYDIR = '%s/dbkey' % L_BASE
+ENCRYPTED_FIELDS_KEYDIR = DB_ENCRYPT_DIR
 
 # CORS configuration
 CORS_ORIGIN_ALLOW_ALL = True
@@ -98,7 +98,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # LDAP Authentication
-AUTH_LDAP_SERVER_URI = 'ldap://%s' % CONFIG.ldap.host
+AUTH_LDAP_SERVER_URI = 'ldap://{0}'.format(CONFIG.ldap.host)
 AUTH_LDAP_BIND_DN = CONFIG.ldap.user
 AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
         

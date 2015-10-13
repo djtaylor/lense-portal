@@ -13,7 +13,6 @@ BASE_DIR         = os.path.dirname(os.path.dirname(__file__))
 
 # Debug mode
 DEBUG            = True
-TEMPLATE_DEBUG   = True
 
 # Hosts allowed to use the API
 ALLOWED_HOSTS    = []

@@ -11,5 +11,8 @@ X-Python-Version: >= 2.7
 
 Package: lense-portal
 Architecture: all
-Depends: lense-common (>= 0.1.1), lense-client (>= 0.1.1)
+Depends: lense-common (>= 0.1.1), 
+	     lense-client (>= 0.1.1), 
+	     apache2 (>= 2.4.7),
+	     libapache2-mod-wsgi (>= 3.4)
 Description: Libraries for the Lense API platform web portal.

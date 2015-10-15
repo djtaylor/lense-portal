@@ -70,7 +70,7 @@ class RequestManager(object):
         
         # Module directory / base path
         app_path = '{0}/portal/ui/app'.format(MODULE_ROOT)
-        app_base = 'cloudscape.portal.ui.app'
+        app_base = 'lense.portal.ui.app'
         
         # Applications object
         app_obj  = {}

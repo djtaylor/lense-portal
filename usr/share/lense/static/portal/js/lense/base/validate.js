@@ -1,9 +1,9 @@
 /**
- * CloudScape Validator
+ * Lense Validator
  * 
  * Library of methods used to validate different types of data, mainly for forms.
  */
-cs.import('CSBaseValidate', function() {
+lense.import('LenseBaseValidate', function() {
 	
 	/**
 	 * Python Module Path
@@ -55,7 +55,7 @@ cs.import('CSBaseValidate', function() {
 	/**
 	 * Validate IPv4 Address
 	 * 
-	 * cs.validate.ip(4, '192.168.213.56');
+	 * lense.validate.ip(4, '192.168.213.56');
 	 */
 	this.ipv4 = function(a) {
 		var ipv4_test = /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/; 

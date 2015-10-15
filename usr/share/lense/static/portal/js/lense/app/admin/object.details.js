@@ -1,10 +1,10 @@
-cs.import('CSAdminACLObjectDetails', function() { 
+lense.import('LenseAdminACLObjectDetails', function() { 
 	
 	// Active object type
-	this.active = cs.url.param_get('object');
+	this.active = lense.url.param_get('object');
 	
 	/**
-	 * Initialize CSAdminACLObjectDetails
+	 * Initialize LenseAdminACLObjectDetails
 	 * @constructor
 	 */
 	this.__init__ = function() {}
@@ -12,7 +12,7 @@ cs.import('CSAdminACLObjectDetails', function() {
 	/**
 	 * Callback: Save Object Details
 	 */
-	cs.register.callback('acl.save_object', function(c,m,d,a) {
+	lense.register.callback('acl.save_object', function(c,m,d,a) {
 		
 		// Switch the edit/save buttons
 		$('div[type="button"][target="acl.edit_object"]').attr('active', 'yes').css('display', 'block');
@@ -32,7 +32,7 @@ cs.import('CSAdminACLObjectDetails', function() {
 	/**
 	 * Method: Save Object Details
 	 */
-	cs.register.method('acl.save_object', function() {
+	lense.register.method('acl.save_object', function() {
 		
 		// Construct the new object details
 		var params = {};
@@ -45,10 +45,10 @@ cs.import('CSAdminACLObjectDetails', function() {
 		params['def_acl'] = $('select[name="def_acl"]').val();
 		
 		// Set the active object
-		params['type'] = cs.admin.acl_objects.active;
+		params['type'] = lense.admin.acl_objects.active;
 		
 		// Submit the API update request
-		cs.api.request.post({
+		lense.api.request.post({
 			path:     'auth/acl/objects',
 			action:   'update',
 			callback: {
@@ -61,7 +61,7 @@ cs.import('CSAdminACLObjectDetails', function() {
 	/**
 	 * Method: Edit Object Details
 	 */
-	cs.register.method('acl.edit_object', function() {
+	lense.register.method('acl.edit_object', function() {
 			
 		// Switch the edit/save buttons
 		$('div[type="button"][target="acl.edit_object"]').attr('active', 'no').css('display', 'none');

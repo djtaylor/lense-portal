@@ -1,7 +1,7 @@
 /**
- * CloudScape Authentication
+ * Lense Authentication
  */
-cs.import('CSAuthInterface', function() {
+lense.import('LenseAuthInterface', function() {
 	
 	/**
 	 * Initialize CSAuth
@@ -10,11 +10,11 @@ cs.import('CSAuthInterface', function() {
 	this.__init__ = function() {
 		
 		// Bind click/enter
-		cs.auth.bind();
+		lense.auth.bind();
 		
 		// Document ready
 		$(document).ready(function() {
-			cs.auth.layout();
+			lense.auth.layout();
 			
 			// Fade in the login window
 			$('.login_window').animate({
@@ -24,7 +24,7 @@ cs.import('CSAuthInterface', function() {
 		
 		// Window resize
 		$(window).resize(function() {
-			cs.auth.layout();
+			lense.auth.layout();
 		});
 	}
 	

@@ -1,10 +1,10 @@
-cs.import('CSAdminGroupDetails', function() {
+lense.import('LenseAdminGroupDetails', function() {
 	
 	// Active group
-	this.active = cs.url.param_get('group');
+	this.active = lense.url.param_get('group');
 	
 	/**
-	 * Initialize CSAdminGroupDetails
+	 * Initialize LenseAdminGroupDetails
 	 * @constructor
 	 */
 	this.__init__ = function() {
@@ -15,7 +15,7 @@ cs.import('CSAdminGroupDetails', function() {
 		});
 		
 		// Bind events
-		cs.admin.groups.bind();
+		lense.admin.groups.bind();
 	}
 	
 	/**
@@ -23,11 +23,11 @@ cs.import('CSAdminGroupDetails', function() {
 	 */
 	this.acl = {
 		update: function(a,e,s,c) {
-			cs.api.request.post({
+			lense.api.request.post({
 				path:   'group',
 				action: 'update',
 				_data:  {
-					uuid: cs.admin.groups.active,
+					uuid: lense.admin.groups.active,
 					permissions: (function() {
 						var _p = {};
 						_p[a.acl_type] = {};
@@ -63,12 +63,12 @@ cs.import('CSAdminGroupDetails', function() {
 		// Change Protected State
 		$('select[name="protected"]').on('change', function() {
 			var state = ($(this).val() === 'true') ? true : false;
-			cs.layout.loading(true, 'Changing group protected state...', function() {
-				cs.api.request.post({
+			lense.layout.loading(true, 'Changing group protected state...', function() {
+				lense.api.request.post({
 					path:   'group',
 					action: 'update',
 					_data: (function() {
-						var b = { uuid: cs.admin.groups.active };
+						var b = { uuid: lense.admin.groups.active };
 						b['protected'] = state;
 						return b;
 					})(),
@@ -90,14 +90,14 @@ cs.import('CSAdminGroupDetails', function() {
 			
 			// Allow ACL
 			if (e.val() == 'yes') {
-				cs.layout.loading(true, 'Enabling ACL...', function() {
-					cs.admin.groups.acl.update(a,e,true,'group.allow_acl');
+				lense.layout.loading(true, 'Enabling ACL...', function() {
+					lense.admin.groups.acl.update(a,e,true,'group.allow_acl');
 				});
 				
 			// Unallow ACL
 			} else {
-				cs.layout.loading(true, 'Disabling ACL...', function() {
-					cs.admin.groups.acl.update(a,e,false,'group.allow_acl');
+				lense.layout.loading(true, 'Disabling ACL...', function() {
+					lense.admin.groups.acl.update(a,e,false,'group.allow_acl');
 				});
 			}
 		});
@@ -109,14 +109,14 @@ cs.import('CSAdminGroupDetails', function() {
 			
 			// Enable ACL
 			if (e.is(':checked')) {
-				cs.layout.loading(true, 'Enabling ACL...', function() {
-					cs.admin.groups.acl.update(a,e,true,'group.enable_acl');
+				lense.layout.loading(true, 'Enabling ACL...', function() {
+					lense.admin.groups.acl.update(a,e,true,'group.enable_acl');
 				});
 				
 			// Disable ACL
 			} else {
-				cs.layout.loading(true, 'Disabling ACL...', function() {
-					cs.admin.groups.acl.update(a,e,'remove','group.disable_acl');
+				lense.layout.loading(true, 'Disabling ACL...', function() {
+					lense.admin.groups.acl.update(a,e,'remove','group.disable_acl');
 				});
 			}
 		});
@@ -125,7 +125,7 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Callback: Update Protected State
 	 */
-	cs.register.callback('group.update_protected', function(c,m,d,a) {
+	lense.register.callback('group.update_protected', function(c,m,d,a) {
 		if (c != 200) {
 			$('select[name="protected"]').val(($('select[name="protected"]').val() === 'true') ? 'false' : 'true');
 		}
@@ -134,7 +134,7 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Callback: Unallow ACL
 	 */
-	cs.register.callback('group.allow_acl', function(c,m,d,a) {
+	lense.register.callback('group.allow_acl', function(c,m,d,a) {
 		if (c != 200) {
 			
 			// Define the object allowed filter
@@ -154,7 +154,7 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Callback: Allow ACL
 	 */
-	cs.register.callback('group.unallow_acl', function(c,m,d,a) {
+	lense.register.callback('group.unallow_acl', function(c,m,d,a) {
 		if (c != 200) {
 			
 			// Define the object allowed filter
@@ -174,7 +174,7 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Callback: Enable ACL
 	 */
-	cs.register.callback('group.enable_acl', function(c,m,d,a) {
+	lense.register.callback('group.enable_acl', function(c,m,d,a) {
 		if (c == 200) {
 			
 			// Define the object allowed filter
@@ -203,7 +203,7 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Callback: Disable ACL
 	 */
-	cs.register.callback('group.disable_acl', function(c,m,d,a) {
+	lense.register.callback('group.disable_acl', function(c,m,d,a) {
 		if (c == 200) {
 			
 			// Define the object allowed filter
@@ -239,7 +239,7 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Callback: Remove Member
 	 */
-	cs.register.callback('group.remove_member', function(c,m,d,a) {
+	lense.register.callback('group.remove_member', function(c,m,d,a) {
 		if (c == 200) {
 			
 			// Assign the target member
@@ -257,14 +257,14 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Method: Remove Member
 	 */
-	cs.register.method('group.remove_member', function(user) {
+	lense.register.method('group.remove_member', function(user) {
 		if (defined(user)) {
-			cs.layout.loading(true, 'Removing group member...', function() {
-				cs.api.request.post({
+			lense.layout.loading(true, 'Removing group member...', function() {
+				lense.api.request.post({
 					path:   'group/member',
 					action: 'remove',
 					_data:  {
-						uuid: cs.admin.groups.active,
+						uuid: lense.admin.groups.active,
 						user: user
 					},
 					callback: {
@@ -278,7 +278,7 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Callback: Add Member
 	 */
-	cs.register.callback('group.add_member', function(c,m,d,a) {
+	lense.register.callback('group.add_member', function(c,m,d,a) {
 		if (c == 200) {
 			
 			// Assign the target member
@@ -296,14 +296,14 @@ cs.import('CSAdminGroupDetails', function() {
 	/**
 	 * Method: Add Member
 	 */
-	cs.register.method('group.add_member', function(user) {
+	lense.register.method('group.add_member', function(user) {
 		if (defined(user)) {
-			cs.layout.loading(true, 'Adding group member...', function() {
-				cs.api.request.post({
+			lense.layout.loading(true, 'Adding group member...', function() {
+				lense.api.request.post({
 					path:   'group/member',
 					action: 'add',
 					_data:  {
-						uuid: cs.admin.groups.active,
+						uuid: lense.admin.groups.active,
 						user: user
 					},
 					callback: {

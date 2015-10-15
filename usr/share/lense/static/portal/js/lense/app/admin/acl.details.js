@@ -1,20 +1,20 @@
-cs.import('CSAdminACLDetails', function() {
+lense.import('LenseAdminACLDetails', function() {
 	
 	/**
-	 * Intialize CSAdminACLDetails
+	 * Intialize LenseAdminACLDetails
 	 * @constructor
 	 */
 	this.__init__ = function() {
 		
 		// Document ready
 		$(document).ready(function() {
-			cs.admin.acl.set_layout();
-			cs.admin.acl.bind();
+			lense.admin.acl.set_layout();
+			lense.admin.acl.bind();
 		});
 		
 		// Window Resize
 		$(window).resize(function() {
-			cs.admin.acl.set_layout();
+			lense.admin.acl.set_layout();
 		});
 	}
 	
@@ -43,7 +43,7 @@ cs.import('CSAdminACLDetails', function() {
 		
 		// Data object
 		var data = {
-			uuid: cs.admin.acl.active(),
+			uuid: lense.admin.acl.active(),
 			utilities: {
 				global: [],
 				object: []
@@ -82,7 +82,7 @@ cs.import('CSAdminACLDetails', function() {
 		
 		// Jump to another ACL
 		$('select[name="acl_jump"]').on('change', function() {
-			if (cs.admin.acl.active() != this.value) {
+			if (lense.admin.acl.active() != this.value) {
 				window.location = '/admin?panel=acls&acl=' + this.value;
 			}
 		});
@@ -93,7 +93,7 @@ cs.import('CSAdminACLDetails', function() {
 			var i = $(this);
 			
 			// If editing
-			if (cs.admin.acl.edit()) {
+			if (lense.admin.acl.edit()) {
 				
 				// Available
 				if (a.hasOwnProperty('available')) {
@@ -133,15 +133,15 @@ cs.import('CSAdminACLDetails', function() {
 		$('.table_sortable_inner').height(editor_height - 10 - $('.table_title').outerHeight(true) - $('.table_panel_title').outerHeight(true) - $('.table_title_inner').outerHeight(true));
 	
 		// Fade in the editor frame
-		cs.layout.fadein('.editor_frame');
+		lense.layout.fadein('.editor_frame');
 	}
 	
 	/**
 	 * Callback: Save ACL
 	 */
-	cs.register.callback('acl.save', function(c,m,d,a) {
+	lense.register.callback('acl.save', function(c,m,d,a) {
 		if (c == 200) {
-			cs.admin.acl.edit(false);
+			lense.admin.acl.edit(false);
 			
 			// Disable editing elements
 			$('div[editing]').each(function(i,o) {
@@ -167,12 +167,12 @@ cs.import('CSAdminACLDetails', function() {
 	/**
 	 * Method: Save ACL
 	 */
-	cs.register.method('acl.save', function() {
-		cs.layout.loading(true, 'Updating ACL properties...', function() {
-			cs.api.request.post({
+	lense.register.method('acl.save', function() {
+		lense.layout.loading(true, 'Updating ACL properties...', function() {
+			lense.api.request.post({
 				path: 'gateway/acl',
 				action: 'update',
-				_data: cs.admin.acl.construct_request(),
+				_data: lense.admin.acl.construct_request(),
 				callback: {
 					id: 'acl.save'
 				}
@@ -183,8 +183,8 @@ cs.import('CSAdminACLDetails', function() {
 	/**
 	 * Method: Edit ACL
 	 */
-	cs.register.method('acl.edit', function() {
-		cs.admin.acl.edit(true);
+	lense.register.method('acl.edit', function() {
+		lense.admin.acl.edit(true);
 		
 		// Enabled editing elements
 		$('div[editing]').each(function(i,o) {

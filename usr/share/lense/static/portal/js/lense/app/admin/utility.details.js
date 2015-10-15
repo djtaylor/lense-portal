@@ -1,4 +1,4 @@
-cs.import('CSAdminUtilityDetails', function() {
+lense.import('LenseAdminUtilityDetails', function() {
 	
 	// Request map
 	this.rmap   = null;
@@ -16,29 +16,29 @@ cs.import('CSAdminUtilityDetails', function() {
 	};
 	
 	/**
-	 * Initialize CSAdminUtilityDetails
+	 * Initialize LenseAdminUtilityDetails
 	 * @constructor
 	 */
 	this.__init__ = function() {
 
 		// Load utility details
-		cs.admin.utility.load();
+		lense.admin.utility.load();
 
 		// Bind button actions
-		cs.admin.utility.bind();
+		lense.admin.utility.bind();
 		
 		// Document ready
 		$(document).ready(function() {
-			cs.admin.utility.set_input();
-			cs.admin.utility.set_dimensions();
-			cs.admin.utility.set_window();
-			cs.admin.utility.state();
-			cs.admin.utility.check_page_state();
+			lense.admin.utility.set_input();
+			lense.admin.utility.set_dimensions();
+			lense.admin.utility.set_window();
+			lense.admin.utility.state();
+			lense.admin.utility.check_page_state();
 		});
 		
 		// Window resize
 		$(window).resize(function() {
-			cs.admin.utility.set_dimensions();
+			lense.admin.utility.set_dimensions();
 		});
 	}
 	
@@ -49,7 +49,7 @@ cs.import('CSAdminUtilityDetails', function() {
 		
 		// Jump to another utility
 		$('select[name="utility_jump"]').on('change', function() {
-			if (cs.admin.utility.active() != this.value) {
+			if (lense.admin.utility.active() != this.value) {
 				window.location = '/admin?panel=utilities&utility=' + this.value;
 			}
 		});
@@ -68,8 +68,8 @@ cs.import('CSAdminUtilityDetails', function() {
 	this.load = function() {
 		
 		// Retrieve the utility request map and name
-		cs.admin.utility.rmap = clone(utility_rmap);
-		cs.admin.utility.name = utility_name;
+		lense.admin.utility.rmap = clone(utility_rmap);
+		lense.admin.utility.name = utility_name;
 		
 		// Delete the containing element
 		$('#utility_load').remove();
@@ -82,7 +82,7 @@ cs.import('CSAdminUtilityDetails', function() {
 	 * @param {c} Optional callback function
 	 */
 	this.lock = function(u,c) {
-		cs.admin.utility.edit_state = { locked: 'yes', locked_by: u };
+		lense.admin.utility.edit_state = { locked: 'yes', locked_by: u };
 		if (defined(c)) {
 			c();
 		}
@@ -94,7 +94,7 @@ cs.import('CSAdminUtilityDetails', function() {
 	 * @param {c} Optional callback function
 	 */
 	this.unlock = function(c) {
-		cs.admin.utility.edit_state = { locked: 'no', locked_by: undefined };
+		lense.admin.utility.edit_state = { locked: 'no', locked_by: undefined };
 		if (defined(c)) {
 			c();
 		}
@@ -111,12 +111,12 @@ cs.import('CSAdminUtilityDetails', function() {
 		$('.edit_menu_info').html('You must validate changes before saving');
 		
 		// Switch classes on the buttons
-		cs.admin.utility.button_state('toggle', {
+		lense.admin.utility.button_state('toggle', {
 			act:  true, 
 			tgt:  'utility.validate', 
 			name: 'Validate'
 		}, function() {
-			cs.admin.utility.button_state('toggle', {
+			lense.admin.utility.button_state('toggle', {
 				act:  false, 
 				tgt:  'utility.save', 
 				name: 'Save'
@@ -132,14 +132,14 @@ cs.import('CSAdminUtilityDetails', function() {
 		// <input> elements
 		$('input[form="edit_utility"]').each(function(i,o) {
 			$(o).on('change', function() {
-				cs.admin.utility.changed();
+				lense.admin.utility.changed();
 			});
 		});
 		
 		// <select> elements
 		$('select[form="edit_utility"]').each(function(i,o) {
 			$(o).on('change', function() {
-				cs.admin.utility.changed();
+				lense.admin.utility.changed();
 			});
 		});
 	}
@@ -172,17 +172,17 @@ cs.import('CSAdminUtilityDetails', function() {
 		mode = 'ace/mode/json';
 		
 		// Create the editor instance
-		cs.admin.utility.window = ace.edit('edit_0');
-		cs.admin.utility.window.setTheme('ace/theme/chrome');
-		cs.admin.utility.window.getSession().setMode(mode);
-		cs.admin.utility.window.getSession().setUseWrapMode(true);
+		lense.admin.utility.window = ace.edit('edit_0');
+		lense.admin.utility.window.setTheme('ace/theme/chrome');
+		lense.admin.utility.window.getSession().setMode(mode);
+		lense.admin.utility.window.getSession().setUseWrapMode(true);
 		
 		// Set the editor contents
-		cs.admin.utility.window.setValue(JSON.stringify(cs.admin.utility.rmap, null, '\t'), -1);
+		lense.admin.utility.window.setValue(JSON.stringify(lense.admin.utility.rmap, null, '\t'), -1);
 		
 		// Detect if changes have been made and require validation
-		cs.admin.utility.window.on('change', function(e) {
-			cs.admin.utility.changed();
+		lense.admin.utility.window.on('change', function(e) {
+			lense.admin.utility.changed();
 		});
 	}
 	
@@ -213,13 +213,13 @@ cs.import('CSAdminUtilityDetails', function() {
 		if (defined(s) || s === false) {
 			
 			// Toggle readonly depending on the state
-			cs.admin.utility.window.setReadOnly((s === true) ? false : true);
+			lense.admin.utility.window.setReadOnly((s === true) ? false : true);
 			
 			// Set page elements
 			if (s === true) {
-				cs.admin.utility.lock(cs.api.client.params.user, function() {
-					cs.url.param_set('edit', 'yes');
-					$('.page_title').text(cs.admin.utility.name + ' - Edit Utility');
+				lense.admin.utility.lock(lense.api.client.params.user, function() {
+					lense.url.param_set('edit', 'yes');
+					$('.page_title').text(lense.admin.utility.name + ' - Edit Utility');
 					
 					// Enable form elements
 					$('input[form="edit_utility"]').each(function(i,o) {
@@ -230,9 +230,9 @@ cs.import('CSAdminUtilityDetails', function() {
 					});
 				});
 			} else {
-				cs.admin.utility.unlock(function() {
-					cs.url.param_set('edit', 'no');
-					$('.page_title').text(cs.admin.utility.name + ' - View Utility');
+				lense.admin.utility.unlock(function() {
+					lense.url.param_set('edit', 'no');
+					$('.page_title').text(lense.admin.utility.name + ' - View Utility');
 					
 					// Disable form elements
 					$('input[form="edit_utility"]').each(function(i,o) {
@@ -248,22 +248,22 @@ cs.import('CSAdminUtilityDetails', function() {
 		} else {
 			
 			// Look for the editing parameter
-			edit_param = cs.url.param_get('edit');
+			edit_param = lense.url.param_get('edit');
 			
 			// If the editing parameter is not set
 			if (!defined(edit_param)) {
-				if (cs.admin.utility.edit_state.locked == 'yes') {
-					if (cs.admin.utility.edit_state.locked_by == cs.api.client.params.user) {
-						cs.method['utility.open']({'uuid': cs.admin.utility.active()});
+				if (lense.admin.utility.edit_state.locked == 'yes') {
+					if (lense.admin.utility.edit_state.locked_by == lense.api.client.params.user) {
+						lense.method['utility.open']({'uuid': lense.admin.utility.active()});
 					}
 				} else { 
-					cs.admin.utility.state(false); 
+					lense.admin.utility.state(false); 
 				}
 			} else {
 				if (edit_param == 'yes') {
-					cs.method['utility.open']({'uuid': cs.admin.utility.active()});
+					lense.method['utility.open']({'uuid': lense.admin.utility.active()});
 				} else { 
-					cs.admin.utility.state(false); 
+					lense.admin.utility.state(false); 
 				}
 			}
 		}
@@ -274,8 +274,8 @@ cs.import('CSAdminUtilityDetails', function() {
 		$(window).on('beforeunload', function() {
 			
 			// If locked by the current user
-			if (cs.admin.utility.edit_state.locked == 'yes' && cs.admin.utility.edit_state.locked_by == cs.api.client.params.user) {
-				cs.method['utility.close_confirm']({'uuid': cs.admin.utility.active()});
+			if (lense.admin.utility.edit_state.locked == 'yes' && lense.admin.utility.edit_state.locked_by == lense.api.client.params.user) {
+				lense.method['utility.close_confirm']({'uuid': lense.admin.utility.active()});
 			}
 		});
 	}
@@ -288,7 +288,7 @@ cs.import('CSAdminUtilityDetails', function() {
 		// Request data
 		var data = {
 			rmap: (function() {
-				return cs.admin.utility.window.getSession().getValue().replace(/(\r\n|\n|\r|\t)/gm,"");
+				return lense.admin.utility.window.getSession().getValue().replace(/(\r\n|\n|\r|\t)/gm,"");
 			})()
 		};
 		
@@ -330,17 +330,17 @@ cs.import('CSAdminUtilityDetails', function() {
 	/**
 	 * Callback: Save Utility
 	 */
-	cs.register.callback('utility.save', function(c,m,d,a) {
+	lense.register.callback('utility.save', function(c,m,d,a) {
 		if (c == 200) {
 			$('input[type$="hidden"][name$="saved"]').val('yes');
 			$('.edit_menu_info').html('All utility changes saved');
-			cs.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.validate', 'name': 'Validate'}, function() {
-				cs.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.save', 'name': 'Save'});
+			lense.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.validate', 'name': 'Validate'}, function() {
+				lense.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.save', 'name': 'Save'});
 			});
 		} else {
 			$('input[type$="hidden"][name$="saved"]').val('no');
-			cs.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.validate', 'name': 'Validate'}, function() {
-				cs.admin.utility.button_state('toggle', {'act': true, 'tgt': 'utility.save', 'name': 'Save'});
+			lense.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.validate', 'name': 'Validate'}, function() {
+				lense.admin.utility.button_state('toggle', {'act': true, 'tgt': 'utility.save', 'name': 'Save'});
 			});
 		}
 	});
@@ -348,17 +348,17 @@ cs.import('CSAdminUtilityDetails', function() {
 	/**
 	 * Callback: Validate Utility
 	 */
-	cs.register.callback('utility.validate', function(c,m,d,a) {
+	lense.register.callback('utility.validate', function(c,m,d,a) {
 		if (c == 200) {
 			$('input[type$="hidden"][name$="validated"]').val('yes');
 			$('.edit_menu_info').html('All utility changes validated');
-			cs.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.validate', 'name': 'Validate'}, function() {
-				cs.admin.utility.button_state('toggle', {'act': true, 'tgt': 'utility.save', 'name': 'Save'});
+			lense.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.validate', 'name': 'Validate'}, function() {
+				lense.admin.utility.button_state('toggle', {'act': true, 'tgt': 'utility.save', 'name': 'Save'});
 			});
 		} else {
 			$('input[type$="hidden"][name$="validated"]').val('no');
-			cs.admin.utility.button_state('toggle', {'act': true, 'tgt': 'utility.validate', 'name': 'Validate'}, function() {
-				cs.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.save', 'name': 'Save'});
+			lense.admin.utility.button_state('toggle', {'act': true, 'tgt': 'utility.validate', 'name': 'Validate'}, function() {
+				lense.admin.utility.button_state('toggle', {'act': false, 'tgt': 'utility.save', 'name': 'Save'});
 			});
 		}
 	});
@@ -366,36 +366,36 @@ cs.import('CSAdminUtilityDetails', function() {
 	/**
 	 * Callback: Close Utility
 	 */
-	cs.register.callback('utility.close', function(c,m,d,a) {
+	lense.register.callback('utility.close', function(c,m,d,a) {
 		if (c == 200) {
-			cs.admin.utility.state(false);
-			window.location = '/admin?panel=utilities&utility=' + encodeURIComponent(cs.admin.utility.active());
+			lense.admin.utility.state(false);
+			window.location = '/admin?panel=utilities&utility=' + encodeURIComponent(lense.admin.utility.active());
 		} else {
-			cs.admin.utility.state(true);
+			lense.admin.utility.state(true);
 		}
 	});
 	
 	/**
 	 * Callback: Open Utility
 	 */
-	cs.register.callback('utility.open', function(c,m,d,a) {
+	lense.register.callback('utility.open', function(c,m,d,a) {
 		if (c == 200) {
-			cs.admin.utility.button_state('switch', {'src': 'utility.open', 'tgt': 'utility.close', 'name': 'Close'}, function() {
-				cs.admin.utility.state(true);
+			lense.admin.utility.button_state('switch', {'src': 'utility.open', 'tgt': 'utility.close', 'name': 'Close'}, function() {
+				lense.admin.utility.state(true);
 			});
 		} else {
-			cs.admin.utility.state(false);
+			lense.admin.utility.state(false);
 		}
 	});
 	
 	/**
 	 * Method: Save Utility
 	 */
-	cs.register.method('utility.save', function() {
-		cs.layout.loading(true, 'Saving utility changes...', function() {
-			cs.api.request.post({
+	lense.register.method('utility.save', function() {
+		lense.layout.loading(true, 'Saving utility changes...', function() {
+			lense.api.request.post({
 				path: 'gateway/utilities/save',
-				_data: cs.admin.utility.construct_request(),
+				_data: lense.admin.utility.construct_request(),
 				callback: {
 					id: 'utility.save'
 				}
@@ -406,11 +406,11 @@ cs.import('CSAdminUtilityDetails', function() {
 	/**
 	 * Method: Validate Utility
 	 */
-	cs.register.method('utility.validate', function() {
-		cs.layout.loading(true, 'Validating utility changes...', function() {
-			cs.api.request.post({
+	lense.register.method('utility.validate', function() {
+		lense.layout.loading(true, 'Validating utility changes...', function() {
+			lense.api.request.post({
 				path: 'gateway/utilities/validate',
-				_data: cs.admin.utility.construct_request(),
+				_data: lense.admin.utility.construct_request(),
 				callback: {
 					id: 'utility.validate'
 				}
@@ -421,19 +421,19 @@ cs.import('CSAdminUtilityDetails', function() {
 	/**
 	 * Method: Close Utility
 	 */
-	cs.register.method('utility.close', function() {
+	lense.register.method('utility.close', function() {
 		saved     = $('input[type$="hidden"][name$="saved"]').val();
 		validated = $('input[type$="hidden"][name$="validated"]').val();
 		
 		// If any unsaved or unvalidated changes are present
 		if (saved == 'no' || validated == 'no') {
-			cs.layout.popup_toggle(true, 'utility.close_confirm');
+			lense.layout.popup_toggle(true, 'utility.close_confirm');
 		} else {
-			cs.layout.loading(true, 'Closing edit mode for utility...', function() {
-				cs.api.request.get({
+			lense.layout.loading(true, 'Closing edit mode for utility...', function() {
+				lense.api.request.get({
 					path: 'gateway/utilities/close',
 					_data: {
-						uuid: cs.admin.utility.active()
+						uuid: lense.admin.utility.active()
 					},
 					callback: {
 						id: 'utility.close'
@@ -446,13 +446,13 @@ cs.import('CSAdminUtilityDetails', function() {
 	/**
 	 * Method: Confirm Close Utility
 	 */
-	cs.register.method('utility.close_confirm', function() {
-		cs.layout.popup_toggle(false, 'utility.close_confirm', false, function() {
-			cs.layout.loading(true, 'Closing edit mode for utility...', function() {
-				cs.api.request.get({
+	lense.register.method('utility.close_confirm', function() {
+		lense.layout.popup_toggle(false, 'utility.close_confirm', false, function() {
+			lense.layout.loading(true, 'Closing edit mode for utility...', function() {
+				lense.api.request.get({
 					path: 'gateway/utilities/close',
 					_data: {
-						uuid: cs.admin.utility.active()
+						uuid: lense.admin.utility.active()
 					},
 					callback: {
 						id: 'utility.close'
@@ -465,12 +465,12 @@ cs.import('CSAdminUtilityDetails', function() {
 	/**
 	 * Method: Open Utility
 	 */
-	cs.register.method('utility.open', function() {
-		cs.layout.loading(true, 'Opening utility for editing...', function() {
-			cs.api.request.get({
+	lense.register.method('utility.open', function() {
+		lense.layout.loading(true, 'Opening utility for editing...', function() {
+			lense.api.request.get({
 				path: 'gateway/utilities/open',
 				_data: {
-					uuid: cs.admin.utility.active()
+					uuid: lense.admin.utility.active()
 				},
 				callback: {
 					id: 'utility.open'

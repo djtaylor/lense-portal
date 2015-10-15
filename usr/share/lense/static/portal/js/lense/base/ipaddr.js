@@ -1,4 +1,4 @@
-cs.import('CSBaseIPAddr', function() {
+lense.import('LenseBaseIPAddr', function() {
 	
 	/**
 	 * IPv4 Utilities
@@ -57,7 +57,7 @@ cs.import('CSBaseIPAddr', function() {
 		      '255.255.255.255': 32, 
 		    }; 
 		    var results = $.map(reserved, function(m,i){ 
-		      return (cs.ipaddr.v4.number(i) & cs.ipaddr.v4.mask(m)) == (cs.ipaddr.v4.number(ip) & cs.ipaddr.v4.mask(m)); 
+		      return (lense.ipaddr.v4.number(i) & lense.ipaddr.v4.mask(m)) == (lense.ipaddr.v4.number(ip) & lense.ipaddr.v4.mask(m)); 
 		    });
 		    return (results.indexOf(true) > 0) ? true : false;
 		}

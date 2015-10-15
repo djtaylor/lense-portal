@@ -4,7 +4,7 @@
  * Store cached data from API requests to re-use in other JavaScript classes
  * and methods.
  */
-cs.import('CSAPICache', function() {
+lense.import('LenseAPICache', function() {
 	
 	// Cache containers
 	this.hosts     = [];
@@ -17,26 +17,26 @@ cs.import('CSAPICache', function() {
 	/**
 	 * Callback: Cache Utilities
 	 */
-	cs.register.callback('api.cache_utilities', function(c,m,d,a) {
-		if (cs.api.client.params.is_admin === true) {
-			cs.api.cache.utilities = m;
+	lense.register.callback('api.cache_utilities', function(c,m,d,a) {
+		if (lense.api.client.params.is_admin === true) {
+			lense.api.cache.utilities = m;
 		}
 	});
 	
 	/**
 	 * Callback: Cache ACLs
 	 */
-	cs.register.callback('api.cache_acls', function(c,m,d,a) {
-		if (cs.api.client.params.is_admin === true) {
-			cs.api.cache.acls = m;
+	lense.register.callback('api.cache_acls', function(c,m,d,a) {
+		if (lense.api.client.params.is_admin === true) {
+			lense.api.cache.acls = m;
 		}
 	});
 	
 	/**
 	 * Callback: Cache Groups
 	 */
-	cs.register.callback('api.cache_group', function(c,m,d,a) {
-		cs.api.cache.groups = m;
+	lense.register.callback('api.cache_group', function(c,m,d,a) {
+		lense.api.cache.groups = m;
 	});
 	
 	/**
@@ -62,7 +62,7 @@ cs.import('CSAPICache', function() {
 			 */
 			object: function(t) {
 				ret = {};
-				$.each(cs.api.cache.acls, function(i,o) {
+				$.each(lense.api.cache.acls, function(i,o) {
 					if (o.type_object === true) {
 						if (defined(t)) {
 							if ($.inArray(o.name, ret) == -1) {
@@ -73,7 +73,7 @@ cs.import('CSAPICache', function() {
 								};
 							}
 							$.each(o.endpoints.object, function(_i,e) {
-								ep = cs.api.cache.get.endpoints({uuid:e.endpoint_id});
+								ep = lense.api.cache.get.endpoints({uuid:e.endpoint_id});
 								if (defined(ep) && ep['object'] == t) {
 									ret[o.name].endpoints.push(ep);
 								}
@@ -101,7 +101,7 @@ cs.import('CSAPICache', function() {
 			 */
 			global: function(k) {
 				ret = {};
-				$.each(cs.api.cache.acls, function(i,o) {
+				$.each(lense.api.cache.acls, function(i,o) {
 					if (o.type_global) {
 						if (defined(k) && o.hasOwnProperty(k)) {
 							ret[o[k]] = o;
@@ -121,8 +121,8 @@ cs.import('CSAPICache', function() {
 			 */
 			host: function() {
 				ret = {};
-				if (cs.api.cache.acls.hasOwnProperty('host')) {
-					$.each(cs.api.cache.acls.host.defs, function(i,o) {
+				if (lense.api.cache.acls.hasOwnProperty('host')) {
+					$.each(lense.api.cache.acls.host.defs, function(i,o) {
 						ret[o.name] = o;
 					});
 				}
@@ -134,7 +134,7 @@ cs.import('CSAPICache', function() {
 		 * Utilities
 		 */
 		utilities: function(e) {
-			var ea = clone(cs.api.cache.utilities);
+			var ea = clone(lense.api.cache.utilities);
 			var ef = [];
 			$.each(ea, function(i,_e) {
 				var a = true;
@@ -156,7 +156,7 @@ cs.import('CSAPICache', function() {
 	 */
 	this.acl_uuid2name = function(a) {
 		var name = undefined;
-		$.each(cs.api.cache.acls, function(i,o) {
+		$.each(lense.api.cache.acls, function(i,o) {
 			if (o.uuid == a) {
 				name = o.name;
 				return false;
@@ -171,7 +171,7 @@ cs.import('CSAPICache', function() {
 	this.construct = function() {
 		
 		// Utilities
-		cs.api.request.get({
+		lense.api.request.get({
 			path:     'gateway/utilities',
 			action:   'get',
 			callback: {
@@ -180,7 +180,7 @@ cs.import('CSAPICache', function() {
 		});
 		
 		// ACLs
-		cs.api.request.get({
+		lense.api.request.get({
 			path:     'auth/acl',
 			action:   'get',
 			callback: {
@@ -189,7 +189,7 @@ cs.import('CSAPICache', function() {
 		});
 		
 		// Groups
-		cs.api.request.get({
+		lense.api.request.get({
 			path:     'group',
 			action:   'get',
 			callback: {

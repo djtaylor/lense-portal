@@ -1,20 +1,20 @@
-cs.import('CSAdminACLList', function() {
+lense.import('LenseAdminACLList', function() {
 	
 	/**
-	 * Intialize CSAdminACLList
+	 * Intialize LenseAdminACLList
 	 * @constructor
 	 */
 	this.__init__ = function() {
 		
 		// Document ready
 		$(document).ready(function() {
-			cs.admin.acl.bind();
-			cs.admin.acl.layout();
+			lense.admin.acl.bind();
+			lense.admin.acl.layout();
 		});
 		
 		// Window resize
 		$(window).resize(function() {
-			cs.admin.acl.layout();
+			lense.admin.acl.layout();
 		});
 	}
 	
@@ -50,7 +50,7 @@ cs.import('CSAdminACLList', function() {
 					u.push($(o).val());
 				}
 			});
-			cs.forms.set_field('input[type="hidden"][name="type"]', u.join(','));
+			lense.forms.set_field('input[type="hidden"][name="type"]', u.join(','));
 		});
 		
 		// Changes to the endpoints input
@@ -61,33 +61,33 @@ cs.import('CSAdminACLList', function() {
 					u.push($(o).val());
 				}
 			});
-			cs.forms.set_field('input[type="hidden"][name="endpoints"]', u.join(','));
+			lense.forms.set_field('input[type="hidden"][name="endpoints"]', u.join(','));
 		});
 	}
 	
 	/**
 	 * Callback: Create ACL
 	 */
-	cs.register.callback('acl.create', function(c,m,d,a) {
+	lense.register.callback('acl.create', function(c,m,d,a) {
 		console.log(d);
 	});
 	
 	/**
 	 * Callback: Delete ACL
 	 */
-	cs.register.callback('acl.delete', function(c,m,d,a) {
-		cs.layout.remove('div[type="row"][acl="' + d.uuid + '"]');
+	lense.register.callback('acl.delete', function(c,m,d,a) {
+		lense.layout.remove('div[type="row"][acl="' + d.uuid + '"]');
 	});
 	
 	/**
 	 * Method: Delete ACL
 	 */
-	cs.register.method('acl.delete', function() {
+	lense.register.method('acl.delete', function() {
 		var s = $('input[type="radio"][name="acl_uuid"]:checked').val();
 		if (defined(s)) {
-			cs.layout.popup_toggle(false, 'acl.delete', false, function() { 
-				cs.layout.loading(true, 'Deleting ACL...', function() {
-					cs.api.request.post({
+			lense.layout.popup_toggle(false, 'acl.delete', false, function() { 
+				lense.layout.loading(true, 'Deleting ACL...', function() {
+					lense.api.request.post({
 						path: 'gateway/acl',
 						action: 'delete',
 						_data: {

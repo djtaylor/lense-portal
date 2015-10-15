@@ -1,4 +1,4 @@
-var cs = (function() {
+var lense = (function() {
 	var self = {};
 	
 	// Modules container
@@ -10,7 +10,7 @@ var cs = (function() {
 	/**
 	 * Import Module
 	 * 
-	 * Import an included module into the Cloudscape namespace. This assumes that the parent
+	 * Import an included module into the Lense namespace. This assumes that the parent
 	 * namespace has already been initialized.
 	 * 
 	 * @param {n} The name of the module

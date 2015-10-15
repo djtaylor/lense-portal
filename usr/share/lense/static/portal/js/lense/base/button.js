@@ -1,9 +1,9 @@
 /**
- * CloudScape Base Button Class
+ * Lense Base Button Class
  * 
  * Class to handle button interaction.
  */
-cs.import('CSBaseButton', function() {
+lense.import('LenseBaseButton', function() {
 	
 	/**
 	 * Button Handler
@@ -54,15 +54,15 @@ cs.import('CSBaseButton', function() {
 			if (a.action == 'method') {
 				if (a.hasOwnProperty('require')) {
 					if (!defined($(a.require).val())) {
-						cs.layout.render('info', 'You must select an option from the list to run this action');
+						lense.layout.render('info', 'You must select an option from the list to run this action');
 						return false;
 					}
 				}
-				if (cs.method.hasOwnProperty(a.target)) {
+				if (lense.method.hasOwnProperty(a.target)) {
 					if (a.hasOwnProperty('arg')) { 
-						cs.method[a.target](a.arg); 
+						lense.method[a.target](a.arg); 
 					} else { 
-						cs.method[a.target](); 
+						lense.method[a.target](); 
 					}
 				} else {
 					throw new MethodNotFound(a.target);
@@ -73,26 +73,26 @@ cs.import('CSBaseButton', function() {
 			if (a.action == 'dropdown') {
 				$('div[type="toggle"][name="' + a.target + '"]').slideToggle('fast', function() {
 					$('div[type="dropdown"][target="' + a.target + '"]').attr('target', a.target).text(a.label);
-					cs.forms.set_field('input[type="hidden"][name="' + a.target + '"]', a.value);
+					lense.forms.set_field('input[type="hidden"][name="' + a.target + '"]', a.value);
 				});
 				
 				// If setting another hidden field
 				if (a.hasOwnProperty('set')) {
 					set_attr = a.set.split('=')
-					cs.forms.set_field('input[type="hidden"][name="' + set_attr[0] + '"]', set_attr[1]);
+					lense.forms.set_field('input[type="hidden"][name="' + set_attr[0] + '"]', set_attr[1]);
 				}
 			}
 			
 			// Submit Form
 			if (a.action == 'submit') { 
-				field_check = cs.forms.validate(a.target);
+				field_check = lense.forms.validate(a.target);
 				if (field_check === true) {
 					$(a.target).submit(); 
 				} else { 
-					cs.layout.show_response(true, { tgt: a.target, msg: 'Please fill in the required fields...' }, function() {
-						$.each(cs.forms.all[a.target.slice(1)]['inputs'], function(key, obj) {
+					lense.layout.show_response(true, { tgt: a.target, msg: 'Please fill in the required fields...' }, function() {
+						$.each(lense.forms.all[a.target.slice(1)]['inputs'], function(key, obj) {
 							if (obj.hasOwnProperty('required') && !defined(obj.value)) {
-								cs.forms.set_input(obj._parent, obj.name, undefined);
+								lense.forms.set_input(obj._parent, obj.name, undefined);
 							}
 						});
 					});
@@ -144,16 +144,16 @@ cs.import('CSBaseButton', function() {
 				// Look for a required input value
 				if (a.hasOwnProperty('require')) {
 					if (!defined($(a.require).val())) {
-						cs.layout.render('info', 'You must select an option from the list to run this action');
-					} else { cs.layout.popup_toggle(true, a.target, parent); }
-				} else { cs.layout.popup_toggle(true, a.target, parent); }
+						lense.layout.render('info', 'You must select an option from the list to run this action');
+					} else { lense.layout.popup_toggle(true, a.target, parent); }
+				} else { lense.layout.popup_toggle(true, a.target, parent); }
 			}
 			
 			// Page Link
 			if (a.action == 'link') { 
 				if (a.hasOwnProperty('require')) {
 					if (!defined($(a.require).val())) {
-						cs.layout.render('info', 'You must select an option from the list to run this action');
+						lense.layout.render('info', 'You must select an option from the list to run this action');
 						return false;
 					}
 				}
@@ -215,7 +215,7 @@ cs.import('CSBaseButton', function() {
 		$(document).on('click', 'input[type="radio"][action="update"]', function(e) {
 			a = get_attr(e);
 			if (a.hasOwnProperty('name')) {
-				cs.forms.set_field('input[type="hidden"][name="' + a.name + '"]', a.value);
+				lense.forms.set_field('input[type="hidden"][name="' + a.name + '"]', a.value);
 			}
 		});
 	}

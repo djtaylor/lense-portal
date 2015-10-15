@@ -1,20 +1,20 @@
-cs.import('CSAdminUtilitiesList', function() {
+lense.import('LenseAdminUtilitiesList', function() {
 	
 	/**
-	 * Initialize CSAdminUtilityList
+	 * Initialize LenseAdminUtilityList
 	 * @constructor
 	 */
 	this.__init__ = function() {
 
 		// Document ready
 		$(document).ready(function() {
-			cs.admin.utility.bind();
-			cs.admin.utility.layout();
+			lense.admin.utility.bind();
+			lense.admin.utility.layout();
 		});
 		
 		// Window resize
 		$(window).resize(function() {
-			cs.admin.utility.layout();
+			lense.admin.utility.layout();
 		});
 	}
 	
@@ -46,25 +46,25 @@ cs.import('CSAdminUtilitiesList', function() {
 		$('input[type="text"][name="mod_new"]').on('input', function() {
 			
 			// Update the hidden input
-			cs.forms.set_field('input[type="hidden"][name="mod"]', $(this).val());
+			lense.forms.set_field('input[type="hidden"][name="mod"]', $(this).val());
 		});
 		
 		// Changes to the method input
 		$('select[name="util_method"][form="create_utility"]').on('change', function() {
 			var s = $(this).find('option:selected');
-			cs.forms.set_field('input[type="hidden"][name="util_method"]', $(s).val());
+			lense.forms.set_field('input[type="hidden"][name="util_method"]', $(s).val());
 		});
 		
 		// Changes to the enabled input
 		$('select[name="enabled"][form="create_utility"]').on('change', function() {
 			var s = $(this).find('option:selected');
-			cs.forms.set_field('input[type="hidden"][name="enabled"]', $(s).val());
+			lense.forms.set_field('input[type="hidden"][name="enabled"]', $(s).val());
 		});
 		
 		// Changes to the protected input
 		$('select[name="protected"][form="create_utility"]').on('change', function() {
 			var s = $(this).find('option:selected');
-			cs.forms.set_field('input[type="hidden"][name="protected"]', $(s).val());
+			lense.forms.set_field('input[type="hidden"][name="protected"]', $(s).val());
 		});
 		
 		// Changes to the external utilities input
@@ -75,7 +75,7 @@ cs.import('CSAdminUtilitiesList', function() {
 					u.push($(o).val());
 				}
 			});
-			cs.forms.set_field('input[type="hidden"][name="utils"]', u.join(','));
+			lense.forms.set_field('input[type="hidden"][name="utils"]', u.join(','));
 		});
 		
 		// Select a module
@@ -87,7 +87,7 @@ cs.import('CSAdminUtilitiesList', function() {
 				
 				// Show the custom module text input
 				$('div[target="popup_new"]').fadeIn('fast', function() {
-					cs.forms.set_field('input[name="mod"][form="create_utility"]', '');
+					lense.forms.set_field('input[name="mod"][form="create_utility"]', '');
 				});
 				
 			} else {
@@ -96,7 +96,7 @@ cs.import('CSAdminUtilitiesList', function() {
 				$('div[target="popup_new"]').fadeOut('fast');
 				
 				// Update the hidden input
-				cs.forms.set_field('input[type="hidden"][name="mod"]', $(s).val());
+				lense.forms.set_field('input[type="hidden"][name="mod"]', $(s).val());
 			}
 		});
 	}
@@ -104,16 +104,16 @@ cs.import('CSAdminUtilitiesList', function() {
 	/**
 	 * Callback: Delete Utility
 	 */
-	cs.register.callback('utility.delete', function(c,m,d,a) {
-		cs.layout.remove('div[type="row"][utility="' + d.uuid + '"]');
+	lense.register.callback('utility.delete', function(c,m,d,a) {
+		lense.layout.remove('div[type="row"][utility="' + d.uuid + '"]');
 	});
 	
 	/**
 	 * Callback: Create Utility
 	 */
-	cs.register.callback('utility.create', function(c,m,d,a) {
+	lense.register.callback('utility.create', function(c,m,d,a) {
 		if (c == 200) {
-			$('div[type="rows"][target="utilities"]').prepend(cs.layout.create.element('div', {
+			$('div[type="rows"][target="utilities"]').prepend(lense.layout.create.element('div', {
 				css:  'table_row',
 				attr: {
 					type: 'row',
@@ -133,7 +133,7 @@ cs.import('CSAdminUtilitiesList', function() {
 						var c = [];
 						$.each(cols, function(i,o) {
 							if (o.col == 'util_name') {
-								c.push(cs.layout.create.element('div', {
+								c.push(lense.layout.create.element('div', {
 									css:  'table_col table_link',
 									attr: {
 										type: 'button',
@@ -144,7 +144,7 @@ cs.import('CSAdminUtilitiesList', function() {
 									text: d.name
 								}));
 							} else if (o.col == 'util_locked') {
-								c.push(cs.layout.create.element('div', {
+								c.push(lense.layout.create.element('div', {
 									css: 'table_col',
 									attr: {
 										col: o.col
@@ -152,9 +152,9 @@ cs.import('CSAdminUtilitiesList', function() {
 									text: ''
 								}));
 							} else if (o.col == 'select') {
-								c.push(cs.layout.create.element('div', {
+								c.push(lense.layout.create.element('div', {
 									css: 'table_select_col',
-									children: [cs.layout.create.element('input', {
+									children: [lense.layout.create.element('input', {
 										attr: {
 											type: 'radio',
 											name: 'utility_uuid',
@@ -164,7 +164,7 @@ cs.import('CSAdminUtilitiesList', function() {
 									})]
 								}));
 							} else {
-								c.push(cs.layout.create.element('div', {
+								c.push(lense.layout.create.element('div', {
 									css:  'table_col',
 									attr: {
 										col: o.col

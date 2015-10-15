@@ -1,7 +1,7 @@
-cs.import('CSAdminACLObjectsList', function() { 
+lense.import('LenseAdminACLObjectsList', function() { 
 	
 	/**
-	 * Initialize CSAdminACLObjectsList
+	 * Initialize LenseAdminACLObjectsList
 	 * @constructor
 	 */
 	this.__init__ = function() {}
@@ -9,9 +9,9 @@ cs.import('CSAdminACLObjectsList', function() {
 	/**
 	 * Callback: Create Object
 	 */
-	cs.register.callback('acl.create_object', function(c,m,d,a) {
+	lense.register.callback('acl.create_object', function(c,m,d,a) {
 		if (c == 200) {
-			$('div[type="rows"][target="acl_objects"]').append(cs.layout.create.element('div', {
+			$('div[type="rows"][target="acl_objects"]').append(lense.layout.create.element('div', {
 				css:  'table_row',
 				attr: {
 					type: 'row',
@@ -19,18 +19,17 @@ cs.import('CSAdminACLObjectsList', function() {
 					acl_object: d.type
 				},
 				children: [
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css: 'table_select_col',
-				    	children: [cs.layout.create.element('input', {
+				    	children: [lense.layout.create.element('input', {
 				    		attr: {
 				    			type:   'radio',
 				    			name:   'select_object',
-				    			value:  d.type,
 				    			action: 'update'
 				    		}
 				    	})]
 				    }),
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css:  'table_col table_link',
 				    	attr: {
 				    		col:    'ao_type',
@@ -41,14 +40,14 @@ cs.import('CSAdminACLObjectsList', function() {
 				    	},
 				    	text: d.type
 				    }),
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css:  'table_col',
 				    	attr: {
 				    		col: 'ao_name'
 				    	},
 				    	text: d.name
 				    }),
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css:  'table_col',
 				    	attr: {
 				    		col: 'ao_count'
@@ -59,14 +58,14 @@ cs.import('CSAdminACLObjectsList', function() {
 			}));
 			
 			// Refresh the layout
-			cs.layout.refresh();
+			lense.layout.refresh();
 		}
 	});
 	
 	/**
 	 * Method: Create Object
 	 */
-	cs.register.method('acl.create_object', function() {
+	lense.register.method('acl.create_object', function() {
 		
 		// Request data
 		data = {};
@@ -84,8 +83,8 @@ cs.import('CSAdminACLObjectsList', function() {
 		}
 		
 		// Submit the API request
-		cs.layout.popup_toggle(false, 'acl.create_object', false, function() {
-			cs.api.request.post({
+		lense.layout.popup_toggle(false, 'acl.create_object', false, function() {
+			lense.api.request.post({
 				path:     'gateway/acl/objects',
 				action:   'create',
 				callback: {
@@ -99,29 +98,29 @@ cs.import('CSAdminACLObjectsList', function() {
 	/**
 	 * Callback: Delete Object
 	 */
-	cs.register.callback('acl.delete_object', function(c,m,d,a) {
+	lense.register.callback('acl.delete_object', function(c,m,d,a) {
 		if (c == 200) {
 			
 			// Reset the hidden input
 			$('input[type="hidden"][name="select_object"]').val('');
 			
 			// Remove the ACL object row
-			cs.layout.remove('div[type="row"][target="acl_object"][acl_object="' + d.type + '"]');
+			lense.layout.remove('div[type="row"][target="acl_object"][acl_object="' + d.type + '"]');
 		}
 	});
 	
 	/**
 	 * Method: Delete Object
 	 */
-	cs.register.method('acl.delete_object', function() {
+	lense.register.method('acl.delete_object', function() {
 		
 		// Get the selected object
 		var s = $('input[type="hidden"][name="select_object"]').val();
 		if (defined(s)) {
 		
 			// Submit the API request
-			cs.layout.popup_toggle(false, 'acl.delete_object', false, function() {
-				cs.api.request.post({
+			lense.layout.popup_toggle(false, 'acl.delete_object', false, function() {
+				lense.api.request.post({
 					path:     'gateway/acl/objects',
 					action:   'delete',
 					callback: {

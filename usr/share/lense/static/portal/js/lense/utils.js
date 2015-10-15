@@ -121,7 +121,7 @@ function include(m,f,c) {
 		// Create the script container
 		var div = document.createElement('script');
 		div.setAttribute('type', 'text/javascript');
-		div.setAttribute('src', '/static/js/cloudscape/' + f);
+		div.setAttribute('src', '/static/js/lense/' + f);
 		
 		// Get the parent container and prepend
 		document.getElementById(container).appendChild(div);
@@ -129,7 +129,7 @@ function include(m,f,c) {
 	
 	// Include modules
 	$.each(m, function(n,p) {
-		cs.includes[n] = false;
+		lense.includes[n] = false;
 		append(p);
 	});
 	

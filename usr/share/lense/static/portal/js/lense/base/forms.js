@@ -1,9 +1,9 @@
 /**
- * CloudScape Base Forms Class
+ * Lense Base Forms Class
  * 
  * Class to handle parsing, validating, and modifying form data in the DOM.
  */
-cs.import('CSBaseForms', function() {
+lense.import('LenseBaseForms', function() {
 	
 	// Forms container
 	this.all = {};
@@ -22,7 +22,7 @@ cs.import('CSBaseForms', function() {
 		 */
 		input_hidden: function(a) {
 			a.type = 'hidden';
-			return cs.layout.html($('<input/>').attr(a));
+			return lense.layout.html($('<input/>').attr(a));
 		},
 		
 		/**
@@ -58,7 +58,7 @@ cs.import('CSBaseForms', function() {
 			$.each(p.items, function(k,v) {
 				
 				// Create the option element
-				dd_items.push(cs.layout.create.element('option', {
+				dd_items.push(lense.layout.create.element('option', {
 					css:  css.option,
 					attr: {
 						value: p.label
@@ -67,7 +67,7 @@ cs.import('CSBaseForms', function() {
 				}));
 				
 				// Create the div element
-				dd_items.push(cs.layout.create.element('div', {
+				dd_items.push(lense.layout.create.element('div', {
 					css:  'dropdown_item',
 					attr: {
 						type:   'button',
@@ -81,20 +81,20 @@ cs.import('CSBaseForms', function() {
 			});
 			
 			// Construct and return the dropdown menu
-			return cs.layout.create.element('div', {
+			return lense.layout.create.element('div', {
 				css:  css.field,
 				attr: { 
 					name: p.name,
 				},
 				children: [
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css:  css.label,
 				    	text: p.label
 				    }),
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css: css.input,
 				    	children: [
-				    	    cs.layout.create.element('div', {
+				    	    lense.layout.create.element('div', {
 				    	    	css:  'dropdown_menu',
 				    	    	attr: {
 				    	    		type:   'dropdown',
@@ -102,10 +102,10 @@ cs.import('CSBaseForms', function() {
 				    				name:   p.name
 				    	    	},
 				    	    	children: [
-				    	    	    cs.layout.create.element('div', {
+				    	    	    lense.layout.create.element('div', {
 				    	    	    	css: 'dropdown_action',
 				    	    	    	children: [
-				    	    	    	    cs.layout.create.element('div', {
+				    	    	    	    lense.layout.create.element('div', {
 				    	    	    	    	css:  'dropdown_button',
 				    	    	    	    	attr: {
 				    	    	    	    		type:   'button',
@@ -113,7 +113,7 @@ cs.import('CSBaseForms', function() {
 				    	    				    	target: p.name
 				    	    	    	    	}
 				    	    	    	    }),
-				    	    	    	    cs.layout.create.element('div', {
+				    	    	    	    lense.layout.create.element('div', {
 				    	    	    	    	css:  'dropdown_value',
 				    	    	    	    	attr: {
 				    	    	    	    		type:   'dropdown',
@@ -123,7 +123,7 @@ cs.import('CSBaseForms', function() {
 				    	    	    	    })
 				    	    	    	]
 				    	    	    }),
-				    	    	    cs.layout.create.element('div', {
+				    	    	    lense.layout.create.element('div', {
 				    	    	    	css:  css.icon,
 				    	    	    	attr: {
 				    	    	    		type: 'icon',
@@ -133,7 +133,7 @@ cs.import('CSBaseForms', function() {
 				    	    	    })
 				    	    	]
 				    	    }),
-				    	    cs.layout.create.element('div', {
+				    	    lense.layout.create.element('div', {
 				    	    	css:  'dropdown_items',
 				    	    	attr: {
 				    				type: 'toggle',
@@ -141,7 +141,7 @@ cs.import('CSBaseForms', function() {
 				    			},
 				    			children: dd_items
 				    	    }),
-				    	    cs.forms.create.input_hidden({
+				    	    lense.forms.create.input_hidden({
 				    	    	type:  'hidden',
 			    				form:  p.form,
 			    				name:  p.name,
@@ -173,15 +173,15 @@ cs.import('CSBaseForms', function() {
 	 */
 	this.validate_input = function(e) {
 		o = get_attr($(e));
-		p = cs.forms.parent(e);
+		p = lense.forms.parent(e);
 		if (o.hasOwnProperty('validate') && defined(o['validate'])) {
-			v = cs.forms.all[p]['inputs'][o.name]['value'];
+			v = lense.forms.all[p]['inputs'][o.name]['value'];
 			
 			// If an additional argument is supplied
 			if (o.hasOwnProperty('arg')) {
-				return (cs.validate[o.validate](v,o.arg)) ? true : false;
+				return (lense.validate[o.validate](v,o.arg)) ? true : false;
 			} else {
-				return (cs.validate[o.validate](v)) ? true : false;
+				return (lense.validate[o.validate](v)) ? true : false;
 			}
 		} else { return true; }
 	}
@@ -217,8 +217,8 @@ cs.import('CSBaseForms', function() {
 		$(t).replaceWith(c);
 		
 		// Update the forms object
-		cs.forms.all[p]['inputs'][n]['_error'] = e;
-		cs.forms.all[p]['inputs'][n]['value']  = v;
+		lense.forms.all[p]['inputs'][n]['_error'] = e;
+		lense.forms.all[p]['inputs'][n]['value']  = v;
 	}
 	
 	/**
@@ -228,7 +228,7 @@ cs.import('CSBaseForms', function() {
 	 * an HTML form. Filter tags must be defined inside the 'form' block which defines
 	 * the API request parameters.
 	 * 
-	 * EXAMPLE: data = cs.forms.filter('add_host', 'api_data', data);
+	 * EXAMPLE: data = lense.forms.filter('add_host', 'api_data', data);
 	 * 
 	 * @param {f} The identifier string for the form
 	 * @param {t} The filter type attribute value
@@ -273,13 +273,13 @@ cs.import('CSBaseForms', function() {
 		// Check each form on the page
 		$.each($('form'), function(index, form) {
 			inputs = $(form).find('input');
-			cs.forms.all[form.id] = {'id': form.id, 'inputs': {}};
+			lense.forms.all[form.id] = {'id': form.id, 'inputs': {}};
 			$.each(inputs, function(index, input) {
 				a = get_attr(input);
 				disabled = (a.hasOwnProperty('disabled')) ? true: false;
-				cs.forms.all[form.id]['inputs'][a.name] = {'_error': false, '_parent': form.id, '_disabled': disabled};
+				lense.forms.all[form.id]['inputs'][a.name] = {'_error': false, '_parent': form.id, '_disabled': disabled};
 				$.each(a, function(key, value) {
-					cs.forms.all[form.id]['inputs'][a.name][key] = value;
+					lense.forms.all[form.id]['inputs'][a.name][key] = value;
 				});
 				
 				// Skip hidden and non-validating elements
@@ -294,26 +294,26 @@ cs.import('CSBaseForms', function() {
 					if (a.type == 'text' || a.type == 'password' || a.type == 'hidden' || a.type == 'radio') {
 						$(input).on('input', function() {
 							v = $(this).val();
-							p = cs.forms.parent(this);
+							p = lense.forms.parent(this);
 							if (!defined($.trim(v))) {
-								cs.layout.show_response(true, { tgt: p, msg: 'Please fill out the required fields...' }, function() {
-									cs.forms.set_input(p,input.name, undefined, false);
+								lense.layout.show_response(true, { tgt: p, msg: 'Please fill out the required fields...' }, function() {
+									lense.forms.set_input(p,input.name, undefined, false);
 								});
 							} else {
-								cs.forms.all[p]['inputs'][input.name]['value'] = v;
-								if (cs.forms.validate_input(input)) {
-									cs.forms.set_input(p,input.name, v, true);
+								lense.forms.all[p]['inputs'][input.name]['value'] = v;
+								if (lense.forms.validate_input(input)) {
+									lense.forms.set_input(p,input.name, v, true);
 									required_set = true;
-									$.each(cs.forms.all[p]['inputs'], function(key, value) {
+									$.each(lense.forms.all[p]['inputs'], function(key, value) {
 										if (value._error === true) {
 											required_set = false;
 										}
 									});
 									if (required_set === true) {
-										cs.layout.show_response(false, { tgt: p });
+										lense.layout.show_response(false, { tgt: p });
 									}
 								} else {
-									cs.forms.set_input(p,input.name, v, false);
+									lense.forms.set_input(p,input.name, v, false);
 								}
 							}
 						});
@@ -336,37 +336,37 @@ cs.import('CSBaseForms', function() {
 			$.each($(id).find('input'), function(index, obj) {
 				var e = $(obj)[0],
 					a = get_attr(e),
-					p = cs.forms.parent(e);
+					p = lense.forms.parent(e);
 				
 				// Get the input type
-				type = cs.forms.all[p]['inputs'][a.name]['type'];
+				type = lense.forms.all[p]['inputs'][a.name]['type'];
 				
 				// Radio group value
 				if (type == 'radio') {
 					val = $('input[type$="radio"][form$="' + p + '"][name$="' + a.name + '"]:checked').val();
-					cs.forms.all[p]['inputs'][a.name]['value'] = val;
+					lense.forms.all[p]['inputs'][a.name]['value'] = val;
 					
 				// Default input value
 				} else {
-					cs.forms.all[p]['inputs'][a.name]['value'] = $(e).val();
+					lense.forms.all[p]['inputs'][a.name]['value'] = $(e).val();
 				}
 				
 				// Make sure required elements are set
 				if (a.hasOwnProperty('required')) {
-					if (! cs.forms.all[p]['inputs'][a.name]['_disabled'] === true) {
-						if (!defined(cs.forms.all[p]['inputs'][a.name]['value'])) {
+					if (! lense.forms.all[p]['inputs'][a.name]['_disabled'] === true) {
+						if (!defined(lense.forms.all[p]['inputs'][a.name]['value'])) {
 							_error = a.name;
 						}
 					}
 				}
 				
 				// If the field is in an error state
-				if (cs.forms.all[p]['inputs'][a.name]['_error']) {
+				if (lense.forms.all[p]['inputs'][a.name]['_error']) {
 					_error = a.name;
 				}
 				
 				// Validate the input
-				if (! cs.forms.validate_input(e)) {
+				if (! lense.forms.validate_input(e)) {
 					_error = a.name;
 				}
 			});

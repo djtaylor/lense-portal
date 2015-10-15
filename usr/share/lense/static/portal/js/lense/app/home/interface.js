@@ -1,7 +1,7 @@
-cs.import('CSHomeInterface', function() {
+lense.import('LenseHomeInterface', function() {
 	
 	/**
-	 * Initialize CSHome
+	 * Initialize LenseHome
 	 * @constructor
 	 */
 	this.__init__ = function() {

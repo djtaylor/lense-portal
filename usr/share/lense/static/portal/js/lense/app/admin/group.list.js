@@ -1,11 +1,11 @@
-cs.import('CSAdminGroupsList', function() {
+lense.import('LenseAdminGroupsList', function() {
 	
 	/**
 	 * Callback: Create Group
 	 */
-	cs.register.callback('group.create', function(c,m,d,a) {
+	lense.register.callback('group.create', function(c,m,d,a) {
 		if (c == 200) {
-			$('div[type="rows"][target="groups"]').append(cs.layout.create.element('div', {
+			$('div[type="rows"][target="groups"]').append(lense.layout.create.element('div', {
 				css:  'table_row',
 				attr: {
 					type:   'row',
@@ -13,9 +13,9 @@ cs.import('CSAdminGroupsList', function() {
 					group:  d.uuid
 				},
 				children: [
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css: 'table_select_col',
-				    	children: [cs.layout.create.element('input', {
+				    	children: [lense.layout.create.element('input', {
 				    		attr: {
 				    			type:   'radio',
 				    			name:   'select_group',
@@ -24,7 +24,7 @@ cs.import('CSAdminGroupsList', function() {
 				    		}
 				    	})]
 				    }),
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css:  'table_col table_link',
 				    	attr: {
 				    		col:    'group_name',
@@ -34,14 +34,14 @@ cs.import('CSAdminGroupsList', function() {
 				    	},
 				    	text: d.name
 				    }),
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css:  'table_col',
 				    	attr: {
 				    		col: 'group_desc'
 				    	},
 				    	text: d.desc
 				    }),
-				    cs.layout.create.element('div', {
+				    lense.layout.create.element('div', {
 				    	css:  'table_col',
 				    	attr: {
 				    		col: 'group_protected'
@@ -53,13 +53,13 @@ cs.import('CSAdminGroupsList', function() {
 		}
 		
 		// Refresh the layout
-		cs.layout.refresh();
+		lense.layout.refresh();
 	});
 	
 	/**
 	 * Method: Create Group
 	 */
-	cs.register.method('group.create', function() {
+	lense.register.method('group.create', function() {
 		
 		// Load the request data
 		data = {};
@@ -72,9 +72,9 @@ cs.import('CSAdminGroupsList', function() {
 		data['protected'] = ($('select[form="create_group"][name="protected"]').val() === 'true') ? true : false;
 		
 		// Submit the API request
-		cs.layout.popup_toggle(false, 'group.create', false, function() { 
-			cs.layout.loading(true, 'Creating API user group...', function() { 
-				cs.api.request.post({
+		lense.layout.popup_toggle(false, 'group.create', false, function() { 
+			lense.layout.loading(true, 'Creating API user group...', function() { 
+				lense.api.request.post({
 					path:   'group',
 					action: 'create',
 					_data:  data,
@@ -89,22 +89,22 @@ cs.import('CSAdminGroupsList', function() {
 	/**
 	 * Callback: Delete Group
 	 */
-	cs.register.callback('group.delete', function(c,m,d,a) {
+	lense.register.callback('group.delete', function(c,m,d,a) {
 		if (c == 200) {
 			$('input[type="hidden"][name="select_group"]').val('');
-			cs.layout.remove('div[target="groups"][group="' + d.uuid + '"]');
+			lense.layout.remove('div[target="groups"][group="' + d.uuid + '"]');
 		}
 	});
 	
 	/**
 	 * Method: Delete Group
 	 */
-	cs.register.method('group.delete', function() {
+	lense.register.method('group.delete', function() {
 		var group = $('input[type="hidden"][name="select_group"]').val();
 		if (defined(group)) {
-			cs.layout.popup_toggle(false, 'group.delete', false, function() { 
-				cs.layout.loading(true, 'Deleting API user group...', function() { 
-					cs.api.request.post({
+			lense.layout.popup_toggle(false, 'group.delete', false, function() { 
+				lense.layout.loading(true, 'Deleting API user group...', function() { 
+					lense.api.request.post({
 						path:   'group',
 						action: 'delete',
 						_data:  {

@@ -2,9 +2,9 @@
  * API Client
  * 
  * API object designed to handle establishing the initial connection with
- * the CloudScape API server.
+ * the Lense API server.
  */
-cs.import('CSAPIClient', function() {
+lense.import('LenseAPIClient', function() {
 	
 	// Class attributes
 	this.params, this.room, this.io;
@@ -15,13 +15,13 @@ cs.import('CSAPIClient', function() {
 	this.connect = function() {
 		
 		// API connection parameters
-		cs.api.client.params = cs.api.client.load_params();
+		lense.api.client.params = lense.api.client.load_params();
 		
 		// Client room
-		cs.api.client.room   = cs.api.client.params.user + ':' + cs.api.client.params.session;
+		lense.api.client.room   = lense.api.client.params.user + ':' + lense.api.client.params.session;
 		
 		// Establish API connection
-		cs.api.client.io     = cs.api.client.io_connect();
+		lense.api.client.io     = lense.api.client.io_connect();
 	}
 	
 	/**
@@ -67,16 +67,16 @@ cs.import('CSAPIClient', function() {
 		// state, which quickly uses up all the available file descriptors.
 		function options() {
 			return {
-				secure: (cs.api.client.params.proto == 'https') ? true : false,
+				secure: (lense.api.client.params.proto == 'https') ? true : false,
 				transports: ['xhr-polling', 'jsonp-polling']
 			};
 		}
 		
 		// Make sure all required parameters are defined
-		if (cs.api.client.params === false) { return false; } 
+		if (lense.api.client.params === false) { return false; } 
 		
 		// Open socket connection
-		io_connection = io.connect(cs.api.client.params.url, options())
+		io_connection = io.connect(lense.api.client.params.url, options())
 		
 		// Error creating socket connection
 		io_connection.on('error', function(e) { return false; });
@@ -85,7 +85,7 @@ cs.import('CSAPIClient', function() {
 		io_connection.on('connect_failed', function(e) { return false; });
 		
 		// Join the user to their own room
-		io_connection.emit('join', { room: cs.api.client.room });
+		io_connection.emit('join', { room: lense.api.client.room });
 		
 		// Return the connection object
 		return io_connection;

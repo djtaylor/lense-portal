@@ -1,27 +1,26 @@
 /**
- * CloudScape Base Interface Class
+ * Lense Base Interface Class
  * 
- * Base JavaScript class for the CloudScape dashbaord. This library is shard between
+ * Base JavaScript class for the Lense dashbaord. This library is shard between
  * all pages and provides common functionality, such as URL parsing and message rendering.
  */
-cs.import('CSBaseInterface', function() {
+lense.import('LenseBaseInterface', function() {
 	
 	/**
-	 * Initialize CSBaseInterface
+	 * Initialize LenseBaseInterface
 	 * @constructor
 	 */
 	this.__init__ = function() {
 		
 		// Load modules
-		cs.implement('CSBaseURL', 'url');
-		cs.implement('CSBaseForms', 'forms');
-		cs.implement('CSBaseButton', 'button');
-		cs.implement('CSBaseLayout', 'layout');
-		cs.implement('CSBaseValidate', 'validate');
-		cs.implement('CSBaseRegister', 'register');
-		cs.implement('CSBaseD3', 'd3');
-		cs.implement('CSBaseIPAddr', 'ipaddr');
-		cs.implement('CSBaseFinder', 'finder');
+		lense.implement('LenseBaseURL', 'url');
+		lense.implement('LenseBaseForms', 'forms');
+		lense.implement('LenseBaseButton', 'button');
+		lense.implement('LenseBaseLayout', 'layout');
+		lense.implement('LenseBaseValidate', 'validate');
+		lense.implement('LenseBaseRegister', 'register');
+		lense.implement('LenseBaseIPAddr', 'ipaddr');
+		lense.implement('LenseBaseFinder', 'finder');
 		
 		// Centered elements
 		centered = ['.popups_container', '.loading_content'];
@@ -30,30 +29,30 @@ cs.import('CSBaseInterface', function() {
 		$(document).ready(function() {
 			
 			// Parse the URL and load any rendered forms
-			cs.url.parse();
-			cs.forms.load();
+			lense.url.parse();
+			lense.forms.load();
 			
 			// Refresh the page layout
-			cs.layout.refresh({
+			lense.layout.refresh({
 				center: centered
 			});
 			
 			// Elements finished loading
-			cs.layout.complete();
+			lense.layout.complete();
 			
 			// Initialize the button handler
-			cs.button.handler();
+			lense.button.handler();
 		});
 		
 		// Window resize
 		$(window).resize(function() {
-			cs.layout.refresh({
+			lense.layout.refresh({
 				center: centered
 			});
 		});
 		
 		// Bind actions
-		cs.base.bind();
+		lense.base.bind();
 	}
 	
 	/**
@@ -83,8 +82,8 @@ cs.import('CSBaseInterface', function() {
 			var group = $(this).val();
 			
 			// If actually changing groups
-			if (group != cs.api.client.params.group) {
-				cs.layout.loading(true, 'Switching active group...', function() {
+			if (group != lense.api.client.params.group) {
+				lense.layout.loading(true, 'Switching active group...', function() {
 					$('#change_group_form').submit();
 				});
 			}

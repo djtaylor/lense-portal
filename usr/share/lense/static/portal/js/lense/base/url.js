@@ -1,9 +1,9 @@
 /**
- * CSBaseURL
+ * LenseBaseURL
  * 
  * Module used to parse and update URL query parameters.
  */
-cs.import('CSBaseURL', function() {
+lense.import('LenseBaseURL', function() {
 	
 	/**
 	 * Parse URL
@@ -20,22 +20,22 @@ cs.import('CSBaseURL', function() {
 		};
 		
 		// Check if the status and msg parameters are both set and render the message
-		var status_val = cs.url.param_get('status');
-		var msg_val    = cs.url.param_get('body');
+		var status_val = lense.url.param_get('status');
+		var msg_val    = lense.url.param_get('body');
 		if (status_val !== null && msg_val !== null) {
-			cs.layout.render(status_val, msg_val)
+			lense.layout.render(status_val, msg_val)
 		}
 		
 		// Object notification parameters
 		url_objects.notify.forEach(function(notify) {
-			var notify_param = cs.url.param_get(notify);
+			var notify_param = lense.url.param_get(notify);
 			if (notify_param !== null) {
 				var current_url = window.location.pathname;
 				var base_url    = window.location.href.match(/^[^\#\?]+/)[0];
 				var base_sep	= '?'
 				var new_url     = base_url;
 				url_objects.persistent.forEach(function(param_type) {
-					var param_val = cs.url.param_get(param_type);
+					var param_val = lense.url.param_get(param_type);
 					if (param_val !== null) {
 						new_url = new_url + base_sep + param_type + '=' + param_val;
 					}

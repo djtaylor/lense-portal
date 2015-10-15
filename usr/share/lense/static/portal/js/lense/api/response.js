@@ -3,7 +3,7 @@
  * 
  * Object designed to handle response from the API proxy server.
  */
-cs.import('CSAPIResponse', function() {
+lense.import('LenseAPIResponse', function() {
 	
 	/**
 	 * Proxy Response Handler
@@ -21,7 +21,7 @@ cs.import('CSAPIResponse', function() {
 				
 				// Render loading message
 				if (response.type == 'loading') { 
-					cs.layout.loading('update', response.content); 
+					lense.layout.loading('update', response.content); 
 				}
 				
 			// Catch exceptions
@@ -39,8 +39,8 @@ cs.import('CSAPIResponse', function() {
 				
 				// If an error response was returned
 				if (content.hasOwnProperty('error')) {
-					cs.layout.loading(false, content.error, function() {
-						cs.layout.render('error', content.error.replace('<', '"').replace('"'));
+					lense.layout.loading(false, content.error, function() {
+						lense.layout.render('error', content.error.replace('<', '"').replace('"'));
 						return false;
 					});
 					
@@ -57,25 +57,25 @@ cs.import('CSAPIResponse', function() {
 						if (content.hasOwnProperty('callback')) {
 							if (content.callback.hasOwnProperty('silent')) {
 								if (content.callback.silent === false) {
-									cs.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
+									lense.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
 								} else {
 									if (response.type == 'error' || response.type == 'warn' || response.type == 'fatal') {
-										cs.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
+										lense.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
 									}
 								}
 							} else {
-								cs.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
+								lense.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
 							}
 						} else {
-							cs.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
+							lense.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
 						}
 					}
 					
 					// Run the callback method
 					if ((content.hasOwnProperty('callback')) && (content.callback !== false)) {
-						cs.layout.loading(false, 'Received successful API response...', function() {
-							if (cs.callback.hasOwnProperty(content.callback.id)) {
-								return cs.callback[content.callback.id](response.code, content.msg, content._data, content.callback.args);
+						lense.layout.loading(false, 'Received successful API response...', function() {
+							if (lense.callback.hasOwnProperty(content.callback.id)) {
+								return lense.callback[content.callback.id](response.code, content.msg, content._data, content.callback.args);
 							} else {
 								throw new CallbackNotFound(content.callback.id);
 							}
@@ -86,7 +86,7 @@ cs.import('CSAPIResponse', function() {
 			// Catch all for API response handling errors
 			} catch (e) {
 				console.log(e.stack);
-				cs.layout.loading(false, null, function() {
+				lense.layout.loading(false, null, function() {
 					return false;
 				});
 			}

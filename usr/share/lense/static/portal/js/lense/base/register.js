@@ -1,25 +1,25 @@
 /**
- * CloudScape Method Registration
+ * Lense Method Registration
  */
-cs.import('CSBaseRegister', function() {
+lense.import('LenseBaseRegister', function() {
 	
 	/**
 	 * Register Callback
 	 */
 	this.callback = function(n,m) {
-		if (!cs.hasOwnProperty('callback')) {
-			cs.callback = {};
+		if (!lense.hasOwnProperty('callback')) {
+			lense.callback = {};
 		}
-		cs.callback[n] = m;
+		lense.callback[n] = m;
 	}
 	
 	/**
 	 * Register Method
 	 */
 	this.method = function(n,m) {
-		if (!cs.hasOwnProperty('method')) {
-			cs.method = {};
+		if (!lense.hasOwnProperty('method')) {
+			lense.method = {};
 		}
-		cs.method[n] = m;
+		lense.method[n] = m;
 	}
 });

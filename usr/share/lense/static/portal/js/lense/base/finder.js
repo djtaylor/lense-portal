@@ -1,4 +1,4 @@
-cs.import('CSBaseFinder', function() { 
+lense.import('LenseBaseFinder', function() { 
 	
 	// Key codes
 	this.keycode = {
@@ -30,24 +30,24 @@ cs.import('CSBaseFinder', function() {
 	};
 	
 	/**
-	 * Initialize CSBaseFinder
+	 * Initialize LenseBaseFinder
 	 * @constructor
 	 */
 	this.__init__ = function() {
-		cs.finder.bind();
+		lense.finder.bind();
 	}
 	
 	/**
 	 * Callback: Finder Results
 	 */
-	cs.register.callback('finder.results', function(c,m,d,a) {
+	lense.register.callback('finder.results', function(c,m,d,a) {
 		if (c == 200) {
 			
 			// Remove old results
 			$('.finder_content').html('');
 			
 			// Reset the focus index
-			cs.finder.index.focus = 1;
+			lense.finder.index.focus = 1;
 			
 			// If any results returned
 			if (m instanceof Array && m.length > 0) {
@@ -64,19 +64,19 @@ cs.import('CSBaseFinder', function() {
 				// Construct each object type group
 				var _i = 1;
 				$.each(r, function(t,o) {
-					$('.finder_content').append(cs.layout.create.element('div', {
+					$('.finder_content').append(lense.layout.create.element('div', {
 						css: 'finder_result_group',
 						children: [
-						    cs.layout.create.element('div', {
+						    lense.layout.create.element('div', {
 						    	css: 'finder_result_type',
-						    	text: cs.finder.otype_labels[t]
+						    	text: lense.finder.otype_labels[t]
 						    }),
-						    cs.layout.create.element('div', {
+						    lense.layout.create.element('div', {
 						    	css: 'finder_result_rows',
 						    	children: (function() {
 						    		var c = [];
 						    		$.each(o, function(i,_o) {
-						    			c.push(cs.layout.create.element('div', {
+						    			c.push(lense.layout.create.element('div', {
 											css: 'finder_result_row',
 											attr: {
 												index: _i,
@@ -107,7 +107,7 @@ cs.import('CSBaseFinder', function() {
 	 * Search Index
 	 */
 	this.search = function(t) {
-		cs.api.request.get({
+		lense.api.request.get({
 			path: 'cluster',
 			action: 'search',
 			_data: {
@@ -151,7 +151,7 @@ cs.import('CSBaseFinder', function() {
 			$('.finder_result_row').removeAttr('focus');
 			
 			// Reset the focus index
-			cs.finder.index.focus = 1;
+			lense.finder.index.focus = 1;
 		});
 		
 		// Toggle through finder results
@@ -161,8 +161,8 @@ cs.import('CSBaseFinder', function() {
 			var v = $('#finder').val();
 			
 			// Look for finder shortcuts
-			if (e.keyCode == cs.finder.keycode.enter && v in cs.finder.shortcuts) {
-				window.location = cs.finder.shortcuts[v];
+			if (e.keyCode == lense.finder.keycode.enter && v in lense.finder.shortcuts) {
+				window.location = lense.finder.shortcuts[v];
 			}
 			
 			// Only handle keypresses if results are shown
@@ -178,11 +178,11 @@ cs.import('CSBaseFinder', function() {
 				var f = $('.finder_result_row[focus]');
 				
 				// Enter
-				if (e.keyCode == cs.finder.keycode.enter) {
+				if (e.keyCode == lense.finder.keycode.enter) {
 					
 					// Load the focused result
 					if (f.length > 0) {
-						$('.finder_result_row[index="' + cs.finder.index.focus + '"]').animate({
+						$('.finder_result_row[index="' + lense.finder.index.focus + '"]').animate({
 							opacity: 0.5
 						}, 30).animate({
 							opacity: 1.0
@@ -194,21 +194,21 @@ cs.import('CSBaseFinder', function() {
 				}
 				
 				// Down
-				if (e.keyCode == cs.finder.keycode.down) {
+				if (e.keyCode == lense.finder.keycode.down) {
 					if (f.length > 0) {
-						cs.finder.index.focus = ((cs.finder.index.focus + 1) > t) ? 1 : cs.finder.index.focus + 1;
+						lense.finder.index.focus = ((lense.finder.index.focus + 1) > t) ? 1 : lense.finder.index.focus + 1;
 					}
 					$('.finder_result_row').removeAttr('focus');
-					$('.finder_result_row[index="' + cs.finder.index.focus + '"]').attr('focus', '');
+					$('.finder_result_row[index="' + lense.finder.index.focus + '"]').attr('focus', '');
 				}
 				
 				// Up
-				if (e.keyCode == cs.finder.keycode.up) {
+				if (e.keyCode == lense.finder.keycode.up) {
 					if (f.length > 0) {
-						cs.finder.index.focus = ((cs.finder.index.focus - 1) < 1) ? t : cs.finder.index.focus - 1;
+						lense.finder.index.focus = ((lense.finder.index.focus - 1) < 1) ? t : lense.finder.index.focus - 1;
 					}
 					$('.finder_result_row').removeAttr('focus');
-					$('.finder_result_row[index="' + cs.finder.index.focus + '"]').attr('focus', '');
+					$('.finder_result_row[index="' + lense.finder.index.focus + '"]').attr('focus', '');
 				}
 			}
 		});
@@ -221,7 +221,7 @@ cs.import('CSBaseFinder', function() {
 			
 			// If the text value is not empty
 			if (defined(t)) {
-				cs.finder.search(t);
+				lense.finder.search(t);
 			}
 		});
 	}

@@ -1,10 +1,10 @@
 /**
  * API Request
  * 
- * Object designed to handle submitting API request to the CloudScape
+ * Object designed to handle submitting API request to the Lense
  * Socket.IO proxy server.
  */
-cs.import('CSAPIRequest', function() {
+lense.import('LenseAPIRequest', function() {
 	
 	/**
 	 * Request Attributes
@@ -44,7 +44,7 @@ cs.import('CSAPIRequest', function() {
 	 * 
 	 * @param {f} The form identifier string, i.e. 'add_host'
 	 */
-	cs.register.method('api.submit', function(f) {
+	lense.register.method('api.submit', function(f) {
 		
 		// Helper method to convert slash delimited parameter paths
 		function _csp(p,v,o) {
@@ -75,12 +75,12 @@ cs.import('CSAPIRequest', function() {
 		var ak = null;
 		
 		// Validate the form fields
-		field_check = cs.forms.validate('#' + f);
+		field_check = lense.forms.validate('#' + f);
 		if (field_check === true) {
 			
 			// Construct the JSON request data
 			json_data = {};
-			$.each(cs.forms.all[f]['inputs'], function(key, obj) {
+			$.each(lense.forms.all[f]['inputs'], function(key, obj) {
 				
 				// Internal request attributes
 				if ($.inArray(obj.name, ia) > -1) {
@@ -149,10 +149,10 @@ cs.import('CSAPIRequest', function() {
 			ak = ip.path + '/' + ip.action;
 			
 			// Process any API data filters
-			json_data = cs.forms.filter(f, 'api_data', json_data);
+			json_data = lense.forms.filter(f, 'api_data', json_data);
 			
 			// Clear the form
-			$.each(cs.forms.all[f]['inputs'], function(key, obj) {
+			$.each(lense.forms.all[f]['inputs'], function(key, obj) {
 				if (!obj.hasOwnProperty('noreset')) {
 					$('input[form$="' + f + '"][name$="' + obj.name + '"]').val(null);
 					$('div[type$="icon"][form$="' + f + '"][name$="' + obj.name + '"]').replaceWith('<div class="form_input_icon_def" type="icon" form="' + f + '" name="' + obj.name + '"></div>');
@@ -160,8 +160,8 @@ cs.import('CSAPIRequest', function() {
 			});
 			
 			// Submit the API request
-			cs.layout.popup_toggle(false, false, false, function() {
-				cs.layout.loading(true, cs.api.request.attrs[ak].msg, function() {
+			lense.layout.popup_toggle(false, false, false, function() {
+				lense.layout.loading(true, lense.api.request.attrs[ak].msg, function() {
 					
 					// Construct the request parameters
 					rp = {
@@ -176,16 +176,16 @@ cs.import('CSAPIRequest', function() {
 					}
 					
 					// Submit the API request
-					cs.api.request.submit(ip.method, rp);
+					lense.api.request.submit(ip.method, rp);
 				});
 			});
 			
 		// Form is invalid
 		} else {
-			cs.layout.show_response(true, { tgt: f, msg: 'Please fill in the required fields...' }, function() {
-				$.each(cs.forms.all[f]['inputs'], function(key, obj) {
+			lense.layout.show_response(true, { tgt: f, msg: 'Please fill in the required fields...' }, function() {
+				$.each(lense.forms.all[f]['inputs'], function(key, obj) {
 					if (obj.hasOwnProperty('required') && !defined(obj.value)) {
-						cs.forms.set_input(obj._parent, obj.name, undefined);
+						lense.forms.set_input(obj._parent, obj.name, undefined);
 					}
 				});
 			});
@@ -200,7 +200,7 @@ cs.import('CSAPIRequest', function() {
 	 * @param {a} The request parameters
 	 */
 	this.get = function(p) {
-		cs.api.request.submit('get',p);
+		lense.api.request.submit('get',p);
 	}
 	
 	/**
@@ -211,7 +211,7 @@ cs.import('CSAPIRequest', function() {
 	 * @param {a} The request parameters
 	 */
 	this.post = function(p) {
-		cs.api.request.submit('post',p);
+		lense.api.request.submit('post',p);
 	}
 	
 	/**
@@ -227,14 +227,14 @@ cs.import('CSAPIRequest', function() {
 		// Construct the request object
 		request = {
 			'auth': {
-				'user':   cs.api.client.params.user,
-				'token':  cs.api.client.params.token,
-				'group':  cs.api.client.params.group,
+				'user':   lense.api.client.params.user,
+				'token':  lense.api.client.params.token,
+				'group':  lense.api.client.params.group,
 			},
 			'socket': {
 				'method': m,
 				'path':   p.path,
-				'room':   cs.api.client.room,
+				'room':   lense.api.client.room,
 			}
 		}
 		
@@ -253,7 +253,7 @@ cs.import('CSAPIRequest', function() {
 		
 		// If the method is valid
 		if (vm) {
-			cs.api.client.io.emit('submit', request)
+			lense.api.client.io.emit('submit', request)
 		} else { return false; }
 	}
 });

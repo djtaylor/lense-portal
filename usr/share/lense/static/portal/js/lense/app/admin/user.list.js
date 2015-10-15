@@ -1,17 +1,17 @@
-cs.import('CSAdminUsers', function() {
+lense.import('LenseAdminUsers', function() {
 	
 	/**
-	 * Initialize CSAdminUsers
+	 * Initialize LenseAdminUsers
 	 * @constructor
 	 */
 	this.__init__ = function() {
-		var u = cs.url.param_get('user');
+		var u = lense.url.param_get('user');
 		if (defined(u)) {
-			cs.method['user.toggle'](u);
+			lense.method['user.toggle'](u);
 		}
 		
 		// Toggle password type fields
-		cs.admin.users.pw_type();
+		lense.admin.users.pw_type();
 	}
 	
 	/**
@@ -58,15 +58,15 @@ cs.import('CSAdminUsers', function() {
 	/**
 	 * Callback: Render User Details
 	 */
-	cs.register.callback('user.render_details', function(c,m,d,a) {
+	lense.register.callback('user.render_details', function(c,m,d,a) {
 		
 		// Update the user details window
-		$('#user_details').html(cs.layout.create.element('div', {
+		$('#user_details').html(lense.layout.create.element('div', {
 			attr: {
 				id: 'user_details'
 			},
 			children: [
-				cs.admin.obj_profile({
+				lense.admin.obj_profile({
 					source: {
 						object: m,
 						keys: {
@@ -81,7 +81,7 @@ cs.import('CSAdminUsers', function() {
 						name: 'user_profile'
 					}
 				}),
-				cs.admin.obj_table({
+				lense.admin.obj_table({
 					source: {
 						object: m.groups,
 						keys:   {
@@ -107,7 +107,7 @@ cs.import('CSAdminUsers', function() {
 		$('#user_details_title').text('User Details: ' + m.username);
 		
 		// Set the URL parameter
-		cs.url.param_set('user', m.username);
+		lense.url.param_set('user', m.username);
 		
 		// Set the enable/disable button
 		var ed = $('#enable_disable');
@@ -118,7 +118,7 @@ cs.import('CSAdminUsers', function() {
 		$('#user_details_actions').fadeIn('fast');
 		
 		// Refresh the layout
-		cs.layout.refresh();
+		lense.layout.refresh();
 	});
 	
 	/**
@@ -137,12 +137,12 @@ cs.import('CSAdminUsers', function() {
 	 * Request User Details
 	 */
 	this.request_details = function() {
-		if (defined(cs.admin.users.active())) {
-			cs.api.request.get({
+		if (defined(lense.admin.users.active())) {
+			lense.api.request.get({
 				path:   'user',
 				action: 'get',
 				_data:  {
-					username: cs.admin.users.active()
+					username: lense.admin.users.active()
 				},
 				callback: {
 					id: 'user.render_details'
@@ -154,21 +154,21 @@ cs.import('CSAdminUsers', function() {
 	/**
 	 * Callback: Create User
 	 */
-	cs.register.callback('user.create', function(c,m,d,a) {
+	lense.register.callback('user.create', function(c,m,d,a) {
 		console.log(d);
 	});
 	
 	/**
 	 * Callback: Reset User Password
 	 */
-	cs.register.callback('user.reset_password', function(c,m,d,a) {
+	lense.register.callback('user.reset_password', function(c,m,d,a) {
 		console.log(d);
 	});
 	
 	/**
 	 * Callback: Disable User
 	 */
-	cs.register.callback('user.disable', function(c,m,d,a) {
+	lense.register.callback('user.disable', function(c,m,d,a) {
 		var ed = $('#enable_disable');
 		ed.attr('target', 'user.enable');
 		ed.text('Enable User');
@@ -178,7 +178,7 @@ cs.import('CSAdminUsers', function() {
 	/**
 	 * Callback: Enable User
 	 */
-	cs.register.callback('user.enable', function(c,m,d,a) {
+	lense.register.callback('user.enable', function(c,m,d,a) {
 		var ed = $('#enable_disable');
 		ed.attr('target', 'user.disable');
 		ed.text('Disable User');
@@ -188,15 +188,15 @@ cs.import('CSAdminUsers', function() {
 	/**
 	 * Method: Delete User Row
 	 */
-	cs.register.method('user.delete_row', function(d) {
+	lense.register.method('user.delete_row', function(d) {
 		console.log(d);
 	});
 	
 	/**
 	 * Method: Toggle Edit User
 	 */
-	cs.register.method('user.edit', function() {
-		if (defined(cs.admin.users.active())) {
+	lense.register.method('user.edit', function() {
+		if (defined(lense.admin.users.active())) {
 			$.each($('input[form$="edit_user"]'), function(i,e) {
 				$(e).removeAttr('readonly');
 			});
@@ -208,27 +208,27 @@ cs.import('CSAdminUsers', function() {
 	/**
 	 * Method: Toggle User
 	 */
-	cs.register.method('user.toggle', function(u) {
+	lense.register.method('user.toggle', function(u) {
 		
 		// Check for the active user
-		if (u != cs.admin.users.active()) {
+		if (u != lense.admin.users.active()) {
 			
 			// Update the active group
-			cs.admin.users.active(u);
+			lense.admin.users.active(u);
 			
 			// Get new group details
-			cs.admin.users.request_details();
+			lense.admin.users.request_details();
 		}
 	});
 	
 	/**
 	 * Method: Disable User
 	 */
-	cs.register.method('user.disable', function() {
-		var u = cs.admin.users.active();
+	lense.register.method('user.disable', function() {
+		var u = lense.admin.users.active();
 		if (defined(u)) {
-			cs.layout.popup_toggle(false, false, false, function() { 
-				cs.api.request.post({
+			lense.layout.popup_toggle(false, false, false, function() { 
+				lense.api.request.post({
 					path:   'user',
 					action: 'disable',
 					_data:  {
@@ -245,11 +245,11 @@ cs.import('CSAdminUsers', function() {
 	/**
 	 * Method: Enable User
 	 */
-	cs.register.method('user.enable', function() {
-		var u = cs.admin.users.active();
+	lense.register.method('user.enable', function() {
+		var u = lense.admin.users.active();
 		if (defined(u)) {
-			cs.layout.popup_toggle(false, false, false, function() { 
-				cs.api.request.post({
+			lense.layout.popup_toggle(false, false, false, function() { 
+				lense.api.request.post({
 					path:   'user',
 					action: 'enable',
 					_data:  {
@@ -266,11 +266,11 @@ cs.import('CSAdminUsers', function() {
 	/**
 	 * Method: Reset User Password
 	 */
-	cs.register.method('user.reset_password', function() {
-		var u = cs.admin.users.active();
+	lense.register.method('user.reset_password', function() {
+		var u = lense.admin.users.active();
 		if (defined(u)) {
-			cs.layout.popup_toggle(false, false, false, function() { 
-				cs.api.request.post({
+			lense.layout.popup_toggle(false, false, false, function() { 
+				lense.api.request.post({
 					path:   'user',
 					action: 'pwreset',
 					_data:  {
@@ -287,7 +287,7 @@ cs.import('CSAdminUsers', function() {
 	/**
 	 * Method: Create User
 	 */
-	cs.register.method('user.create', function() {
+	lense.register.method('user.create', function() {
 		
 		// Load the request data
 		data = {};
@@ -302,9 +302,9 @@ cs.import('CSAdminUsers', function() {
 		data['group'] = $('select[form="create_user"][name="group"]').val();
 		
 		// Submit the API request
-		cs.layout.popup_toggle(false, 'user.create', false, function() { 
-			cs.layout.loading(true, 'Creating API user...', function() { 
-				cs.api.request.post({
+		lense.layout.popup_toggle(false, 'user.create', false, function() { 
+			lense.layout.loading(true, 'Creating API user...', function() { 
+				lense.api.request.post({
 					path:   'user',
 					action: 'create',
 					_data:  data,

@@ -27,7 +27,7 @@ def py2js(obj):
     
     # String values
     if isinstance(obj, six.string_types):
-        return '"%s"' % obj
+        return '"{0}"'.format(obj)
     
     # List / dictionary values
     if isinstance(obj, (list, dict)):

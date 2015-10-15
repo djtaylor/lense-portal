@@ -1,5 +1,5 @@
-from cloudscape.client.manager import APIConnect
-from cloudscape.engine.api.app.user.models import DBUser, DBUserAPIKeys
+from lense.client.manager import APIConnect
+from lense.engine.api.app.user.models import DBUser, DBUserAPIKeys
 
 class APIClient:
     """

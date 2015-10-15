@@ -1,4 +1,4 @@
-from cloudscape.portal.ui.core.template import PortalTemplate
+from lense.portal.ui.core.template import PortalTemplate
 
 class AppController(PortalTemplate):
     """
@@ -18,7 +18,7 @@ class AppController(PortalTemplate):
             'state_display': getattr(kwargs, 'state_display', 'none'),
             'base_path':     self.portal.request.script,
             'page': {
-                'title': 'CloudScape Login',
+                'title': 'Lense Login',
                 'css': ['auth.css'],
                 'contents': ['app/auth/tables/login.html']
             }     

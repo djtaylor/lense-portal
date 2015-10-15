@@ -2,8 +2,8 @@
 import os
 import sys
 
-# CloudScape API Django project management
+# Lense API Django project management
 if __name__ == "__main__":
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "cloudscape.portal.ui.core.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "lense.portal.ui.core.settings")
     from django.core.management import execute_from_command_line
     execute_from_command_line(sys.argv)

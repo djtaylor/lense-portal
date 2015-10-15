@@ -1,4 +1,4 @@
-from cloudscape.portal.ui.core.template import PortalTemplate
+from lense.portal.ui.core.template import PortalTemplate
 
 class AppController(PortalTemplate):
     """
@@ -15,7 +15,7 @@ class AppController(PortalTemplate):
         # Set the template attributes
         self.set_template({
             'page': {
-                'title': 'CloudScape Home',
+                'title': 'Lense Home',
                 'css': [
                     'home.css'
                 ]

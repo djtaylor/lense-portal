@@ -3,7 +3,7 @@ from django.views.generic import View
 
 class AppModule(View):
     """
-    Application view for the CloudScape portal administration page.
+    Application view for the Lense portal administration page.
     """
     
     # Portal object

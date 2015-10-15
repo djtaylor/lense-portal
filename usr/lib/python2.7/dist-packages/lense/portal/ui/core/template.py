@@ -11,10 +11,10 @@ from django.shortcuts import render
 from django.template import RequestContext, Context, loader
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
-# CloudScape Libraries
-from cloudscape.common import config
-from cloudscape.common import logger
-from cloudscape.portal.ui.core.filter import APIFilter
+# Lense Libraries
+from lense.common import config
+from lense.common import logger
+from lense.portal.ui.core.filter import APIFilter
 
 class PortalTemplate(object):
     """
@@ -34,7 +34,7 @@ class PortalTemplate(object):
         self.OrderedDict = OrderedDict  
         
         # Configuration / logger
-        self.conf        = config.parse()
+        self.conf        = config.parse('PORTAL')
         self.log         = logger.create(__name__, self.conf.portal.log)
      
         # URL panel
@@ -139,7 +139,7 @@ class PortalTemplate(object):
         
         # Replace the API URL with the Socket.IO proxy
         if params['BASE']['api']['params']:
-            params['BASE']['api']['params']['url'] = '%s://%s:%s' % (self.conf.socket.proto, self.conf.socket.host, self.conf.socket.port)
+            params['BASE']['api']['params']['url'] = '{0}://{1}:{2}'.format(self.conf.socket.proto, self.conf.socket.host, self.conf.socket.port)
         
         # Merge extra template parameters
         for k,v in objs.iteritems():
@@ -168,7 +168,7 @@ class PortalTemplate(object):
                 api_method = getattr(api_base, method)
        
                 # Run the API request and return a filtered response
-                return self.filter.object(self.portal.api.response(api_method(data))).map('%s.%s' % (module, method))
+                return self.filter.object(self.portal.api.response(api_method(data))).map('{0}.{1}'.format(module, method))
        
         # Invalid base/method attribute
         return False    
@@ -202,7 +202,7 @@ class PortalTemplate(object):
         # Wait for the API calls to complete
         for thread in threads:
             thread.join()
-        self.log.info('API_CALL_THREADED: %s' % str(self._response))
+        self.log.info('API_CALL_THREADED: {0}'.format(str(self._response)))
             
         # Return the response object
         return self._response
@@ -224,13 +224,13 @@ class PortalTemplate(object):
         except Exception as e:
             
             # Log the exception
-            self.log.exception('Failed to render application template interface: %s' % str(e))
+            self.log.exception('Failed to render application template interface: {0}'.format(str(e)))
             
             # Get the exception data
             e_type, e_info, e_trace = sys.exc_info()
                 
             # Format the exception message
-            e_msg = '%s: %s' % (e_type.__name__, e_info)
+            e_msg = '{0}: {1}'.format(e_type.__name__, e_info)
             
             # Load the error template
             t = loader.get_template('core/error/500.html')

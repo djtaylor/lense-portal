@@ -2,9 +2,9 @@ import json
 import base64
 from collections import OrderedDict
 
-# CloudScape Libraries
-from cloudscape.common import config
-from cloudscape.common import logger
+# Lense Libraries
+from lense.common import config
+from lense.common import logger
 
 class APIFilter(object):
     """
@@ -16,7 +16,7 @@ class APIFilter(object):
         self._object = None
     
         # Configuration / logger
-        self.conf    = config.parse()
+        self.conf    = config.parse('PORTAL')
         self.log     = logger.create(__name__, self.conf.portal.log)
         
     def object(self, obj):

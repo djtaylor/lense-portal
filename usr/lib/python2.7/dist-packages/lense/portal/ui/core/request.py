@@ -9,17 +9,17 @@ import traceback
 from django.template import RequestContext, Context, loader
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect
 
-# CloudScape Libraries
-from cloudscape.common import config
-from cloudscape.common import logger
-from cloudscape.common.vars import L_BASE
-from cloudscape.portal.ui.base import PortalBase
+# Lense Libraries
+from lense import MODULE_ROOT
+from lense.common import config
+from lense.common import logger
+from lense.portal.ui.base import PortalBase
 
 # Module class name
 MOD_CLASS = 'AppModule'
 
 # Configuration / Logger
-CONF = config.parse()
+CONF = config.parse('PORTAL')
 LOG  = logger.create(__name__, CONF.portal.log)
 
 def dispatch(request):
@@ -33,13 +33,13 @@ def dispatch(request):
     
     # Critical server error
     except Exception as e:
-        LOG.exception('Internal server error: %s' % str(e))
+        LOG.exception('Internal server error: {0}'.format(str(e)))
             
         # Get the exception data
         e_type, e_info, e_trace = sys.exc_info()
             
         # Format the exception message
-        e_msg = '%s: %s' % (e_type.__name__, e_info)
+        e_msg = '{0}: {1}'.format(e_type.__name__, e_info)
             
         # Load the error template
         t = loader.get_template('core/error/500.html')
@@ -69,7 +69,7 @@ class RequestManager(object):
         """
         
         # Module directory / base path
-        app_path = '%s/python/cloudscape/portal/ui/app' % L_BASE
+        app_path = '{0}/portal/ui/app'.format(MODULE_ROOT)
         app_base = 'cloudscape.portal.ui.app'
         
         # Applications object
@@ -83,11 +83,11 @@ class RequestManager(object):
                 continue
             
             # Define the application view module
-            app_view = '%s/%s/views.py' % (app_path, app)
+            app_view = '{0}/{1}/views.py'.format(app_path, app)
             
             # If the application has a view associated with it
             if os.path.isfile(app_view):
-                mod_path = '%s.%s.views' % (app_base, app)
+                mod_path = '{0}.{1}.views'.format(app_base, app)
                 
                 # Create a new module instance
                 mod_obj  = importlib.import_module(mod_path)
@@ -97,7 +97,7 @@ class RequestManager(object):
                 app_obj[app] = cls_obj
                 
                 # Load application module
-                LOG.info('Loading application module: app=%s, module=%s' % (app, mod_path))
+                LOG.info('Loading application module: app={0}, module={1}'.format(app, mod_path))
         
         # Return the constructed applications object
         return app_obj
@@ -106,7 +106,7 @@ class RequestManager(object):
         """
         Return an HTTPResponseRedirect object.
         """
-        return HttpResponseRedirect('/%s' % path)
+        return HttpResponseRedirect('/{0}'.format(path))
         
     def handler(self):
         """

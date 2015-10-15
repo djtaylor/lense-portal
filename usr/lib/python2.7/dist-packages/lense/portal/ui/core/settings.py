@@ -1,6 +1,6 @@
 import os
 
-# CloudScape Libraries
+# Lense Libraries
 from lense.common.vars import TEMPLATES, DB_ENCRYPT_DIR
 import lense.common.config as config
 from lense.common.auth.utils import AuthGroupsLDAP
@@ -84,8 +84,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cloudscape.engine.api.app.user',
-    'cloudscape.portal.ui.util'
+    'lense.engine.api.app.user',
+    'lense.portal.ui.util'
 )
 
 # Authentication user model
@@ -93,7 +93,7 @@ AUTH_USER_MODEL = 'user.DBUser'
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = (
-    'cloudscape.common.auth.backends.AuthBackendInterface',
+    'lense.common.auth.backends.AuthBackendInterface',
 )
 
 # LDAP Authentication
@@ -111,7 +111,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'cloudscape.portal.ui.core.session.SessionTimeout'
+    'lense.portal.ui.core.session.SessionTimeout'
 )
 
 # Session serializer

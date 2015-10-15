@@ -1,4 +1,4 @@
-from cloudscape.portal.ui.core.template import PortalTemplate
+from lense.portal.ui.core.template import PortalTemplate
 
 class AppController(PortalTemplate):
     """
@@ -52,7 +52,7 @@ class AppController(PortalTemplate):
             'users':  response['users'],
             'groups': response['groups'],
             'page': {
-                'title': 'CloudScape Administration - Users',
+                'title': 'Lense Administration - Users',
                 'css': ['admin.css'],
                 'contents': [
                     'app/admin/tables/user/all.html',
@@ -127,7 +127,7 @@ class AppController(PortalTemplate):
             },
             'users': response['users'],
             'page': {
-                'title': 'CloudScape Administration - Groups',
+                'title': 'Lense Administration - Groups',
                 'css': ['admin.css'],
                 'contents': get_contents(),
                 'popups': get_popups()
@@ -188,7 +188,7 @@ class AppController(PortalTemplate):
             },
             'utilities':     sorted(response['utilities'], key=lambda k: k['name']),
             'page': {
-                'title': 'CloudScape Administration - ACLs',
+                'title': 'Lense Administration - ACLs',
                 'css': ['admin.css'],
                 'contents': set_contents(),
                 'popups':  set_popups()
@@ -245,7 +245,7 @@ class AppController(PortalTemplate):
                 'all':     sorted(response['acls'], key=lambda k: k['name'])
             },
             'page': {
-                'title': 'CloudScape Administration - Objects',
+                'title': 'Lense Administration - Objects',
                 'css': ['admin.css'],
                 'contents': get_content(),
                 'popups': get_popups()
@@ -276,7 +276,7 @@ class AppController(PortalTemplate):
         
         # Construct modules and utilities
         for util in util_all:
-            utils.append(['%s.%s' % (util['mod'], util['cls']), util['cls']])
+            utils.append(['{0}.{1}'.format(util['mod'], util['cls']), util['cls']])
             if not util['mod'] in modules:
                 modules.append(util['mod'])
         
@@ -315,7 +315,7 @@ class AppController(PortalTemplate):
                 'objects': acl_objects
             },
             'page': {
-                'title': 'CloudScape Administration - Utilities',
+                'title': 'Lense Administration - Utilities',
                 'css': ['admin.css'],
                 'contents': set_contents(),
                 'popups':  set_popups()
@@ -329,10 +329,10 @@ class AppController(PortalTemplate):
         
         # If the panel is not supported
         if not self.panel in self.map['panels']:
-            return self.redirect('portal/admin?panel=%s' % self.map['default'])
+            return self.redirect('portal/admin?panel={0}'.format(self.map['default']))
         
         # Set the template file
-        t_file = 'app/admin/%s.html' % self.panel
+        t_file = 'app/admin/{0}.html'.format(self.panel)
         
         # Set the template attributes
         self.set_template(self.map['panels'][self.panel]['data']())

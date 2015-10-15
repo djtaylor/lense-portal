@@ -9,13 +9,13 @@ from django.views.generic import View
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
-# CloudScape Libraries
-from cloudscape.common import config
-from cloudscape.common import logger
-from cloudscape.common.vars import L_BASE
-from cloudscape.portal.ui.core.api import APIClient
-from cloudscape.common.collection import Collection
-from cloudscape.engine.api.app.user.models import DBUser
+# Lense Libraries
+from lense import MODULE_ROOT
+from lense.common import config
+from lense.common import logger
+from lense.portal.ui.core.api import APIClient
+from lense.common.collection import Collection
+from lense.engine.api.app.user.models import DBUser
 
 class PortalRequest(object):
     """
@@ -46,11 +46,11 @@ class PortalRequest(object):
 
 class PortalBase(object):
     """
-    Base class shared by all CloudScape portal views. This is used to initialize
+    Base class shared by all Lense portal views. This is used to initialize
     requests, construct template data, set the logger, etc.
     """
     def __init__(self, name):
-        self.class_name    = 'cloudscape' if not name else name
+        self.class_name    = 'lense' if not name else name
         
         # Authentication flag
         self.authenticated = False
@@ -67,7 +67,7 @@ class PortalBase(object):
         self.user          = {}
         
         # Initialize the configuration object and logger
-        self.conf          = config.parse()
+        self.conf          = config.parse('PORTAL')
         self.log           = logger.create(self.class_name, self.conf.portal.log)
        
     def _api_response(self, response, type='json'):
@@ -117,7 +117,7 @@ class PortalBase(object):
         return Collection(api_obj).get()
         
     def _set_url(self, path):
-        return '%s://%s:%s/%s' % (self.conf.portal.proto, self.conf.portal.host, self.conf.portal.port, path)
+        return '{0}://{1}:{2}/{3}'.format(self.conf.portal.proto, self.conf.portal.host, self.conf.portal.port, path)
         
     def _set_app_controllers(self):
         """
@@ -125,12 +125,12 @@ class PortalBase(object):
         """
         
         # Application directory / module base
-        app_dir  = '%s/python/cloudscape/portal/ui/app' % L_BASE
-        mod_base = 'cloudscape.portal.ui.app'
+        app_dir  = '{0}/portal/ui/app'.format(MODULE_ROOT)
+        mod_base = 'lense.portal.ui.app'
         
         # Scan every application
         for app_name in [x for x in os.listdir(app_dir) if not re.match(r'__|pyc', x)]:
-            controller = '%s/%s/controller.py' % (app_dir, app_name)
+            controller = '{0}/{1}/controller.py'.format(app_dir, app_name)
             
             # If a controller module exists
             if os.path.isfile(controller):
@@ -139,7 +139,7 @@ class PortalBase(object):
                 try:
                     
                     # Define the module name
-                    mod_name = '%s.%s.controller' % (mod_base, app_name)
+                    mod_name = '{0}.{1}.controller'.format(mod_base, app_name)
                     
                     # Create a new module instance
                     mod_obj  = importlib.import_module(mod_name)
@@ -150,7 +150,7 @@ class PortalBase(object):
                     
                 # Critical error when loading controller
                 except Exception as e:
-                    self.log.exception('Failed to load application <%s> controller: %s' % (app_name, str(e)))
+                    self.log.exception('Failed to load application <{0}> controller: {1}'.format(app_name, str(e)))
                     
                     # Application controller disabled
                     self.controller[app_name] = False
@@ -254,7 +254,7 @@ class PortalBase(object):
             
             # User is active
             if user.is_active:
-                self.log.info('User account [%s] active, logging in user' % username)
+                self.log.info('User account [{0}] active, logging in user'.format(username))
                 
                 # Login the user account
                 login(self.request.RAW, user)
@@ -264,12 +264,12 @@ class PortalBase(object):
             
             # User account is inactive
             else:
-                self.log.info('Login failed, user account [%s] is inactive' % username)
+                self.log.info('Login failed, user account [{0}] is inactive'.format(username))
                 state = 'Your account is not active - please contact your administrator'
         
         # User account does not exist or username/password incorrect
         else:
-            self.log.error('Login failed, user account [%s] does not exist or password is incorrect' % username)
+            self.log.error('Login failed, user account [{0}] does not exist or password is incorrect'.format(username))
             state = 'Your username and/or password are incorrect'
     
         # Return the login failure screen

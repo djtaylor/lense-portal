@@ -14,6 +14,7 @@ class APIFilter(object):
         
         # Target filter object / filter map
         self._object = None
+        self._map    = {}
     
         # Configuration / logger
         self.conf    = config.parse('PORTAL')
@@ -26,7 +27,6 @@ class APIFilter(object):
         
         # Set the internal object container
         self._object = obj
-        self.log.info('FILTER_OBJ: %s' % str(obj))
         
         # Return the class
         return self

@@ -107,7 +107,7 @@ function include(m,f,c) {
 			if (!defined(api_params.is_admin)) {
 				return;
 			}
-			if (h.is_admin === true) {
+			if (f.is_admin === true) {
 				if (api_params.is_admin !== true) {
 					return;
 				}

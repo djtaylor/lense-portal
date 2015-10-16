@@ -47,6 +47,8 @@ class AppController(PortalTemplate):
             'groups': ('group', 'get')
         })
         
+        print response
+        
         # Return the template data
         return {
             'users':  response['users'],

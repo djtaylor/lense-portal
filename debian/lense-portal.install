@@ -2,5 +2,5 @@ etc/lense/portal.conf etc/lense/
 etc/lense/portal.default.conf etc/lense/
 etc/apache2/sites-available/lense-portal.conf etc/apache2/sites-available/
 usr/lib/python2.7/dist-packages/lense/portal usr/lib/python2.7/dist-packages/lense/
-usr/share/lense/templates/portal usr/share/lense/templates/
-usr/share/lense/static/portal usr/share/lense/static/
+usr/share/lense/portal/templates usr/share/lense/portal/
+usr/share/lense/portal/static usr/share/lense/portal/

@@ -83,7 +83,13 @@ class PortalBase(object):
         if type == 'json':
             if response['code'] == 200:
                 try:
-                    return json.loads(response['body'])
+                    # Grab the response body
+                    _body = response['body']
+                    
+                    # If returned as a string
+                    if isinstance(_body, str):
+                        return json.loads(response['body'])
+                    return _body
                 except:
                     return {}
             return {}

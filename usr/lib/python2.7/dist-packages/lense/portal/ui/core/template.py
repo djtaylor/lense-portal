@@ -162,18 +162,13 @@ class PortalTemplate(object):
         # Make sure the base attribute exists
         if hasattr(self.portal.api.client, module):
             api_base = getattr(self.portal.api.client, module)
-            self.log.info('API_BASE: {0}'.format(repr(api_base)))
             
             # Make sure the method attribute exists
             if hasattr(api_base, method):
                 api_method = getattr(api_base, method)
-                self.log.info('API_METHOD: {0}'.format(repr(api_method)))
        
                 # Run the API request and return a filtered response
-                response = api_method(data)
-                self.log.info('RESPONSE: {0}'.format(response))
-                return self.portal.api.response(response)
-                #return self.filter.object(self.portal.api.response(api_method(data))).map('{0}.{1}'.format(module, method))
+                return self.filter.object(self.portal.api.response(api_method(data))).map('{0}.{1}'.format(module, method))
        
         # Invalid base/method attribute
         return False    
@@ -207,7 +202,6 @@ class PortalTemplate(object):
         # Wait for the API calls to complete
         for thread in threads:
             thread.join()
-        self.log.info('API_CALL_THREADED: {0}'.format(str(self._response)))
             
         # Return the response object
         return self._response

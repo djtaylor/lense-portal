@@ -1,5 +1,5 @@
-<div class="table" type="table" target="utilities" id="endpoint_list_table">
-	<div class="table_title" id="endpoint_list_title">
+<div class="table" type="table" target="utilities" id="utility_list_table">
+	<div class="table_title" id="utility_list_title">
 		<div class="table_title_label">API Utilities</div>
 		<div class="table_actions">
 			<div class="table_action" type="button" action="popup" target="utility.create">Create</div>
@@ -8,6 +8,7 @@
 	</div>
 	<div class="table_headers" table="utility_list">
 		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="util_name">Name</div>
 		<div class="table_header table_header_md" col="util_path">Path</div>
 		<div class="table_header table_header_md" col="util_method">Method</div>
 		<div class="table_header table_header_md" col="util_desc">Description</div>
@@ -22,7 +23,8 @@
 			<div class="table_select_col">
 				<input type="radio" name="utility_uuid" value="{{ utility.uuid }}" action="update">
 			</div>
-			<div class="table_col table_link" type="button" action="link" target="admin?panel=utilities&utility={{ utility.uuid }}" col="util_path">{{ utility.path }}</div>
+			<div class="table_col table_link" type="button" action="link" target="admin?panel=utilities&utility={{ utility.uuid }}" col="util_name">{{ utility.name }}</div>
+			<div class="table_col" col="util_path">{{ utility.path }}</div>
 			<div class="table_col" col="util_method">{{ utility.method }}</div>
 			<div class="table_col" col="util_desc">{{ utility.desc }}</div>
 			{% if utility.object %}

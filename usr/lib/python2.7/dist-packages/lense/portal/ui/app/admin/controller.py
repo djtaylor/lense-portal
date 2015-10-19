@@ -47,8 +47,6 @@ class AppController(PortalTemplate):
             'groups': ('group', 'get')
         })
         
-        print response
-        
         # Return the template data
         return {
             'users':  response['users'],
@@ -267,7 +265,7 @@ class AppController(PortalTemplate):
         })
         
         # All utilities / target utility / utility object
-        util_all  = sorted(response['utilities'], key=lambda k: k['path'])
+        util_all  = sorted(response['utilities'], key=lambda k: k['name'])
         util_tgt  = self.get_query_key('utility')
         util_obj  = None if not util_tgt else [x for x in util_all if x['uuid'] == util_tgt][0]
         

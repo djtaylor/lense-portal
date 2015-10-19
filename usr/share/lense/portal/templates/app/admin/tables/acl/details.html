@@ -21,27 +21,27 @@
 	<div class="editor_frame" style="float:left;opacity:0.0;">
 		<div class="table_editor">
 			<div class="table_title">
-				<div class="table_title_label">ACL Endpoints</div>
+				<div class="table_title_label">ACL Utilities</div>
 				<div class="table_actions">
-					<div class="table_action_active" type="button" action="grouptoggle" group="acl_endpoints" target="acl_global">Global Endpoints</div>
-					<div class="table_action" type="button" action="grouptoggle" group="acl_endpoints" target="acl_object">Object Endpoints</div>
-					<div class="table_action" type="button" action="grouptoggle" group="acl_endpoints" target="acl_host">Host Endpoints</div>
+					<div class="table_action_active" type="button" action="grouptoggle" group="acl_utilities" target="acl_global">Global Endpoints</div>
+					<div class="table_action" type="button" action="grouptoggle" group="acl_utilities" target="acl_object">Object Endpoints</div>
+					<div class="table_action" type="button" action="grouptoggle" group="acl_utilities" target="acl_host">Host Endpoints</div>
 				</div>
 			</div>
 			
-			{# Global Endpoints #}
-			<div class="table_window" type="grouptoggle" group="acl_endpoints" name="acl_global" acl_type="global">
-				<div class="table_panel_title">Global Endpoints</div>
+			{# Global Utilities #}
+			<div class="table_window" type="grouptoggle" group="acl_utilities" name="acl_global" acl_type="global">
+				<div class="table_panel_title">Global Utilities</div>
 				<div class="table_50_outer">
 					<div class="table_50_editor">
 						<div class="table_title_inner">Available</div>
 						<div class="table_sortable_inner" id="acl_global_available">
-							{% for endpoint in endpoints %}
-								{% if not endpoint.uuid in acls.endpoints.global %}
-									<div class="table_sortable_item" type="acl_global" endpoint="{{ endpoint.uuid }}" available>
+							{% for utility in utilities %}
+								{% if not utility.uuid in acls.utilities.global %}
+									<div class="table_sortable_item" type="acl_global" utility="{{ utility.uuid }}" available>
 										<div class="table_sortable_text">
-											<div class="table_sortable_epname" col="epname">{{ endpoint.name }}</div>
-											<div class="table_sortable_epdesc">{{ endpoint.desc }}</div>
+											<div class="table_sortable_utilname" col="utilname">{{ utility.name }}</div>
+											<div class="table_sortable_utildesc">{{ utility.desc }}</div>
 										</div>
 										<div class="table_sortable_icon" icon="add" editing="no"></div>
 									</div>
@@ -52,12 +52,12 @@
 					<div class="table_50_editor">
 						<div class="table_title_inner">Managed</div>
 						<div class="table_sortable_inner" id="acl_global_managed">
-							{% for endpoint in endpoints %}
-								{% if endpoint.uuid in acls.endpoints.global %}
-									<div class="table_sortable_item" type="acl_global" endpoint="{{ endpoint.uuid }}" managed>
+							{% for utility in utilities %}
+								{% if utility.uuid in acls.utilities.global %}
+									<div class="table_sortable_item" type="acl_global" utility="{{ utility.uuid }}" managed>
 										<div class="table_sortable_text">
-											<div class="table_sortable_epname" col="epname">{{ endpoint.name }}</div>
-											<div class="table_sortable_epdesc">{{ endpoint.desc }}</div>
+											<div class="table_sortable_utilname" col="utilname">{{ utility.name }}</div>
+											<div class="table_sortable_utildesc">{{ utility.desc }}</div>
 										</div>
 										<div class="table_sortable_icon" icon="remove" editing="no"></div>
 									</div>
@@ -69,19 +69,19 @@
 			</div>
 			
 			{# Object Endpoints #}
-			<div class="table_window" type="grouptoggle" group="acl_endpoints" name="acl_object" acl_type="object" style="display:none;">
+			<div class="table_window" type="grouptoggle" group="acl_utilities" name="acl_object" acl_type="object" style="display:none;">
 				<div class="table_panel_title">Object Endpoints</div>
 				<div class="table_50_outer">
 					<div class="table_50_editor">
 						<div class="table_title_inner">Available</div>
 						<div class="table_sortable_inner" id="acl_object_available">
-							{% for endpoint in endpoints %}
-								{% if endpoint.object %}
-									{% if not endpoint.uuid in acls.endpoints.object %}
-										<div class="table_sortable_item" type="acl_object" endpoint="{{ endpoint.uuid }}" available>
+							{% for utility in utilities %}
+								{% if utility.object %}
+									{% if not utility.uuid in acls.utilities.object %}
+										<div class="table_sortable_item" type="acl_object" utility="{{ utility.uuid }}" available>
 											<div class="table_sortable_text">
-												<div class="table_sortable_epname" col="epname">{{ endpoint.name }}</div>
-												<div class="table_sortable_epdesc">{{ endpoint.desc }}</div>
+												<div class="table_sortable_utilname" col="utilname">{{ utility.name }}</div>
+												<div class="table_sortable_utildesc">{{ utility.desc }}</div>
 											</div>
 											<div class="table_sortable_icon" icon="add" editing="no"></div>
 										</div>
@@ -93,12 +93,12 @@
 					<div class="table_50_editor">
 						<div class="table_title_inner">Managed</div>
 						<div class="table_sortable_inner" id="acl_object_managed">
-							{% for endpoint in endpoints %}
-								{% if endpoint.uuid in acls.endpoints.object %}
-									<div class="table_sortable_item" type="acl_object" endpoint="{{ endpoint.uuid }}" managed>
+							{% for utility in utilities %}
+								{% if utility.uuid in acls.utilities.object %}
+									<div class="table_sortable_item" type="acl_object" utility="{{ utility.uuid }}" managed>
 										<div class="table_sortable_text">
-											<div class="table_sortable_epname" col="epname">{{ endpoint.name }}</div>
-											<div class="table_sortable_epdesc">{{ endpoint.desc }}</div>
+											<div class="table_sortable_utilname" col="utilname">{{ utility.name }}</div>
+											<div class="table_sortable_utildesc">{{ utility.desc }}</div>
 										</div>
 										<div class="table_sortable_icon" icon="remove" editing="no"></div>
 									</div>

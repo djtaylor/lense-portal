@@ -393,8 +393,8 @@ lense.import('LenseAdminUtilityDetails', function() {
 	 */
 	lense.register.method('utility.save', function() {
 		lense.layout.loading(true, 'Saving utility changes...', function() {
-			lense.api.request.post({
-				path: 'gateway/utilities/save',
+			lense.api.request.put({
+				path: 'gateway/utilities',
 				_data: lense.admin.utility.construct_request(),
 				callback: {
 					id: 'utility.save'
@@ -408,7 +408,7 @@ lense.import('LenseAdminUtilityDetails', function() {
 	 */
 	lense.register.method('utility.validate', function() {
 		lense.layout.loading(true, 'Validating utility changes...', function() {
-			lense.api.request.post({
+			lense.api.request.put({
 				path: 'gateway/utilities/validate',
 				_data: lense.admin.utility.construct_request(),
 				callback: {
@@ -430,7 +430,7 @@ lense.import('LenseAdminUtilityDetails', function() {
 			lense.layout.popup_toggle(true, 'utility.close_confirm');
 		} else {
 			lense.layout.loading(true, 'Closing edit mode for utility...', function() {
-				lense.api.request.get({
+				lense.api.request.put({
 					path: 'gateway/utilities/close',
 					_data: {
 						uuid: lense.admin.utility.active()
@@ -449,7 +449,7 @@ lense.import('LenseAdminUtilityDetails', function() {
 	lense.register.method('utility.close_confirm', function() {
 		lense.layout.popup_toggle(false, 'utility.close_confirm', false, function() {
 			lense.layout.loading(true, 'Closing edit mode for utility...', function() {
-				lense.api.request.get({
+				lense.api.request.put({
 					path: 'gateway/utilities/close',
 					_data: {
 						uuid: lense.admin.utility.active()
@@ -467,7 +467,7 @@ lense.import('LenseAdminUtilityDetails', function() {
 	 */
 	lense.register.method('utility.open', function() {
 		lense.layout.loading(true, 'Opening utility for editing...', function() {
-			lense.api.request.get({
+			lense.api.request.put({
 				path: 'gateway/utilities/open',
 				_data: {
 					uuid: lense.admin.utility.active()

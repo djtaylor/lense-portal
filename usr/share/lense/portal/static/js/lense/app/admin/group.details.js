@@ -260,9 +260,8 @@ lense.import('LenseAdminGroupDetails', function() {
 	lense.register.method('group.remove_member', function(user) {
 		if (defined(user)) {
 			lense.layout.loading(true, 'Removing group member...', function() {
-				lense.api.request.post({
+				lense.api.request.del({
 					path:   'group/member',
-					action: 'remove',
 					_data:  {
 						uuid: lense.admin.groups.active,
 						user: user
@@ -301,7 +300,6 @@ lense.import('LenseAdminGroupDetails', function() {
 			lense.layout.loading(true, 'Adding group member...', function() {
 				lense.api.request.post({
 					path:   'group/member',
-					action: 'add',
 					_data:  {
 						uuid: lense.admin.groups.active,
 						user: user

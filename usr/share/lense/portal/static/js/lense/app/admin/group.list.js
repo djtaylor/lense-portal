@@ -76,7 +76,6 @@ lense.import('LenseAdminGroupsList', function() {
 			lense.layout.loading(true, 'Creating API user group...', function() { 
 				lense.api.request.post({
 					path:   'group',
-					action: 'create',
 					_data:  data,
 					callback: {
 						id: 'group.create'
@@ -104,9 +103,8 @@ lense.import('LenseAdminGroupsList', function() {
 		if (defined(group)) {
 			lense.layout.popup_toggle(false, 'group.delete', false, function() { 
 				lense.layout.loading(true, 'Deleting API user group...', function() { 
-					lense.api.request.post({
+					lense.api.request.del({
 						path:   'group',
-						action: 'delete',
 						_data:  {
 							uuid:  group
 						},

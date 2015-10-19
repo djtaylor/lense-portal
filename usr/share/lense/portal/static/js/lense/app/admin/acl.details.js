@@ -169,9 +169,8 @@ lense.import('LenseAdminACLDetails', function() {
 	 */
 	lense.register.method('acl.save', function() {
 		lense.layout.loading(true, 'Updating ACL properties...', function() {
-			lense.api.request.post({
+			lense.api.request.put({
 				path: 'gateway/acl',
-				action: 'update',
 				_data: lense.admin.acl.construct_request(),
 				callback: {
 					id: 'acl.save'

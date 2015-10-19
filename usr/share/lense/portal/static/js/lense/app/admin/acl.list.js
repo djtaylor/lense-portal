@@ -87,9 +87,8 @@ lense.import('LenseAdminACLList', function() {
 		if (defined(s)) {
 			lense.layout.popup_toggle(false, 'acl.delete', false, function() { 
 				lense.layout.loading(true, 'Deleting ACL...', function() {
-					lense.api.request.post({
+					lense.api.request.del({
 						path: 'gateway/acl',
-						action: 'delete',
 						_data: {
 							uuid: s
 						},

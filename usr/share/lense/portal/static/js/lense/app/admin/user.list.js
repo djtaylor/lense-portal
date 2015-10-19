@@ -228,9 +228,8 @@ lense.import('LenseAdminUsers', function() {
 		var u = lense.admin.users.active();
 		if (defined(u)) {
 			lense.layout.popup_toggle(false, false, false, function() { 
-				lense.api.request.post({
-					path:   'user',
-					action: 'disable',
+				lense.api.request.put({
+					path:   'user/disable',
 					_data:  {
 						username: u
 					},
@@ -249,9 +248,8 @@ lense.import('LenseAdminUsers', function() {
 		var u = lense.admin.users.active();
 		if (defined(u)) {
 			lense.layout.popup_toggle(false, false, false, function() { 
-				lense.api.request.post({
-					path:   'user',
-					action: 'enable',
+				lense.api.request.put({
+					path:   'user/enable',
 					_data:  {
 						username: u
 					},
@@ -270,9 +268,8 @@ lense.import('LenseAdminUsers', function() {
 		var u = lense.admin.users.active();
 		if (defined(u)) {
 			lense.layout.popup_toggle(false, false, false, function() { 
-				lense.api.request.post({
-					path:   'user',
-					action: 'pwreset',
+				lense.api.request.put({
+					path:   'user/pwreset',
 					_data:  {
 						username: u
 					},
@@ -306,7 +303,6 @@ lense.import('LenseAdminUsers', function() {
 			lense.layout.loading(true, 'Creating API user...', function() { 
 				lense.api.request.post({
 					path:   'user',
-					action: 'create',
 					_data:  data,
 					callback: {
 						id: 'user.create'

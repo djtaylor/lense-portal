@@ -215,6 +215,28 @@ lense.import('LenseAPIRequest', function() {
 	}
 	
 	/**
+	 * API PUT
+	 * 
+	 * Wrapper method used to submit a PUT request via the API proxy server.
+	 * 
+	 * @param {a} The request parameters
+	 */
+	this.put = function(p) {
+		lense.api.request.submit('put',p);
+	}
+	
+	/**
+	 * API DELETE
+	 * 
+	 * Wrapper method used to submit a DELETE request via the API proxy server.
+	 * 
+	 * @param {a} The request parameters
+	 */
+	this.del = function(p) {
+		lense.api.request.submit('delete',p);
+	}
+	
+	/**
 	 * Submit API Request
 	 * 
 	 * Handler method for submitting API requests via Socket.IO.

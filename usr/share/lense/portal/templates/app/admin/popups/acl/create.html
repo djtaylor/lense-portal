@@ -3,10 +3,10 @@
 	<div class="popup_title">Create ACL</div>
 	<div class="popup_body">
 		<div class="popup_desc">
-		Create a new ACL definition. You may select multiple endpoints to group under this new definition
-		to allow access. Host ACLs allow access to specific endpoints for managed hosts, object ACLs provide
-		access to specific objects (such as hosts, formulas, etc.) to API users, and global ACLs provide blanket
-		access to all objects managed by an endpoint.
+		Create a new ACL definition. You may select multiple utilities to group under this new definition
+		to allow access. Host ACLs allow access to specific utilities for managed hosts, object ACLs provide
+		access to specific objects to API users, and global ACLs provide blanket
+		access to all objects managed by a utility.
 		</div>
 		<form id="create_acl">
 		
@@ -46,13 +46,13 @@
 			<div class="popup_row">
 				<div class="popup_row_label">Endpoints:</div>
 				<div class="popup_row_input">
-					<select name="endpoints" form="create_acl" multiple>
+					<select name="utilities" form="create_acl" multiple>
 						<option value="">-none-</option>
-						{% for endpoint in endpoints %}
-							<option value="{{ endpoint.uuid }}">{{ endpoint.name }}</option>
+						{% for utility in utilities %}
+							<option value="{{ utility.uuid }}">{{ utility.name }}</option>
 						{% endfor %}
 					</select>
-					<input type="hidden" form="create_acl" name="endpoints" value="" parse="list" validate/>
+					<input type="hidden" form="create_acl" name="utilities" value="" parse="list" validate/>
 				</div>
 			</div>
 		

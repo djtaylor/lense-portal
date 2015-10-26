@@ -5,7 +5,7 @@
 		
 			{# Group Permission Panels #}
 			{% for acl_obj in acls.objects %}
-				<div class="table_action" type="button" action="grouptoggle" group="group_permissions" target="group_{{ acl_obj.type }}">{{ acl_obj.name}}s</div>
+				<div class="table_action" type="button" action="grouptoggle" group="group_permissions" target="group_{{ acl_obj.type }}">{{ acl_obj.name}}</div>
 			{% endfor %}
 			<div class="table_action_active" type="button" action="grouptoggle" group="group_permissions" target="group_global">Global</div>
 		</div>
@@ -161,85 +161,4 @@
 			</div>
 		</div>
 	{% endfor %}
-	
-	{# Host Permissions #}
-	<div class="table_window" type="grouptoggle" group="group_permissions" name="test" style="display:none;">
-		<div class="table_panel_title">Host Permissions</div>
-		<div class="table_rows" type="table" name="group_hosts">
-			{% for host in hosts %}
-				<div class="table_row table_row_link" type="button" action="toggle" target="{{ host.uuid }}_acls" host="{{ host.uuid }}">
-					{% if host.uuid in groups.permissions.object.host.ids %}
-						<div class="table_col" col="object_enabled" uuid="{{ host.uuid }}" enabled></div>
-					{% else %}
-						<div class="table_col" col="object_enabled" uuid="{{ host.uuid }}" disabled></div>
-					{% endif %}
-					<div class="table_col table_link" col="object_host_perm_name" type="button" action="link" target="hosts?panel=details&host={{ host.uuid }}">{{ host.name }}</div>
-					<div class="table_col" col="object_host_perm_ip">{{ host.ip }}</div>
-					<div class="table_col" col="object_host_perm_label">{{ host.sys.os.distro }} {{ host.sys.os.version }} {{ host.sys.os.arch }}</div>
-				</div>
-				<div class="table_row_group" style="display:none;" type="toggle" name="{{ host.uuid }}_acls">
-					<div class="table_headers table_headers_sub">
-						<div class="table_header table_header_rg" col="object_perm_host_enabled">Enabled</div>
-						<div class="table_header table_header_rg" col="object_perm_host_acl">ACL</div>
-						<div class="table_header table_header_rg" col="object_perm_host_allowed">Allowed</div>
-					</div>
-					{% for acl in acls.all %}
-						{% if acl.type_object and acl.endpoints.object.type == 'host' %}
-							<div class="table_row table_row_sub">
-								<div class="table_col" col="object_perm_host_enabled">
-									{% if not host.uuid in groups.permissions.object.host.ids %}
-										<input type="checkbox" name="acl_toggle" acl_type="object" acl_object="host" acl_object_id="{{ host.uuid }}" acl_uuid="{{ acl.uuid }}" value="">
-									{% else %}
-										{% for host_id, acl_ids in groups.permissions.object.host.ids.iteritems %}
-											{% if host_id == host.uuid %}
-												{% if acl.uuid in acl_ids %}
-													<input type="checkbox" name="acl_toggle" acl_type="object" acl_object="host" acl_object_id="{{ host.uuid }}" acl_uuid="{{ acl.uuid }}" value="" checked>
-												{% else %}
-													<input type="checkbox" name="acl_toggle" acl_type="object" acl_object="host" acl_object_id="{{ host.uuid }}" acl_uuid="{{ acl.uuid }}" value="">
-												{% endif %}
-											{% endif %}
-										{% endfor %}
-									{% endif %}
-								</div>
-								<div class="table_col table_link" col="object_perm_host_acl" type="button" action="popup" target="{{ acl.uuid }}_object_endpoints">{{ acl.name }}</div>
-								<div class="table_col" col="object_perm_host_allowed">
-									{% if not host.uuid in groups.permissions.object.host.ids %}
-										<select name="acl_allow" acl_type="object" acl_object="host" acl_object_id="{{ host.uuid }}" acl_uuid="{{ acl.uuid }}" disabled>
-											<option value="yes">Yes</option>
-											<option value="no" selected>No</option>
-										</select>
-									{% else %}
-										{% for host_id, acl_ids in groups.permissions.object.host.ids.iteritems %}
-											{% if host_id == host.uuid %}
-												{% if not acl.uuid in acl_ids %}
-													<select name="acl_allow" acl_type="object" acl_object="host" acl_object_id="{{ host.uuid }}" acl_uuid="{{ acl.uuid }}" disabled>
-														<option value="yes">Yes</option>
-														<option value="no" selected>No</option>
-													</select>	
-												{% else %}
-													{% for permission in groups.permissions.object.host.details %}
-														{% if permission.host_id == host.uuid and permission.acl_id == acl.uuid %}
-															<select name="acl_allow" acl_type="object" acl_object="host" acl_object_id="{{ host.uuid }}" acl_uuid="{{ acl.uuid }}">
-																{% if permission.allowed %}
-																	<option value="yes" selected>Yes</option>
-																	<option value="no">No</option>
-																{% else %}
-																	<option value="yes">Yes</option>
-																	<option value="no" selected>No</option>
-																{% endif %}
-															</select>
-														{% endif %}
-													{% endfor %}
-												{% endif %}
-											{% endif %}
-										{% endfor %}
-									{% endif %}
-								</div>
-							</div>
-						{% endif %}
-					{% endfor %}
-				</div>
-			{% endfor %}
-		</div>
-	</div>
 </div>

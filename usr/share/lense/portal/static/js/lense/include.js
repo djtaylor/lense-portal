@@ -33,6 +33,17 @@
 		c.push('api.LenseAPIInterface');
 	});
 
+	// Lense: API Manager
+	include({
+		LenseAPIMInterface:        'app/apim/interface.js'
+	}, {
+		url: {
+			path: ['apim']
+		}
+	}, function() {
+		c.push('apim.LenseAPIMInterface');
+	});
+	
 	// Lense: Login
 	include({
 		LenseAuthInterface:    	   'app/auth/interface.js'

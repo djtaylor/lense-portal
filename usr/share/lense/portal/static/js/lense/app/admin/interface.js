@@ -42,15 +42,6 @@ lense.import('LenseAdminInterface', function() {
 			}
 		}
 		
-		// Datacenter Details
-		if (defined(lense.url.param_get('datacenter'))) {
-			lense.implement('LenseAdminDatacentersDetails', 'admin.datacenters');
-		} else {
-			if (lense.url.param_get('panel') == 'datacenters') {
-				lense.implement('LenseAdminDatacentersList', 'admin.datacenters');
-			}
-		}
-		
 		// ACL Objects Details
 		if (defined(lense.url.param_get('object'))) {
 			lense.implement('LenseAdminACLObjectDetails', 'admin.acl_objects');

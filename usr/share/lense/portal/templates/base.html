@@ -50,6 +50,7 @@
 					<div class="base_nav">
 						<div class="base_nav_left">
 							<div class="base_nav_button_left" type="button" action="link" target="home" >Home</div>
+							<div class="base_nav_button_left" type="hover" action="menutoggle" target="menu_apim" >API Manager</div>
 							{% if BASE.user.is_admin %}
 								<div class="base_nav_button_left" type="hover" action="menutoggle" target="menu_admin">Admin</div>
 							{% endif %}
@@ -92,7 +93,7 @@
 						{% include "core/menu/admin.html" %}
 					{% endif %}
 					{% include "core/menu/profile.html" %}
-					{% include "core/menu/api.html" %}
+					{% include "core/menu/apim.html" %}
 				{% endblock %}
 				
 				{# Page Content Block #}

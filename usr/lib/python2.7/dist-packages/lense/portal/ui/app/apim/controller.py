@@ -30,6 +30,7 @@ class AppController(PortalTemplate):
         }
         
     def _connectors(self):
+        return {}
         response = self.api_call_threaded({
             'connectors':  ('connector', 'get')
         })
@@ -46,6 +47,7 @@ class AppController(PortalTemplate):
         }
         
     def _integrators(self):
+        return {}
         response = self.api_call_threaded({
             'integrators':  ('integrator', 'get')
         })
@@ -62,6 +64,7 @@ class AppController(PortalTemplate):
         }
         
     def _callbacks(self):
+        return {}
         response = self.api_call_threaded({
             'callbacks':  ('callback', 'get')
         })

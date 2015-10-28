@@ -1821,6 +1821,18 @@ div[class="popup_row_toggle_button_50"][state="active"] {
 	background-image: url(/static/images/users.png);
 }
 
+.nav_icon_connector {
+	background-image: url(/static/images/connector.png);
+}
+
+.nav_icon_integrator {
+	background-image: url(/static/images/integrator.png);
+}
+
+.nav_icon_callback {
+	background-image: url(/static/images/callback.png);
+}
+
 .nav_icon_permissions {
 	background-image: url(/static/images/permissions.png);
 }

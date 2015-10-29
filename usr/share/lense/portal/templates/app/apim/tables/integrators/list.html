@@ -1,0 +1,25 @@
+<div class="table" type="table" target="apim_integrators" id="integrator_list_table">
+	<div class="table_title" id="integrator_list_title">
+		<div class="table_title_label">API Integrators</div>
+		<div class="table_actions">
+			<div class="table_action" type="button" action="popup" target="integrator.create">Create</div>
+			<div class="table_action" type="button" action="popup" target="integrator.delete" require="input[type='radio'][name='integrator_uuid']:checked">Delete</div>
+		</div>
+	</div>
+	<div class="table_headers" table="integrator_list">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="integrator_name">Name</div>
+		<div class="table_header table_header_md" col="integrator_uuid" >UUID</div>
+	</div>
+	<div type="rows" table="integrator_list">
+		{% for integrator in integrators %}
+			<div class="table_row" type="row" target="integrator" integrator="{{ integrator.uuid }}">
+				<div class="table_select_col">
+					<input type="radio" name="integrator_uuid" value="{{ integrator.uuid }}" action="update">
+				</div>
+				<div class="table_col table_link" type="button" action="link" target="apim?panel=integrators&integrator={{ integrator.uuid }}" col="integrator_name">{{ integrator.name }}</div>
+				<div class="table_col" col="integrator_uuid">{{ integrator.uuid }}</div>
+			</div>
+		{% endfor %}
+	</div>
+</div>

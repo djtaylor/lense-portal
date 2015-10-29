@@ -1,0 +1,25 @@
+<div class="table" type="table" target="apim_connectors" id="connector_list_table">
+	<div class="table_title" id="connector_list_title">
+		<div class="table_title_label">API Connectors</div>
+		<div class="table_actions">
+			<div class="table_action" type="button" action="popup" target="connector.create">Create</div>
+			<div class="table_action" type="button" action="popup" target="connector.delete" require="input[type='radio'][name='connector_uuid']:checked">Delete</div>
+		</div>
+	</div>
+	<div class="table_headers" table="connector_list">
+		<div class="table_select_header"></div>
+		<div class="table_header table_header_md" col="connector_name">Name</div>
+		<div class="table_header table_header_md" col="connector_uuid" >UUID</div>
+	</div>
+	<div type="rows" table="connector_list">
+		{% for connector in connectors %}
+			<div class="table_row" type="row" target="connector" connector="{{ connector.uuid }}">
+				<div class="table_select_col">
+					<input type="radio" name="connector_uuid" value="{{ connector.uuid }}" action="update">
+				</div>
+				<div class="table_col table_link" type="button" action="link" target="apim?panel=connectors&connector={{ connector.uuid }}" col="connector_name">{{ connector.name }}</div>
+				<div class="table_col" col="connector_uuid">{{ connector.uuid }}</div>
+			</div>
+		{% endfor %}
+	</div>
+</div>

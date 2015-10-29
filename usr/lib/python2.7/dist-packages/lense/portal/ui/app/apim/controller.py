@@ -30,7 +30,6 @@ class AppController(PortalTemplate):
         }
         
     def _connectors(self):
-        return {}
         response = self.api_call_threaded({
             'connectors':  ('connector', 'get')
         })
@@ -41,13 +40,14 @@ class AppController(PortalTemplate):
             'page': {
                 'title': 'Lense API Management - Connectors',
                 'css': ['apim.css'],
-                'contents': [],
+                'contents': [
+                    'app/apim/tables/connectors/list.html'
+                ],
                 'popups': []
             } 
         }
         
     def _integrators(self):
-        return {}
         response = self.api_call_threaded({
             'integrators':  ('integrator', 'get')
         })
@@ -58,7 +58,9 @@ class AppController(PortalTemplate):
             'page': {
                 'title': 'Lense API Management - Integrators',
                 'css': ['apim.css'],
-                'contents': [],
+                'contents': [
+                    'app/apim/tables/integrators/list.html'
+                ],
                 'popups': []
             } 
         }

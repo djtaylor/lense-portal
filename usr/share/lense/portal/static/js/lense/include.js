@@ -40,7 +40,7 @@
 		LenseAPIMConnectorDetails: 'app/apim/connector.details.js'
 	}, {
 		url: {
-			path: ['apim']
+			path: 'apim'
 		}
 	}, function() {
 		c.push('apim.LenseAPIMInterface');

@@ -1,0 +1,25 @@
+{# Create Connector #}
+<div class="popup_content" type="popup" target="connector.create">
+	<div class="popup_title">Create Connector</div>
+	<div class="popup_body">
+		<div class="popup_desc">
+		Create a new API connector definition. API connectors are used when defining integrators, and
+		running either single or multiple connectors.
+		</div>
+		<form id="create_connector">
+		
+			{# Connector Name #}
+			<div class="popup_row">
+				<div class="popup_row_label">Name:</div>
+				<div class="popup_row_input">
+					<input type="text" form="create_connector" name="name" value="" required />
+					<div class="form_input_icon_def" type="icon" form="create_connector" name="name"></div>
+				</div>
+			</div>
+	
+			{# Form Validation Response #}
+			<div class="form_response" type="response" target="#create_connector"></div>
+		</form>
+		<div class="popup_submit" type="button" action="method" target="api.submit" arg="create_connector">Create Connector</div>
+	</div>
+</div>

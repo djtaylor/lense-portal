@@ -35,7 +35,9 @@
 
 	// Lense: API Manager
 	include({
-		LenseAPIMInterface:        'app/apim/interface.js'
+		LenseAPIMInterface:        'app/apim/interface.js',
+		LenseAPIMConnectorList:    'app/apim/connector.list.js',
+		LenseAPIMConnectorDetails: 'app/apim/connector.details.js'
 	}, {
 		url: {
 			path: ['apim']

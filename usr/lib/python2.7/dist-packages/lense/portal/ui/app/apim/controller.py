@@ -43,7 +43,10 @@ class AppController(PortalTemplate):
                 'contents': [
                     'app/apim/tables/connectors/list.html'
                 ],
-                'popups': []
+                'popups': [
+                    'app/apim/popups/connectors/create.html',
+                    'app/apim/popups/connectors/delete.html'
+                ]
             } 
         }
         

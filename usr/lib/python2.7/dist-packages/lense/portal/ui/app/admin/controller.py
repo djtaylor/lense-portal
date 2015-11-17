@@ -77,8 +77,8 @@ class AppController(PortalTemplate):
         response = self.api_call_threaded({
             'groups':      ('group', 'get'),
             'users':       ('user', 'get'),
-            'acls':        ('gateway', 'get_acl'),
-            'acl_objects': ('gateway', 'get_acl_objects', {'detailed':True})  
+            'acls':        ('acl', 'get'),
+            'acl_objects': ('acl', 'get_objects', {'detailed':True})  
         })
                 
         # Target group / group details
@@ -142,8 +142,8 @@ class AppController(PortalTemplate):
         
         # Make all required API calls
         response = self.api_call_threaded({
-            'acls':      ('gateway', 'get_acl'),
-            'utilities': ('gateway', 'get_utilities')
+            'acls':      ('acl', 'get'),
+            'utilities': ('utility', 'get')
         })
         
         # All ACLS / target ACL / target object / target UUID / target utilities list
@@ -203,8 +203,8 @@ class AppController(PortalTemplate):
         
         # Make all required API calls
         response = self.api_call_threaded({
-            'acl_objects': ('gateway', 'get_acl_objects', {'detailed':True}),
-            'acls':        ('gateway', 'get_acl')
+            'acl_objects': ('acl', 'get_objects', {'detailed':True}),
+            'acls':        ('acl', 'get')
         })
         
         # All ACL objects / target object / object details
@@ -260,8 +260,8 @@ class AppController(PortalTemplate):
         
         # Make all required API calls
         response = self.api_call_threaded({
-            'utilities':   ('gateway', 'get_utilities'),
-            'acl_objects': ('gateway', 'get_acl_objects')
+            'utilities':   ('utility', 'get'),
+            'acl_objects': ('acl', 'get_objects')
         })
         
         # All utilities / target utility / utility object

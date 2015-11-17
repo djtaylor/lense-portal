@@ -49,7 +49,7 @@ lense.import('LenseAdminACLObjectDetails', function() {
 		
 		// Submit the API update request
 		lense.api.request.put({
-			path:     'auth/acl/objects',
+			path:     'acl/objects',
 			callback: {
 				id: 'acl.save_object'
 			},

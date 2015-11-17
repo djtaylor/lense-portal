@@ -85,7 +85,7 @@ lense.import('LenseAdminACLObjectsList', function() {
 		// Submit the API request
 		lense.layout.popup_toggle(false, 'acl.create_object', false, function() {
 			lense.api.request.post({
-				path:     'gateway/acl/objects',
+				path:     'acl/objects',
 				callback: {
 					id: 'acl.create_object'
 				},
@@ -120,7 +120,7 @@ lense.import('LenseAdminACLObjectsList', function() {
 			// Submit the API request
 			lense.layout.popup_toggle(false, 'acl.delete_object', false, function() {
 				lense.api.request.del({
-					path:     'gateway/acl/objects',
+					path:     'acl/objects',
 					callback: {
 						id: 'acl.delete_object'
 					},

@@ -172,7 +172,7 @@ lense.import('LenseAPICache', function() {
 		
 		// Utilities
 		lense.api.request.get({
-			path:     'gateway/utilities',
+			path:     'utility',
 			action:   'get',
 			callback: {
 				id: 'api.cache_utilities'
@@ -181,7 +181,7 @@ lense.import('LenseAPICache', function() {
 		
 		// ACLs
 		lense.api.request.get({
-			path:     'auth/acl',
+			path:     'acl',
 			action:   'get',
 			callback: {
 				id: 'api.cache_acls'

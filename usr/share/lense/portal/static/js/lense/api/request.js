@@ -28,13 +28,13 @@ lense.import('LenseAPIRequest', function() {
 		'group/member/remove': {
 			'msg': 'Removing member from group...'
 		},
-		'gateway/utilities/create': {
+		'utility/create': {
 			'msg': 'Creating new utility...'
 		},
-		'gateway/utilities/delete': {
+		'utility/delete': {
 			'msg': 'Deleting utility definition...'
 		},
-		'gateway/acl/create': {
+		'acl/create': {
 			'msg': 'Creating new ACL...'
 		}
 	};

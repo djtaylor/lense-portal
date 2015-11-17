@@ -161,6 +161,32 @@ class PortalBase(object):
                     # Application controller disabled
                     self.controller[app_name] = False
         
+    def api_call(self, module, method, data=None):
+        """
+        Wrapper method for the APIClient class instance.
+        """
+        
+        # Make sure the base attribute exists
+        if hasattr(self.portal.api.client, module):
+            api_base = getattr(self.portal.api.client, module)
+            
+            # Make sure the method attribute exists
+            if hasattr(api_base, method):
+                api_method = getattr(api_base, method)
+       
+                # Run the API request and return a filtered response
+                return self.filter.object(self.portal.api.response(api_method(data))).map('{0}.{1}'.format(module, method))
+       
+        # Invalid base/method attribute
+        return False    
+        
+    def _get_user_via_api(self):
+        """
+        Retrieve user details via API so we don't have to have the DBUser model
+        local to the server.
+        """
+        
+        
     def _set_request(self, request):
         """
         Setup the incoming request object.

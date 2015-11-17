@@ -32,19 +32,6 @@
 	}, function() {
 		c.push('api.LenseAPIInterface');
 	});
-
-	// Lense: API Manager
-	include({
-		LenseAPIMInterface:        'app/apim/interface.js',
-		LenseAPIMConnectorList:    'app/apim/connector.list.js',
-		LenseAPIMConnectorDetails: 'app/apim/connector.details.js'
-	}, {
-		url: {
-			path: 'apim'
-		}
-	}, function() {
-		c.push('apim.LenseAPIMInterface');
-	});
 	
 	// Lense: Login
 	include({

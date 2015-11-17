@@ -84,12 +84,12 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'lense.engine.api.app.user',
+    'lense.common.objects.user',
     'lense.portal.ui.util'
 )
 
 # Authentication user model
-AUTH_USER_MODEL = 'user.DBUser'
+AUTH_USER_MODEL = 'user.APIUser'
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = (

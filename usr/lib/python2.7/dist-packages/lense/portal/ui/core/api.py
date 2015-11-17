@@ -1,5 +1,5 @@
 from lense.client.manager import APIConnect
-from lense.engine.api.app.user.models import DBUser, DBUserAPIKeys
+from lense.common.objects.user.models import APIUser, APIUserKeys
 
 class APIClient:
     """
@@ -17,10 +17,10 @@ class APIClient:
             return False
         
         # Get the user object
-        user_obj = DBUser.objects.get(username=user)
+        user_obj = APIUser.objects.get(username=user)
         
         # Query the API key for the logged in user
-        api_key_row = DBUserAPIKeys.objects.filter(user=user_obj.uuid).values('api_key')
+        api_key_row = APIUserKeys.objects.filter(user=user_obj.uuid).values('api_key')
         if not api_key_row:
             return False
         

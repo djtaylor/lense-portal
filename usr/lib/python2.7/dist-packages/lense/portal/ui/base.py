@@ -15,7 +15,7 @@ from lense.common import config
 from lense.common import logger
 from lense.portal.ui.core.api import APIClient
 from lense.common.collection import Collection
-from lense.engine.api.app.user.models import DBUser
+from lense.common.objects.user.models import APIUser
 
 class PortalRequest(object):
     """
@@ -180,13 +180,6 @@ class PortalBase(object):
         # Invalid base/method attribute
         return False    
         
-    def _get_user_via_api(self):
-        """
-        Retrieve user details via API so we don't have to have the DBUser model
-        local to the server.
-        """
-        
-        
     def _set_request(self, request):
         """
         Setup the incoming request object.
@@ -196,7 +189,7 @@ class PortalBase(object):
         if request.user.is_authenticated():
             
             # Get the user details
-            user_details = DBUser.objects.filter(username=request.user.username).values()[0]
+            user_details = APIUser.objects.filter(username=request.user.username).values()[0]
             
             # Set the user's groups
             self.user = user_details
@@ -244,7 +237,7 @@ class PortalBase(object):
         """
         
         # Get all user groups
-        all_groups = DBUser.objects.filter(username=self.request.user).values()[0]['groups']
+        all_groups = APIUser.objects.filter(username=self.request.user).values()[0]['groups']
         
         # Make sure the user is a member of the group
         is_member = False

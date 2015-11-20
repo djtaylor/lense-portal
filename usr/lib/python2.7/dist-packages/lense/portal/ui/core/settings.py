@@ -1,12 +1,12 @@
 import os
 
 # Lense Libraries
-from lense.common.vars import TEMPLATES, DB_ENCRYPT_DIR
-import lense.common.config as config
+from lense.common import LenseCommon
+from lense.common.vars import DB_ENCRYPT_DIR
 from lense.common.auth.utils import AuthGroupsLDAP
 
-# Configuration
-CONFIG           = config.parse('PORTAL')
+# Lense Common
+LENSE            = LenseCommon('PORTAL')
 
 # Project base directory
 BASE_DIR         = os.path.dirname(os.path.dirname(__file__))
@@ -18,7 +18,7 @@ DEBUG            = True
 ALLOWED_HOSTS    = []
 
 # Secret key
-SECRET_KEY       = CONFIG.portal.secret
+SECRET_KEY       = LENSE.CONF.portal.secret
 
 # Internationalization settings
 LANGUAGE_CODE    = 'en-us'
@@ -40,9 +40,7 @@ WSGI_APPLICATION = 'lense.portal.ui.core.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-           TEMPLATES.PORTAL,
-        ],
+        'DIRS': [ LENSE.PROJECT.TEMPLATES ],
         'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
@@ -63,10 +61,10 @@ DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'lense',
-        'USER':     CONFIG.db.user,
-        'PASSWORD': CONFIG.db.password,
-        'HOST':     CONFIG.db.host,
-        'PORT':     CONFIG.db.port
+        'USER':     LENSE.CONF.db.user,
+        'PASSWORD': LENSE.CONF.db.password,
+        'HOST':     LENSE.CONF.db.host,
+        'PORT':     LENSE.CONF.db.port
     }
 }
 
@@ -97,9 +95,9 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # LDAP Authentication
-AUTH_LDAP_SERVER_URI = 'ldap://{0}'.format(CONFIG.ldap.host)
-AUTH_LDAP_BIND_DN = CONFIG.ldap.user
-AUTH_LDAP_BIND_PASSWORD = CONFIG.ldap.password
+AUTH_LDAP_SERVER_URI = 'ldap://{0}'.format(LENSE.CONF.ldap.host)
+AUTH_LDAP_BIND_DN = LENSE.CONF.ldap.user
+AUTH_LDAP_BIND_PASSWORD = LENSE.CONF.ldap.password
         
 # LDAP user search
 AUTH_LDAP_USER_SEARCH = AuthGroupsLDAP.construct()
@@ -118,4 +116,4 @@ MIDDLEWARE_CLASSES = (
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # Session timeout in minutes
-SESSION_TIMEOUT = CONFIG.portal.timeout
+SESSION_TIMEOUT = LENSE.CONF.portal.timeout

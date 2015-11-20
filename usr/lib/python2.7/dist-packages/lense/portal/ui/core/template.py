@@ -12,9 +12,11 @@ from django.template import RequestContext, Context, loader
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
 # Lense Libraries
-from lense.common import config
-from lense.common import logger
+from lense.common import LenseCommon
 from lense.portal.ui.core.filter import APIFilter
+
+# Lense Common
+LENSE = LenseCommon('PORTAL')
 
 class PortalTemplate(object):
     """
@@ -32,10 +34,6 @@ class PortalTemplate(object):
         self.json        = json
         self.base64      = base64
         self.OrderedDict = OrderedDict  
-        
-        # Configuration / logger
-        self.conf        = config.parse('PORTAL')
-        self.log         = logger.create(__name__, self.conf.portal.log)
      
         # URL panel
         self.panel       = self.get_query_key('panel')
@@ -139,7 +137,7 @@ class PortalTemplate(object):
         
         # Replace the API URL with the Socket.IO proxy
         if params['BASE']['api']['params']:
-            params['BASE']['api']['params']['url'] = '{0}://{1}:{2}'.format(self.conf.socket.proto, self.conf.socket.host, self.conf.socket.port)
+            params['BASE']['api']['params']['url'] = '{0}://{1}:{2}'.format(LENSE.CONF.socket.proto, LENSE.CONF.socket.host, LENSE.CONF.socket.port)
         
         # Merge extra template parameters
         for k,v in objs.iteritems():
@@ -223,7 +221,7 @@ class PortalTemplate(object):
         except Exception as e:
             
             # Log the exception
-            self.log.exception('Failed to render application template interface: {0}'.format(str(e)))
+            LENSE.LOG.exception('Failed to render application template interface: {0}'.format(str(e)))
             
             # Get the exception data
             e_type, e_info, e_trace = sys.exc_info()
@@ -237,5 +235,5 @@ class PortalTemplate(object):
             # Return a server error
             return HttpResponseServerError(t.render(RequestContext(self.portal.request.RAW, {
                 'error': 'An error occurred when rendering the requested page.',
-                'debug': None if self.conf.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
+                'debug': None if LENSE.CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
             })))

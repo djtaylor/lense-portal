@@ -10,39 +10,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
 # Lense Libraries
-from lense import MODULE_ROOT
-from lense.common import config
-from lense.common import logger
+from lense.common import LenseCommon
 from lense.portal.ui.core.api import APIClient
-from lense.common.collection import Collection
 from lense.common.objects.user.models import APIUser
 
-class PortalRequest(object):
-    """
-    Construct and return a portal request object.
-    """
-    def __init__(self, request):
-        
-        # Raw request object
-        self.RAW      = request
-        
-        # Method / GET / POST / body data
-        self.method   = request.META['REQUEST_METHOD']
-        self.GET      = Collection(request.GET).get()
-        self.POST     = Collection(request.POST).get()
-        self.body     = request.body
-        
-        # User / group / session
-        self.user     = None if not hasattr(request, 'user') else request.user.username
-        self.group    = None if not request.user.is_authenticated() else request.session['active_group']
-        self.session  = None if not hasattr(request, 'session') else request.session.session_key
-        self.is_admin = False if not request.user.is_authenticated() else request.session['is_admin']
-        
-        # Path / query string / script / current URI
-        self.path     = request.META['PATH_INFO'].replace('/','')
-        self.query    = request.META['QUERY_STRING']
-        self.script   = request.META['SCRIPT_NAME']
-        self.current  = request.META['REQUEST_URI']
+# Lense Common
+LENSE = LenseCommon('PORTAL')
 
 class PortalBase(object):
     """
@@ -120,23 +93,23 @@ class PortalBase(object):
             'is_admin': self.request.is_admin
             
         }
-        return Collection(api_obj).get()
+        return LENSE.COLLECTION(api_obj).get()
         
     def _set_url(self, path):
-        return '{0}://{1}:{2}/{3}'.format(self.conf.portal.proto, self.conf.portal.host, self.conf.portal.port, path)
+        return '{0}://{1}:{2}/{3}'.format(LENSE.CONF.portal.proto, LENSE.CONF.portal.host, LENSE.CONF.portal.port, path)
         
-    def _set_app_controllers(self):
+    def _set_handler_controllers(self):
         """
-        Construct supported application controllers.
+        Construct supported request handler controllers.
         """
         
-        # Application directory / module base
-        app_dir  = '{0}/portal/ui/app'.format(MODULE_ROOT)
-        mod_base = 'lense.portal.ui.app'
+        # Handler file path / module base
+        handler_files = '{0}/portal/ui/handlers'.format(LENSE.MODULE_ROOT)
+        handler_mods  = 'lense.portal.ui.handlers'
         
-        # Scan every application
-        for app_name in [x for x in os.listdir(app_dir) if not re.match(r'__|pyc', x)]:
-            controller = '{0}/{1}/controller.py'.format(app_dir, app_name)
+        # Scan every handler
+        for handler_name in [x for x in os.listdir(handler_files) if not re.match(r'__|pyc', x)]:
+            controller = '{0}/{1}/controller.py'.format(handler_files, handler_name)
             
             # If a controller module exists
             if os.path.isfile(controller):
@@ -145,21 +118,21 @@ class PortalBase(object):
                 try:
                     
                     # Define the module name
-                    mod_name = '{0}.{1}.controller'.format(mod_base, app_name)
+                    mod_name = '{0}.{1}.controller'.format(handler_mods, handler_name)
                     
                     # Create a new module instance
                     mod_obj  = importlib.import_module(mod_name)
-                    cls_obj  = getattr(mod_obj, 'AppController')
+                    cls_obj  = getattr(mod_obj, 'HandlerController')
                     
                     # Add to the application object
-                    self.controller[app_name] = cls_obj
+                    self.controller[handler_name] = cls_obj
                     
                 # Critical error when loading controller
                 except Exception as e:
-                    self.log.exception('Failed to load application <{0}> controller: {1}'.format(app_name, str(e)))
+                    LENSE.LOG.exception('Failed to load request handler "{0}" controller: {1}'.format(handler_name, str(e)))
                     
                     # Application controller disabled
-                    self.controller[app_name] = False
+                    self.controller[handler_name] = False
         
     def api_call(self, module, method, data=None):
         """
@@ -204,7 +177,7 @@ class PortalBase(object):
                 request.session['active_group'] = user_details['groups'][0]['uuid']
         
         # Return a request object
-        return PortalRequest(request)
+        return LENSE.REQUEST.SET(request)
         
     def _run_controller(self, **kwargs):
         """
@@ -279,7 +252,7 @@ class PortalBase(object):
             
             # User is active
             if user.is_active:
-                self.log.info('User account [{0}] active, logging in user'.format(username))
+                LENSE.LOG.info('User account [{0}] active, logging in user'.format(username))
                 
                 # Login the user account
                 login(self.request.RAW, user)
@@ -289,12 +262,12 @@ class PortalBase(object):
             
             # User account is inactive
             else:
-                self.log.info('Login failed, user account [{0}] is inactive'.format(username))
+                LENSE.LOG.info('Login failed, user account [{0}] is inactive'.format(username))
                 state = 'Your account is not active - please contact your administrator'
         
         # User account does not exist or username/password incorrect
         else:
-            self.log.error('Login failed, user account [{0}] does not exist or password is incorrect'.format(username))
+            LENSE.LOG.error('Login failed, user account [{0}] does not exist or password is incorrect'.format(username))
             state = 'Your username and/or password are incorrect'
     
         # Return the login failure screen
@@ -341,8 +314,8 @@ class PortalBase(object):
                     continue
                 self.api.params[key] = value
         
-        # Construct application controllers
-        self._set_app_controllers()
+        # Construct request handler controllers
+        self._set_handler_controllers()
         
         # Construct and return the application template
         self.template = self._run_controller()

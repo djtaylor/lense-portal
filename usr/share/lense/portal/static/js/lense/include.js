@@ -35,7 +35,7 @@
 	
 	// Lense: Login
 	include({
-		LenseAuthInterface:    	   'app/auth/interface.js'
+		LenseAuthInterface:    	   'handlers/auth/interface.js'
 	}, {
 		url: {
 			path: 'auth'
@@ -46,7 +46,7 @@
 
 	// Lense: Home
 	include({
-		LenseHomeInterface:    	   'app/home/interface.js'
+		LenseHomeInterface:    	   'handlers/home/interface.js'
 	}, {
 		url: {
 			path: 'home'
@@ -57,16 +57,16 @@
 	
 	// Lense: Admin
 	include({
-		LenseAdminACLList:            'app/admin/acl.list.js',
-		LenseAdminACLDetails:         'app/admin/acl.details.js',
-		LenseAdminUsers:              'app/admin/user.list.js',
-		LenseAdminGroupsList:         'app/admin/group.list.js',
-		LenseAdminGroupDetails:       'app/admin/group.details.js',
-		LenseAdminUtilityDetails:     'app/admin/utility.details.js',
-		LenseAdminUtilitiesList:      'app/admin/utility.list.js',
-		LenseAdminACLObjectsList:     'app/admin/object.list.js',
-		LenseAdminACLObjectDetails:   'app/admin/object.details.js',
-		LenseAdminInterface:          'app/admin/interface.js'
+		LenseAdminACLList:            'handlers/admin/acl.list.js',
+		LenseAdminACLDetails:         'handlers/admin/acl.details.js',
+		LenseAdminUsers:              'handlers/admin/user.list.js',
+		LenseAdminGroupsList:         'handlers/admin/group.list.js',
+		LenseAdminGroupDetails:       'handlers/admin/group.details.js',
+		LenseAdminUtilityDetails:     'handlers/admin/utility.details.js',
+		LenseAdminUtilitiesList:      'handlers/admin/utility.list.js',
+		LenseAdminACLObjectsList:     'handlers/admin/object.list.js',
+		LenseAdminACLObjectDetails:   'handlers/admin/object.details.js',
+		LenseAdminInterface:          'handlers/admin/interface.js'
 	}, {
 		url: {
 			path: 'admin'

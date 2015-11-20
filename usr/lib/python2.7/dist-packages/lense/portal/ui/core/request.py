@@ -10,17 +10,11 @@ from django.template import RequestContext, Context, loader
 from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect
 
 # Lense Libraries
-from lense import MODULE_ROOT
-from lense.common import config
-from lense.common import logger
+from lense.common import LenseCommon
 from lense.portal.ui.base import PortalBase
 
-# Module class name
-MOD_CLASS = 'AppModule'
-
-# Configuration / Logger
-CONF = config.parse('PORTAL')
-LOG  = logger.create(__name__, CONF.portal.log)
+# Lense Common
+LENSE = LenseCommon('PORTAL')
 
 def dispatch(request):
     """
@@ -33,7 +27,7 @@ def dispatch(request):
     
     # Critical server error
     except Exception as e:
-        LOG.exception('Internal server error: {0}'.format(str(e)))
+        LENSE.LOG.exception('Internal server error: {0}'.format(str(e)))
             
         # Get the exception data
         e_type, e_info, e_trace = sys.exc_info()
@@ -47,7 +41,7 @@ def dispatch(request):
         # Return a server error
         return HttpResponseServerError(t.render(RequestContext(request, {
             'error': 'An error occurred when rendering the requested page.',
-            'debug': None if not CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
+            'debug': None if not LENSE.CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
         })))
     
 class RequestManager(object):
@@ -57,50 +51,50 @@ class RequestManager(object):
     def __init__(self, request):
         
         # Construct the request object
-        self.request = request
+        self.request  = LENSE.REQUEST.SET(request)
         
-        # Request path / available applications
-        self.path    = self.request.META['PATH_INFO'].replace('/', '')
-        self.apps    = self._load_applications()
+        # Request path / available handlers
+        self.path     = self.request.path.replace('/', '')
+        self.handlers = self._load_handlers()
         
-    def _load_applications(self):
+    def _load_handlers(self):
         """
-        Load all available applications.
+        Load all available request handlers.
         """
         
-        # Module directory / base path
-        app_path = '{0}/portal/ui/app'.format(MODULE_ROOT)
-        app_base = 'lense.portal.ui.app'
+        # Handler file path / module base
+        handler_files = '{0}/portal/ui/handlers'.format(LENSE.MODULE_ROOT)
+        handler_mods  = 'lense.portal.ui.handlers'
         
-        # Applications object
-        app_obj  = {}
+        # Handlers object
+        handler_obj   = {}
         
-        # Scan every application
-        for app in os.listdir(app_path):
+        # Scan every handler
+        for handler in os.listdir(handler_files):
             
             # Ignore special files
-            if re.match(r'^__.*$', app) or re.match(r'^.*\.pyc$', app):
+            if re.match(r'^__.*$', handler) or re.match(r'^.*\.pyc$', handler):
                 continue
             
-            # Define the application view module
-            app_view = '{0}/{1}/views.py'.format(app_path, app)
+            # Define the handler view module
+            handler_view = '{0}/{1}/views.py'.format(handler_files, handler)
             
-            # If the application has a view associated with it
-            if os.path.isfile(app_view):
-                mod_path = '{0}.{1}.views'.format(app_base, app)
+            # If the handler has a view associated with it
+            if os.path.isfile(handler_view):
+                mod_path = '{0}.{1}.views'.format(handler_mods, handler)
                 
                 # Create a new module instance
                 mod_obj  = importlib.import_module(mod_path)
-                cls_obj  = getattr(mod_obj, MOD_CLASS)
+                cls_obj  = getattr(mod_obj, 'HandlerView')
                 
-                # Add to the modules object
-                app_obj[app] = cls_obj
+                # Add to the handlers object
+                handler_obj[handler] = cls_obj
                 
-                # Load application module
-                LOG.info('Loading application module: app={0}, module={1}'.format(app, mod_path))
+                # Load handler module
+                LENSE.LOG.info('Loading request handler view: path={0}, module={1}'.format(handler, mod_path))
         
-        # Return the constructed applications object
-        return app_obj
+        # Return the constructed handlers object
+        return handler_obj
         
     def redirect(self, path):
         """
@@ -113,9 +107,9 @@ class RequestManager(object):
         Worker method for mapping requests to controllers.
         """
         
-        # If the path doesn't point to a valid application
-        if not self.path in self.apps:
+        # If the path doesn't point to a valid handler
+        if not self.path in self.handlers:
             return self.redirect('auth')
         
         # Load the application
-        return self.apps[self.path].as_view(portal=PortalBase(__name__).construct(self.request))(self.request)
+        return self.handlers[self.path].as_view(portal=PortalBase(__name__).construct(self.request))(self.request)

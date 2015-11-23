@@ -2,7 +2,6 @@ import os
 
 # Lense Libraries
 from lense.common import LenseCommon
-from lense.common.vars import DB_ENCRYPT_DIR
 from lense.common.auth.utils import AuthGroupsLDAP
 
 # Lense Common
@@ -69,7 +68,7 @@ DATABASES = {
 }
 
 # Database encryption keys
-ENCRYPTED_FIELDS_KEYDIR = DB_ENCRYPT_DIR
+ENCRYPTED_FIELDS_KEYDIR = LENSE.CONF.db.encrypt_dir
 
 # CORS configuration
 CORS_ORIGIN_ALLOW_ALL = True

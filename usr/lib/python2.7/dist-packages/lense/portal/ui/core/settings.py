@@ -1,11 +1,12 @@
 import os
 
 # Lense Libraries
-from lense.common import LenseCommon
+from lense.common import config
+from lense.common.vars import TEMPLATES
 from lense.common.auth.utils import AuthGroupsLDAP
 
-# Lense Common
-LENSE            = LenseCommon('PORTAL')
+# Project configuration
+CONF             = config.parse('PORTAL')
 
 # Project base directory
 BASE_DIR         = os.path.dirname(os.path.dirname(__file__))
@@ -17,7 +18,7 @@ DEBUG            = True
 ALLOWED_HOSTS    = []
 
 # Secret key
-SECRET_KEY       = LENSE.CONF.portal.secret
+SECRET_KEY       = CONF.portal.secret
 
 # Internationalization settings
 LANGUAGE_CODE    = 'en-us'
@@ -39,7 +40,7 @@ WSGI_APPLICATION = 'lense.portal.ui.core.wsgi.application'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ LENSE.PROJECT.TEMPLATES ],
+        'DIRS': [ TEMPLATES.PORTAL ],
         'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
@@ -60,15 +61,15 @@ DATABASES = {
     'default': {
         'ENGINE':   'django.db.backends.mysql',
         'NAME':     'lense',
-        'USER':     LENSE.CONF.db.user,
-        'PASSWORD': LENSE.CONF.db.password,
-        'HOST':     LENSE.CONF.db.host,
-        'PORT':     LENSE.CONF.db.port
+        'USER':     CONF.db.user,
+        'PASSWORD': CONF.db.password,
+        'HOST':     CONF.db.host,
+        'PORT':     CONF.db.port
     }
 }
 
 # Database encryption keys
-ENCRYPTED_FIELDS_KEYDIR = LENSE.CONF.db.encrypt_dir
+ENCRYPTED_FIELDS_KEYDIR = CONF.db.encrypt_dir
 
 # CORS configuration
 CORS_ORIGIN_ALLOW_ALL = True
@@ -94,9 +95,9 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # LDAP Authentication
-AUTH_LDAP_SERVER_URI = 'ldap://{0}'.format(LENSE.CONF.ldap.host)
-AUTH_LDAP_BIND_DN = LENSE.CONF.ldap.user
-AUTH_LDAP_BIND_PASSWORD = LENSE.CONF.ldap.password
+AUTH_LDAP_SERVER_URI = 'ldap://{0}'.format(CONF.ldap.host)
+AUTH_LDAP_BIND_DN = CONF.ldap.user
+AUTH_LDAP_BIND_PASSWORD = CONF.ldap.password
         
 # LDAP user search
 AUTH_LDAP_USER_SEARCH = AuthGroupsLDAP.construct()
@@ -115,4 +116,4 @@ MIDDLEWARE_CLASSES = (
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.PickleSerializer'
 
 # Session timeout in minutes
-SESSION_TIMEOUT = LENSE.CONF.portal.timeout
+SESSION_TIMEOUT = CONF.portal.timeout

@@ -22,6 +22,8 @@ def dispatch(request):
     """
     try:
         
+        LENSE.LOG.info('USER: {0}'.format(dir(request.user)))
+        
         # Return the response from the endpoint handler
         return RequestManager(request).handler()
     
@@ -50,7 +52,7 @@ class RequestManager(object):
     """
     def __init__(self, request):
         
-        # Construct the request object
+        # Store the request object
         self.request  = LENSE.REQUEST.SET(request)
         
         # Request path / available handlers
@@ -63,7 +65,7 @@ class RequestManager(object):
         """
         
         # Handler file path / module base
-        handler_files = '{0}/portal/ui/handlers'.format(LENSE.MODULE_ROOT)
+        handler_files = '{0}/portal/ui/handlers'.format(LENSE.MODULE.ROOT)
         handler_mods  = 'lense.portal.ui.handlers'
         
         # Handlers object
@@ -112,4 +114,4 @@ class RequestManager(object):
             return self.redirect('auth')
         
         # Load the application
-        return self.handlers[self.path].as_view(portal=PortalBase(__name__).construct(self.request))(self.request)
+        return self.handlers[self.path].as_view(portal=PortalBase().construct(self.request))(self.request)

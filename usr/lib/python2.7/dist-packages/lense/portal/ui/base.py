@@ -12,6 +12,7 @@ from django.http import HttpResponseRedirect, HttpResponseServerError
 # Lense Libraries
 from lense.common import LenseCommon
 from lense.portal.ui.core.api import APIClient
+from lense.common.request import LenseRequestObject
 from lense.common.objects.user.models import APIUser
 
 # Lense Common
@@ -22,8 +23,7 @@ class PortalBase(object):
     Base class shared by all Lense portal views. This is used to initialize
     requests, construct template data, set the logger, etc.
     """
-    def __init__(self, name):
-        self.class_name    = 'lense' if not name else name
+    def __init__(self):
         
         # Authentication flag
         self.authenticated = False
@@ -38,10 +38,6 @@ class PortalBase(object):
         
         # User object
         self.user          = {}
-        
-        # Initialize the configuration object and logger
-        self.conf          = config.parse('PORTAL')
-        self.log           = logger.create(self.class_name, self.conf.portal.log)
        
     def _api_response(self, response, type='json'):
         """
@@ -243,12 +239,10 @@ class PortalBase(object):
         """
         Login a user account.
         """
-            
-        # Attempt to authenticate the user
-        user = authenticate(username=username, password=password)
         
         # User exists and is authenticated
-        if user is not None:
+        if LENSE.USER.AUTHENTICATE(user=username, password=password):
+            user = LENSE.USER.GET(username)
             
             # User is active
             if user.is_active:

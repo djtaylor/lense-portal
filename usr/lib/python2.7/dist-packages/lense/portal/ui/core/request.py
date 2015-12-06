@@ -2,8 +2,8 @@ import os
 import re
 import sys
 import json
-import importlib
 import traceback
+from importlib import import_module
 
 # Django Libraries
 from django.template import RequestContext, Context, loader
@@ -21,8 +21,6 @@ def dispatch(request):
     Method used to handle incoming portal requests.
     """
     try:
-        
-        LENSE.LOG.info('USER: {0}'.format(dir(request.user)))
         
         # Return the response from the endpoint handler
         return RequestManager(request).handler()
@@ -51,58 +49,11 @@ class RequestManager(object):
     Handle requests passed off by the dispatch handler.
     """
     def __init__(self, request):
-        
-        # Store the request object
-        self.request  = LENSE.REQUEST.SET(request)
+        LENSE.REQUEST.SET(request)
         
         # Request path / available handlers
         self.path     = self.request.path.replace('/', '')
-        self.handlers = self._load_handlers()
-        
-    def _load_handlers(self):
-        """
-        Load all available request handlers.
-        """
-        
-        # Handler file path / module base
-        handler_files = '{0}/portal/ui/handlers'.format(LENSE.MODULE.ROOT)
-        handler_mods  = 'lense.portal.ui.handlers'
-        
-        # Handlers object
-        handler_obj   = {}
-        
-        # Scan every handler
-        for handler in os.listdir(handler_files):
-            
-            # Ignore special files
-            if re.match(r'^__.*$', handler) or re.match(r'^.*\.pyc$', handler):
-                continue
-            
-            # Define the handler view module
-            handler_view = '{0}/{1}/views.py'.format(handler_files, handler)
-            
-            # If the handler has a view associated with it
-            if os.path.isfile(handler_view):
-                mod_path = '{0}.{1}.views'.format(handler_mods, handler)
-                
-                # Create a new module instance
-                mod_obj  = importlib.import_module(mod_path)
-                cls_obj  = getattr(mod_obj, 'HandlerView')
-                
-                # Add to the handlers object
-                handler_obj[handler] = cls_obj
-                
-                # Load handler module
-                LENSE.LOG.info('Loading request handler view: path={0}, module={1}'.format(handler, mod_path))
-        
-        # Return the constructed handlers object
-        return handler_obj
-        
-    def redirect(self, path):
-        """
-        Return an HTTPResponseRedirect object.
-        """
-        return HttpResponseRedirect('/{0}'.format(path))
+        self.handlers = LENSE.MODULE.HANDLERS(ext='views', load='HandlerView')
         
     def handler(self):
         """
@@ -111,6 +62,8 @@ class RequestManager(object):
         
         # If the path doesn't point to a valid handler
         if not self.path in self.handlers:
+            return LENSE.HTTP.redirect('auth')
+            
             return self.redirect('auth')
         
         # Load the application

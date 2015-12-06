@@ -10,13 +10,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
 # Lense Libraries
-from lense.common import LenseCommon
 from lense.portal.ui.core.api import APIClient
 from lense.common.request import LenseRequestObject
 from lense.common.objects.user.models import APIUser
-
-# Lense Common
-LENSE = LenseCommon('PORTAL')
 
 class PortalBase(object):
     """
@@ -25,19 +21,9 @@ class PortalBase(object):
     """
     def __init__(self):
         
-        # Authentication flag
-        self.authenticated = False
-        
-        # Raw request
-        self.request_raw   = None
-        
-        # Request / API objects / application controllers
-        self.request       = None
+        # API objects / application controllers
         self.api           = None
-        self.controller    = {}
-        
-        # User object
-        self.user          = {}
+        self.controller    = LENSE.MODULE.handlers(ext='controller', load='HandlerController')
        
     def _api_response(self, response, type='json'):
         """
@@ -90,46 +76,7 @@ class PortalBase(object):
             
         }
         return LENSE.COLLECTION(api_obj).get()
-        
-    def _set_url(self, path):
-        return '{0}://{1}:{2}/{3}'.format(LENSE.CONF.portal.proto, LENSE.CONF.portal.host, LENSE.CONF.portal.port, path)
-        
-    def _set_handler_controllers(self):
-        """
-        Construct supported request handler controllers.
-        """
-        
-        # Handler file path / module base
-        handler_files = '{0}/portal/ui/handlers'.format(LENSE.MODULE_ROOT)
-        handler_mods  = 'lense.portal.ui.handlers'
-        
-        # Scan every handler
-        for handler_name in [x for x in os.listdir(handler_files) if not re.match(r'__|pyc', x)]:
-            controller = '{0}/{1}/controller.py'.format(handler_files, handler_name)
-            
-            # If a controller module exists
-            if os.path.isfile(controller):
-                
-                # Load the controller
-                try:
-                    
-                    # Define the module name
-                    mod_name = '{0}.{1}.controller'.format(handler_mods, handler_name)
-                    
-                    # Create a new module instance
-                    mod_obj  = importlib.import_module(mod_name)
-                    cls_obj  = getattr(mod_obj, 'HandlerController')
-                    
-                    # Add to the application object
-                    self.controller[handler_name] = cls_obj
-                    
-                # Critical error when loading controller
-                except Exception as e:
-                    LENSE.LOG.exception('Failed to load request handler "{0}" controller: {1}'.format(handler_name, str(e)))
-                    
-                    # Application controller disabled
-                    self.controller[handler_name] = False
-        
+           
     def api_call(self, module, method, data=None):
         """
         Wrapper method for the APIClient class instance.
@@ -149,31 +96,21 @@ class PortalBase(object):
         # Invalid base/method attribute
         return False    
         
-    def _set_request(self, request):
+    def _set_session(self):
         """
-        Setup the incoming request object.
+        Set session variables.
         """
-        
-        # If the active group session variable hasn't been set yet
-        if request.user.is_authenticated():
+        if LENSE.REQUEST.user.authorized:
             
             # Get the user details
-            user_details = APIUser.objects.filter(username=request.user.username).values()[0]
-            
-            # Set the user's groups
-            self.user = user_details
+            _user = LENSE.USER.get(LENSE.REQUEST.user.name)
             
             # Set the 'is_admin' flag
-            request.session['is_admin'] = user_details['is_admin']
+            LENSE.REQUEST.SESSION.set('is_admin', user_details['is_admin'])
             
             # If the active group hasn't been set yet
-            if not 'active_group' in request.session:
-            
-                # Set the active group to the first available group
-                request.session['active_group'] = user_details['groups'][0]['uuid']
-        
-        # Return a request object
-        return LENSE.REQUEST.SET(request)
+            if not LENSE.REQUEST.SESSION.get('active_group'):
+                LENSE.REQUEST.SESSION.set('active_group', _user['groups'][0]['uuid'])
         
     def _run_controller(self, **kwargs):
         """
@@ -181,24 +118,24 @@ class PortalBase(object):
         """
         
         # If the user is authenticated
-        if self.authenticated:
+        if LENSE.REQUEST.user.authorized:
             
             # Redirect to home page if trying to access the login screen
-            if self.request.path == 'auth':
-                return HttpResponseRedirect(self._set_url('home'))
+            if LENSE.REQUEST.path == 'auth':
+                return LENSE.HTTP.redirect('home')
             
             # Return the template response
-            return self.controller[self.request.path](self).construct(**kwargs)
+            return self.controller[LENSE.REQUEST.path](self).construct(**kwargs)
             
         # User is not authenticated
         else:
             
-            # Redirect to the authentication screen if trying to access any other page
-            if not self.request.path == 'auth':
-                return HttpResponseRedirect(self._set_url('auth'))
+            # Redirect to the login screen if trying to access any other page
+            if not LENSE.REQUEST.path == 'auth':
+                return LENSE.HTTP.REDIRECT('auth')
             
             # Return the template response
-            return self.controller[self.request.path](self).construct(**kwargs)
+            return self.controller[LENSE.REQUEST.path](self).construct(**kwargs)
         
     def set_active_group(self, group):
         """
@@ -219,22 +156,6 @@ class PortalBase(object):
         if is_member:
             self.request_raw.session['active_group'] = group
         
-    def GET(self, key, default=False):
-        """
-        Look for data in the request GET object.
-        """
-        if hasattr(self.request.GET, key):
-            return getattr(self.request.GET, key)
-        return default
-        
-    def POST(self, key, default=False):
-        """
-        Look for data in the request POST object.
-        """
-        if hasattr(self.request.POST, key):
-            return getattr(self.request.POST, key)
-        return default
-        
     def login(self, username, password):
         """
         Login a user account.
@@ -242,26 +163,25 @@ class PortalBase(object):
         
         # User exists and is authenticated
         if LENSE.USER.AUTHENTICATE(user=username, password=password):
-            user = LENSE.USER.GET(username)
             
             # User is active
-            if user.is_active:
+            if LENSE.REQUEST.user.active:
                 LENSE.LOG.info('User account [{0}] active, logging in user'.format(username))
                 
                 # Login the user account
-                login(self.request.RAW, user)
+                LENSE.USER.LOGIN(LENSE.REQUEST.DJANGO, username)
                 
                 # Redirect to the home page
-                return self.redirect('/home')
+                return LENSE.HTTP.redirect('/home')
             
             # User account is inactive
             else:
-                LENSE.LOG.info('Login failed, user account [{0}] is inactive'.format(username))
-                state = 'Your account is not active - please contact your administrator'
+                LENSE.LOG.info('Login failed, user account "{0}" is inactive'.format(username))
+                state = 'Your account is disabled - please contact your administrator'
         
         # User account does not exist or username/password incorrect
         else:
-            LENSE.LOG.error('Login failed, user account [{0}] does not exist or password is incorrect'.format(username))
+            LENSE.LOG.error('Login failed, user account "{0}" does not exist or password is incorrect'.format(username))
             state = 'Your username and/or password are incorrect'
     
         # Return the login failure screen
@@ -276,12 +196,6 @@ class PortalBase(object):
         # Return the base object
         return self
         
-    def redirect(self, path):
-        """
-        Wrapper method for the HTTPResponseRedirect class
-        """
-        return HttpResponseRedirect(path)
-        
     def construct(self, request):
         """
         Construct the portal request and template data. Set the user authentication parameter,
@@ -289,12 +203,11 @@ class PortalBase(object):
         base object.
         """
         
-        # Construct request object
-        self.request = self._set_request(request)
+        # Bootstrap the session
+        self._set_session()
         
         # If the user is authenticated
-        if request.user.is_authenticated():
-            self.authenticated = True
+        if LENSE.REQUEST.user.authorized:
             
             # Set the API connector
             self.api = self._set_api()
@@ -307,9 +220,6 @@ class PortalBase(object):
                 if isinstance(value, list) or isinstance(value, dict):
                     continue
                 self.api.params[key] = value
-        
-        # Construct request handler controllers
-        self._set_handler_controllers()
         
         # Construct and return the application template
         self.template = self._run_controller()

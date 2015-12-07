@@ -1,10 +1,4 @@
-/**
- * API Client
- * 
- * API object designed to handle establishing the initial connection with
- * the Lense API server.
- */
-lense.import('LenseAPIClient', function() {
+lense.import('Client', function() {
 	
 	// Class attributes
 	this.params, this.room, this.io;

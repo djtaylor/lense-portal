@@ -1,11 +1,4 @@
-/**
- * API Interface
- * 
- * Interface object to facilitate interaction with the Lense API
- * server. This includes handling API requests and responses, as well as
- * caching API information on each page load.
- */
-lense.import('LenseAPIInterface', function() {
+lense.import('Interface', function() {
 	
 	/**
 	 * Initialize APIInterface
@@ -14,10 +7,10 @@ lense.import('LenseAPIInterface', function() {
 	this.__init__ = function() {
 		
 		// Object extensions
-		lense.implement('LenseAPIClient', 'api.client');
-		lense.implement('LenseAPIRequest', 'api.request');
-		lense.implement('LenseAPIResponse', 'api.response');
-		lense.implement('LenseAPICache', 'api.cache');
+		lense.implement('Client', 'api.client');
+		lense.implement('Request', 'api.request');
+		lense.implement('Response', 'api.response');
+		lense.implement('Cache', 'api.cache');
 		
 		// Open the API connection
 		lense.api.client.connect();

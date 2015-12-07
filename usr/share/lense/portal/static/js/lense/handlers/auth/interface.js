@@ -1,7 +1,4 @@
-/**
- * Lense Authentication
- */
-lense.import('LenseAuthInterface', function() {
+lense.import('Interface', function() {
 	
 	/**
 	 * Initialize CSAuth

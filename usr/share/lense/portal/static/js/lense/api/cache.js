@@ -1,25 +1,16 @@
-/**
- * API Cache
- * 
- * Store cached data from API requests to re-use in other JavaScript classes
- * and methods.
- */
-lense.import('LenseAPICache', function() {
+lense.import('Cache', function() {
 	
 	// Cache containers
-	this.hosts     = [];
-	this.hgroups   = [];
-	this.groups    = [];
-	this.acls      = [];
-	this.formulas  = [];
-	this.endpoints = [];
+	this.groups   = [];
+	this.acls     = [];
+	this.handlers = [];
 	
 	/**
-	 * Callback: Cache Utilities
+	 * Callback: Cache Handlers
 	 */
-	lense.register.callback('api.cache_utilities', function(c,m,d,a) {
+	lense.register.callback('api.cache_handlers', function(c,m,d,a) {
 		if (lense.api.client.params.is_admin === true) {
-			lense.api.cache.utilities = m;
+			lense.api.cache.handlers = m;
 		}
 	});
 	
@@ -112,29 +103,13 @@ lense.import('LenseAPICache', function() {
 				});
 				return ret;
 			},
-			
-			/**
-			 * Get Host ACLs
-			 * 
-			 * Return a constructed object of host ACLs organized using the ACL name as the
-			 * key. Host ACLs are used when agent software on a managed host makes an API request.
-			 */
-			host: function() {
-				ret = {};
-				if (lense.api.cache.acls.hasOwnProperty('host')) {
-					$.each(lense.api.cache.acls.host.defs, function(i,o) {
-						ret[o.name] = o;
-					});
-				}
-				return ret;
-			}
 		},
 			
 		/**
-		 * Utilities
+		 * Handlers
 		 */
-		utilities: function(e) {
-			var ea = clone(lense.api.cache.utilities);
+		handlers: function(e) {
+			var ea = clone(lense.api.cache.handlers);
 			var ef = [];
 			$.each(ea, function(i,_e) {
 				var a = true;
@@ -170,10 +145,9 @@ lense.import('LenseAPICache', function() {
 	 */
 	this.construct = function() {
 		
-		// Utilities
+		// Handlers
 		lense.api.request.get({
-			path:     'utility',
-			action:   'get',
+			path:     'handler',
 			callback: {
 				id: 'api.cache_utilities'
 			}
@@ -181,8 +155,7 @@ lense.import('LenseAPICache', function() {
 		
 		// ACLs
 		lense.api.request.get({
-			path:     'acl',
-			action:   'get',
+			path:     'acl/keys',
 			callback: {
 				id: 'api.cache_acls'
 			}
@@ -191,7 +164,6 @@ lense.import('LenseAPICache', function() {
 		// Groups
 		lense.api.request.get({
 			path:     'group',
-			action:   'get',
 			callback: {
 				id: 'api.cache_group'
 			}

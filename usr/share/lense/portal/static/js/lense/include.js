@@ -3,77 +3,68 @@
 	// Class constructors
 	var c = [];
 
-	// Lense: Base
+	// Commons
 	include({
-		LenseBaseURL:          	   'base/url.js',
-		LenseBaseValidate:     	   'base/validate.js',
-		LenseBaseForms:        	   'base/forms.js',
-		LenseBaseLayout:       	   'base/layout.js',
-		LenseBaseButton:       	   'base/button.js',
-		LenseBaseRegister:     	   'base/register.js',
-		LenseBaseInterface:    	   'base/interface.js',
-		LenseBaseIPAddr:           'base/ipaddr.js',
-		LenseBaseFinder:           'base/finder.js'
+		URL: 'common/url.js',
+		Validate: 'common/validate.js',
+		Forms: 'common/forms.js',
+		Layout: 'common/layout.js',
+		Button: 'common/button.js',
+		Register: 'common/register.js',
+		Interface: 'common/interface.js',
+		IPAddr: 'common/ipaddr.js',
+		Finder: 'common/finder.js'
 	}, null, function() {
-		c.push('base.LenseBaseInterface');
+		c.push('common.Interface');
 	});
 
-	// Lense: API
+	// API
 	include({
-		LenseAPIClient:        	   'api/client.js',
-		LenseAPIRequest:       	   'api/request.js',
-		LenseAPIResponse:      	   'api/response.js',
-		LenseAPICache:         	   'api/cache.js',
-		LenseAPIInterface:     	   'api/interface.js'
+		Client: 'api/client.js',
+		Request: 'api/request.js',
+		Response: 'api/response.js'.
+		Cache: 'api/cache.js',
+		Interface: 'api/interface.js'
 	}, {
-		url: {
-			path: ['home', 'admin']
-		}
-	}, function() {
-		c.push('api.LenseAPIInterface');
+		url: { path: ['home', 'admin'] }
+	}, function() { 
+		c.push('api.Interface'); 
 	});
 	
-	// Lense: Login
+	// Authentication
 	include({
-		LenseAuthInterface:    	   'handlers/auth/interface.js'
+		Interface: 'handlers/auth/interface.js'
 	}, {
-		url: {
-			path: 'auth'
-		}
+		url: { path: 'auth' }
 	}, function() {
-		c.push('auth.LenseAuthInterface');
+		c.push('auth.Interface');
 	});
 
-	// Lense: Home
+	// Home
 	include({
-		LenseHomeInterface:    	   'handlers/home/interface.js'
+		Interface: 'handlers/home/interface.js'
 	}, {
-		url: {
-			path: 'home'
-		}
+		url: { path: 'home' }
 	}, function() {
-		c.push('home.LenseHomeInterface');
+		c.push('home.Interface');
 	});
 	
 	// Lense: Admin
 	include({
-		LenseAdminACLList:            'handlers/admin/acl.list.js',
-		LenseAdminACLDetails:         'handlers/admin/acl.details.js',
-		LenseAdminUsers:              'handlers/admin/user.list.js',
-		LenseAdminGroupsList:         'handlers/admin/group.list.js',
-		LenseAdminGroupDetails:       'handlers/admin/group.details.js',
-		LenseAdminUtilityDetails:     'handlers/admin/utility.details.js',
-		LenseAdminUtilitiesList:      'handlers/admin/utility.list.js',
-		LenseAdminACLObjectsList:     'handlers/admin/object.list.js',
-		LenseAdminACLObjectDetails:   'handlers/admin/object.details.js',
-		LenseAdminInterface:          'handlers/admin/interface.js'
+		ACLKeysList: 'handlers/admin/acl.list.js',
+		ACLKeysDetails: 'handlers/admin/acl.details.js',
+		Users: 'handlers/admin/user.list.js',
+		GroupsList: 'handlers/admin/group.list.js',
+		GroupDetails: 'handlers/admin/group.details.js',
+		HandlerDetails: 'handlers/admin/utility.details.js',
+		HandlerList: 'handlers/admin/utility.list.js',
+		ACLObjectsList: 'handlers/admin/object.list.js',
+		ACLObjectDetails: 'handlers/admin/object.details.js',
+		Interface: 'handlers/admin/interface.js'
 	}, {
-		url: {
-			path: 'admin'
-		},
-		is_admin: true
+		url: { path: 'admin' }, is_admin: true
 	}, function() {
-		c.push('admin.LenseAdminInterface');
+		c.push('admin.Interface');
 	});
 	
 	// Boostrap the constructors

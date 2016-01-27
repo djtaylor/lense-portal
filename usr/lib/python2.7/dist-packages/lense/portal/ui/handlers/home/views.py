@@ -5,14 +5,10 @@ class HandlerView(View):
     """
     Application view for the Lense portal home page.
     """
-    
-    # Portal object
-    portal = None
-    
-    def get(self, request, *args, **kwargs):
+    def get(self):
         """
         Handle GET requests for the portal home page.
         """
-        if not self.portal.authenticated:
-            return self.portal.redirect('/auth')
-        return self.portal.template
+        if not LENSE.PORTAL.authenticated:
+            return LENSE.HTTP.redirect('auth')
+        return LENSE.PORTAL.template

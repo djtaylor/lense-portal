@@ -6,9 +6,6 @@ class HandlerView(View):
     Application view for the Lense portal authentication page.
     """
     
-    # Portal object
-    portal = None
-    
     def post(self, request, *args, **kwargs):
         """
         Handle GET requests for the portal authentication page.

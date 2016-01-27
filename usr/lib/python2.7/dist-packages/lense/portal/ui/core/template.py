@@ -11,24 +11,15 @@ from django.shortcuts import render
 from django.template import RequestContext, Context, loader
 from django.http import HttpResponseRedirect, HttpResponseServerError
 
-# Lense Libraries
-from lense.common import LenseCommon
-from lense.portal.ui.core.filter import APIFilter
-
-# Lense Common
-LENSE = LenseCommon('PORTAL')
-
 class PortalTemplate(object):
     """
     Construct the template data needed to render each page, and return the HTTP response
     and data needed to render the page client-side.
     """
-    
     def __init__(self, portal):
         """
         Initialize the portal template class.
         """
-        self.portal = portal
         
         # Shared modules
         self.json        = json
@@ -36,7 +27,7 @@ class PortalTemplate(object):
         self.OrderedDict = OrderedDict  
      
         # URL panel
-        self.panel       = self.get_query_key('panel')
+        self.panel       = LENSE.REQUEST.GET('panel')
         
         # Threaded API responses
         self._response   = {}
@@ -44,35 +35,11 @@ class PortalTemplate(object):
         # Template data
         self._tdata      = {}
      
-        # Response filter
-        self.filter      = APIFilter()
-     
     def redirect(self, location):
         """
         Return an HTTPResponseRedirect object.
         """
         return HttpResponseRedirect(location)
-     
-    def get_query_key(self, key):
-        """
-        Retrieve a key value from the URL query string.
-        """
-        
-        # Split the query string into an array of key/value pairs
-        query_obj = {}
-        for query_pair in self.portal.request.query.split('&'):
-            if '=' in query_pair:
-                query_set = query_pair.split('=')
-                query_obj[query_set[0]] = query_set[1]
-            else:
-                query_obj[query_pair] = True
-        
-        # If the key is found
-        if key in query_obj:
-            return query_obj[key]
-        
-        # Key not found
-        return False
      
     def request_contains(self, req=None, attr=None, values=None):
         """
@@ -152,24 +119,14 @@ class PortalTemplate(object):
         # Return the template data object
         return params
        
-    def api_call(self, module, method, data=None):
+    def api_call(self, path, method, data=None):
         """
         Wrapper method for the APIClient class instance.
         """
+        response = LENSE.CLIENT.request(path, method, data)
         
-        # Make sure the base attribute exists
-        if hasattr(self.portal.api.client, module):
-            api_base = getattr(self.portal.api.client, module)
-            
-            # Make sure the method attribute exists
-            if hasattr(api_base, method):
-                api_method = getattr(api_base, method)
-       
-                # Run the API request and return a filtered response
-                return self.filter.object(self.portal.api.response(api_method(data))).map('{0}.{1}'.format(module, method))
-       
-        # Invalid base/method attribute
-        return False    
+        # Return response content
+        return response.content 
     
     def _api_call_threaded_worker(self, key, base, method, data=None):
         """

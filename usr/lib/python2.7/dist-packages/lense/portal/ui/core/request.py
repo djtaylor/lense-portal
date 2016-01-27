@@ -1,20 +1,9 @@
-import os
-import re
 import sys
-import json
 import traceback
-from importlib import import_module
-
-# Django Libraries
-from django.template import RequestContext, Context, loader
-from django.http import HttpResponse, HttpResponseServerError, HttpResponseRedirect
 
 # Lense Libraries
-from lense.common import LenseCommon
 from lense.portal.ui.base import PortalBase
-
-# Lense Common
-LENSE = LenseCommon('PORTAL')
+from lense.common.exceptions import EnsureError, AuthError, RequestError
 
 def dispatch(request):
     """
@@ -23,7 +12,7 @@ def dispatch(request):
     try:
         
         # Return the response from the endpoint handler
-        return RequestManager(request).handler()
+        return RequestManager.dispatch(request)
     
     # Critical server error
     except Exception as e:
@@ -31,40 +20,50 @@ def dispatch(request):
             
         # Get the exception data
         e_type, e_info, e_trace = sys.exc_info()
-            
-        # Format the exception message
         e_msg = '{0}: {1}'.format(e_type.__name__, e_info)
-            
-        # Load the error template
-        t = loader.get_template('core/error/500.html')
         
         # Return a server error
-        return HttpResponseServerError(t.render(RequestContext(request, {
-            'error': 'An error occurred when rendering the requested page.',
+        return LENSE.HTTP.browser_error('core/error/500.html', {
+            'error': 'An error occurred when rendering the requested page',
             'debug': None if not LENSE.CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
-        })))
+        })
     
 class RequestManager(object):
     """
     Handle requests passed off by the dispatch handler.
     """
     def __init__(self, request):
-        LENSE.REQUEST.SET(request)
+        LENSE.SETUP.portal(request)
         
-        # Request path / available handlers
-        self.path     = self.request.path.replace('/', '')
-        self.handlers = LENSE.MODULE.HANDLERS(ext='views', load='HandlerView')
-        
-    def handler(self):
+    def run(self):
         """
-        Worker method for mapping requests to controllers.
+        Public method for running the portal request.
         """
         
         # If the path doesn't point to a valid handler
-        if not self.path in self.handlers:
+        if not LENSE.REQUEST.path in LENSE.PORTAL.handlers:
             return LENSE.HTTP.redirect('auth')
-            
-            return self.redirect('auth')
         
         # Load the application
-        return self.handlers[self.path].as_view(portal=PortalBase().construct(self.request))(self.request)
+        return LENSE.PORTAL.handlers[LENSE.REQUEST.path].as_view()
+    
+    @classmethod
+    def dispatch(cls, request):
+        """
+        Class method for dispatching the incoming WSGI request object.
+        """
+        try:
+            return cls(request).run()
+        
+        # Internal request error
+        except (EnsureError, AuthError, RequestError) as e:
+            LENSE.LOG.exception(e.message)
+            
+            # Error template
+            template = 'core/error/{0}.html'.format(e.code)
+            
+            # Return a browser error
+            return LENSE.HTTP.browser_error(template, {
+                'error': e.message
+            })
+            

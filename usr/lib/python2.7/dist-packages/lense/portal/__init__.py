@@ -17,7 +17,7 @@ class LensePortal(object):
         """
         Set session variables.
         """
-        if LENSE.REQUEST.user.authorized:
+        if LENSE.REQUEST.USER.authorized:
             
             # Get the user details
             user   = LENSE.OBJECTS.USER.get(LENSE.REQUEST.USER.name)

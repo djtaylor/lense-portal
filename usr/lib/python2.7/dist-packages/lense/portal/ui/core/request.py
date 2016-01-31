@@ -9,6 +9,9 @@ def dispatch(request):
     """
     Method used to handle incoming portal requests.
     """
+    LENSE.SETUP.portal(request)
+    
+    # Run the request dispatcher
     try:
         
         # Return the response from the endpoint handler
@@ -32,9 +35,6 @@ class RequestManager(object):
     """
     Handle requests passed off by the dispatch handler.
     """
-    def __init__(self, request):
-        LENSE.SETUP.portal(request)
-        
     def run(self):
         """
         Public method for running the portal request.
@@ -53,7 +53,7 @@ class RequestManager(object):
         Class method for dispatching the incoming WSGI request object.
         """
         try:
-            return cls(request).run()
+            return cls().run()
         
         # Internal request error
         except (EnsureError, AuthError, RequestError) as e:

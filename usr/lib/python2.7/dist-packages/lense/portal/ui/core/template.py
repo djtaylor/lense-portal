@@ -1,7 +1,4 @@
-import re
 import sys
-import json
-import base64
 import traceback
 from threading import Thread
 from collections import OrderedDict
@@ -9,7 +6,7 @@ from collections import OrderedDict
 # Django Libraries
 from django.shortcuts import render
 from django.template import RequestContext, Context, loader
-from django.http import HttpResponseRedirect, HttpResponseServerError
+from django.http import HttpResponseServerError
 
 class PortalTemplate(object):
     """
@@ -19,12 +16,7 @@ class PortalTemplate(object):
     def __init__(self, portal):
         """
         Initialize the portal template class.
-        """
-        
-        # Shared modules
-        self.json        = json
-        self.base64      = base64
-        self.OrderedDict = OrderedDict  
+        """ 
      
         # URL panel
         self.panel       = LENSE.REQUEST.GET('panel')
@@ -34,12 +26,6 @@ class PortalTemplate(object):
         
         # Template data
         self._tdata      = {}
-     
-    def redirect(self, location):
-        """
-        Return an HTTPResponseRedirect object.
-        """
-        return HttpResponseRedirect(location)
      
     def request_contains(self, req=None, attr=None, values=None):
         """
@@ -76,28 +62,31 @@ class PortalTemplate(object):
         Merge base template data and page specific template data. 
         """
         
+        # User object
+        user = LENSE.OBJECTS.USER.get(LENSE.REQUEST.USER.name)
+        
         # Set the base parameters
         params = {
             'BASE': {
                      
                 # Connection user attributes
                 'user': {
-                    'is_admin': self.portal.request.is_admin,
-                    'is_authenticated': self.portal.authenticated,
-                    'groups': self.portal.user.get('groups'),
-                    'name': self.portal.user.get('username'),
-                    'email': self.portal.user.get('email')
+                    'is_admin': LENSE.REQUEST.USER.admin,
+                    'is_authenticated': LENSE.REQUEST.USER.authorized,
+                    'groups': user.groups,
+                    'name': user.username,
+                    'email': user.email
                 },
                      
                 # API connection parameters
                 'api': {
-                    'params': None if not hasattr(self.portal.api, 'params') else self.portal.api.params
+                    'params': LENSE.CLIENT.params(['user', 'group', 'key'])
                 },
                      
                 # Request parameters
                 'request': {
-                    'current': self.portal.request.current,
-                    'path': self.portal.request.path       
+                    'current': LENSE.REQUEST.current,
+                    'path': LENSE.REQUEST.path       
                 }
             }
         }

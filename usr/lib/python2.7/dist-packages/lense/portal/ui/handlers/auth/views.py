@@ -5,43 +5,43 @@ class HandlerView(View):
     """
     Application view for the Lense portal authentication page.
     """
-    
     def post(self, request, *args, **kwargs):
         """
         Handle GET requests for the portal authentication page.
         """
 
         # Look for an action parameter
-        action = self.portal.POST('action')
+        action = LENSE.REQUEST.POST('action')
 
         # If no action present
         if not action:
-            return self.portal.redirect(self.portal.request.current)
+            return LENSE.HTTP.redirect(LENSE.REQUEST.current)
 
         # Change Active Group
         if action == 'change_group':
             
             # Redirect / group parameter
-            redirect = self.portal.POST('redirect', default='/home')
-            group    = self.portal.POST('group')
+            redirect = LENSE.REQUEST.POST('redirect', default='/home')
+            group    = LENSE.REQUEST.POST('group')
             
             # Make sure a new group is provided
             if not group:
-                return self.portal.redirect(redirect)
+                return LENSE.HTTP.redirect(redirect)
             
             # Set the new group
-            self.portal.set_active_group(group)
+            LENSE.PORTAL.set_active_group(group)
             
             # Redirect to the home page
-            return self.portal.redirect(redirect)
+            return LENSE.HTTP.redirect(redirect)
 
         # Logout the user
         if action == 'logout':
-            return self.portal.logout().redirect('/auth')
+            LENSE.OBJECTS.USER.logout()
+            return LENSE.HTTP.redirect('auth')
         
         # Login the user
         if action == 'login':
-            return self.portal.login(username=self.portal.POST('username'), password=self.portal.POST('password'))
+            return LENSE.OBJECTS.USER.login()
     
     def get(self, request, *args, **kwargs):
         """
@@ -49,8 +49,8 @@ class HandlerView(View):
         """
         
         # If the user is authenticated
-        if self.portal.authenticated:
-            return self.portal.redirect('/home')
+        if LENSE.OBJECTS.USER.authenticated:
+            return LENSE.HTTP.redirect('home')
             
         # Render the template
-        return self.portal.template
+        return LENSE.PORTAL.template

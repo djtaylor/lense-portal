@@ -10,6 +10,9 @@ class LensePortal(object):
         self.handlers    = LENSE.MODULE.handlers(ext='views', load='HandlerView')
         self.controllers = LENSE.MODULE.handlers(ext='controller', load='HandlerController')
         
+        # Template container
+        self.template    = None
+        
         # Bootstrap the portal interface
         self._set_session()
         

@@ -45,7 +45,7 @@ class RequestManager(object):
             return LENSE.HTTP.redirect('auth')
         
         # Load the application
-        return LENSE.PORTAL.handlers[LENSE.REQUEST.path].as_view()
+        return LENSE.PORTAL.handlers[LENSE.REQUEST.path].as_view()(LENSE.REQUEST.DJANGO)
     
     @classmethod
     def dispatch(cls, request):

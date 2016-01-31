@@ -17,6 +17,11 @@
 	line-height: 25px;
 }
 
+.error_http_code {
+	float: left;
+	font-weight: bold;
+}
+
 .error_title_txt {
 	float: left;
 }

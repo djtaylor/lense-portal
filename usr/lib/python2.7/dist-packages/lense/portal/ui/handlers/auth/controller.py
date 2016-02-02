@@ -1,22 +1,17 @@
-from lense.portal.ui.core.template import PortalTemplate
-
-class HandlerController(PortalTemplate):
+class HandlerController(object):
     """
     Portal authentication application controller class.
-    """
-    def __init__(self, parent):
-        super(AppController, self).__init__(parent)
-        
+    """ 
     def construct(self, **kwargs):
         """
         Construct and return the template object.
         """
         
         # Set the template attributes
-        self.set_template({
+        LENSE.PORTAL.TEMPLATE.construct({
             'state':         getattr(kwargs, 'state', None), 
             'state_display': getattr(kwargs, 'state_display', 'none'),
-            'base_path':     self.portal.request.script,
+            'base_path':     LENSE.REQUEST.script,
             'page': {
                 'title': 'Lense Login',
                 'css': ['auth.css'],
@@ -25,4 +20,4 @@ class HandlerController(PortalTemplate):
         })
         
         # Construct and return the template response
-        return self.response()
+        return LENSE.PORTAL.TEMPLATE.response()

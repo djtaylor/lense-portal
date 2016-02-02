@@ -9,6 +9,6 @@ class HandlerView(View):
         """
         Handle GET requests for the portal home page.
         """
-        if not LENSE.PORTAL.authenticated:
+        if not LENSE.REQUEST.USER.authorized:
             return LENSE.HTTP.redirect('auth')
-        return LENSE.PORTAL.template
+        return LENSE.PORTAL.TEMPLATE.data

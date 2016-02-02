@@ -1,11 +1,8 @@
-from lense.portal.ui.core.template import PortalTemplate
-
-class HandlerController(PortalTemplate):
+class HandlerController(object):
     """
     Portal administration application controller class.
     """
-    def __init__(self, parent):
-        super(AppController, self).__init__(parent)
+    def __init__(self):
         
         # Construct the request map
         self.map = self._construct_map()
@@ -25,14 +22,14 @@ class HandlerController(PortalTemplate):
                 'acls': {
                     'data': self._acls
                 },
-                'utilities': {
-                    'data': self._utilities,
+                'handlers': {
+                    'data': self._handlers,
                 },
                 'objects': {
                     'data': self._objects
                 }
             },
-            'default': 'utilities'
+            'default': 'handlers'
         }
         
     def _users(self):
@@ -42,9 +39,9 @@ class HandlerController(PortalTemplate):
         """
         
         # Make all required API calls
-        response = self.api_call_threaded({
-            'users':  ('user', 'get'),
-            'groups': ('group', 'get')
+        response = LENSE.CLIENT.request_threaded({
+            'users': ('user', 'GET'),
+            'groups': ('group', 'GET')
         })
         
         # Return the template data
@@ -74,15 +71,15 @@ class HandlerController(PortalTemplate):
         """
                
         # Make all required API calls
-        response = self.api_call_threaded({
-            'groups':      ('group', 'get'),
-            'users':       ('user', 'get'),
-            'acls':        ('acl', 'get'),
-            'acl_objects': ('acl', 'get_objects', {'detailed':True})  
+        response = LENSE.CLIENT.request_threaded({
+            'groups':      ('group', 'GET'),
+            'users':       ('user', 'GET'),
+            'acl_keys':    ('acl/keys', 'GET'),
+            'acl_objects': ('acl/objects', 'GET', {'detailed':True})  
         })
                 
         # Target group / group details
-        groups_tgt    = self.get_query_key('group')
+        groups_tgt    = LENSE.REQUEST.GET('group')
         groups_detail = None if not groups_tgt else [x for x in response['groups'] if x['uuid'] == groups_tgt][0]
                 
         def get_contents():
@@ -141,14 +138,14 @@ class HandlerController(PortalTemplate):
         """
         
         # Make all required API calls
-        response = self.api_call_threaded({
-            'acls':      ('acl', 'get'),
-            'utilities': ('utility', 'get')
+        response = LENSE.CLIENT.request_threaded({
+            'acl_keys': ('acl/keys', 'GET'),
+            'handlers': ('handler', 'GET')
         })
         
         # All ACLS / target ACL / target object / target UUID / target utilities list
         acl_all    = sorted(response['acls'], key=lambda k: k['name'])
-        acl_target = self.get_query_key('acl')
+        acl_target = LENSE.REQUEST.GET('acl')
         acl_obj    = None if not acl_target else [x for x in acl_all if x['uuid'] == acl_target][0]
         acl_utils  = {'global':[],'object':[],'host':[]}
         
@@ -202,14 +199,14 @@ class HandlerController(PortalTemplate):
         """
         
         # Make all required API calls
-        response = self.api_call_threaded({
-            'acl_objects': ('acl', 'get_objects', {'detailed':True}),
-            'acls':        ('acl', 'get')
+        response = LENSE.CLIENT.request_threaded({
+            'acl_objects': ('acl/objects', 'GET', {'detailed':True}),
+            'acl_keys':    ('acl/keys', 'GET')
         })
         
         # All ACL objects / target object / object details
         acl_objects_all    = sorted(response['acl_objects'], key=lambda k: k['name'])
-        acl_objects_tgt    = self.get_query_key('object')
+        acl_objects_tgt    = LENSE.REQUEST.GET('object')
         acl_objects_detail = None if not acl_objects_tgt else [x for x in acl_objects_all if x['type'] == acl_objects_tgt][0]
         
         def get_content():
@@ -240,7 +237,7 @@ class HandlerController(PortalTemplate):
                 'objects': {
                     'all':    acl_objects_all,
                     'detail': acl_objects_detail,
-                    'target': self.get_query_key('object')
+                    'target': LENSE.REQUEST.GET('object')
                 },
                 'all':     sorted(response['acls'], key=lambda k: k['name'])
             },
@@ -252,70 +249,70 @@ class HandlerController(PortalTemplate):
             } 
         }
         
-    def _utilities(self):
+    def _handlers(self):
         """
-        Helper method used to construct the template data needed to render the API utilities
+        Helper method used to construct the template data needed to render the API handlers
         administration page.
         """
         
         # Make all required API calls
-        response = self.api_call_threaded({
-            'utilities':   ('utility', 'get'),
-            'acl_objects': ('acl', 'get_objects')
+        response = LENSE.CLIENT.request_threaded({
+            'handlers':    ('handler', 'GET'),
+            'acl_objects': ('acl/objects', 'GET')
         })
         
         # All utilities / target utility / utility object
-        util_all  = sorted(response['utilities'], key=lambda k: k['name'])
-        util_tgt  = self.get_query_key('utility')
-        util_obj  = None if not util_tgt else [x for x in util_all if x['uuid'] == util_tgt][0]
+        handler_all = sorted(response['handlers'], key=lambda k: k['name'])
+        handler_tgt = LENSE.REQUEST.GET('handler')
+        handler_obj = None if not handler_tgt else [x for x in handler_all if x['uuid'] == handler_tgt][0]
         
-        # Utility modules / external utilities / ACL objects
-        utils         = []
+        # Handler modules / external utilities / ACL objects
+        handlers      = []
         modules       = []
         acl_objects   = response['acl_objects']
         
         # Construct modules and utilities
-        for util in util_all:
-            utils.append(['{0}.{1}'.format(util['mod'], util['cls']), util['cls']])
-            if not util['mod'] in modules:
-                modules.append(util['mod'])
+        for handler in handler_all:
+            handlers.append(['{0}.{1}'.format(handler['mod'], handler['cls']), handler['cls']])
+            if not handler['mod'] in modules:
+                modules.append(handler['mod'])
         
         def set_contents():
             """
             Set template data contents.
             """
-            if util_tgt:
-                return ['handlers/admin/tables/utilities/details.html']
-            return ['handlers/admin/tables/utilities/list.html']
+            if handler_tgt:
+                return ['handlers/admin/tables/handlers/details.html']
+            return ['handlers/admin/tables/handlers/list.html']
         
         def set_popups():
             """
             Set template data popups.
             """
             if util_tgt:
-                return ['handlers/admin/popups/utilities/close.html']
+                return ['handlers/admin/popups/handlers/close.html']
             return [
-                'handlers/admin/popups/utilities/create.html',
-                'handlers/admin/popups/utilities/delete.html'
+                'handlers/admin/popups/handlers/create.html',
+                'handlers/admin/popups/handlers/delete.html'
             ]
         
         # Return the template data
         return {
-            'utilities': {
-                'all':    util_all,
-                'target': util_tgt,
-                'uuid':   util_tgt,
-                'detail': util_obj,
-                'edit':   None if not util_tgt else ('yes' if util_obj['locked'] else 'no'),
+            'handlers': {
+                'all':    handler_all,
+                'target': handler_tgt,
+                'uuid':   handler_tgt,
+                'detail': handler_obj,
+                'edit':   None if not handler_tgt else ('yes' if handler_obj['locked'] else 'no'),
             },
             'modules': modules,
             'methods': ['GET', 'POST', 'PUT', 'DELETE'],
-            'utils':   utils,
+            'handlers': handlers,
             'acl': {
                 'objects': acl_objects
             },
             'page': {
-                'title': 'Lense Administration - Utilities',
+                'title': 'Lense Administration - Handler',
                 'css': ['admin.css'],
                 'contents': set_contents(),
                 'popups':  set_popups()
@@ -335,7 +332,7 @@ class HandlerController(PortalTemplate):
         t_file = 'handlers/admin/{0}.html'.format(self.panel)
         
         # Set the template attributes
-        self.set_template(self.map['panels'][self.panel]['data']())
+        LENSE.PORTAL.TEMPLATE.construct(self.map['panels'][self.panel]['data']())
         
         # Construct and return the template response
-        return self.response()
+        return LENSE.PORTAL.TEMPLATE .response()

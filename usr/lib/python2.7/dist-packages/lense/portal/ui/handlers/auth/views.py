@@ -49,8 +49,8 @@ class HandlerView(View):
         """
         
         # If the user is authenticated
-        if LENSE.OBJECTS.USER.authenticated:
+        if LENSE.REQUEST.USER.authorized:
             return LENSE.HTTP.redirect('home')
             
         # Render the template
-        return LENSE.PORTAL.template
+        return LENSE.PORTAL.TEMPLATE.data

@@ -1,6 +1,46 @@
 __version__ = '0.1'
 
-class LensePortal(object):
+class PortalTemplate(object):
+    """
+    Class for handling Django template attributes and functionality.
+    """
+    def __init__(self):
+        self.data = None
+        
+    def construct(self, data):
+        """
+        Construct portal template attributes.
+        """
+        self.data = data
+
+    def response(self):
+        """
+        Construct and return the template response.
+        """
+        
+        # If redirecting
+        if 'redirect' in self.data:
+            return LENSE.HTTP.redirect(self.data['redirect'])
+        
+        # Return the template response
+        try:
+            return render(LENSE.REQUEST.DJANGO, 'interface.html', self.data)
+        
+        # Failed to render template
+        except Exception as e:
+            LENSE.LOG.exception('Internal server error: {0}'.format(str(e)))
+            
+            # Get the exception data
+            e_type, e_info, e_trace = sys.exc_info()
+            e_msg = '{0}: {1}'.format(e_type.__name__, e_info)
+            
+            # Return a server error
+            return LENSE.HTTP.browser_error('core/error/500.html', {
+                'error': 'An error occurred when rendering the requested page',
+                'debug': None if not LENSE.CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
+            })
+
+class PortalInterface(object):
     """
     Interface class for portal commons.
     """
@@ -11,7 +51,7 @@ class LensePortal(object):
         self.controllers = LENSE.MODULE.handlers(ext='controller', load='HandlerController')
         
         # Template container
-        self.template    = None
+        self.TEMPLATE    = PortalTemplate()
         
         # Bootstrap the portal interface
         self._set_session()

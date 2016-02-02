@@ -1,19 +1,14 @@
-from lense.portal.ui.core.template import PortalTemplate
-
-class HandlerController(PortalTemplate):
+class HandlerController(object):
     """
     Portal formula application controller class.
     """
-    def __init__(self, parent):
-        super(AppController, self).__init__(parent)
-        
     def construct(self, **kwargs):
         """
         Construct and return the template object.
         """
         
         # Set the template attributes
-        self.set_template({
+        LENSE.PORTAL.TEMPLATE.construct({
             'page': {
                 'title': 'Lense Home',
                 'css': [
@@ -23,4 +18,4 @@ class HandlerController(PortalTemplate):
         })
         
         # Construct and return the template response
-        return self.response()
+        return LENSE.PORTAL.TEMPLATE.response()

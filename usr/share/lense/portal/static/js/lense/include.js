@@ -22,7 +22,7 @@
 	include({
 		Client: 'api/client.js',
 		Request: 'api/request.js',
-		Response: 'api/response.js'.
+		Response: 'api/response.js',
 		Cache: 'api/cache.js',
 		Interface: 'api/interface.js'
 	}, {

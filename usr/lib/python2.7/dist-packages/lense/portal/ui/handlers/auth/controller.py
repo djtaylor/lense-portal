@@ -18,6 +18,3 @@ class HandlerController(object):
                 'contents': ['handlers/auth/tables/login.html']
             }     
         })
-        
-        # Construct and return the template response
-        return LENSE.PORTAL.TEMPLATE.response()

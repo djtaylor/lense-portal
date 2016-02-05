@@ -53,4 +53,4 @@ class HandlerView(View):
             return LENSE.HTTP.redirect('home')
             
         # Render the template
-        return LENSE.PORTAL.TEMPLATE.data
+        return LENSE.PORTAL.TEMPLATE.response()

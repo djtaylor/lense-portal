@@ -56,6 +56,31 @@ class PortalInterface(object):
         # Bootstrap the portal interface
         self._set_session()
         
+    def controller(self, **kwargs):
+        """
+        Run the target application controller.
+        """
+        
+        # If the user is authenticated
+        if LENSE.REQUEST.USER.authorized:
+            
+            # Redirect to home page if trying to access the login screen
+            if LENSE.REQUEST.path == 'auth':
+                return LENSE.HTTP.redirect('home')
+            
+            # Return the template response
+            return self.controllers[LENSE.REQUEST.path](self).construct(**kwargs)
+            
+        # User is not authenticated
+        else:
+            
+            # Redirect to the login screen if trying to access any other page
+            if not LENSE.REQUEST.path == 'auth':
+                return LENSE.HTTP.REDIRECT('auth')
+            
+            # Return the template response
+            return self.controllers[LENSE.REQUEST.path]().construct(**kwargs)
+        
     def _set_session(self):
         """
         Set session variables.

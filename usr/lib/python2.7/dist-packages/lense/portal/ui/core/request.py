@@ -44,6 +44,9 @@ class RequestManager(object):
         if not LENSE.REQUEST.path in LENSE.PORTAL.handlers:
             return LENSE.HTTP.redirect('auth')
         
+        # Run the controller
+        LENSE.PORTAL.controller()
+        
         # Load the application
         return LENSE.PORTAL.handlers[LENSE.REQUEST.path].as_view()(LENSE.REQUEST.DJANGO)
     

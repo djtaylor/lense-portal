@@ -1,3 +1,6 @@
+from sys import exc_info
+from traceback import extract_tb
+
 __version__ = '0.1'
 
 class PortalTemplate(object):
@@ -31,13 +34,13 @@ class PortalTemplate(object):
             LENSE.LOG.exception('Internal server error: {0}'.format(str(e)))
             
             # Get the exception data
-            e_type, e_info, e_trace = sys.exc_info()
+            e_type, e_info, e_trace = exc_info()
             e_msg = '{0}: {1}'.format(e_type.__name__, e_info)
             
             # Return a server error
             return LENSE.HTTP.browser_error('core/error/500.html', {
                 'error': 'An error occurred when rendering the requested page',
-                'debug': None if not LENSE.CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
+                'debug': None if not LENSE.CONF.portal.debug else (e_msg, reversed(extract_tb(e_trace)))
             })
 
 class PortalInterface(object):

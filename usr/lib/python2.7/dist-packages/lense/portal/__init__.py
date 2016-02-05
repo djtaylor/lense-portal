@@ -1,5 +1,6 @@
 from sys import exc_info
 from traceback import extract_tb
+from django.shortcuts import render
 
 __version__ = '0.1'
 

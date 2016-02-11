@@ -11,7 +11,6 @@ class HandlerController(object):
         LENSE.PORTAL.TEMPLATE.construct({
             'state':         getattr(kwargs, 'state', None), 
             'state_display': getattr(kwargs, 'state_display', 'none'),
-            'base_path':     LENSE.REQUEST.script,
             'page': {
                 'title': 'Lense Login',
                 'css': ['auth.css'],

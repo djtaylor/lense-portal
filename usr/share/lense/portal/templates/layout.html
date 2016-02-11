@@ -16,50 +16,51 @@
 		<link href="{% static "images/favicon.ico" %}" rel="icon" type="image/x-icon" />
 		
 		{# Global CSS #}
-		<link rel="stylesheet" type="text/css" href="http://code.jquery.com/mobile/git/jquery.mobile-git.min.css">
-		<link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/jquery.gridster/0.5.6/jquery.gridster.min.css">
+		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/jquery-ui-1.11.4.min.css" %}">
+		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/jquery-mobile-1.4.5.min.css" %}">
 		<link rel="stylesheet" type="text/css" href="{% static "css/ui.css" %}">
+		<link rel="stylesheet" type="text/css" href="{% static "css/base.css" %}">
 		
 		{# Page Specific CSS #}
 		{% block css %}{% endblock %}
 		
 	</head>
 	<body>
-		<div id="ui">
-			<ul>
-		        <li data-row="1" data-col="1" data-sizex="1" data-sizey="1"></li>
-		        <li data-row="2" data-col="1" data-sizex="1" data-sizey="1"></li>
-		        <li data-row="3" data-col="1" data-sizex="1" data-sizey="1"></li>
-		
-		        <li data-row="1" data-col="2" data-sizex="2" data-sizey="1"></li>
-		        <li data-row="2" data-col="2" data-sizex="2" data-sizey="2"></li>
-		
-		        <li data-row="1" data-col="4" data-sizex="1" data-sizey="1"></li>
-		        <li data-row="2" data-col="4" data-sizex="2" data-sizey="1"></li>
-		        <li data-row="3" data-col="4" data-sizex="1" data-sizey="1"></li>
-		
-		        <li data-row="1" data-col="5" data-sizex="1" data-sizey="1"></li>
-		        <li data-row="3" data-col="5" data-sizex="1" data-sizey="1"></li>
-		
-		        <li data-row="1" data-col="6" data-sizex="1" data-sizey="1"></li>
-		        <li data-row="2" data-col="6" data-sizex="1" data-sizey="2"></li>
-		    </ul>
+	
+		{# Navigation #}
+		<div data-role="header" style="overflow: hidden;">
+			<h1>Header<h2>
+			<div data-role="navbar">
+				<ul>
+					<li><a href="#">Home</a></li>
+					<li><a href="#">Admin</a></li>
+				</ul>
+			</div>
 		</div>
+	
+		{# Authenticated Requests #}
+		{% if USER.is_authenticated %}
+			{% block content %}{% endblock %}
+		
+		{# Unauthenticated Requests #}
+		{% else %}
+			{% block auth %}{% endblock %}
+		{% endif %}
 		
 		{# JavaScript #}
 		<div id="scripts">
 		
 			{# jQuery/Plugins #}
-			<script type="text/javascript" src="http://code.jquery.com/jquery-2.2.0.min.js"></script>
-			<script type="text/javascript" src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
-			<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery.gridster/0.5.6/jquery.gridster.min.js"></script>
+			<script type="text/javascript" src="{%static "js/vendor/jquery-2.2.0.min.js" %}"></script>
+			<script type="text/javascript" src="{%static "js/vendor/jquery-ui-1.11.4.min.js" %}"></script>
+			<script type="text/javascript" src="{%static "js/vendor/jquery-mobile-1.4.5.min.js" %}"></script>
 			
 			{# Autoload #}
-			<script type="text/javascript" src="{% static "js/prototype.js" %}"></script>
-			<script type="text/javascript" src="{% static "js/exceptions.js" %}"></script>
-			<script type="text/javascript" src="{% static "js/utils.js" %}"></script>
-			<script type="text/javascript" src="{% static "js/core.js" %}"></script>
-			<script type="text/javascript" src="{% static "js/include.js" %}"></script>
+			<script type="text/javascript" src="{% static "js/lense/prototype.js" %}"></script>
+			<script type="text/javascript" src="{% static "js/lense/exceptions.js" %}"></script>
+			<script type="text/javascript" src="{% static "js/lense/utils.js" %}"></script>
+			<script type="text/javascript" src="{% static "js/lense/core.js" %}"></script>
+			<script type="text/javascript" src="{% static "js/lense/include.js" %}"></script>
 			
 			{# Page Specific JavaScript #}
 			{% block js %}{% endblock %}

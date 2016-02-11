@@ -9,13 +9,74 @@ class PortalTemplate(object):
     Class for handling Django template attributes and functionality.
     """
     def __init__(self):
+        
+        # User defined template data / requesting user object
         self.data = None
+        self.user = LENSE.OBJECTS.USER.get(LENSE.REQUEST.USER.name)
         
     def construct(self, data):
         """
         Construct portal template attributes.
         """
-        self.data = data
+        self.data = self._merge_data(data)
+
+    def _user_data(self):
+        """
+        Construct and return user data.
+        """
+        return {
+            'is_admin': LENSE.REQUEST.USER.admin,
+            'is_authenticated': LENSE.REQUEST.USER.authorized,
+            'groups': self.user.groups,
+            'email': self.user.email
+        }
+
+    def _request_data(self):
+        """
+        Construct and return request data.
+        """
+        return {
+            'current': LENSE.REQUEST.current,
+            'path': LENSE.REQUEST.path,
+            'base': LENSE.REQUEST.script
+        }
+
+    def _api_data(self):
+        """
+        Construct and return API data.
+        """
+        return {
+            'user': self.user.username,
+            'group': self.user.groups[0],
+            'key': self.user.api_key,
+            'token': self.user.api_token,
+            'endpoint': '{0}://{1}:{2}'.format(LENSE.CONF.engine.proto, LENSE.CONF.engine.host, LENSE.CONF.engine.port)
+        }
+
+    def _merge_data(self, data={}):
+        """
+        Merge base template data and page specific template data. 
+        """
+        
+        # Base parameters
+        params = {
+            'USER': self._user_data(),
+            'REQUEST': self._request_data(),
+            'API': self._api_data()
+        }
+        
+        # Merge extra template parameters
+        for k,v in data.iteritems():
+            
+            # Do not overwrite the 'BASE' key
+            if k in ['USER','REQUEST','API']:
+                raise Exception('Template data key "{0}" cannot be overloaded'.format(k))
+            
+            # Append the template data key
+            params[k] = v
+            
+        # Return the template data object
+        return params
 
     def response(self):
         """

@@ -12,7 +12,7 @@ class PortalTemplate(object):
         
         # User defined template data / requesting user object
         self.data = None
-        self.user = LENSE.OBJECTS.USER.get(LENSE.REQUEST.USER.name)
+        self.user = LENSE.OBJECTS.USER.get(**{'username': LENSE.REQUEST.USER.name})
         
     def construct(self, data):
         """
@@ -27,8 +27,8 @@ class PortalTemplate(object):
         return {
             'is_admin': LENSE.REQUEST.USER.admin,
             'is_authenticated': LENSE.REQUEST.USER.authorized,
-            'groups': self.user.groups,
-            'email': self.user.email
+            'groups': getattr(self.user, 'groups', None),
+            'email': getattr(self.user, 'email', None)
         }
 
     def _request_data(self):
@@ -46,10 +46,10 @@ class PortalTemplate(object):
         Construct and return API data.
         """
         return {
-            'user': self.user.username,
-            'group': self.user.groups[0],
-            'key': self.user.api_key,
-            'token': self.user.api_token,
+            'user': getattr(self.user, 'username', None),
+            'group': getattr(self.user, 'groups', None),
+            'key': getattr(self.user, 'api_key', None),
+            'token': getattr(self.user, 'api_token', None),
             'endpoint': '{0}://{1}:{2}'.format(LENSE.CONF.engine.proto, LENSE.CONF.engine.host, LENSE.CONF.engine.port)
         }
 

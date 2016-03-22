@@ -1,5 +1,5 @@
 {# Base Template #}
-{% extends "layout.html" %}
+{% extends "base.html" %}
 
 {# Static Files #}
 {% load staticfiles %}
@@ -26,7 +26,7 @@
 {% endblock %}
 
 {# Page Content #}
-{% if USER.is_authenticated %}
+{% if BASE.user.is_authenticated %}
 	{% block window %}
 		{% if page.header %}
 			<div class="page_header_box">
@@ -40,7 +40,7 @@
 {% endif %}
 
 {# Authentication Content #}
-{% if not USER.is_authenticated %}
+{% if not BASE.user.is_authenticated %}
 	{% block auth %}
 		{% for content in page.contents %}
 			{% include content %}

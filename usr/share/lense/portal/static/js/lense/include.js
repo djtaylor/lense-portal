@@ -4,7 +4,7 @@
 	var c = [];
 
 	// User Interface
-	include({
+	include({,
 		UI: 'ui/common.js'
 	}, null, function() {
 		c.push('ui.Common');

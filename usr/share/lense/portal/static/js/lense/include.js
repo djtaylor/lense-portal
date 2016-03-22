@@ -2,13 +2,6 @@
 	
 	// Class constructors
 	var c = [];
-
-	// User Interface
-	include({,
-		UI: 'ui/common.js'
-	}, null, function() {
-		c.push('ui.Common');
-	});
 	
 	// Commons
 	include({

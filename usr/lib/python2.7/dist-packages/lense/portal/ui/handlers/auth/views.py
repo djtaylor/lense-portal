@@ -1,10 +1,11 @@
 # Django Libraries
-from django.views.generic import View
+
 
 # Lense Libraries
 from lense.common.exceptions import AuthError
+from lense.portal.handlers import BaseHandlerView
 
-class HandlerView(View):
+class HandlerView(BaseHandlerView):
     """
     Application view for the Lense portal authentication page.
     """
@@ -57,6 +58,11 @@ class HandlerView(View):
         """
         Handle GET requests for the portal authentication page.
         """
+        
+        # If bootstrapping the session
+        if LENSE.REQUEST.data.get('bootstrap', False):
+            self.log('Bootstraping authenticated session', level='debug')
+            return LENSE.PORTAL.TEMPLATE.response()
         
         # If the user is authenticated
         if LENSE.REQUEST.USER.authorized:

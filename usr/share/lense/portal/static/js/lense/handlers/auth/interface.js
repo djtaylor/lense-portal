@@ -1,4 +1,4 @@
-lense.import('Interface_Auth', function() {
+lense.import('Auth_Interface', function() {
 	
 	/**
 	 * Initialize CSAuth
@@ -6,26 +6,39 @@ lense.import('Interface_Auth', function() {
 	 */
 	this.__init__ = function() {
 		
-		// Bind click/enter
-		lense.auth.bind();
-		
-		// Document ready
-		$(document).ready(function() {
-			lense.auth.layout();
+		// Bootstraping authenticated session
+		if (lense.url.param_exists('bootstrap')) {
+			$.each(['api_user', 'api_group', 'api_key', 'api_token'], function(i,k) {
+				Cookies.set(k, lense.url.param_get(k));
+			});
 			
-			// Fade in the login window
-			$('.login_window').animate({
-				opacity: 1.0
-			}, 1000);
-		});
-		
-		// Window resize
-		$(window).resize(function() {
-			lense.auth.layout();
-		});
-		
-		// Look for authentication errors
-		lense.auth.check_errors();
+			// Redirect to home
+			lense.url.redirect('home');
+			
+		// Login page
+		} else {
+			
+			// Bind click/enter
+			lense.auth.bind();
+			
+			// Document ready
+			$(document).ready(function() {
+				lense.auth.layout();
+				
+				// Fade in the login window
+				$('.login_window').animate({
+					opacity: 1.0
+				}, 1000);
+			});
+			
+			// Window resize
+			$(window).resize(function() {
+				lense.auth.layout();
+			});
+			
+			// Look for authentication errors
+			lense.auth.check_errors();
+		}
 	}
 	
 	/**

@@ -39,15 +39,6 @@
 	}, function() {
 		c.push('auth.Auth_Interface');
 	});
-
-	// Bootstrap
-	include({
-		Bootstrap_Interface: 'handlers/bootstrap/interface.js'
-	}, {
-		url: { path: 'bootstrap' }
-	}, function() {
-		c.push('bootstrap.Bootstrap_Interface');
-	});
 	
 	// Home
 	include({

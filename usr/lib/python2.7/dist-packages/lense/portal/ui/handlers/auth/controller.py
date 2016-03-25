@@ -9,8 +9,6 @@ class HandlerController(object):
         
         # Set the template attributes
         LENSE.PORTAL.TEMPLATE.construct({
-            'state':         getattr(kwargs, 'state', None), 
-            'state_display': getattr(kwargs, 'state_display', 'none'),
             'page': {
                 'title': 'Lense Login',
                 'css': ['auth.css'],

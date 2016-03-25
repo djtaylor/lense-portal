@@ -38,7 +38,7 @@ class PortalTemplate(PortalBase):
         self.data = None
         self.user = LENSE.OBJECTS.USER.get(**{'username': LENSE.REQUEST.USER.name})
         
-    def construct(self, data):
+    def construct(self, data={}):
         """
         Construct portal template attributes.
         """

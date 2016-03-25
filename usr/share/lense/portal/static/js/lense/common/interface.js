@@ -71,6 +71,11 @@ lense.import('Common_Interface', function() {
 			}
 		});
 		
+		// Click logout button
+		$(document).on('click', '.login_submit', function() {
+			$('#login_form').submit();
+		});
+		
 		// Change active group
 		$('select[id="active_group"][name="group"]').change(function() {
 			var group = $(this).val();

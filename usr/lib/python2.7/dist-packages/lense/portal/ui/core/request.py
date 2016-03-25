@@ -2,7 +2,6 @@ import sys
 import traceback
 
 # Lense Libraries
-from lense.portal.ui.base import PortalBase
 from lense.common.exceptions import EnsureError, AuthError, RequestError
 
 def dispatch(request):

@@ -1,4 +1,4 @@
-lense.import('LenseAdminACLDetails', function() {
+lense.import('Admin_ACLKeyDetails', function() {
 	
 	/**
 	 * Intialize LenseAdminACLDetails

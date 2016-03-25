@@ -1,4 +1,4 @@
-lense.import('LenseAdminUsers', function() {
+lense.import('Admin_User', function() {
 	
 	/**
 	 * Initialize LenseAdminUsers

@@ -1,9 +1,9 @@
 <div class="login_window">
-	<form id="login_form" action="{{ base_path }}/auth" method="post" autocomplete="off">
+	<form id="login_form" action="{{ base_path }}/auth" method="post" autocomplete="off" enctype="application/json">
 		<div class="login_title">
 			<div class="login_title_icon"></div>
 			<div class="login_title_txt">Lense</div>
-			<div class="login_title_subtxt">API as a Service (APIaaS)</div>
+			<div class="login_title_subtxt">Infrastructure Management</div>
 		</div>
 		<div class="login_fields">
 			<div class="login_username">
@@ -19,7 +19,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="login_state" style="display:{{ state_display }};">{{ state }}</div>
+		<div class="login_state" style="display:none;"></div>
 		<div class="login_submit">Log In</div>
 		{% if next %}
 		<input type="hidden" name="next" value="{{ next }}" />

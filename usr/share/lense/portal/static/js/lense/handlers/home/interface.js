@@ -1,4 +1,4 @@
-lense.import('LenseHomeInterface', function() {
+lense.import('Home_Interface', function() {
 	
 	/**
 	 * Initialize LenseHome

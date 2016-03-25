@@ -1,4 +1,4 @@
-lense.import('LenseAdminGroupsList', function() {
+lense.import('Admin_GroupList', function() {
 	
 	/**
 	 * Callback: Create Group

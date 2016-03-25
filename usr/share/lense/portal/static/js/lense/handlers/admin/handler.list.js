@@ -1,4 +1,4 @@
-lense.import('LenseAdminUtilitiesList', function() {
+lense.import('Admin_HandlerList', function() {
 	
 	/**
 	 * Initialize LenseAdminUtilityList

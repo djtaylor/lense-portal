@@ -1,4 +1,4 @@
-lense.import('LenseAdminHandlerDetails', function() {
+lense.import('Admin_HandlerDetails', function() {
 	
 	// Request map
 	this.rmap   = null;

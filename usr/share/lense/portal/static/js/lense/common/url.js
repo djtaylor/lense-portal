@@ -1,4 +1,4 @@
-lense.import('URL', function() {
+lense.import('Common_URL', function() {
 	
 	/**
 	 * Parse URL

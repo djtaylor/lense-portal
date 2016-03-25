@@ -5,66 +5,66 @@
 	
 	// Commons
 	include({
-		URL: 'common/url.js',
-		Validate: 'common/validate.js',
-		Forms: 'common/forms.js',
-		Layout: 'common/layout.js',
-		Button: 'common/button.js',
-		Register: 'common/register.js',
-		Interface: 'common/interface.js',
-		IPAddr: 'common/ipaddr.js',
-		Finder: 'common/finder.js'
+		Common_URL: 'common/url.js',
+		Common_Validate: 'common/validate.js',
+		Common_Forms: 'common/forms.js',
+		Common_Layout: 'common/layout.js',
+		Common_Button: 'common/button.js',
+		Common_Register: 'common/register.js',
+		Common_Interface: 'common/interface.js',
+		Common_IPAddr: 'common/ipaddr.js',
+		Common_Finder: 'common/finder.js'
 	}, null, function() {
-		c.push('common.Interface');
+		c.push('common.Common_Interface');
 	});
 
 	// API
 	include({
-		Client: 'api/client.js',
-		Request: 'api/request.js',
-		Response: 'api/response.js',
-		Cache: 'api/cache.js',
-		Interface: 'api/interface.js'
+		API_Client: 'api/client.js',
+		API_Request: 'api/request.js',
+		API_Response: 'api/response.js',
+		API_Cache: 'api/cache.js',
+		API_Interface: 'api/interface.js'
 	}, {
 		url: { path: ['home', 'admin'] }
 	}, function() { 
-		c.push('api.Interface'); 
+		c.push('api.API_Interface'); 
 	});
 	
 	// Authentication
 	include({
-		Interface: 'handlers/auth/interface.js'
+		Auth_Interface: 'handlers/auth/interface.js'
 	}, {
 		url: { path: 'auth' }
 	}, function() {
-		c.push('auth.Interface');
+		c.push('auth.Auth_Interface');
 	});
 
 	// Home
 	include({
-		Interface: 'handlers/home/interface.js'
+		Home_Interface: 'handlers/home/interface.js'
 	}, {
 		url: { path: 'home' }
 	}, function() {
-		c.push('home.Interface');
+		c.push('home.Home_Interface');
 	});
 	
 	// Lense: Admin
 	include({
-		ACLKeysList: 'handlers/admin/acl.list.js',
-		ACLKeysDetails: 'handlers/admin/acl.details.js',
-		Users: 'handlers/admin/user.list.js',
-		GroupsList: 'handlers/admin/group.list.js',
-		GroupDetails: 'handlers/admin/group.details.js',
-		HandlerDetails: 'handlers/admin/utility.details.js',
-		HandlerList: 'handlers/admin/utility.list.js',
-		ACLObjectsList: 'handlers/admin/object.list.js',
-		ACLObjectDetails: 'handlers/admin/object.details.js',
-		Interface: 'handlers/admin/interface.js'
+		Admin_ACLKeyList: 'handlers/admin/acl.list.js',
+		Admin_ACLKeyDetails: 'handlers/admin/acl.details.js',
+		Admin_User: 'handlers/admin/user.list.js',
+		Admin_GroupList: 'handlers/admin/group.list.js',
+		Admin_GroupDetails: 'handlers/admin/group.details.js',
+		Admin_HandlerDetails: 'handlers/admin/utility.details.js',
+		Admin_HandlerList: 'handlers/admin/utility.list.js',
+		Admin_ACLObjectList: 'handlers/admin/object.list.js',
+		Admin_ACLObjectDetails: 'handlers/admin/object.details.js',
+		Admin_Interface: 'handlers/admin/interface.js'
 	}, {
 		url: { path: 'admin' }, is_admin: true
 	}, function() {
-		c.push('admin.Interface');
+		c.push('admin.Admin_Interface');
 	});
 	
 	// Boostrap the constructors

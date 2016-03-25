@@ -1,4 +1,4 @@
-lense.import('Forms', function() {
+lense.import('Common_Forms', function() {
 	
 	// Forms container
 	this.all = {};

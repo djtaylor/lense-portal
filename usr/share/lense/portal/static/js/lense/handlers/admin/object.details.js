@@ -1,4 +1,4 @@
-lense.import('LenseAdminACLObjectDetails', function() { 
+lense.import('Admin_ACLObjectDetails', function() { 
 	
 	// Active object type
 	this.active = lense.url.param_get('object');

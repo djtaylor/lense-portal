@@ -24,9 +24,9 @@
 		
 		{# API Parameters #}
 		<script id="api_params" type="text/javascript">
-			{% if BASE.user.is_authenticated %}
+			{% if USER.is_authenticated %}
 				api_params = { 
-					{% for key, val in BASE.api.params.iteritems %}
+					{% for key, val in API.params.iteritems %}
 						{{ key }}: {% py2js val %}, 
 					{% endfor %}
 				};
@@ -35,15 +35,15 @@
 		
 		{# Global Objects #}
 		<script type="text/javascript" id="js_global">
-			{% if BASE.user.is_authenticated %}
+			{% if USER.is_authenticated %}
 				var cs_global = {};
 			{% endif %}
 		</script>
 	</head>
-	<body path="{{ BASE.request.path }}">
+	<body path="{{ REQUEST.path }}">
 		
 		{# Authenticated Requests #}
-		{% if BASE.user.is_authenticated %}
+		{% if USER.is_authenticated %}
 		
 			{# Base Window #}
 			<div class="base_window">
@@ -53,20 +53,20 @@
 					<div class="base_nav">
 						<div class="base_nav_left">
 							<div class="base_nav_button_left" type="button" action="link" target="home" >Home</div>
-							{% if BASE.user.is_admin %}
+							{% if USER.is_admin %}
 								<div class="base_nav_button_left" type="hover" action="menutoggle" target="menu_admin">Admin</div>
 							{% endif %}
 						</div>
 						<div class="base_nav_right">
 							<div class="base_nav_button_right nav_profile_button">
-								<div class="nav_profile_username" type="button" action="toggle" target="menu_profile">{{ BASE.user.name }}</div>
+								<div class="nav_profile_username" type="button" action="toggle" target="menu_profile">{{ USER.name }}</div>
 								<div class="nav_profile_icon" type="button" action="toggle" target="menu_profile"></div>
 							</div>
 							<div class="base_nav_active_group">
 								<form id="change_group_form" action="/auth" method="post">
 									<select id="active_group" name="group">
-										{% for api_group in BASE.user.groups %}
-											{% if api_group.uuid == BASE.api.params.group %}
+										{% for api_group in USER.groups %}
+											{% if api_group.uuid == API.params.group %}
 												<option value="{{ api_group.uuid }}" selected="selected">Active Group: {{ api_group.name }}</option>
 											{% else %}
 												<option value="{{ api_group.uuid }}">{{ api_group.name }}</option>
@@ -75,7 +75,7 @@
 									</select>
 									{% csrf_token %}
 									<input type="hidden" name="action" value="change_group" />
-									<input type="hidden" name="redirect" value="{{ BASE.request.current }}" />
+									<input type="hidden" name="redirect" value="{{ REQUEST.current }}" />
 								</form>
 							</div>
 							<div class="base_nav_finder">
@@ -91,7 +91,7 @@
 					</form>
 					
 					{# Navigation Dropdowns #}
-					{% if BASE.user.is_admin %}
+					{% if USER.is_admin %}
 						{% include "core/menu/admin.html" %}
 					{% endif %}
 					{% include "core/menu/profile.html" %}

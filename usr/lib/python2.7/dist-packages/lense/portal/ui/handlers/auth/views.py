@@ -1,6 +1,9 @@
 # Django Libraries
 from django.views.generic import View
 
+# Lense Libraries
+from lense.common.exceptions import AuthError
+
 class HandlerView(View):
     """
     Application view for the Lense portal authentication page.
@@ -41,7 +44,14 @@ class HandlerView(View):
         
         # Login the user
         if action == 'login':
-            return LENSE.OBJECTS.USER.login()
+            try:
+            
+                # Log the user in
+                return LENSE.OBJECTS.USER.login(LENSE.REQUEST.POST('username'), LENSE.REQUEST.POST('password'))
+            
+            # Authentication error
+            except AuthError as e:
+                return LENSE.HTTP.redirect('auth', 'error={0}'.format(str(e)))
     
     def get(self, request, *args, **kwargs):
         """

@@ -1,4 +1,4 @@
-lense.import('Layout', function() {
+lense.import('Common_Layout', function() {
 	
 	// Alert counter
 	var alert_count = 1;

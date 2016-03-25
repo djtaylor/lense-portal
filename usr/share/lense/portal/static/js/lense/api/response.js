@@ -3,7 +3,7 @@
  * 
  * Object designed to handle response from the API proxy server.
  */
-lense.import('LenseAPIResponse', function() {
+lense.import('API_Response', function() {
 	
 	/**
 	 * Proxy Response Handler

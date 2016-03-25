@@ -1,4 +1,4 @@
-lense.import('Validate', function() {
+lense.import('Common_Validate', function() {
 	
 	/**
 	 * Python Module Path

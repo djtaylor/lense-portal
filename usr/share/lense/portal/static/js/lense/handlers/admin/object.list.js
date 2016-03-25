@@ -1,4 +1,4 @@
-lense.import('LenseAdminACLObjectsList', function() { 
+lense.import('Admin_ACLObjectList', function() { 
 	
 	/**
 	 * Initialize LenseAdminACLObjectsList

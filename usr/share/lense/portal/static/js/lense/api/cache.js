@@ -1,4 +1,4 @@
-lense.import('Cache', function() {
+lense.import('API_Cache', function() {
 	
 	// Cache containers
 	this.groups   = [];

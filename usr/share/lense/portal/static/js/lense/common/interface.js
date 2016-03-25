@@ -1,4 +1,4 @@
-lense.import('Interface', function() {
+lense.import('Common_Interface', function() {
 	
 	/**
 	 * Initialize Interface
@@ -7,14 +7,14 @@ lense.import('Interface', function() {
 	this.__init__ = function() {
 		
 		// Load modules
-		lense.implement('URL', 'url');
-		lense.implement('Forms', 'forms');
-		lense.implement('Button', 'button');
-		lense.implement('Layout', 'layout');
-		lense.implement('Validate', 'validate');
-		lense.implement('Register', 'register');
-		lense.implement('IPAddr', 'ipaddr');
-		lense.implement('Finder', 'finder');
+		lense.implement('Common_URL', 'url');
+		lense.implement('Common_Forms', 'forms');
+		lense.implement('Common_Button', 'button');
+		lense.implement('Common_Layout', 'layout');
+		lense.implement('Common_Validate', 'validate');
+		lense.implement('Common_Register', 'register');
+		lense.implement('Common_IPAddr', 'ipaddr');
+		lense.implement('Common_Finder', 'finder');
 		
 		// Centered elements
 		centered = ['.popups_container', '.loading_content'];
@@ -46,7 +46,7 @@ lense.import('Interface', function() {
 		});
 		
 		// Bind actions
-		lense.base.bind();
+		lense.common.bind();
 	}
 	
 	/**

@@ -1,4 +1,4 @@
-lense.import('LenseAdminGroupDetails', function() {
+lense.import('Admin_GroupDetails', function() {
 	
 	// Active group
 	this.active = lense.url.param_get('group');

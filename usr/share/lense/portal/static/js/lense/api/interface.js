@@ -1,4 +1,4 @@
-lense.import('Interface', function() {
+lense.import('API_Interface', function() {
 	
 	/**
 	 * Initialize APIInterface
@@ -7,10 +7,10 @@ lense.import('Interface', function() {
 	this.__init__ = function() {
 		
 		// Object extensions
-		lense.implement('Client', 'api.client');
-		lense.implement('Request', 'api.request');
-		lense.implement('Response', 'api.response');
-		lense.implement('Cache', 'api.cache');
+		lense.implement('API_Client', 'api.client');
+		lense.implement('API_Request', 'api.request');
+		lense.implement('API_Response', 'api.response');
+		lense.implement('API_Cache', 'api.cache');
 		
 		// Open the API connection
 		lense.api.client.connect();

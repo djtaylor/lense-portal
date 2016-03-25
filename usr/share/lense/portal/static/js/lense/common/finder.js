@@ -1,4 +1,4 @@
-lense.import('Finder', function() { 
+lense.import('Common_Finder', function() { 
 	
 	// Key codes
 	this.keycode = {

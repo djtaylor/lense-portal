@@ -12,6 +12,19 @@ function ModuleNotFound(m) {
 ModuleNotFound.prototype = Error.prototype;
 
 /**
+ * ModuleDefined
+ * 
+ * Tried to load a module that was already imported using 'lense.import'.
+ * 
+ * @param {m} The name of the module
+ */
+function ModuleDefined(m) {
+	this.name    = 'ModuleDefined';
+	this.message = 'Module <' + m + '> already imported, cannot have duplicate module names';
+}
+ModuleDefined.prototype = Error.prototype;
+
+/**
  * MethodNotFound
  * 
  * Tried to run a method that was not registered in the 'lense.method' object.

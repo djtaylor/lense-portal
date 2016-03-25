@@ -4,7 +4,7 @@
  * Object designed to handle submitting API request to the Lense
  * Socket.IO proxy server.
  */
-lense.import('LenseAPIRequest', function() {
+lense.import('API_Request', function() {
 	
 	/**
 	 * Request Attributes

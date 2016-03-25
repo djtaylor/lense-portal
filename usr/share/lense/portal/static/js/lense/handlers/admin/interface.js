@@ -1,4 +1,4 @@
-lense.import('LenseAdminInterface', function() {
+lense.import('Admin_Interface', function() {
 	
 	/**
 	 * Initialize LenseAdminInterface
@@ -8,48 +8,48 @@ lense.import('LenseAdminInterface', function() {
 	
 		// ACL management
 		if (defined(lense.url.param_get('acl'))) {
-			lense.implement('LenseAdminACLDetails', 'admin.acl');
+			lense.implement('Admin_ACLKeyDetails', 'admin.acl');
 		} else {
 			if (lense.url.param_get('panel') == 'acls') {
-				lense.implement('LenseAdminACLList', 'admin.acl');
+				lense.implement('Admin_ACLKeyList', 'admin.acl');
 			}
 		}
 		
 		// Admin Users
 		if (lense.url.param_get('panel') == 'users') {
-			lense.implement('LenseAdminUsers', 'admin.users');
+			lense.implement('Admin_User', 'admin.users');
 		}
 		
 		// Group Details
 		if (defined(lense.url.param_get('group'))) {
-			lense.implement('LenseAdminGroupDetails', 'admin.groups');
+			lense.implement('Admin_GroupDetails', 'admin.groups');
 		
 		// Group List
 		} else {
 			if (lense.url.param_get('panel') == 'groups') {
-				lense.implement('LenseAdminGroupsList', 'admin.groups');
+				lense.implement('Admin_GroupList', 'admin.groups');
 			}
 		}
 		
 		// Utility Details
 		if (defined(lense.url.param_get('utility'))) {
-			lense.implement('LenseAdminUtilityDetails', 'admin.utility')
+			lense.implement('Admin_HandlerDetails', 'admin.utility')
 		
 		// Utilities List
 		} else {
 			if (lense.url.param_get('panel') == 'utilities') {
-				lense.implement('LenseAdminUtilitiesList', 'admin.utility');
+				lense.implement('Admin_HandlerList', 'admin.utility');
 			}
 		}
 		
 		// ACL Objects Details
 		if (defined(lense.url.param_get('object'))) {
-			lense.implement('LenseAdminACLObjectDetails', 'admin.acl_objects');
+			lense.implement('Admin_ACLObjectDetails', 'admin.acl_objects');
 		
 		// ACL Objects List
 		} else {
 			if (lense.url.param_get('panel') == 'objects') {
-				lense.implement('LenseAdminACLObjectsList', 'admin.acl_objects');
+				lense.implement('Admin_ACLObjectList', 'admin.acl_objects');
 			}
 		}
 	}

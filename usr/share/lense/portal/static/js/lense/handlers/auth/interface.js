@@ -1,4 +1,4 @@
-lense.import('AuthInterface', function() {
+lense.import('Interface_Auth', function() {
 	
 	/**
 	 * Initialize CSAuth
@@ -23,6 +23,25 @@ lense.import('AuthInterface', function() {
 		$(window).resize(function() {
 			lense.auth.layout();
 		});
+		
+		// Look for authentication errors
+		lense.auth.check_errors();
+	}
+	
+	/**
+	 * Check Authentication Errors
+	 */
+	this.check_errors = function() {
+		if (lense.url.param_exists('error')) {
+			auth_error = lense.url.param_get('error');
+			
+			// Show the authentication error
+			$(".login_state").html(auth_error);
+			lense.layout.fadein('.login_state');
+			
+			// Clean up the URL
+			lense.url.param_del('error');
+		}
 	}
 	
 	/**

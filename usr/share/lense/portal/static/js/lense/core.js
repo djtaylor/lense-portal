@@ -17,6 +17,13 @@ var lense = (function() {
 	 * @param {m} The module contents
 	 */
 	self.import = function(n,m) {
+		
+		// Module names must be unique
+		if (n in self.module) {
+			throw new ModuleDefined(n);
+		}
+		
+		// Import the module object
 		self.module[n] = m;
 	};
 	
@@ -60,14 +67,14 @@ var lense = (function() {
 						}
 					});
 					if (a === true) {
-						for (var m in c) {
-							lib  = c[m].split('.');
+						$.each(c, function(k,v) {
+							lib  = v.split('.');
 							path = lib[0];
 							name = lib[1];
 							
 							// Create a new class instance
 							self.implement(name, path);
-						}
+						});
 					} else {
 						wait_inner();
 					}

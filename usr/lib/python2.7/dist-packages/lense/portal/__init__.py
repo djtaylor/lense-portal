@@ -4,7 +4,31 @@ from django.shortcuts import render
 
 __version__ = '0.1'
 
-class PortalTemplate(object):
+# Lense Libraries
+from lense.common.exceptions import RequestError
+
+class PortalBase(object):
+    def log(self, msg, level='info', method=None):
+        """
+        Wrapper method for logging with a prefix.
+        
+        :param    msg: The message to log
+        :type     msg: str
+        :param  level: The desired log level
+        :type   level: str
+        :param method: Optionally append the method to log prefix
+        :type  method: str
+        """
+        logger = getattr(LENSE.LOG, level, 'info')
+        logger('<TEMPLATE:{0}{1}:{2}@{3}> {4}'.format(
+            self.__class__.__name__, 
+            '' if not method else '.{0}'.format(method), 
+            LENSE.REQUEST.USER.name,
+            LENSE.REQUEST.client,
+            msg
+        ))
+
+class PortalTemplate(PortalBase):
     """
     Class for handling Django template attributes and functionality.
     """
@@ -65,15 +89,19 @@ class PortalTemplate(object):
             'API': self._api_data()
         }
         
+        # Log base template data
+        self.log('Constructing base template data: USER={0}, REQUEST={1}, API={2}'.format(params['USER'], params['REQUEST'], params['API']), level='debug', method='_merge_data')
+        
         # Merge extra template parameters
         for k,v in data.iteritems():
             
             # Do not overwrite the 'BASE' key
             if k in ['USER','REQUEST','API']:
-                raise Exception('Template data key "{0}" cannot be overloaded'.format(k))
+                raise RequestError('Template data key "{0}" cannot be overloaded'.format(k), code=500)
             
             # Append the template data key
             params[k] = v
+            self.log('Appending template data: key={0}, value={1}'.format(k,v), level='debug', method='_merge_data')
             
         # Return the template data object
         return params
@@ -85,15 +113,17 @@ class PortalTemplate(object):
         
         # If redirecting
         if 'redirect' in self.data:
+            self.log('Redirecting -> {0}'.format(self.data['redirect']), level='debug', method='response')
             return LENSE.HTTP.redirect(self.data['redirect'])
         
         # Return the template response
         try:
+            self.log('Return response: interface.html, data={0}'.format(self.data), level='debug', method='response')
             return render(LENSE.REQUEST.DJANGO, 'interface.html', self.data)
         
         # Failed to render template
         except Exception as e:
-            LENSE.LOG.exception('Internal server error: {0}'.format(str(e)))
+            self.log('Internal server error: {0}'.format(str(e)), level='exception', method='response')
             
             # Get the exception data
             e_type, e_info, e_trace = exc_info()
@@ -105,7 +135,7 @@ class PortalTemplate(object):
                 'debug': None if not LENSE.CONF.portal.debug else (e_msg, reversed(extract_tb(e_trace)))
             })
 
-class PortalInterface(object):
+class PortalInterface(PortalBase):
     """
     Interface class for portal commons.
     """
@@ -134,14 +164,14 @@ class PortalInterface(object):
                 return LENSE.HTTP.redirect('home')
             
             # Return the template response
-            return self.controllers[LENSE.REQUEST.path](self).construct(**kwargs)
+            return self.controllers[LENSE.REQUEST.path]().construct(**kwargs)
             
         # User is not authenticated
         else:
             
             # Redirect to the login screen if trying to access any other page
             if not LENSE.REQUEST.path == 'auth':
-                return LENSE.HTTP.REDIRECT('auth')
+                return LENSE.HTTP.redirect('auth')
             
             # Return the template response
             return self.controllers[LENSE.REQUEST.path]().construct(**kwargs)
@@ -153,15 +183,15 @@ class PortalInterface(object):
         if LENSE.REQUEST.USER.authorized:
             
             # Get the user details
-            user   = LENSE.OBJECTS.USER.get(LENSE.REQUEST.USER.name)
+            user   = LENSE.OBJECTS.USER.get(username=LENSE.REQUEST.USER.name)
             groups = user.groups
             
             # Set the 'is_admin' flag
-            LENSE.REQUEST.SESSION.set('is_admin', user.is_admin)
+            LENSE.REQUEST.SESSION.set('is_admin', LENSE.REQUEST.USER.admin)
             
             # If the active group hasn't been set yet
             if not LENSE.REQUEST.SESSION.get('active_group'):
-                LENSE.REQUEST.SESSION.set('active_group', groups[0]['uuid'])
+                LENSE.REQUEST.SESSION.set('active_group', groups[0])
                 
     def set_active_group(self, group):
         """

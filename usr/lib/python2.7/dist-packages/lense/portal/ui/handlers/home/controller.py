@@ -7,7 +7,7 @@ class HandlerController(object):
         Construct and return the template object.
         """
         
-        # Set the template attributes
+        # Construct template
         LENSE.PORTAL.TEMPLATE.construct({
             'page': {
                 'title': 'Lense Home',
@@ -16,6 +16,3 @@ class HandlerController(object):
                 ]
             }
         })
-        
-        # Construct and return the template response
-        return LENSE.PORTAL.TEMPLATE.response()

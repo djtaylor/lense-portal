@@ -1,6 +1,13 @@
 lense.import('Common_URL', function() {
 	
 	/**
+	 * Redirect
+	 */
+	this.redirect = function(path) {
+		window.location.replace('/' + path);
+	}
+	
+	/**
 	 * Parse URL
 	 * 
 	 * This method is used to render alert messages passed in the URL, and then cleans

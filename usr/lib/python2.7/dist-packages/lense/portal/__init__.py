@@ -52,7 +52,8 @@ class PortalTemplate(PortalBase):
             'is_admin': LENSE.REQUEST.USER.admin,
             'is_authenticated': LENSE.REQUEST.USER.authorized,
             'groups': getattr(self.user, 'groups', None),
-            'email': getattr(self.user, 'email', None)
+            'email': getattr(self.user, 'email', None),
+            'name': getattr(self.user, 'username', None)
         }
 
     def _request_data(self):

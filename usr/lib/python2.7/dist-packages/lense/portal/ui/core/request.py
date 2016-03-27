@@ -9,6 +9,7 @@ def dispatch(request):
     Method used to handle incoming portal requests.
     """
     LENSE.SETUP.portal(request)
+    LENSE.PORTAL.INTERFACE.bootstrap()
     
     # Run the request dispatcher
     try:

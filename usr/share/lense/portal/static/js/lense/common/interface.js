@@ -72,8 +72,13 @@ lense.import('Common_Interface', function() {
 		});
 		
 		// Click logout button
-		$(document).on('click', '.login_submit', function() {
-			$('#login_form').submit();
+		$(document).on('click', '.nav_profile_logout', function() {
+			$.each(lense.api.client.keys, function(i,k) {
+				Cookies.remove(k);
+			});
+			
+			// Submit the logout form
+			$('#logout_form').submit();
 		});
 		
 		// Change active group

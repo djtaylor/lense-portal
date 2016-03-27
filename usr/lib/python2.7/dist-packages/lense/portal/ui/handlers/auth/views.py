@@ -3,7 +3,7 @@
 
 # Lense Libraries
 from lense.common.exceptions import AuthError
-from lense.portal.handlers import BaseHandlerView
+from lense.portal.ui.handlers import BaseHandlerView
 
 class HandlerView(BaseHandlerView):
     """

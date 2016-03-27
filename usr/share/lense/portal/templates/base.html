@@ -154,7 +154,9 @@
 			<script type="text/javascript" src="{% static "js/lense/exceptions.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/lense/utils.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/lense/core.js" %}"></script>
-			<script type="text/javascript" src="{% static "js/lense/include.js" %}"></script>
+			
+			{# Module Includes #}
+			<script type="text/javascript">{{ INTERFACE.includes.js }}</script>
 			
 			{# Page Specific JavaScript #}
 			{% block js %}{% endblock %}

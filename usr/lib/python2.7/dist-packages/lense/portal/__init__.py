@@ -6,6 +6,7 @@ __version__ = '0.1'
 
 # Lense Libraries
 from lense.common.exceptions import RequestError
+from lense.portal.ui.core.interface import PortalInterface
 
 class PortalBase(object):
     def log(self, msg, level='info', method=None):
@@ -35,7 +36,7 @@ class PortalTemplate(PortalBase):
     def __init__(self):
         
         # User defined template data / requesting user object
-        self.data = None
+        self.data = {}
         self.user = LENSE.OBJECTS.USER.get(**{'username': LENSE.REQUEST.USER.name})
         
     def construct(self, data={}):
@@ -43,6 +44,19 @@ class PortalTemplate(PortalBase):
         Construct portal template attributes.
         """
         self.data = self._merge_data(data)
+
+    def register_interface(self, ):
+        pass
+
+    def _interface_data(self):
+        """
+        Construct and return interface data.
+        """
+        return {
+            'includes': {
+                'js': ''
+            }
+        }
 
     def _user_data(self):
         """
@@ -75,7 +89,7 @@ class PortalTemplate(PortalBase):
             'group': getattr(self.user, 'groups', None),
             'key': getattr(self.user, 'api_key', None),
             'token': getattr(self.user, 'api_token', None),
-            'endpoint': '{0}://{1}:{2}'.format(LENSE.CONF.engine.proto, LENSE.CONF.engine.host, LENSE.CONF.engine.port)
+            'endpoint': '{0}://{1}:{2}'.format(LENSE.CONF.socket.proto, LENSE.CONF.socket.host, LENSE.CONF.socket.port)
         }
 
     def _merge_data(self, data={}):
@@ -97,7 +111,7 @@ class PortalTemplate(PortalBase):
         for k,v in data.iteritems():
             
             # Do not overwrite the 'BASE' key
-            if k in ['USER','REQUEST','API']:
+            if k in ['USER','REQUEST','API', 'LENSE']:
                 raise RequestError('Template data key "{0}" cannot be overloaded'.format(k), code=500)
             
             # Append the template data key
@@ -146,8 +160,9 @@ class PortalInterface(PortalBase):
         self.handlers    = LENSE.MODULE.handlers(ext='views', load='HandlerView')
         self.controllers = LENSE.MODULE.handlers(ext='controller', load='HandlerController')
         
-        # Template container
+        # Template / interface container
         self.TEMPLATE    = PortalTemplate()
+        self.INTERFACE   = PortalInterface()
         
         # Bootstrap the portal interface
         self._set_session()

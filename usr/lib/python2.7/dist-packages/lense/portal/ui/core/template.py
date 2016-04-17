@@ -1,185 +1,161 @@
-import sys
-import traceback
-from threading import Thread
-from collections import OrderedDict
+from sys import exc_info
+from traceback import extract_tb
 
 # Django Libraries
 from django.shortcuts import render
-from django.template import RequestContext, Context, loader
-from django.http import HttpResponseServerError
 
-class PortalTemplate(object):
-    """
-    Construct the template data needed to render each page, and return the HTTP response
-    and data needed to render the page client-side.
-    """
-    def __init__(self, portal):
-        """
-        Initialize the portal template class.
-        """ 
-     
-        # URL panel
-        self.panel       = LENSE.REQUEST.GET('panel')
-        
-        # Threaded API responses
-        self._response   = {}
-        
-        # Template data
-        self._tdata      = {}
-     
-    def request_contains(self, req=None, attr=None, values=None):
-        """
-        Check if the request data contains the specified attribute and values combination.
-        """
-        if not req or not attr:
-            return False
-     
-        # Check if the request data object contains the specified attribute
-        if hasattr(req, attr):
+# Lense Libraries
+from lense.portal import PortalBase
             
-            # If testing for supported attributed values
-            if values and isinstance(values, list):
-                if getattr(req, attr) in values:
-                    return True
-                return False
-            return True
-        return False
-       
-    def set_template(self, data={}):
+class PortalTemplate(PortalBase):
+    """
+    Class for handling Django template attributes and functionality.
+    """
+    def __init__(self):
+        
+        # User defined template data / requesting user object
+        self.data    = {}
+        self.user    = LENSE.OBJECTS.USER.get(**{'username': LENSE.REQUEST.USER.name})
+        
+        # Assets
+        self._assets = {}
+        
+    def construct(self, data={}):
         """
-        Set the target template file and data.
+        Construct portal template attributes.
         """
-        self._tdata = self._template_data(data)
-       
-    def set_redirect(self, path):
+        self.data = self._merge_data(data)
+
+    def _user_data(self):
         """
-        Return a template data redirect attribute.
+        Construct and return user data.
         """
-        return { 'redirect': path }
-       
-    def _template_data(self, objs={}):
+        return {
+            'is_admin': LENSE.REQUEST.USER.admin,
+            'is_authenticated': LENSE.REQUEST.USER.authorized,
+            'groups': getattr(self.user, 'groups', None),
+            'email': getattr(self.user, 'email', None),
+            'name': getattr(self.user, 'username', None)
+        }
+
+    def _request_data(self):
+        """
+        Construct and return request data.
+        """
+        return {
+            'current': LENSE.REQUEST.current,
+            'path': LENSE.REQUEST.path,
+            'base': LENSE.REQUEST.script
+        }
+
+    def _api_data(self):
+        """
+        Construct and return API data.
+        """
+        return {
+            'user': getattr(self.user, 'username', None),
+            'group': getattr(self.user, 'groups', None),
+            'key': getattr(self.user, 'api_key', None),
+            'token': getattr(self.user, 'api_token', None),
+            'endpoint': '{0}://{1}:{2}'.format(LENSE.CONF.socket.proto, LENSE.CONF.socket.host, LENSE.CONF.socket.port)
+        }
+
+    def _merge_data(self, data={}):
         """
         Merge base template data and page specific template data. 
         """
         
-        # User object
-        user = LENSE.OBJECTS.USER.get(LENSE.REQUEST.USER.name)
-        
-        # Set the base parameters
+        # Base parameters
         params = {
-            'BASE': {
-                     
-                # Connection user attributes
-                'user': {
-                    'is_admin': LENSE.REQUEST.USER.admin,
-                    'is_authenticated': LENSE.REQUEST.USER.authorized,
-                    'groups': user.groups,
-                    'name': user.username,
-                    'email': user.email
-                },
-                     
-                # API connection parameters
-                'api': {
-                    'params': LENSE.CLIENT.params(['user', 'group', 'key'])
-                },
-                     
-                # Request parameters
-                'request': {
-                    'current': LENSE.REQUEST.current,
-                    'path': LENSE.REQUEST.path       
-                }
-            }
+            'USER': self._user_data(),
+            'REQUEST': self._request_data(),
+            'API': self._api_data(),
+            'ASSETS': self._assets
         }
         
-        # Replace the API URL with the Socket.IO proxy
-        if params['BASE']['api']['params']:
-            params['BASE']['api']['params']['url'] = '{0}://{1}:{2}'.format(LENSE.CONF.socket.proto, LENSE.CONF.socket.host, LENSE.CONF.socket.port)
+        # Log base template data
+        self.log('Constructing base template data: USER={0}, REQUEST={1}, API={2}, ASSETS={3}'.format(
+            params['USER'], 
+            params['REQUEST'], 
+            params['API'],
+            params['ASSETS']
+        ), level='debug', method='_merge_data')
         
         # Merge extra template parameters
-        for k,v in objs.iteritems():
+        for k,v in data.iteritems():
             
             # Do not overwrite the 'BASE' key
-            if k == 'BASE':
-                raise Exception('Template data key [BASE] is reserved for internal use only')
+            if k in ['USER','REQUEST','API', 'LENSE', 'ASSETS']:
+                raise RequestError('Template data key "{0}" cannot be overloaded'.format(k), code=500)
             
             # Append the template data key
             params[k] = v
+            self.log('Appending template data: key={0}, value={1}'.format(k,v), level='debug', method='_merge_data')
             
         # Return the template data object
         return params
-       
-    def api_call(self, path, method, data=None):
+
+    def _include_interface(self, path, exclude=[]):
         """
-        Wrapper method for the APIClient class instance.
+        Generated include script.
         """
-        response = LENSE.CLIENT.request(path, method, data)
-        
-        # Return response content
-        return response.content 
+        if LENSE.REQUEST.path in exclude:
+            self.log('Skipping include: {0}, in_path={1}'.format(path, LENSE.REQUEST.path))
+            return ''
+        return 'c.push(\'{0}\');'.format(path)
     
-    def _api_call_threaded_worker(self, key, base, method, data=None):
+    def _include_script(self):
         """
-        Worker method for handled threaded API calls.
+        Construct and return the JavaScript include function.
         """
-        self._response[key] = self.api_call(base, method, data)
     
-    def api_call_threaded(self, requests):
+        # Asset includes
+        assets = [
+            self._include_interface('common.interface'),
+            self._include_interface('api.interface', exclude=['auth']),
+            self._include_interface('{0}.interface'.format(LENSE.REQUEST.path))
+        ];
+        
+        # Includes block
+        return '(function() {{ var c = []; {0} lense.bootstrap(c); }})();'.format(' '.join(assets))
+
+    def include(self, data):
         """
-        Interface for a multi-threaded API call, to speed up the request/response cycle when
-        calling multiple endpoints when rendering a template.
+        Include static assets for the request handler.
         """
+
+        # Store assets
+        for k in ['js', 'css']:
+            self._assets[k] = data.get(k, [])
         
-        # Threads / responses
-        threads   = []
-        
-        # Process each request
-        for key,attr in requests.iteritems():
-        
-            # Get any request data
-            data   = None if (len(attr) == 2) else attr[2]
-        
-            # Create the thread, append, and start
-            thread = Thread(target=self._api_call_threaded_worker, args=[key, attr[0], attr[1], data])
-            threads.append(thread)
-            thread.start()
-            
-        # Wait for the API calls to complete
-        for thread in threads:
-            thread.join()
-            
-        # Return the response object
-        return self._response
-        
+        # Construct includes script
+        self._assets['INCLUDE'] = self._include_script()
+
     def response(self):
         """
         Construct and return the template response.
         """
         
         # If redirecting
-        if 'redirect' in self._tdata:
-            return HttpResponseRedirect(self._tdata['redirect'])
+        if 'redirect' in self.data:
+            self.log('Redirecting -> {0}'.format(self.data['redirect']), level='debug', method='response')
+            return LENSE.HTTP.redirect(self.data['redirect'])
         
         # Return the template response
         try:
-            return render(self.portal.request.RAW, 'interface.html', self._tdata)
+            self.log('Return response: interface.html, data={0}'.format(self.data), level='debug', method='response')
+            return render(LENSE.REQUEST.DJANGO, 'interface.html', self.data)
         
         # Failed to render template
         except Exception as e:
-            
-            # Log the exception
-            LENSE.LOG.exception('Failed to render application template interface: {0}'.format(str(e)))
+            self.log('Internal server error: {0}'.format(str(e)), level='exception', method='response')
             
             # Get the exception data
-            e_type, e_info, e_trace = sys.exc_info()
-                
-            # Format the exception message
+            e_type, e_info, e_trace = exc_info()
             e_msg = '{0}: {1}'.format(e_type.__name__, e_info)
             
-            # Load the error template
-            t = loader.get_template('core/error/500.html')
-            
             # Return a server error
-            return HttpResponseServerError(t.render(RequestContext(self.portal.request.RAW, {
-                'error': 'An error occurred when rendering the requested page.',
-                'debug': None if LENSE.CONF.portal.debug else (e_msg, reversed(traceback.extract_tb(e_trace)))
-            })))
+            return LENSE.HTTP.browser_error('core/error/500.html', {
+                'error': 'An error occurred when rendering the requested page',
+                'debug': None if not LENSE.CONF.portal.debug else (e_msg, reversed(extract_tb(e_trace)))
+            })

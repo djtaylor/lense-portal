@@ -1,3 +1,3 @@
-lense.import('Common_ACE', function() {
+lense.import('common.ace', function() {
 	var theme = '';
 });

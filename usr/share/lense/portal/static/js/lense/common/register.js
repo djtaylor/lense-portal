@@ -1,4 +1,4 @@
-lense.import('Common_Register', function() {
+lense.import('common.register', function() {
 	
 	/**
 	 * Register Callback

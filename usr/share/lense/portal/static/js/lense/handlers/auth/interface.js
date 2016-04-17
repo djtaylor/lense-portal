@@ -1,38 +1,38 @@
-lense.import('Auth_Interface', function() {
+lense.import('auth.interface', function() {
 	
 	/**
 	 * Initialize CSAuth
 	 * @constructor
 	 */
 	this.__init__ = function() {
-		(lense.url.param_exists('bootstrap')) ? lense.auth.bootstrap() : lense.auth.login(); 
+		(lense.common.url.param_exists('bootstrap')) ? lense.auth._bootstrap() : lense.auth._login(); 
 	}
 	
 	/**
 	 * Bootstrap Session
 	 */
-	this.bootstrap = function() {
+	this._bootstrap = function() {
 		
 		// Store session cookies
 		$.each(['user', 'group', 'key', 'token', 'endpoint', 'session'], function(i,k) {
-			Cookies.set(k, lense.url.param_get(k));
+			Cookies.set(k, lense.common.url.param_get(k));
 		});
 		
 		// Redirect to home
-		lense.url.redirect('home');
+		lense.common.url.redirect('home');
 	}
 	
 	/**
 	 * Login User
 	 */
-	this.login = function() {
+	this._login = function() {
 		
 		// Bind click/enter
-		lense.auth.bind();
+		lense.auth._bind();
 		
 		// Document ready
 		$(document).ready(function() {
-			lense.auth.layout();
+			lense.auth._layout();
 			
 			// Fade in the login window
 			$('.login_window').animate({
@@ -42,33 +42,33 @@ lense.import('Auth_Interface', function() {
 		
 		// Window resize
 		$(window).resize(function() {
-			lense.auth.layout();
+			lense.auth._layout();
 		});
 		
 		// Look for authentication errors
-		lense.auth.check_errors();
+		lense.auth._check_errors();
 	}
 	
 	/**
 	 * Check Authentication Errors
 	 */
-	this.check_errors = function() {
-		if (lense.url.param_exists('error')) {
-			auth_error = lense.url.param_get('error');
+	this._check_errors = function() {
+		if (lense.common.url.param_exists('error')) {
+			auth_error = lense.common.url.param_get('error');
 			
 			// Show the authentication error
 			$(".login_state").html(auth_error);
-			lense.layout.fadein('.login_state');
+			lense.common.layout.fadein('.login_state');
 			
 			// Clean up the URL
-			lense.url.param_del('error');
+			lense.common.url.param_del('error');
 		}
 	}
 	
 	/**
 	 * Set Layout
 	 */
-	this.layout = function() {
+	this._layout = function() {
 		
 		// Login window attributes
 		var login = {
@@ -90,7 +90,7 @@ lense.import('Auth_Interface', function() {
 	/**
 	 * Bind Login Form
 	 */
-	this.bind = function() {
+	this._bind = function() {
 		
 		// Click login button
 		$(document).on('click', '.login_submit', function() {

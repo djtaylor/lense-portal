@@ -1,11 +1,11 @@
 var lense = (function() {
-	var self = {};
+	var core = {};
 	
 	// Modules container
-	self.module   = {};
+	core.module   = {};
 	
 	// Includes container
-	self.includes = {};
+	core.includes = {};
 	
 	/**
 	 * Import Module
@@ -16,36 +16,36 @@ var lense = (function() {
 	 * @param {n} The name of the module
 	 * @param {m} The module contents
 	 */
-	self.import = function(n,m) {
+	core.import = function(n,m) {
 		
 		// Module names must be unique
-		if (n in self.module) {
+		if (n in core.module) {
 			throw new ModuleDefined(n);
 		}
 		
-		// Import the module object
-		self.module[n] = m;
+		// Import the module object / store includes
+		core.module[n] = m;
+		core.includes[n] = m;
 	};
 	
 	/**
-	 * Bootstrap Namespace
+	 * Bootstrap Interfaces
 	 * 
-	 * Bootstrap any objects found in the constructors argument using the internal 'implement'
-	 * method.
+	 * Bootstrap JavaScript module interfaces.
 	 * 
-	 * @param {c} Class constructor definitions
+	 * @param {c} Interface modules
 	 */
-	self.bootstrap = function(c) {
+	core.bootstrap = function(c) {
 		
 		// Wait for all includes to complete
 		(function() {
-			$.each(self.includes, function(n,i) {
+			$.each(core.includes, function(n,i) {
 				(function wait_inner(n) {
 					setTimeout(function() {
-						if (!self.module.hasOwnProperty(n)) {
+						if (!core.module.hasOwnProperty(n)) {
 							wait_inner(n);
 						} else {
-							self.includes[n] = true;
+							core.includes[n] = true;
 						}
 					}, 10);
 				})(n);
@@ -60,7 +60,7 @@ var lense = (function() {
 			(function wait_inner() {
 				setTimeout(function() {
 					var a = true;
-					$.each(self.includes, function(n,i) {
+					$.each(core.includes, function(n,i) {
 						if (i === false) {
 							a = false;
 							return false;
@@ -73,7 +73,7 @@ var lense = (function() {
 							name = lib[1];
 							
 							// Create a new class instance
-							self.implement(name, path);
+							core.implement(v, true);
 						});
 					} else {
 						wait_inner();
@@ -86,45 +86,58 @@ var lense = (function() {
 	/**
 	 * Implement Module
 	 * 
-	 * Extend the current namespace with a new module object. Appends the module to the existing
-	 * namespace with the path specified.
+	 * Extend the current namespace with a new module object.
 	 * 
 	 * @param {n} The module name, should exist in the modules container
-	 * @param {p} The module path, used to access internally
+	 * @param {i} Is this a module interface
+	 * @param {c} A condition that must be true to implement the module
 	 */
-	self.implement = function(n,p) {
-		function set_path(s,p,o) {
-			function _inner(_s,_p,_o) {
-				if (_p.length == 1) {
-					_s[_p[0]] = _o;
-				} else {
-					_n = _p.shift()
-					_inner(_s[_n],_p,_o);
-				}
-			}
-			_inner(s,p.split('.'),o);
+	core.implement = function(n,i,c) {
+		
+		// Generate a module reference
+		function reference(m) {
+			var clone = {};
+			$.each(m, function(k,v) {
+				clone[k] = v;
+			});
+			return clone;
 		}
 		
-		// Create a new child object
-		if (self.module.hasOwnProperty(n)) {
-			object = new self.module[n]();
-		} else {
+		// Could not locate the module
+		if (!core.module.hasOwnProperty(n)) {
 			throw new ModuleNotFound(n);
 		}
 		
-		// Set the object in the namespace
-		set_path(self,p,object);
+		// Module object / namespace
+		module = new core.module[n]();
+		nspace = n.split('.');
 		
-		// Call the constructor if one exists
+		// Initialize the root namespace
+		if (!core.hasOwnProperty(nspace[0])) {
+			core[nspace[0]] = {}
+		}
+		
+		// Loading a module interface
+		if (i === true) {
+			core[nspace[0]] = module;
+			
+		// Loading a child module
+		} else {
+			core[nspace[0]][nspace[1]] = module;
+		}
+		
+		// Construct the module
 		(function() {
-			if (object.hasOwnProperty('__init__')) {
-				object.__init__();
+			
+			// Call initialization method if it exists
+			if (module.hasOwnProperty('__init__')) {
+				module.__init__();
 			} else {
-				object.__init__ = undefined;
+				module.__init__ = undefined;
 			}
 		}());
 	};
 	
 	// Return the global namespace
-	return self;
+	return core;
 })();

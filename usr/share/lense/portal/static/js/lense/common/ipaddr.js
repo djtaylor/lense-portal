@@ -1,4 +1,4 @@
-lense.import('Common_IPAddr', function() {
+lense.import('common.ipaddr', function() {
 	
 	/**
 	 * IPv4 Utilities

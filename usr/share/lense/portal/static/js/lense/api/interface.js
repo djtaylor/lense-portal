@@ -1,4 +1,4 @@
-lense.import('API_Interface', function() {
+lense.import('api.interface', function() {
 	
 	/**
 	 * Initialize APIInterface
@@ -6,11 +6,15 @@ lense.import('API_Interface', function() {
 	 */
 	this.__init__ = function() {
 		
-		// Object extensions
-		lense.implement('API_Client', 'api.client');
-		lense.implement('API_Request', 'api.request');
-		lense.implement('API_Response', 'api.response');
-		lense.implement('API_Cache', 'api.cache');
+		// Load modules
+		$.each([
+		    'api.client',
+		    'api.request',
+		    'api.response',
+		    'api.cache'
+		], function(i,k) {
+			lense.implement(k);
+		});
 		
 		// Open the API connection
 		lense.api.client.connect();
@@ -35,7 +39,7 @@ lense.import('API_Interface', function() {
 		
 		// Failed to establish client connection
 		if (lense.api.client.io === false) {
-			lense.layout.render('error', 'Failed to initialize API socket client')
+			lense.common.layout.render('error', 'Failed to initialize API socket client')
 			
 		// Connection established
 		} else {

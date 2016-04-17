@@ -1,4 +1,4 @@
-lense.import('Common_Layout', function() {
+lense.import('common.layout', function() {
 	
 	// Alert counter
 	var alert_count = 1;
@@ -16,7 +16,7 @@ lense.import('Common_Layout', function() {
 		var container = '#alert_box_container';
 		
 		// Close alert box
-		var close_alert = lense.layout.create.element('div', {
+		var close_alert = lense.common.layout.create.element('div', {
 			css:  'alert_close',
 			attr: {
 				alert: alert_count
@@ -35,15 +35,15 @@ lense.import('Common_Layout', function() {
 			case 'fatal':
 			case 'error':
 			case 'warn':
-				$(container).prepend(lense.layout.create.element('div', {
+				$(container).prepend(lense.common.layout.create.element('div', {
 					css:  'alert_box',
 					id:   'alert_' + alert_count,
 					children: [
 				        close_alert,
-				        lense.layout.create.element('div', {
+				        lense.common.layout.create.element('div', {
 				        	css: 'alert_box_msg',
 				        	children: [
-				        	    lense.layout.create.element('div', {
+				        	    lense.common.layout.create.element('div', {
 				        	    	css: 'alert_box_' + type,
 				        	    	text: alert_title + ':'
 				        	    })
@@ -182,7 +182,7 @@ lense.import('Common_Layout', function() {
 			 * Create Table Action Buttons
 			 */
 			action: function(p) {
-				return lense.layout.create.element('div', {
+				return lense.common.layout.create.element('div', {
 					css:  'table_action',
 					attr: (function() {
 						var b = { type: 'button' };
@@ -201,21 +201,21 @@ lense.import('Common_Layout', function() {
 			headers: function(p) {
 				var size = (p.hasOwnProperty('size')) ? p.size : 'md';
 				var mw   = (p.hasOwnProperty('minwidth')) ? p.minwidth : '150';
-				return lense.layout.create.element('div', {
+				return lense.common.layout.create.element('div', {
 					css: 'table_headers',
 					children: (function() {
 						var c = [];
 						
 						// Select header column
 						if (p.hasOwnProperty('select') && p.select !== false) {
-							c.push(lense.layout.create.element('div', {
+							c.push(lense.common.layout.create.element('div', {
 								css: 'table_select_header'
 							}));
 						}
 						
 						// Scan the column keys
 						$.each(p.keys, function(k,l) {
-							c.push(lense.layout.create.element('div', {
+							c.push(lense.common.layout.create.element('div', {
 								css:  'table_header table_header_md',
 								attr: {
 									col: k,
@@ -248,7 +248,7 @@ lense.import('Common_Layout', function() {
 			panel: function(p) {
 				
 				// Construct the title element
-				pt = lense.layout.create.element('div', {
+				pt = lense.common.layout.create.element('div', {
 					css:  'table_panel_title table_panel_link',
 					attr: {
 						type:   'button',
@@ -261,7 +261,7 @@ lense.import('Common_Layout', function() {
 				// Construct any table actions
 				pa = null;
 				if (p.hasOwnProperty('actions') && !$.isEmptyObject(p.actions)) {
-					pa = lense.layout.create.element('div', {
+					pa = lense.common.layout.create.element('div', {
 						css:  'table_actions_inner',
 						attr: (p.actions.hasOwnProperty('attr')) ? p.actions.attr : {},
 						children: p.actions.objects
@@ -269,13 +269,13 @@ lense.import('Common_Layout', function() {
 				}
 				
 				// Construct table panel
-				pm = lense.layout.create.element('div', {
+				pm = lense.common.layout.create.element('div', {
 					css:  'table_window',
 					attr: {
 						type: 'toggle',
 						name: p.name
 					},
-					children: [lense.layout.create.element('div', {
+					children: [lense.common.layout.create.element('div', {
 						css:  'table_rows',
 						attr: {
 							type:   'rows',
@@ -309,7 +309,7 @@ lense.import('Common_Layout', function() {
 			 * @param {p} Popup container parameters
 			 */
 			container: function(p) {
-				return lense.layout.create.element('div', {
+				return lense.common.layout.create.element('div', {
 					css:  'popup_content',
 					attr: {
 						type:   'popup',
@@ -327,7 +327,7 @@ lense.import('Common_Layout', function() {
 			 * @param {t} The text attribute
 			 */
 			title: function(t) {
-				return lense.layout.create.element('div', {
+				return lense.common.layout.create.element('div', {
 					css:  'popup_title',
 					text: t
 				})
@@ -342,7 +342,7 @@ lense.import('Common_Layout', function() {
 			 * @param {t} The text attribute
 			 */
 			header: function(t) {
-				return lense.layout.create.element('div', {
+				return lense.common.layout.create.element('div', {
 					css:  'popup_row_header',
 					text: t
 				})
@@ -360,14 +360,14 @@ lense.import('Common_Layout', function() {
 				
 				// Label/inner HTML combination
 				if (p.hasOwnProperty('label') && p.hasOwnProperty('inner')) {
-					return lense.layout.create.element('div', {
+					return lense.common.layout.create.element('div', {
 						css: 'popup_row',
 						children: [
-						    lense.layout.create.element('div', {
+						    lense.common.layout.create.element('div', {
 						    	css:  'popup_row_label',
 						    	html: p.label
 						    }),
-						    lense.layout.create.element('div', {
+						    lense.common.layout.create.element('div', {
 				    			css: 'popup_row_text_outer',
 				    			children: p.inner
 				    		})
@@ -377,14 +377,14 @@ lense.import('Common_Layout', function() {
 				
 				// Label/text combination
 				if (p.hasOwnProperty('label') && p.hasOwnProperty('text')) {
-					return lense.layout.create.element('div', {
+					return lense.common.layout.create.element('div', {
 						css: 'popup_row',
 						children: [
-						    lense.layout.create.element('div', {
+						    lense.common.layout.create.element('div', {
 						    	css:  'popup_row_label',
 						    	html: p.label
 						    }),
-						    lense.layout.create.element('div', {
+						    lense.common.layout.create.element('div', {
 						    	css:  'popup_row_text',
 						    	html: p.text
 						    })
@@ -441,7 +441,7 @@ lense.import('Common_Layout', function() {
 			}
 			
 			// Return the constructed HTML
-			return lense.layout.html(elem);
+			return lense.common.layout.html(elem);
 		}
 	}
 	
@@ -735,9 +735,9 @@ lense.import('Common_Layout', function() {
 	this.refresh = function(p) {
 		
 		// Set up the page
-		$.each(lense.layout.set, function(f,o) {
+		$.each(lense.common.layout.set, function(f,o) {
 			if (f !== 'popups') {
-				lense.layout.set[f]();
+				lense.common.layout.set[f]();
 			}
 		});
 		
@@ -746,19 +746,19 @@ lense.import('Common_Layout', function() {
 			minHeight: 500,
 			minWidth:  500,
 			create: function(e,u) {
-				lense.layout.set.popups(e.target);
+				lense.common.layout.set.popups(e.target);
 			},
 			resize: function(e,u) {
-				lense.layout.set.popups(e.target);
+				lense.common.layout.set.popups(e.target);
 			}
 		});
 		
 		// If centering any elements
 		if (defined(p) && p.hasOwnProperty('center')) {
-			lense.layout.center_elem(p.center);
+			lense.common.layout.center_elem(p.center);
 		}
 		
 		// Layout ready
-		lense.layout.complete();
+		lense.common.layout.complete();
 	}
 });

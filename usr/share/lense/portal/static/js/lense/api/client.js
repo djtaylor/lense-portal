@@ -1,4 +1,4 @@
-lense.import('API_Client', function() {
+lense.import('api.client', function() {
 	
 	// Class attributes
 	this.params, this.room, this.io;

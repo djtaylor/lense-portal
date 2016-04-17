@@ -1,4 +1,4 @@
-lense.import('Common_Interface', function() {
+lense.import('common.interface', function() {
 	
 	/**
 	 * Initialize Interface
@@ -7,14 +7,18 @@ lense.import('Common_Interface', function() {
 	this.__init__ = function() {
 		
 		// Load modules
-		lense.implement('Common_URL', 'url');
-		lense.implement('Common_Forms', 'forms');
-		lense.implement('Common_Button', 'button');
-		lense.implement('Common_Layout', 'layout');
-		lense.implement('Common_Validate', 'validate');
-		lense.implement('Common_Register', 'register');
-		lense.implement('Common_IPAddr', 'ipaddr');
-		lense.implement('Common_Finder', 'finder');
+		$.each([
+		    'common.url',
+		    'common.forms',
+		    'common.button',
+		    'common.layout',
+		    'common.validate',
+		    'common.register',
+		    'common.ipaddr',
+		    'common.finder'
+		], function(i,k) {
+			lense.implement(k);
+		});
 		
 		// Centered elements
 		centered = ['.popups_container', '.loading_content'];
@@ -23,36 +27,36 @@ lense.import('Common_Interface', function() {
 		$(document).ready(function() {
 			
 			// Parse the URL and load any rendered forms
-			lense.url.parse();
-			lense.forms.load();
+			lense.common.url.parse();
+			lense.common.forms.load();
 			
 			// Refresh the page layout
-			lense.layout.refresh({
+			lense.common.layout.refresh({
 				center: centered
 			});
 			
 			// Elements finished loading
-			lense.layout.complete();
+			lense.common.layout.complete();
 			
 			// Initialize the button handler
-			lense.button.handler();
+			lense.common.button.handler();
 		});
 		
 		// Window resize
 		$(window).resize(function() {
-			lense.layout.refresh({
+			lense.common.layout.refresh({
 				center: centered
 			});
 		});
 		
 		// Bind actions
-		lense.common.bind();
+		lense.common._bind();
 	}
 	
 	/**
 	 * Bind Global Actions
 	 */
-	this.bind = function() {
+	this._bind = function() {
 		
 		// Show/hide API key
 		$(document).on('click', '.nav_profile_api_key_toggle', function() {
@@ -87,7 +91,7 @@ lense.import('Common_Interface', function() {
 			
 			// If actually changing groups
 			if (group != lense.api.client.params.group) {
-				lense.layout.loading(true, 'Switching active group...', function() {
+				lense.common.layout.loading(true, 'Switching active group...', function() {
 					$('#change_group_form').submit();
 				});
 			}

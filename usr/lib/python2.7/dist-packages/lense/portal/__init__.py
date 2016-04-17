@@ -1,12 +1,7 @@
-from sys import exc_info
-from traceback import extract_tb
-from django.shortcuts import render
-
 __version__ = '0.1'
 
 # Lense Libraries
 from lense.common.exceptions import RequestError
-from lense.portal.ui.core.interface import PortalInterface
 
 class PortalBase(object):
     def log(self, msg, level='info', method=None):
@@ -29,127 +24,6 @@ class PortalBase(object):
             msg
         ))
 
-class PortalTemplate(PortalBase):
-    """
-    Class for handling Django template attributes and functionality.
-    """
-    def __init__(self):
-        
-        # User defined template data / requesting user object
-        self.data = {}
-        self.user = LENSE.OBJECTS.USER.get(**{'username': LENSE.REQUEST.USER.name})
-        
-    def construct(self, data={}):
-        """
-        Construct portal template attributes.
-        """
-        self.data = self._merge_data(data)
-
-    def register_interface(self, ):
-        pass
-
-    def _interface_data(self):
-        """
-        Construct and return interface data.
-        """
-        return {
-            'includes': {
-                'js': ''
-            }
-        }
-
-    def _user_data(self):
-        """
-        Construct and return user data.
-        """
-        return {
-            'is_admin': LENSE.REQUEST.USER.admin,
-            'is_authenticated': LENSE.REQUEST.USER.authorized,
-            'groups': getattr(self.user, 'groups', None),
-            'email': getattr(self.user, 'email', None),
-            'name': getattr(self.user, 'username', None)
-        }
-
-    def _request_data(self):
-        """
-        Construct and return request data.
-        """
-        return {
-            'current': LENSE.REQUEST.current,
-            'path': LENSE.REQUEST.path,
-            'base': LENSE.REQUEST.script
-        }
-
-    def _api_data(self):
-        """
-        Construct and return API data.
-        """
-        return {
-            'user': getattr(self.user, 'username', None),
-            'group': getattr(self.user, 'groups', None),
-            'key': getattr(self.user, 'api_key', None),
-            'token': getattr(self.user, 'api_token', None),
-            'endpoint': '{0}://{1}:{2}'.format(LENSE.CONF.socket.proto, LENSE.CONF.socket.host, LENSE.CONF.socket.port)
-        }
-
-    def _merge_data(self, data={}):
-        """
-        Merge base template data and page specific template data. 
-        """
-        
-        # Base parameters
-        params = {
-            'USER': self._user_data(),
-            'REQUEST': self._request_data(),
-            'API': self._api_data()
-        }
-        
-        # Log base template data
-        self.log('Constructing base template data: USER={0}, REQUEST={1}, API={2}'.format(params['USER'], params['REQUEST'], params['API']), level='debug', method='_merge_data')
-        
-        # Merge extra template parameters
-        for k,v in data.iteritems():
-            
-            # Do not overwrite the 'BASE' key
-            if k in ['USER','REQUEST','API', 'LENSE']:
-                raise RequestError('Template data key "{0}" cannot be overloaded'.format(k), code=500)
-            
-            # Append the template data key
-            params[k] = v
-            self.log('Appending template data: key={0}, value={1}'.format(k,v), level='debug', method='_merge_data')
-            
-        # Return the template data object
-        return params
-
-    def response(self):
-        """
-        Construct and return the template response.
-        """
-        
-        # If redirecting
-        if 'redirect' in self.data:
-            self.log('Redirecting -> {0}'.format(self.data['redirect']), level='debug', method='response')
-            return LENSE.HTTP.redirect(self.data['redirect'])
-        
-        # Return the template response
-        try:
-            self.log('Return response: interface.html, data={0}'.format(self.data), level='debug', method='response')
-            return render(LENSE.REQUEST.DJANGO, 'interface.html', self.data)
-        
-        # Failed to render template
-        except Exception as e:
-            self.log('Internal server error: {0}'.format(str(e)), level='exception', method='response')
-            
-            # Get the exception data
-            e_type, e_info, e_trace = exc_info()
-            e_msg = '{0}: {1}'.format(e_type.__name__, e_info)
-            
-            # Return a server error
-            return LENSE.HTTP.browser_error('core/error/500.html', {
-                'error': 'An error occurred when rendering the requested page',
-                'debug': None if not LENSE.CONF.portal.debug else (e_msg, reversed(extract_tb(e_trace)))
-            })
-
 class PortalInterface(PortalBase):
     """
     Interface class for portal commons.
@@ -160,9 +34,9 @@ class PortalInterface(PortalBase):
         self.handlers    = LENSE.MODULE.handlers(ext='views', load='HandlerView')
         self.controllers = LENSE.MODULE.handlers(ext='controller', load='HandlerController')
         
-        # Template / interface container
-        self.TEMPLATE    = PortalTemplate()
-        self.INTERFACE   = PortalInterface()
+        # Template / assets handler
+        self.TEMPLATE    = LENSE.import_class('PortalTemplate', 'lense.portal.ui.core.template')
+        self.ASSETS      = LENSE.import_class('PortalAssets', 'lense.portal.ui.core.assets')
         
         # Bootstrap the portal interface
         self._set_session()
@@ -175,8 +49,8 @@ class PortalInterface(PortalBase):
         # If the user is authenticated
         if LENSE.REQUEST.USER.authorized:
             
-            # Redirect to home page if trying to access the login screen
-            if LENSE.REQUEST.path == 'auth':
+            # Redirect to home page
+            if (LENSE.REQUEST.path == 'auth') and not (LENSE.REQUEST.data.get('bootstrap')):
                 return LENSE.HTTP.redirect('home')
             
             # Return the template response

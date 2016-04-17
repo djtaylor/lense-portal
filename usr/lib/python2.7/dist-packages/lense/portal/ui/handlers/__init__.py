@@ -4,6 +4,17 @@ class BaseHandlerController(View):
     """
     Base handler controller.
     """
+    def __init__(self):
+    
+        # Bootstrap the handler
+        self._bootstrap()
+    
+    def _bootstrap(self):
+        """
+        Bootstrap the requested handler.
+        """
+        LENSE.PORTAL.TEMPLATE.include(LENSE.PORTAL.ASSETS.construct())
+    
     def log(self, msg, level='info'):
         """
         Log wrapper per handler.

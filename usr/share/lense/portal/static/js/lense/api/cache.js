@@ -1,4 +1,4 @@
-lense.import('API_Cache', function() {
+lense.import('api.cache', function() {
 	
 	// Cache containers
 	this.groups   = [];
@@ -8,7 +8,7 @@ lense.import('API_Cache', function() {
 	/**
 	 * Callback: Cache Handlers
 	 */
-	lense.register.callback('api.cache_handlers', function(c,m,d,a) {
+	lense.common.register.callback('api.cache_handlers', function(c,m,d,a) {
 		if (lense.api.client.params.is_admin === true) {
 			lense.api.cache.handlers = m;
 		}
@@ -17,7 +17,7 @@ lense.import('API_Cache', function() {
 	/**
 	 * Callback: Cache ACLs
 	 */
-	lense.register.callback('api.cache_acls', function(c,m,d,a) {
+	lense.common.register.callback('api.cache_acls', function(c,m,d,a) {
 		if (lense.api.client.params.is_admin === true) {
 			lense.api.cache.acls = m;
 		}
@@ -26,7 +26,7 @@ lense.import('API_Cache', function() {
 	/**
 	 * Callback: Cache Groups
 	 */
-	lense.register.callback('api.cache_group', function(c,m,d,a) {
+	lense.common.register.callback('api.cache_group', function(c,m,d,a) {
 		lense.api.cache.groups = m;
 	});
 	

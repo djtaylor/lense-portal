@@ -61,7 +61,7 @@ class HandlerView(BaseHandlerView):
         
         # If bootstrapping the session
         if LENSE.REQUEST.data.get('bootstrap', False):
-            self.log('Bootstraping authenticated session', level='debug')
+            self.log('Bootstrapping authenticated session', level='debug')
             return LENSE.PORTAL.TEMPLATE.response()
         
         # If the user is authenticated

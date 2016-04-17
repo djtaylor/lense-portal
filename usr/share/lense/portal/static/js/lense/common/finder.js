@@ -1,4 +1,4 @@
-lense.import('Common_Finder', function() { 
+lense.import('common.finder', function() { 
 	
 	// Key codes
 	this.keycode = {
@@ -34,20 +34,20 @@ lense.import('Common_Finder', function() {
 	 * @constructor
 	 */
 	this.__init__ = function() {
-		lense.finder.bind();
+		lense.common.finder.bind();
 	}
 	
 	/**
 	 * Callback: Finder Results
 	 */
-	lense.register.callback('finder.results', function(c,m,d,a) {
+	lense.common.register.callback('finder.results', function(c,m,d,a) {
 		if (c == 200) {
 			
 			// Remove old results
 			$('.finder_content').html('');
 			
 			// Reset the focus index
-			lense.finder.index.focus = 1;
+			lense.common.finder.index.focus = 1;
 			
 			// If any results returned
 			if (m instanceof Array && m.length > 0) {
@@ -64,19 +64,19 @@ lense.import('Common_Finder', function() {
 				// Construct each object type group
 				var _i = 1;
 				$.each(r, function(t,o) {
-					$('.finder_content').append(lense.layout.create.element('div', {
+					$('.finder_content').append(lense.common.layout.create.element('div', {
 						css: 'finder_result_group',
 						children: [
-						    lense.layout.create.element('div', {
+						    lense.common.layout.create.element('div', {
 						    	css: 'finder_result_type',
 						    	text: lense.finder.otype_labels[t]
 						    }),
-						    lense.layout.create.element('div', {
+						    lense.common.layout.create.element('div', {
 						    	css: 'finder_result_rows',
 						    	children: (function() {
 						    		var c = [];
 						    		$.each(o, function(i,_o) {
-						    			c.push(lense.layout.create.element('div', {
+						    			c.push(lense.common.layout.create.element('div', {
 											css: 'finder_result_row',
 											attr: {
 												index: _i,
@@ -142,7 +142,7 @@ lense.import('Common_Finder', function() {
 			$('.finder_result_row').removeAttr('focus');
 			
 			// Reset the focus index
-			lense.finder.index.focus = 1;
+			lense.common.finder.index.focus = 1;
 		});
 		
 		// Toggle through finder results
@@ -152,7 +152,7 @@ lense.import('Common_Finder', function() {
 			var v = $('#finder').val();
 			
 			// Look for finder shortcuts
-			if (e.keyCode == lense.finder.keycode.enter && v in lense.finder.shortcuts) {
+			if (e.keyCode == lense.common.finder.keycode.enter && v in lense.finder.shortcuts) {
 				window.location = lense.finder.shortcuts[v];
 			}
 			
@@ -169,11 +169,11 @@ lense.import('Common_Finder', function() {
 				var f = $('.finder_result_row[focus]');
 				
 				// Enter
-				if (e.keyCode == lense.finder.keycode.enter) {
+				if (e.keyCode == lense.common.finder.keycode.enter) {
 					
 					// Load the focused result
 					if (f.length > 0) {
-						$('.finder_result_row[index="' + lense.finder.index.focus + '"]').animate({
+						$('.finder_result_row[index="' + lense.common.finder.index.focus + '"]').animate({
 							opacity: 0.5
 						}, 30).animate({
 							opacity: 1.0
@@ -185,21 +185,21 @@ lense.import('Common_Finder', function() {
 				}
 				
 				// Down
-				if (e.keyCode == lense.finder.keycode.down) {
+				if (e.keyCode == lense.common.finder.keycode.down) {
 					if (f.length > 0) {
-						lense.finder.index.focus = ((lense.finder.index.focus + 1) > t) ? 1 : lense.finder.index.focus + 1;
+						lense.common.finder.index.focus = ((lense.common.finder.index.focus + 1) > t) ? 1 : lense.common.finder.index.focus + 1;
 					}
 					$('.finder_result_row').removeAttr('focus');
 					$('.finder_result_row[index="' + lense.finder.index.focus + '"]').attr('focus', '');
 				}
 				
 				// Up
-				if (e.keyCode == lense.finder.keycode.up) {
+				if (e.keyCode == lense.common.finder.keycode.up) {
 					if (f.length > 0) {
-						lense.finder.index.focus = ((lense.finder.index.focus - 1) < 1) ? t : lense.finder.index.focus - 1;
+						lense.common.finder.index.focus = ((lense.common.finder.index.focus - 1) < 1) ? t : lense.common.finder.index.focus - 1;
 					}
 					$('.finder_result_row').removeAttr('focus');
-					$('.finder_result_row[index="' + lense.finder.index.focus + '"]').attr('focus', '');
+					$('.finder_result_row[index="' + lense.common.finder.index.focus + '"]').attr('focus', '');
 				}
 			}
 		});
@@ -212,7 +212,7 @@ lense.import('Common_Finder', function() {
 			
 			// If the text value is not empty
 			if (defined(t)) {
-				lense.finder.search(t);
+				lense.common.finder.search(t);
 			}
 		});
 	}

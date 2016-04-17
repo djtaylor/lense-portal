@@ -1,4 +1,4 @@
-lense.import('Common_Button', function() {
+lense.import('common.button', function() {
 	
 	/**
 	 * Button Handler

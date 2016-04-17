@@ -38,7 +38,7 @@ class HandlerInterface(PortalBase):
         if key == 'css':
             pass
 
-class PortalInterface(PortalBase):
+class TemplateInterface(PortalBase):
     """
     Class for handling template interface construction.
     """

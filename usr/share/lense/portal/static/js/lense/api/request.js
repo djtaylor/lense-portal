@@ -4,7 +4,7 @@
  * Object designed to handle submitting API request to the Lense
  * Socket.IO proxy server.
  */
-lense.import('API_Request', function() {
+lense.import('api.request', function() {
 	
 	/**
 	 * Request Attributes
@@ -44,7 +44,7 @@ lense.import('API_Request', function() {
 	 * 
 	 * @param {f} The form identifier string, i.e. 'add_host'
 	 */
-	lense.register.method('api.submit', function(f) {
+	lense.common.register.method('api.submit', function(f) {
 		
 		// Helper method to convert slash delimited parameter paths
 		function _csp(p,v,o) {
@@ -75,12 +75,12 @@ lense.import('API_Request', function() {
 		var ak = null;
 		
 		// Validate the form fields
-		field_check = lense.forms.validate('#' + f);
+		field_check = lense.common.forms.validate('#' + f);
 		if (field_check === true) {
 			
 			// Construct the JSON request data
 			json_data = {};
-			$.each(lense.forms.all[f]['inputs'], function(key, obj) {
+			$.each(lense.common.forms.all[f]['inputs'], function(key, obj) {
 				
 				// Internal request attributes
 				if ($.inArray(obj.name, ia) > -1) {
@@ -149,10 +149,10 @@ lense.import('API_Request', function() {
 			ak = ip.path + '/' + ip.action;
 			
 			// Process any API data filters
-			json_data = lense.forms.filter(f, 'api_data', json_data);
+			json_data = lense.common.forms.filter(f, 'api_data', json_data);
 			
 			// Clear the form
-			$.each(lense.forms.all[f]['inputs'], function(key, obj) {
+			$.each(lense.common.forms.all[f]['inputs'], function(key, obj) {
 				if (!obj.hasOwnProperty('noreset')) {
 					$('input[form$="' + f + '"][name$="' + obj.name + '"]').val(null);
 					$('div[type$="icon"][form$="' + f + '"][name$="' + obj.name + '"]').replaceWith('<div class="form_input_icon_def" type="icon" form="' + f + '" name="' + obj.name + '"></div>');
@@ -160,8 +160,8 @@ lense.import('API_Request', function() {
 			});
 			
 			// Submit the API request
-			lense.layout.popup_toggle(false, false, false, function() {
-				lense.layout.loading(true, lense.api.request.attrs[ak].msg, function() {
+			lense.common.layout.popup_toggle(false, false, false, function() {
+				lense.common.layout.loading(true, lense.api.request.attrs[ak].msg, function() {
 					
 					// Construct the request parameters
 					rp = {
@@ -182,10 +182,10 @@ lense.import('API_Request', function() {
 			
 		// Form is invalid
 		} else {
-			lense.layout.show_response(true, { tgt: f, msg: 'Please fill in the required fields...' }, function() {
-				$.each(lense.forms.all[f]['inputs'], function(key, obj) {
+			lense.common.layout.show_response(true, { tgt: f, msg: 'Please fill in the required fields...' }, function() {
+				$.each(lense.common.forms.all[f]['inputs'], function(key, obj) {
 					if (obj.hasOwnProperty('required') && !defined(obj.value)) {
-						lense.forms.set_input(obj._parent, obj.name, undefined);
+						lense.common.forms.set_input(obj._parent, obj.name, undefined);
 					}
 				});
 			});

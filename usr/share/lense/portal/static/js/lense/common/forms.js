@@ -1,4 +1,4 @@
-lense.import('Common_Forms', function() {
+lense.import('common.forms', function() {
 	
 	// Forms container
 	this.all = {};
@@ -17,7 +17,7 @@ lense.import('Common_Forms', function() {
 		 */
 		input_hidden: function(a) {
 			a.type = 'hidden';
-			return lense.layout.html($('<input/>').attr(a));
+			return lense.common.layout.html($('<input/>').attr(a));
 		},
 		
 		/**
@@ -53,7 +53,7 @@ lense.import('Common_Forms', function() {
 			$.each(p.items, function(k,v) {
 				
 				// Create the option element
-				dd_items.push(lense.layout.create.element('option', {
+				dd_items.push(lense.common.layout.create.element('option', {
 					css:  css.option,
 					attr: {
 						value: p.label
@@ -62,7 +62,7 @@ lense.import('Common_Forms', function() {
 				}));
 				
 				// Create the div element
-				dd_items.push(lense.layout.create.element('div', {
+				dd_items.push(lense.common.layout.create.element('div', {
 					css:  'dropdown_item',
 					attr: {
 						type:   'button',
@@ -76,20 +76,20 @@ lense.import('Common_Forms', function() {
 			});
 			
 			// Construct and return the dropdown menu
-			return lense.layout.create.element('div', {
+			return lense.common.layout.create.element('div', {
 				css:  css.field,
 				attr: { 
 					name: p.name,
 				},
 				children: [
-				    lense.layout.create.element('div', {
+				    lense.common.layout.create.element('div', {
 				    	css:  css.label,
 				    	text: p.label
 				    }),
-				    lense.layout.create.element('div', {
+				    lense.common.layout.create.element('div', {
 				    	css: css.input,
 				    	children: [
-				    	    lense.layout.create.element('div', {
+				    	    lense.common.layout.create.element('div', {
 				    	    	css:  'dropdown_menu',
 				    	    	attr: {
 				    	    		type:   'dropdown',
@@ -97,10 +97,10 @@ lense.import('Common_Forms', function() {
 				    				name:   p.name
 				    	    	},
 				    	    	children: [
-				    	    	    lense.layout.create.element('div', {
+				    	    	    lense.common.layout.create.element('div', {
 				    	    	    	css: 'dropdown_action',
 				    	    	    	children: [
-				    	    	    	    lense.layout.create.element('div', {
+				    	    	    	    lense.common.layout.create.element('div', {
 				    	    	    	    	css:  'dropdown_button',
 				    	    	    	    	attr: {
 				    	    	    	    		type:   'button',
@@ -108,7 +108,7 @@ lense.import('Common_Forms', function() {
 				    	    				    	target: p.name
 				    	    	    	    	}
 				    	    	    	    }),
-				    	    	    	    lense.layout.create.element('div', {
+				    	    	    	    lense.common.layout.create.element('div', {
 				    	    	    	    	css:  'dropdown_value',
 				    	    	    	    	attr: {
 				    	    	    	    		type:   'dropdown',
@@ -118,7 +118,7 @@ lense.import('Common_Forms', function() {
 				    	    	    	    })
 				    	    	    	]
 				    	    	    }),
-				    	    	    lense.layout.create.element('div', {
+				    	    	    lense.common.layout.create.element('div', {
 				    	    	    	css:  css.icon,
 				    	    	    	attr: {
 				    	    	    		type: 'icon',
@@ -128,7 +128,7 @@ lense.import('Common_Forms', function() {
 				    	    	    })
 				    	    	]
 				    	    }),
-				    	    lense.layout.create.element('div', {
+				    	    lense.common.layout.create.element('div', {
 				    	    	css:  'dropdown_items',
 				    	    	attr: {
 				    				type: 'toggle',
@@ -136,7 +136,7 @@ lense.import('Common_Forms', function() {
 				    			},
 				    			children: dd_items
 				    	    }),
-				    	    lense.forms.create.input_hidden({
+				    	    lense.common.forms.create.input_hidden({
 				    	    	type:  'hidden',
 			    				form:  p.form,
 			    				name:  p.name,
@@ -168,15 +168,15 @@ lense.import('Common_Forms', function() {
 	 */
 	this.validate_input = function(e) {
 		o = get_attr($(e));
-		p = lense.forms.parent(e);
+		p = lense.common.forms.parent(e);
 		if (o.hasOwnProperty('validate') && defined(o['validate'])) {
-			v = lense.forms.all[p]['inputs'][o.name]['value'];
+			v = lense.common.forms.all[p]['inputs'][o.name]['value'];
 			
 			// If an additional argument is supplied
 			if (o.hasOwnProperty('arg')) {
-				return (lense.validate[o.validate](v,o.arg)) ? true : false;
+				return (lense.common.validate[o.validate](v,o.arg)) ? true : false;
 			} else {
-				return (lense.validate[o.validate](v)) ? true : false;
+				return (lense.common.validate[o.validate](v)) ? true : false;
 			}
 		} else { return true; }
 	}
@@ -212,8 +212,8 @@ lense.import('Common_Forms', function() {
 		$(t).replaceWith(c);
 		
 		// Update the forms object
-		lense.forms.all[p]['inputs'][n]['_error'] = e;
-		lense.forms.all[p]['inputs'][n]['value']  = v;
+		lense.common.forms.all[p]['inputs'][n]['_error'] = e;
+		lense.common.forms.all[p]['inputs'][n]['value']  = v;
 	}
 	
 	/**
@@ -268,13 +268,13 @@ lense.import('Common_Forms', function() {
 		// Check each form on the page
 		$.each($('form'), function(index, form) {
 			inputs = $(form).find('input');
-			lense.forms.all[form.id] = {'id': form.id, 'inputs': {}};
+			lense.common.forms.all[form.id] = {'id': form.id, 'inputs': {}};
 			$.each(inputs, function(index, input) {
 				a = get_attr(input);
 				disabled = (a.hasOwnProperty('disabled')) ? true: false;
-				lense.forms.all[form.id]['inputs'][a.name] = {'_error': false, '_parent': form.id, '_disabled': disabled};
+				lense.common.forms.all[form.id]['inputs'][a.name] = {'_error': false, '_parent': form.id, '_disabled': disabled};
 				$.each(a, function(key, value) {
-					lense.forms.all[form.id]['inputs'][a.name][key] = value;
+					lense.common.forms.all[form.id]['inputs'][a.name][key] = value;
 				});
 				
 				// Skip hidden and non-validating elements
@@ -289,26 +289,26 @@ lense.import('Common_Forms', function() {
 					if (a.type == 'text' || a.type == 'password' || a.type == 'hidden' || a.type == 'radio') {
 						$(input).on('input', function() {
 							v = $(this).val();
-							p = lense.forms.parent(this);
+							p = lense.common.forms.parent(this);
 							if (!defined($.trim(v))) {
-								lense.layout.show_response(true, { tgt: p, msg: 'Please fill out the required fields...' }, function() {
-									lense.forms.set_input(p,input.name, undefined, false);
+								lense.common.layout.show_response(true, { tgt: p, msg: 'Please fill out the required fields...' }, function() {
+									lense.common.forms.set_input(p,input.name, undefined, false);
 								});
 							} else {
-								lense.forms.all[p]['inputs'][input.name]['value'] = v;
-								if (lense.forms.validate_input(input)) {
-									lense.forms.set_input(p,input.name, v, true);
+								lense.common.forms.all[p]['inputs'][input.name]['value'] = v;
+								if (lense.common.forms.validate_input(input)) {
+									lense.common.forms.set_input(p,input.name, v, true);
 									required_set = true;
-									$.each(lense.forms.all[p]['inputs'], function(key, value) {
+									$.each(lense.common.forms.all[p]['inputs'], function(key, value) {
 										if (value._error === true) {
 											required_set = false;
 										}
 									});
 									if (required_set === true) {
-										lense.layout.show_response(false, { tgt: p });
+										lense.common.layout.show_response(false, { tgt: p });
 									}
 								} else {
-									lense.forms.set_input(p,input.name, v, false);
+									lense.common.forms.set_input(p,input.name, v, false);
 								}
 							}
 						});
@@ -331,15 +331,15 @@ lense.import('Common_Forms', function() {
 			$.each($(id).find('input'), function(index, obj) {
 				var e = $(obj)[0],
 					a = get_attr(e),
-					p = lense.forms.parent(e);
+					p = lense.common.forms.parent(e);
 				
 				// Get the input type
-				type = lense.forms.all[p]['inputs'][a.name]['type'];
+				type = lense.common.forms.all[p]['inputs'][a.name]['type'];
 				
 				// Radio group value
 				if (type == 'radio') {
 					val = $('input[type$="radio"][form$="' + p + '"][name$="' + a.name + '"]:checked').val();
-					lense.forms.all[p]['inputs'][a.name]['value'] = val;
+					lense.common.forms.all[p]['inputs'][a.name]['value'] = val;
 					
 				// Default input value
 				} else {
@@ -348,20 +348,20 @@ lense.import('Common_Forms', function() {
 				
 				// Make sure required elements are set
 				if (a.hasOwnProperty('required')) {
-					if (! lense.forms.all[p]['inputs'][a.name]['_disabled'] === true) {
-						if (!defined(lense.forms.all[p]['inputs'][a.name]['value'])) {
+					if (! lense.common.forms.all[p]['inputs'][a.name]['_disabled'] === true) {
+						if (!defined(lense.common.forms.all[p]['inputs'][a.name]['value'])) {
 							_error = a.name;
 						}
 					}
 				}
 				
 				// If the field is in an error state
-				if (lense.forms.all[p]['inputs'][a.name]['_error']) {
+				if (lense.common.forms.all[p]['inputs'][a.name]['_error']) {
 					_error = a.name;
 				}
 				
 				// Validate the input
-				if (! lense.forms.validate_input(e)) {
+				if (! lense.common.forms.validate_input(e)) {
 					_error = a.name;
 				}
 			});

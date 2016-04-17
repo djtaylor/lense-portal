@@ -3,7 +3,7 @@
  * 
  * Object designed to handle response from the API proxy server.
  */
-lense.import('API_Response', function() {
+lense.import('api.response', function() {
 	
 	/**
 	 * Proxy Response Handler
@@ -21,7 +21,7 @@ lense.import('API_Response', function() {
 				
 				// Render loading message
 				if (response.type == 'loading') { 
-					lense.layout.loading('update', response.content); 
+					lense.common.layout.loading('update', response.content); 
 				}
 				
 			// Catch exceptions
@@ -39,8 +39,8 @@ lense.import('API_Response', function() {
 				
 				// If an error response was returned
 				if (content.hasOwnProperty('error')) {
-					lense.layout.loading(false, content.error, function() {
-						lense.layout.render('error', content.error.replace('<', '"').replace('"'));
+					lense.common.layout.loading(false, content.error, function() {
+						lense.common.layout.render('error', content.error.replace('<', '"').replace('"'));
 						return false;
 					});
 					
@@ -57,25 +57,25 @@ lense.import('API_Response', function() {
 						if (content.hasOwnProperty('callback')) {
 							if (content.callback.hasOwnProperty('silent')) {
 								if (content.callback.silent === false) {
-									lense.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
+									lense.common.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
 								} else {
 									if (response.type == 'error' || response.type == 'warn' || response.type == 'fatal') {
-										lense.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
+										lense.common.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
 									}
 								}
 							} else {
-								lense.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
+								lense.common.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
 							}
 						} else {
-							lense.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
+							lense.common.layout.render(response.type, content.msg.replace('<', '"').replace('"'));
 						}
 					}
 					
 					// Run the callback method
 					if ((content.hasOwnProperty('callback')) && (content.callback !== false)) {
-						lense.layout.loading(false, 'Received successful API response...', function() {
-							if (lense.callback.hasOwnProperty(content.callback.id)) {
-								return lense.callback[content.callback.id](response.code, content.msg, content._data, content.callback.args);
+						lense.common.layout.loading(false, 'Received successful API response...', function() {
+							if (lense.common.callback.hasOwnProperty(content.callback.id)) {
+								return lense.common.callback[content.callback.id](response.code, content.msg, content._data, content.callback.args);
 							} else {
 								throw new CallbackNotFound(content.callback.id);
 							}
@@ -86,7 +86,7 @@ lense.import('API_Response', function() {
 			// Catch all for API response handling errors
 			} catch (e) {
 				console.log(e.stack);
-				lense.layout.loading(false, null, function() {
+				lense.common.layout.loading(false, null, function() {
 					return false;
 				});
 			}

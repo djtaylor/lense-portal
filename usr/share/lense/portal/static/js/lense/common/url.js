@@ -17,7 +17,7 @@ lense.import('common.url', function() {
 		
 		// Define persistent and notification URL parameters
 		var url_objects = {
-			"persistent": [ 'panel', 'edit'],
+			"persistent": [ 'view', 'edit'],
 			"notify":     [ 'status', 'body' ]
 		};
 		

@@ -4,7 +4,11 @@ class BaseHandlerController(View):
     """
     Base handler controller.
     """
-    def __init__(self):
+    def __init__(self, views=[], default=None):
+    
+        # Handler views / default page
+        self.views   = views
+        self.default = default if default else LENSE.PORTAL.ASSETS.handler
     
         # Bootstrap the handler
         self._bootstrap()

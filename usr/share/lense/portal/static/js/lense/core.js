@@ -1,5 +1,5 @@
 var lense = (function() {
-	var core = {};
+	var core      = {};
 	
 	// Modules container
 	core.module   = {};
@@ -84,24 +84,9 @@ var lense = (function() {
 	};
 	
 	/**
-	 * Implement Module
-	 * 
-	 * Extend the current namespace with a new module object.
-	 * 
-	 * @param {n} The module name, should exist in the modules container
-	 * @param {i} Is this a module interface
-	 * @param {c} A condition that must be true to implement the module
+	 * Implement Module (Private)
 	 */
-	core.implement = function(n,i,c) {
-		
-		// Generate a module reference
-		function reference(m) {
-			var clone = {};
-			$.each(m, function(k,v) {
-				clone[k] = v;
-			});
-			return clone;
-		}
+	core._implement = function(n,i) {
 		
 		// Could not locate the module
 		if (!core.module.hasOwnProperty(n)) {
@@ -136,6 +121,28 @@ var lense = (function() {
 				module.__init__ = undefined;
 			}
 		}());
+	}
+	
+	/**
+	 * Implement Module (Public)
+	 * 
+	 * Extend the current namespace with a new module object.
+	 * 
+	 * @param {n}    The module name or an array of modules
+	 * @param {i}    Is this a module interface
+	 */
+	core.implement = function(n,i) {
+		
+		// Array of module
+		if ($.isArray(n)) {
+			$.each(n, function(i,k) {
+				core._implement(k);
+			})
+			
+		// Single module
+		} else {
+			core._implement(n,i);
+		}
 	};
 	
 	// Return the global namespace

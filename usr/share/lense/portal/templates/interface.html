@@ -9,20 +9,9 @@
 
 {# CSS #}
 {% block css %}
-	{% for css in page.css %}
-		{% with "css/"|add:css as css_path %}
-			<link rel="stylesheet" type="text/css" href="{% static css_path %}">
-		{% endwith %}
-	{% endfor %}
-{% endblock %}
-
-{# JavaScript #}
-{% block js %}
-	{% for js in page.js %}
-		{% with "js/"|add:css as js_path %}
-			<script type="text/javascript" src="{% static js_path %}"></script>
-		{% endwith %}
-	{% endfor %}
+	{% with "css/"|add:page.css as css %}
+		<link rel="stylesheet" type="text/css" href="{% static css %}">
+	{% endwith %}
 {% endblock %}
 
 {# Page Content #}
@@ -33,18 +22,14 @@
 				<div class="page_title">{{ page.header }}</div>
 			</div>
 		{% endif %}
-		{% for content in page.contents %}
-			{% include content %}
-		{% endfor %}
+		{% include page.interface %}
 	{% endblock %}
 {% endif %}
 
 {# Authentication Content #}
 {% if not USER.is_authenticated %}
 	{% block auth %}
-		{% for content in page.contents %}
-			{% include content %}
-		{% endfor %}
+	    {% include page.interface %}
 	{% endblock %}
 {% endif %}
 

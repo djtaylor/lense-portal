@@ -1,109 +1,56 @@
-.login_window {
-	padding: 10px;
-	position: fixed;
-	opacity: 0.0;
-	background-color: #fff;
-	border: solid 1px #eee;
+.form-login-container {
+	margin: 100px 0 0 0;
 }
 
-.login_title {
-	height: 50px;
-	overflow: auto;
-	border-bottom: solid 1px #eee;
-	padding: 0 0 8px 0;
+.form-login {
+	max-width: 330px;
+	margin: 0 auto;
+	padding: 15px;
+	border: solid 1px #f0f0f0;
+	background-color: #f4f4f4;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 
-.login_title_txt {
-	font-size: 1.8em;
+.form-input-icon {
+    background-position: 98% 50%;
+    background-repeat: no-repeat;
+}
+
+.form-input-username {
+	background-image: url(/static/images/users.png);
+	margin: 0 0 10px 0;
+}
+
+.form-input-password {
+	background-image: url(/static/images/permissions.png);
+}
+
+.form-login-title {
+	margin: 0 0 10px 0;
+	height: 55px;
+}
+
+.form-login-title-txt {
+	font-size: 1.5em;
 	font-weight: bold;
 	color: #333;
 	margin: 2px 0 0 58px;
 }
 
-.login_title_subtxt {
+.form-login-title-subtxt {
 	font-weight: bold;
 	border-top: solid 1px #f4f4f4;
 	margin: 0 0 0 58px;
 	padding: 3px 0 0 0;
 }
 
-.login_title_icon {
-	width: 50px;
-	height: 50px;
+.form-login-title-icon {
+	width: 55px;
+	height: 55px;
 	float: left;
 	background-position: 50% 50%;
 	background-repeat: no-repeat;
-	background-image: url(/static/images/lense_logo_64x64.png);
+	background-image: url(/static/images/logo/64x64.png);
 	background-size: 50px 50px;
-}
-
-.login_fields {
-	border-bottom: solid 1px #eee;
-	padding: 0 0 10px 0;
-}
-
-.login_input {
-	width: 290px;
-	height: 25px;
-	margin: 10px 0 0 0;
-	padding: 5px;
-	overflow: auto;
-	border-left: solid 2px #048cc4;
-	border-top: solid 1px #eee;
-	border-right: solid 1px #eee;
-	border-bottom: solid 1px #eee;
-}
-
-.login_input_icon {
-	width: 25px;
-	height: 25px;
-	background-position: 50% 50%;
-	background-repeat: no-repeat;
-	float: left;
-	opacity: 0.5;
-}
-
-.login_input input {
-	width: 260px;
-	border: 0;
-	margin: 0;
-	padding: 0 0 0 5px;
-	height: 25px;
-	line-height: 25px;
-	font-size: 1.1em;
-	float: left;
-}
-
-.login_input input:focus {
-	outline-width: 0;
-}
-
-.login_submit {
-	margin: 10px 0 0 0;
-	border: solid 1px #048cc4;
-	text-align: center;
-	font-size: 1.4em;
-	padding: 5px;
-	background: #19a9e5;
-	color: #fff;
-	height: 30px;
-	line-height: 30px;
-}
-
-.login_state {
-	text-align: center;
-	padding: 5px 5px 0 5px;
-}
-
-.login_submit:hover {
-	cursor: pointer;
-	background-color: #159ad1;
-}
-
-.login_input_icon[icon="username"] {
-	background-image: url(/static/images/users.png);
-}
-
-.login_input_icon[icon="password"] {
-	background-image: url(/static/images/permissions.png);
 }

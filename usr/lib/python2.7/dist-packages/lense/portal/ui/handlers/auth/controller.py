@@ -15,11 +15,5 @@ class HandlerController(BaseHandlerController):
         Construct and return the template object.
         """
         
-        # Set the template attributes
-        LENSE.PORTAL.TEMPLATE.construct({
-            'page': {
-                'title': 'Lense Login',
-                'css': ['auth.css'],
-                'contents': ['handlers/auth/tables/login.html']
-            }     
-        })
+        # Construct the portal template
+        LENSE.PORTAL.TEMPLATE.construct(title='Lense Login')

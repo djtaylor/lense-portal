@@ -5,6 +5,7 @@ from traceback import extract_tb
 from django.shortcuts import render
 
 # Lense Libraries
+from lense import import_class
 from lense.portal import PortalBase
             
 class PortalTemplate(PortalBase):
@@ -20,11 +21,23 @@ class PortalTemplate(PortalBase):
         # Assets
         self._assets = {}
         
-    def construct(self, data={}):
+    def construct(self, title='Lense Portal'):
         """
         Construct portal template attributes.
         """
-        self.data = self._merge_data(data)
+        handler   = LENSE.PORTAL.ASSETS.handler
+        
+        # Template interface / CSS
+        interface = 'handlers/{0}/interface.html'.format(handler)
+        css       = '{0}.css'.format(handler)
+        
+        self.data = self._merge_data({
+            'page': {
+                'title':     title,
+                'css':       css,
+                'interface': interface
+            }     
+        })
 
     def _user_data(self):
         """
@@ -48,6 +61,28 @@ class PortalTemplate(PortalBase):
             'base': LENSE.REQUEST.script
         }
 
+    def _navigation(self):
+        """
+        Return a handler navigation if it exists.
+        """
+        nav = []
+        
+        # Look for handler navigation
+        for handler in LENSE.MODULE.handlers(ext='__init__'):
+            try:
+                handler_nav = import_class('HandlerNavigation', handler['mod'], exit_on_fail=False)
+                LENSE.LOG.debug('Loading navigation for handler: {0}'.format(handler['name']))
+                
+                # Store the handler navigation
+                nav.append(handler_nav.attrs)
+            
+            # Handler has no navigation class    
+            except Exception as e:
+                LENSE.LOG.exception('Failed to import handler navigation: {0}'.format(handler['name']))
+
+        # Return constructed navigation
+        return nav
+
     def _api_data(self):
         """
         Construct and return API data.
@@ -70,7 +105,8 @@ class PortalTemplate(PortalBase):
             'USER': self._user_data(),
             'REQUEST': self._request_data(),
             'API': self._api_data(),
-            'ASSETS': self._assets
+            'ASSETS': self._assets,
+            'NAV': self._navigation()
         }
         
         # Log base template data

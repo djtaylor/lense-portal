@@ -32,17 +32,11 @@ lense.import('auth.interface', function() {
 		
 		// Document ready
 		$(document).ready(function() {
-			lense.auth._layout();
 			
 			// Fade in the login window
-			$('.login_window').animate({
+			$('.form-login-container').animate({
 				opacity: 1.0
 			}, 1000);
-		});
-		
-		// Window resize
-		$(window).resize(function() {
-			lense.auth._layout();
 		});
 		
 		// Look for authentication errors
@@ -57,34 +51,12 @@ lense.import('auth.interface', function() {
 			auth_error = lense.common.url.param_get('error');
 			
 			// Show the authentication error
-			$(".login_state").html(auth_error);
-			lense.common.layout.fadein('.login_state');
+			$("#form-login-error").html(auth_error);
+			lense.common.layout.fadein('#form-login-error');
 			
 			// Clean up the URL
 			lense.common.url.param_del('error');
 		}
-	}
-	
-	/**
-	 * Set Layout
-	 */
-	this._layout = function() {
-		
-		// Login window attributes
-		var login = {
-			width:  $('.login_window').actual('outerWidth', {includeMargin: true}),
-			height: $('.login_window').actual('outerHeight', {includeMargin: true})
-		}
-		
-		// Parent page attributes
-		var page = {
-			width:  $(window).width(),
-			height: $(window).height()
-		}
-		
-		// Set the login window position
-		$('.login_window').css('left', ((page.width / 2) - (login.width / 2)) + 'px');
-		$('.login_window').css('top', ((page.height / 2) - (login.height)) + 'px');
 	}
 	
 	/**
@@ -93,15 +65,15 @@ lense.import('auth.interface', function() {
 	this._bind = function() {
 		
 		// Click login button
-		$(document).on('click', '.login_submit', function() {
-			$('#login_form').submit();
+		$(document).on('click', '#form-login-button', function() {
+			$('#form-login').submit();
 		});
 		
 		// Press enter in login form
 		$(document).on('keypress', function(e) {
 			if (e.which == 13) {
 		        e.preventDefault();
-		        $("#login_form").submit();
+		        $("#form-login").submit();
 		    }
 		});
 	}

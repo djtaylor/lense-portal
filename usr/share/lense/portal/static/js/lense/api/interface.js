@@ -1,4 +1,5 @@
 lense.import('api.interface', function() {
+	var self = this;
 	
 	/**
 	 * Initialize APIInterface
@@ -7,58 +8,118 @@ lense.import('api.interface', function() {
 	this.__init__ = function() {
 		
 		// Load modules
-		$.each([
-		    'api.client',
-		    'api.request',
-		    'api.response',
-		    'api.cache'
-		], function(i,k) {
-			lense.implement(k);
-		});
+		lense.implement([
+			'api.client',
+			'api.request',
+			'api.response',
+			'api.cache',        
+		]);
 		
 		// Open the API connection
-		lense.api.client.connect();
+		self.connect();
+	}
+	
+	/**
+	 * Set Socket Information
+	 * 
+	 * @param {connected} Is the socket connected or not
+	 */
+	this.setSockInfo = function(connected) {
+		var endpoint = ((connected === true) ? lense.api.client.params.endpoint: '');
+		var room     = ((connected === true) ? lense.api.client.room: '');
+		var server   = ((connected === true) ? lense.api.cache.server: '')
 		
-		// Receive incoming connections
+		// Update the client information
+		$('input.socketio-endpoint').val(endpoint);
+		$('input.socketio-room').val(room);
+		$('input.socketio-server').val(server);
+	}
+	
+	/**
+	 * Socket Status
+	 * 
+	 * @param {status} The status string to update to
+	 */
+	this.setSockStatus = function(status) {
+		switch(status) {
+		
+			// SocketIO disconnected
+			case 'disconnected':
+				$("#socketio-connected").css('display', 'none');
+				$("#socketio-disconnected").css('display', 'all');
+				$('#socketio-button').removeClass('active btn-success');
+				$('#socketio-button').addClass('btn-default');
+				
+				// Clear client socket information
+				self.setSockInfo(false);
+				return true;
+				
+				
+			// SocketIO connecting
+			case 'connecting':
+				$("#socketio-disconnected").css('display', 'none');
+				$("#socketio-connected").css('display', 'none');
+				$("#socketio-button").addClass('active btn-default');
+				$('#socketio-button').removeClass('btn-success');
+				return true;
+				
+			// SocketIO connected
+			case 'connected':
+				
+				// Update button indicator
+				$('#socketio-button').removeClass('active btn-default');
+				$("#socketio-button").addClass('btn-success');
+				$("#socketio-connected").css('display', 'all');
+				$("#socketio-disconnected").css('display', 'none');
+				
+				// Set socket information
+				self.setSockInfo(true);
+				return true;
+				
+			// Invalid status
+			default:
+				return false;
+		}
+	}
+	
+	/**
+	 * Open Socket<->API Connection
+	 */
+	this.connect = function() {
+		
+		// On page ready
 		$(document).ready(function() {
 			
-			// Receive incoming connections
-			lense.api.receive();
+			// Listen for responses / messages
+			self.listen();
 			
-			// Construct API data cache
+			// Build the cache
 			lense.api.cache.construct();
 		});
 	}
 	
 	/**
-	 * Receive Incoming Connections
-	 * 
-	 * Method used to handle incoming connections from the proxy server.
+	 * Response Listener
 	 */
-	this.receive = function() {
+	this.listen = function() {
 		
-		// Failed to establish client connection
-		if (lense.api.client.io === false) {
-			lense.common.layout.render('error', 'Failed to initialize API socket client')
+		// Update SocketIO indicator
+		self.setSockStatus('connecting');
+		
+		// Open SocketIO connection
+		lense.api.client.sockConnect(function() {
 			
-		// Connection established
-		} else {
-			console.log('Established connection to Lense Socket.IO server')
-			
-			// Handle incoming connections
+			// Response handler
 			lense.api.client.io.on('connect', function() {
-				lense.api.client.io.on('response', function(j) { 
-					lense.api.response.on('response', j); 
+				self.setSockStatus('connected');
+				
+				// Response types
+				$.each(['apiResponse', 'update'], function(i,k) {
+					lense.api.client.io.on(k, function(d) {
+						lense.callback[k](d);
+					});
 				});
-				lense.api.client.io.on('update', function(j) { 
-					lense.api.response.on('update', j);   
-				});
-			});
-			
-			// Handle closed connections
-			lense.api.client.io.on('disconnect', function() {
-				console.log('Close Socket.IO server connection');
-			});
-		}
+			})
+		});
 	}
 });

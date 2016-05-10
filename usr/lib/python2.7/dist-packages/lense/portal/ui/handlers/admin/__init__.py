@@ -1,10 +1,25 @@
-def register():
-    """
-    Register the administration handler.
-    """
-    LENSE.PORTAL.INTERFACE.register('admin')
-    LENSE.PORTAL.INTERFACE.admin.include('js', [
-        {
-            'id': 'acl',
-        }
-    ])
+class HandlerNavigation(object):
+    attrs = {
+        'parent': {
+            'name': 'Administration'
+        },
+        'children': [
+            {
+                "name": "Users",
+                "link": "/admin?view=users"
+            },
+            {
+                "name": "Groups",
+                "link": "/admin?view=groups"
+            },
+            {
+                "name": "Handlers",
+                "link": "/admin?view=handlers"
+            },
+            {
+                "name": "ACL",
+                "link": "/admin?view=acls"
+            }
+        ]
+    }
+    

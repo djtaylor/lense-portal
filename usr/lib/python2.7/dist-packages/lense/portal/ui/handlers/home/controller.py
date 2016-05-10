@@ -16,11 +16,4 @@ class HandlerController(BaseHandlerController):
         """
         
         # Construct template
-        LENSE.PORTAL.TEMPLATE.construct({
-            'page': {
-                'title': 'Lense Home',
-                'css': [
-                    'home.css'
-                ]
-            }
-        })
+        LENSE.PORTAL.TEMPLATE.construct(title='Lense Home')

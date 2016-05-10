@@ -1,91 +1,109 @@
 lense.import('api.client', function() {
+	var self = this;
 	
 	// Class attributes
 	this.params, this.room, this.io;
 	
 	// Cookie keys
-	this.keys = ['user', 'group', 'key', 'token', 'endpoint', 'session'];
+	this.cookies = ['user', 'group', 'key', 'token', 'endpoint', 'session'];
 	
 	/**
-	 * Connect APIClient
+	 * Initialize APIClient
 	 */
-	this.connect = function() {
+	this.__init__ = function() {
 		
-		// API connection parameters
-		lense.api.client.params = lense.api.client.load_params();
-		
-		// Client room
-		lense.api.client.room   = lense.api.client.params.user + ':' + lense.api.client.params.session;
-		
-		// Establish API connection
-		lense.api.client.io     = lense.api.client.io_connect();
+		// Parameters
+		self.params = self.getParameters();
+		self.room   = self.getRoom();
 	}
 	
 	/**
-	 * Load API Parameters
+	 * Get Client Parameters
 	 */
-	this.load_params = function() {
-		return {
-			user: Cookies.get('api_user'),
-			url:  Cookies.get('api_endpoint'),
-		}
-		
-		// Clone the parameters
-		pr = JSON.parse(JSON.stringify(api_params));
-		
-		// Delete the page container
-		$('#api_params').remove();
-		
-		// Make sure all the required parameters are set
-		ap = function() {
-			var pv = true;
-			$.each(['user', 'token', 'url', 'session', 'group'], function(i,k) {
-				if (!pr.hasOwnProperty(key) || !is_defined(pr[k])) {
-					pv = false;
-				}
-			});
-			return pv;
-		}
-		
-		// If all parameters have been read into memory
-		return (ap) ? pr : false;
+	this.getParameters = function() {
+		var _params = {};
+		$.each(self.cookies, function(i,k) {
+			_params[k] = Cookies.get(k);
+		});
+		return _params;
 	}
 	
 	/**
-	 * Open Connection
+	 * Get Client Room
+	 */
+	this.getRoom = function() {
+		return self.params.user + ':' + self.params.session;
+	}
+	
+	/**
+	 * Emit SocketIO Message
 	 * 
-	 * Establish a connection to the CloudScape Socket.IO API proxy server
-	 * for handling future requests.
+	 * @param {type}     The socket server request type
+	 * @param {data}     Any additional socket data
+	 * @param {callback} An optional callback method
 	 */
-	this.io_connect = function() {
-		// Options
-		//
-		// Set default transports to either 'xhr-polling' or 'jsonp-polling'. There is a bug when
-		// using websockets that causes connections on the server to hang in FIN_WAIT2/CLOSE_WAIT
-		// state, which quickly uses up all the available file descriptors.
-		function options() {
-			return {
-				secure: (lense.api.client.params.proto == 'https') ? true : false,
-				transports: ['xhr-polling', 'jsonp-polling']
-			};
+	this.emit = function(type, data, callback) {
+		var data = ((defined(data)) ? data : {});
+		
+		// Append room if required
+		data['room'] = ((defined(data['room'])) ? data['room'] : self.room);
+		
+		// Emit the request
+		self.io.emit(type, data);
+		
+		// Optional callback
+		if (defined(callback)) {
+			callback();
 		}
+	}
+	
+	/**
+	 * Get Authentication Parameters
+	 */
+	this.authentication = function() {
+		return {
+			'user':   self.params.user,
+			'token':  self.params.token,
+			'group':  self.params.group,
+		}
+	}
+	
+	/**
+	 * Open SocketIO Connection
+	 */
+	this.sockConnect = function(callback) {
+		self.io = io.connect(self.params.endpoint);
 		
-		// Make sure all required parameters are defined
-		if (lense.api.client.params === false) { return false; } 
+		// Connection error
+		self.io.on('error', function(e) {
+			return lense.common.layout.notify('danger', 'IOConnect Error: ' + e);
+		});
 		
-		// Open socket connection
-		io_connection = io.connect(lense.api.client.params.url, options())
+		// Connect failed
+		self.io.on('connect_failed', function(e) {
+			return lense.common.layout.notify('danger', 'IOConnect Failed: ' + e);
+		});
 		
-		// Error creating socket connection
-		io_connection.on('error', function(e) { return false; });
+		// Join client to room
+		self.emit('join');
 		
-		// Failed to create socket connection
-		io_connection.on('connect_failed', function(e) { return false; });
+		// Join success
+		self.io.on('joined', function(d) {
+			lense.api.cache.handlers = d.handlers;
+			lense.api.cache.server   = d.server;
+			
+			// Update client parameters
+			$('input.socketio-server').val(lense.api.cache.server);
+		});
 		
-		// Join the user to their own room
-		io_connection.emit('join', { room: lense.api.client.room });
+		// Handle closed connections
+		self.io.on('disconnect', function() {
+			lense.api.setSockStatus('connecting');
+		});
 		
-		// Return the connection object
-		return io_connection;
+		// Run the callback
+		if (defined(callback)) {
+			callback();
+		}
 	}
 });

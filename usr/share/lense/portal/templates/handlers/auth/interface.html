@@ -1,0 +1,25 @@
+<div class="form-login-container" style="opacity:0;">
+	<form class="form-login" id="form-login" _lpchecked="1" action="{{ base_path }}/auth" method="post">
+	    <div class="form-login-title">
+	        <div class="form-login-title-icon"></div>
+	        <div class="form-login-title-txt">Lense</div>
+	        <div class="form-login-title-subtxt">Infrastructure Management</div>
+	    </div>
+	    <label for="inputUsername" class="sr-only">Username</label>
+	    <input type="text" id="inputUsername" class="form-control form-input-icon form-input-username" name="username" placeholder="Username" autocomplete="off" required autofocus>
+	    <label for="inputPassword" class="sr-only">Password</label>
+	    <input type="password" id="inputPassword" class="form-control form-input-icon form-input-password" name="password" placeholder="Password" autocomplete="off" required>
+	    <div class="checkbox">
+	        <label>
+	            <input type="checkbox" value="remember-me">Remember me
+	        </label>
+	    </div>
+	    <div class="alert alert-danger" id="form-login-error" style="display:none;"></div>
+	    <button class="btn btn-lg btn-primary btn-block" type="submit" id="form-login-button">Log In</button>
+	    {% if next %}
+	    <input type="hidden" name="next" value="{{ next }}" />
+	    {% endif %}
+	    {% csrf_token %}
+	    <input type="hidden" name="action" value="login" />
+	</form>
+</div>

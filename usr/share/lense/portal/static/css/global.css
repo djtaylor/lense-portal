@@ -1,0 +1,51 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+.dropdown-toggle .caret {
+  margin-left: 5px;
+}
+
+.profile-field {
+  margin: 10px 0 0 0;
+  width: 100%;
+}
+
+.profile-field-label {
+  width: 150px;
+}
+
+.profile-field-value {
+  background-color: #fff !important;
+}
+
+.navbar-brand-icon {
+  width: 50px;
+  height: 50px;
+  float: left;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-image: url(/static/images/logo/64x64.png);
+  background-size: 30px 30px;
+}
+
+.spinner {
+  display: inline-block;
+  opacity: 0;
+  width: 0;
+
+  -webkit-transition: opacity 0.25s, width 0.25s;
+  -moz-transition: opacity 0.25s, width 0.25s;
+  -o-transition: opacity 0.25s, width 0.25s;
+  transition: opacity 0.25s, width 0.25s;
+}
+
+.has-spinner.active {
+  cursor:progress;
+}
+
+.has-spinner.active .spinner {
+  opacity: 1;
+  width: auto; /* This doesn't work, just fix for unkown width elements */
+}

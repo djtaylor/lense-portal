@@ -20,11 +20,10 @@ class HandlerController(BaseHandlerController):
         """
         Construct and return the template object.
         """
-        LENSE.LOG.debug('VIEW: {0}'.format(LENSE.REQUEST.view))
         
         # No view / invalid view provided
         if not (LENSE.REQUEST.view) or not (LENSE.REQUEST.view in self.views):
-            return LENSE.HTTP.redirect(self.default)
+            return LENSE.PORTAL.TEMPLATE.construct(redirect=self.default)
         
         # Construct template
         LENSE.PORTAL.TEMPLATE.construct(title='Lense Administration')

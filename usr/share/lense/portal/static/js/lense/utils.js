@@ -54,7 +54,7 @@ function get_attr(e) {
 /**
  * URL Manipulation
  */
-var url = function() {
+var url = new function() {
 	var self = this;
 	
 	/**
@@ -75,23 +75,16 @@ var url = function() {
 			"notify":     [ 'status', 'body' ]
 		};
 		
-		// Check if the status and msg parameters are both set and render the message
-		var status_val = lense.common.url.param_get('status');
-		var msg_val    = lense.common.url.param_get('body');
-		if (status_val !== null && msg_val !== null) {
-			lense.common.layout.render(status_val, msg_val)
-		}
-		
 		// Object notification parameters
 		url_objects.notify.forEach(function(notify) {
-			var notify_param = lense.common.url.param_get(notify);
+			var notify_param = self.param_get(notify);
 			if (notify_param !== null) {
 				var current_url = window.location.pathname;
 				var base_url    = window.location.href.match(/^[^\#\?]+/)[0];
 				var base_sep	= '?'
 				var new_url     = base_url;
 				url_objects.persistent.forEach(function(param_type) {
-					var param_val = lense.common.url.param_get(param_type);
+					var param_val = self.param_get(param_type);
 					if (param_val !== null) {
 						new_url = new_url + base_sep + param_type + '=' + param_val;
 					}

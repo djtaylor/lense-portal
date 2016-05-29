@@ -1,6 +1,9 @@
 lense.import('api.interface', function() {
 	var self = this;
 	
+	// Socket status
+	this.status = 'disconnected';
+	
 	/**
 	 * Initialize APIInterface
 	 * @constructor
@@ -27,12 +30,16 @@ lense.import('api.interface', function() {
 	this.setSockInfo = function(connected) {
 		var endpoint = ((connected === true) ? lense.api.client.params.endpoint: '');
 		var room     = ((connected === true) ? lense.api.client.room: '');
-		var server   = ((connected === true) ? lense.api.cache.server: '')
+		var server   = ((connected === true) ? lense.api.cache.server: '');
+		var status   = ((connected === true) ? 'connected': 'disconnected');
 		
 		// Update the client information
 		$('input.socketio-endpoint').val(endpoint);
 		$('input.socketio-room').val(room);
 		$('input.socketio-server').val(server);
+		
+		// Store the socket status
+		self.status = status;
 	}
 	
 	/**
@@ -113,11 +120,28 @@ lense.import('api.interface', function() {
 			lense.api.client.io.on('connect', function() {
 				self.setSockStatus('connected');
 				
-				// Response types
-				$.each(['apiResponse', 'update'], function(i,k) {
-					lense.api.client.io.on(k, function(d) {
-						lense.callback[k](d);
-					});
+				// API response
+				lense.api.client.io.on('apiResponse', function(d) {
+					
+					// Parse the response
+					try {
+						
+						// Response OK
+						if (d.code === 200) {
+							content = JSON.parse(d.content);
+							
+							// Run the callback
+							lense.callback[content.callback](content.data);
+							
+						// Request failed
+						} else {
+							lense.api.response.notify(d.code, d.content);
+						}
+						
+					// Failed to parse response
+					} catch(e) {
+						lense.api.response.notify(d.code, d.contents)
+					}
 				});
 			})
 		});

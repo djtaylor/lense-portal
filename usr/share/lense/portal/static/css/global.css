@@ -49,3 +49,13 @@ html {
   opacity: 1;
   width: auto; /* This doesn't work, just fix for unkown width elements */
 }
+
+.content {
+	margin-top: 70px;
+}
+
+.chart-title {
+	font-weight: bold !important;
+	font-size: 1.1em !important;
+	padding-bottom: 7px !important;
+}

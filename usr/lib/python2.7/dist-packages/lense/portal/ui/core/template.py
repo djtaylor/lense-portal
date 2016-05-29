@@ -21,7 +21,7 @@ class PortalTemplate(PortalBase):
         # Assets
         self._assets = {}
         
-    def construct(self, title='Lense Portal'):
+    def construct(self, title='Lense Portal', redirect=None):
         """
         Construct portal template attributes.
         """
@@ -31,13 +31,22 @@ class PortalTemplate(PortalBase):
         interface = 'handlers/{0}/interface.html'.format(handler)
         css       = '{0}.css'.format(handler)
         
-        self.data = self._merge_data({
-            'page': {
-                'title':     title,
-                'css':       css,
-                'interface': interface
-            }     
-        })
+        # If redirecting
+        if redirect:
+            self.data = self._merge_data({
+                'redirect': redirect
+            })
+            
+        # Normal template construction
+        else:
+            self.data = self._merge_data({
+                'page': {
+                    'title':     title,
+                    'css':       css,
+                    'interface': interface,
+                    'view':      'handlers/{0}/{1}.html'.format(handler, LENSE.REQUEST.view)
+                }     
+            })
 
     def _user_data(self):
         """
@@ -58,7 +67,8 @@ class PortalTemplate(PortalBase):
         return {
             'current': LENSE.REQUEST.current,
             'path': LENSE.REQUEST.path,
-            'base': LENSE.REQUEST.script
+            'base': LENSE.REQUEST.script,
+            'view': LENSE.REQUEST.view,
         }
 
     def _navigation(self):

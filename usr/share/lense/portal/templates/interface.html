@@ -16,12 +16,7 @@
 
 {# Page Content #}
 {% if USER.is_authenticated %}
-	{% block window %}
-		{% if page.header %}
-			<div class="page_header_box">
-				<div class="page_title">{{ page.header }}</div>
-			</div>
-		{% endif %}
+	{% block content %}
 		{% include page.interface %}
 	{% endblock %}
 {% endif %}
@@ -32,10 +27,3 @@
 	    {% include page.interface %}
 	{% endblock %}
 {% endif %}
-
-{# Popup Windows #}
-{% block popups %}
-	{% for popup in page.popups %}
-		{% include popup %}
-	{% endfor %}
-{% endblock %}

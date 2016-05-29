@@ -9,6 +9,10 @@ class HandlerView(View):
         """
         Handle GET requests for the portal administration page.
         """
+        
+        # User is not authorized
         if not LENSE.REQUEST.USER.authorized:
             return LENSE.HTTP.redirect('auth')
-        return LENSE.PORTAL.TEMPLATE.data
+        
+        # Return the template response
+        return LENSE.PORTAL.TEMPLATE.response()

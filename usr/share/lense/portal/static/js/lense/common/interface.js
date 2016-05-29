@@ -1,4 +1,5 @@
 lense.import('common.interface', function() {
+	var self = this;
 	
 	/**
 	 * Initialize Interface
@@ -13,12 +14,8 @@ lense.import('common.interface', function() {
 		    'common.button',
 		    'common.layout',
 		    'common.validate',
-		    'common.register',
 		    'common.ipaddr',
 		]);
-		
-		// Centered elements
-		centered = ['.popups_container', '.loading_content'];
 		
 		// Document ready
 		$(document).ready(function() {
@@ -28,7 +25,7 @@ lense.import('common.interface', function() {
 		});
 		
 		// Bind actions
-		lense.common._bind();
+		self._bind();
 	}
 	
 	/**

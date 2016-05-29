@@ -1,163 +1,25 @@
 lense.import('common.forms', function() {
+	var self = this;
 	
 	// Forms container
 	this.all = {};
 	
 	/**
-	 * Create Form Elements
+	 * Forms Constructor
 	 */
-	this.create = {
-		
-		/**
-		 * Hidden Input
-		 * 
-		 * Construct a hidden input field.
-		 * 
-		 * @param {a} The hidden input attributes
-		 */
-		input_hidden: function(a) {
-			a.type = 'hidden';
-			return lense.common.layout.html($('<input/>').attr(a));
-		},
-		
-		/**
-		 * Dropdown Menu
-		 * 
-		 * Construct a custom dropdown menu.
-		 * 
-		 * @param {p} The dropdown menu parameters
-		 */
-		dropdown: function(p) {
-			
-			// Set the menu CSS classes
-			var css = {
-				option: (function() {
-					if (p.type == 'formula') { return 'formula_select_option'; }
-				})(),
-				field:  (function() {
-					if (p.type == 'formula') { return 'formula_field'; }
-				})(),
-				label:  (function() {
-					if (p.type == 'formula') { return 'formula_field_label_dynamic'; }
-				})(),
-				input:  (function() {
-					if (p.type == 'formula') { return 'formula_field_input'; }
-				})(),
-				icon:   (function() {
-					if (p.type == 'formula') { return 'form_input_icon_def'; }
-				})()
-			}
-			
-			// Construct the dropdown items
-			dd_items = [];
-			$.each(p.items, function(k,v) {
-				
-				// Create the option element
-				dd_items.push(lense.common.layout.create.element('option', {
-					css:  css.option,
-					attr: {
-						value: p.label
-					},
-					text: k + ':' + v
-				}));
-				
-				// Create the div element
-				dd_items.push(lense.common.layout.create.element('div', {
-					css:  'dropdown_item',
-					attr: {
-						type:   'button',
-						action: 'dropdown',
-						value:  k,
-						label:  k + ':' + v,
-						target: p.name
-					},
-					text: k + ':' + v
-				}));
-			});
-			
-			// Construct and return the dropdown menu
-			return lense.common.layout.create.element('div', {
-				css:  css.field,
-				attr: { 
-					name: p.name,
-				},
-				children: [
-				    lense.common.layout.create.element('div', {
-				    	css:  css.label,
-				    	text: p.label
-				    }),
-				    lense.common.layout.create.element('div', {
-				    	css: css.input,
-				    	children: [
-				    	    lense.common.layout.create.element('div', {
-				    	    	css:  'dropdown_menu',
-				    	    	attr: {
-				    	    		type:   'dropdown',
-				    				target: 'menu',
-				    				name:   p.name
-				    	    	},
-				    	    	children: [
-				    	    	    lense.common.layout.create.element('div', {
-				    	    	    	css: 'dropdown_action',
-				    	    	    	children: [
-				    	    	    	    lense.common.layout.create.element('div', {
-				    	    	    	    	css:  'dropdown_button',
-				    	    	    	    	attr: {
-				    	    	    	    		type:   'button',
-				    	    				    	action: 'toggle',
-				    	    				    	target: p.name
-				    	    	    	    	}
-				    	    	    	    }),
-				    	    	    	    lense.common.layout.create.element('div', {
-				    	    	    	    	css:  'dropdown_value',
-				    	    	    	    	attr: {
-				    	    	    	    		type:   'dropdown',
-				    	    				    	target: p.name
-				    	    	    	    	},
-				    	    	    	    	text: 'Please select...'
-				    	    	    	    })
-				    	    	    	]
-				    	    	    }),
-				    	    	    lense.common.layout.create.element('div', {
-				    	    	    	css:  css.icon,
-				    	    	    	attr: {
-				    	    	    		type: 'icon',
-					    					form: p.form,
-					    					name: p.name
-				    	    	    	}
-				    	    	    })
-				    	    	]
-				    	    }),
-				    	    lense.common.layout.create.element('div', {
-				    	    	css:  'dropdown_items',
-				    	    	attr: {
-				    				type: 'toggle',
-				    				name: p.name
-				    			},
-				    			children: dd_items
-				    	    }),
-				    	    lense.common.forms.create.input_hidden({
-				    	    	type:  'hidden',
-			    				form:  p.form,
-			    				name:  p.name,
-			    				value: '',
-				    	    })
-				    	]
-				    })
-				]
-			});
-		}
-	};
+	lense.register.constructor('common.forms', function() {
+		self.load();
+	});
 	
 	/**
-	 * Set Field
+	 * Set Input Value
 	 * 
 	 * Set the value of an input field and trigger the 'input' event
 	 * 
 	 * @param {f} The jQuery filter to find the field
 	 * @param {v} The value to set
 	 */
-	this.set_field = function(f,v) {
+	this.setInputValue = function(f,v) {
 		$(f).val(v).trigger('input');
 	}
 	
@@ -166,11 +28,11 @@ lense.import('common.forms', function() {
 	 * 
 	 * @param {e} Input element to validate using methods in 'validate.js'
 	 */
-	this.validate_input = function(e) {
+	this.validateInput = function(e) {
 		o = get_attr($(e));
-		p = lense.common.forms.parent(e);
+		p = self.parent(e);
 		if (o.hasOwnProperty('validate') && defined(o['validate'])) {
-			v = lense.common.forms.all[p]['inputs'][o.name]['value'];
+			v = self.all[p]['inputs'][o.name]['value'];
 			
 			// If an additional argument is supplied
 			if (o.hasOwnProperty('arg')) {
@@ -182,38 +44,131 @@ lense.import('common.forms', function() {
 	}
 	
 	/**
+	 * Clear Form Error
+	 */
+	this.clearError = function(id) {
+		$('#' + id + '-feedback').css('display', 'none');
+		
+		// Make sure the submit button is enabled
+		$('#' + id + '-submit').removeAttr('disabled');
+	}
+	
+	/**
+	 * Show Form Error
+	 * 
+	 * @param {id}       The parent form ID
+	 * @param {message}  The feedback message to display
+	 * @param {callback} An optional callback method
+	 */
+	this.showError = function(id, message, callback) {
+		
+		// Show the form error box
+		$('#' + id + '-feedback').text(message);
+		$('#' + id + '-feedback').css('display', 'all');
+		
+		// Make sure the submit button is disabled
+		$('#' + id + '-submit').attr('disabled', 'disabled');
+		
+		// Run the callback if defined
+		if (defined(callback)) {
+			callback();
+		}
+	}
+	
+	/**
+	 * Input Default State
+	 * 
+	 * @param {id} The ID of the form input
+	 */
+	this.setInputDefault = function(id) {
+		var group = id + '-group';
+		
+		// Update elements
+		$('#' + id).attr('class', 'form-group');
+		$('#' + id).find('span').css('display', 'none');
+	}
+	
+	/**
+	 * Input Success State
+	 * 
+	 * @param {id} The ID of the form input
+	 */
+	this.setInputSuccess = function(id) {
+		var group = id + '-group';
+		
+		// Update elements
+		$('#' + group).attr('class', 'form-group has-success has-feedback');
+		$('#' + id + '-status').text('(success)');
+		$('#' + id + '-icon').attr('class', 'glyphicon glyphicon-ok form-control-feedback');
+		$('#' + group).find('span').css('display', 'all');
+	}
+	
+	/**
+	 * Input Error State
+     *
+     * @param {id} The ID of the form input
+     */
+	this.setInputError = function(id) {
+		var group = id + '-group';
+		
+		// Update elements
+		$('#' + group).attr('class', 'form-group has-error has-feedback');
+		$('#' + id + '-status').text('(error)');
+		$('#' + id + '-icon').attr('class', 'glyphicon glyphicon-remove form-control-feedback');
+		$('#' + group).find('span').css('display', 'all');
+	}
+	
+	/**
 	 * Set Form Input
 	 * 
 	 * Method used to refresh the state of a form input field and its relative icon. This
 	 * will change the icon state, and the '_error' and 'value' attributes in the global
 	 * forms object.
 	 * 
-	 * @param {p} The ID string of the parent form
-	 * @param {n} The name attribute of the input to set
-	 * @param {v} The value to attempt to set
-	 * @param {s} The validation status of the element
+	 * @param {parent} The ID string of the parent form
+	 * @param {id}     The ID attribute of the input to set
+	 * @param {value}  The value to attempt to set
+	 * @param {status} The validation status of the element
 	 */
-	this.set_input = function(p,n,v,s) {
+	this.setInputStatus = function(parent, id, value, status) {
 	
+		// Field group / name
+		var group = id + '-group';
+		var name  = $('#' + group).find('input')[0].name;
+		
 		// If the value is invalid
-		if (s === false) {
-			l = 'err';
-			e = true;
+		if (status === false) {
+			inputMethod = 'setInputError';
+			error       = true;
 		} else {
-			l = v === undefined ? 'err' : 'ok';
-			e = v === undefined ? true : false;
+			inputMethod = value === undefined ? 'setInputError' : 'setInputSuccess';
+			error       = value === undefined ? true : false;
 		}
 		
-		// Set the target and content for the icon
-		t = 'div[type$="icon"][form$="' + p + '"][name$="' + n + '"]';
-		c = '<div class="form_input_icon_' + l + '" type="icon" form="' + p + '" name="' + n + '"></div>';
-		
-		// Update the input icon
-		$(t).replaceWith(c);
+		// Update the field
+		self[inputMethod](id);
 		
 		// Update the forms object
-		lense.common.forms.all[p]['inputs'][n]['_error'] = e;
-		lense.common.forms.all[p]['inputs'][n]['value']  = v;
+		self.all[p]['inputs'][name]['_error'] = error;
+		self.all[p]['inputs'][name]['value']  = value;
+	}
+	
+	/**
+	 * Check Form Submission
+	 * 
+	 * Check to see if a form can be submitted in its current state.
+	 * 
+	 * @param {id} The ID of the form to check
+	 */
+	this.canSubmit = function(id) {
+		var status = true;
+		$.each(self.all[id]['inputs'], function(name, attrs) {
+			
+			// Error state / empty value for required vield
+			status = ((attrs._error) ? false : status)
+			status = (((attrs.hasOwnProperty('required') && ! defined($('#' + attrs.id).val()))) ? false : status)
+		});
+		return status;
 	}
 	
 	/**
@@ -268,13 +223,13 @@ lense.import('common.forms', function() {
 		// Check each form on the page
 		$.each($('form'), function(index, form) {
 			inputs = $(form).find('input');
-			lense.common.forms.all[form.id] = {'id': form.id, 'inputs': {}};
+			self.all[form.id] = {'id': form.id, 'inputs': {}};
 			$.each(inputs, function(index, input) {
 				a = get_attr(input);
 				disabled = (a.hasOwnProperty('disabled')) ? true: false;
-				lense.common.forms.all[form.id]['inputs'][a.name] = {'_error': false, '_parent': form.id, '_disabled': disabled};
+				self.all[form.id]['inputs'][a.name] = {'_error': false, '_parent': form.id, '_disabled': disabled};
 				$.each(a, function(key, value) {
-					lense.common.forms.all[form.id]['inputs'][a.name][key] = value;
+					self.all[form.id]['inputs'][a.name][key] = value;
 				});
 				
 				// Skip hidden and non-validating elements
@@ -289,26 +244,35 @@ lense.import('common.forms', function() {
 					if (a.type == 'text' || a.type == 'password' || a.type == 'hidden' || a.type == 'radio') {
 						$(input).on('input', function() {
 							v = $(this).val();
-							p = lense.common.forms.parent(this);
+							p = self.parent(this);
+							
+							// If the form can be submitted
+							if (self.canSubmit(form.id)) {
+								self.clearError(form.id);
+							}
+							
+							// Value is empty
 							if (!defined($.trim(v))) {
-								lense.common.layout.show_response(true, { tgt: p, msg: 'Please fill out the required fields...' }, function() {
-									lense.common.forms.set_input(p,input.name, undefined, false);
+								self.showError(p, 'Please fill out the required fields...', function() {
+									self.setInputStatus(p,input.id, undefined, false);
 								});
+								
+							// Validate the value
 							} else {
-								lense.common.forms.all[p]['inputs'][input.name]['value'] = v;
-								if (lense.common.forms.validate_input(input)) {
-									lense.common.forms.set_input(p,input.name, v, true);
+								self.all[p]['inputs'][input.name]['value'] = v;
+								if (self.validateInput(input)) {
+									self.setInputStatus(p,input.id, v, true);
 									required_set = true;
-									$.each(lense.common.forms.all[p]['inputs'], function(key, value) {
+									$.each(self.all[p]['inputs'], function(key, value) {
 										if (value._error === true) {
 											required_set = false;
 										}
 									});
 									if (required_set === true) {
-										lense.common.layout.show_response(false, { tgt: p });
+										self.showError(p, 'Please fill out the required fields...');
 									}
 								} else {
-									lense.common.forms.set_input(p,input.name, v, false);
+									self.setInputStatus(p,input.id, v, false);
 								}
 							}
 						});
@@ -331,37 +295,37 @@ lense.import('common.forms', function() {
 			$.each($(id).find('input'), function(index, obj) {
 				var e = $(obj)[0],
 					a = get_attr(e),
-					p = lense.common.forms.parent(e);
+					p = self.parent(e);
 				
 				// Get the input type
-				type = lense.common.forms.all[p]['inputs'][a.name]['type'];
+				type = self.all[p]['inputs'][a.name]['type'];
 				
 				// Radio group value
 				if (type == 'radio') {
 					val = $('input[type$="radio"][form$="' + p + '"][name$="' + a.name + '"]:checked').val();
-					lense.common.forms.all[p]['inputs'][a.name]['value'] = val;
+					self.all[p]['inputs'][a.name]['value'] = val;
 					
 				// Default input value
 				} else {
-					lense.forms.all[p]['inputs'][a.name]['value'] = $(e).val();
+					self.all[p]['inputs'][a.name]['value'] = $(e).val();
 				}
 				
 				// Make sure required elements are set
 				if (a.hasOwnProperty('required')) {
-					if (! lense.common.forms.all[p]['inputs'][a.name]['_disabled'] === true) {
-						if (!defined(lense.common.forms.all[p]['inputs'][a.name]['value'])) {
+					if (! self.all[p]['inputs'][a.name]['_disabled'] === true) {
+						if (!defined(self.all[p]['inputs'][a.name]['value'])) {
 							_error = a.name;
 						}
 					}
 				}
 				
 				// If the field is in an error state
-				if (lense.common.forms.all[p]['inputs'][a.name]['_error']) {
+				if (self.all[p]['inputs'][a.name]['_error']) {
 					_error = a.name;
 				}
 				
 				// Validate the input
-				if (! lense.common.forms.validate_input(e)) {
+				if (! self.validateInput(e)) {
 					_error = a.name;
 				}
 			});

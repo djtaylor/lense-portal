@@ -14,14 +14,6 @@ lense.import('api.request', function() {
 	 */
 	this.submit = function(handler, data, callback) {
 		
-		// Make sure the handler is valid
-		if (!defined(lense.api.cache.handlers[handler])) {
-			return console.log('Invalid request handler: ' + handler);
-		}
-		
-		// Get the handler object
-		handler = lense.api.cache.handlers[handler];
-		
 		// Request object
 		var request = {
 			'auth':     lense.api.client.authentication(),

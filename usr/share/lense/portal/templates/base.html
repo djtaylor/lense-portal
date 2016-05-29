@@ -18,6 +18,7 @@
 		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/bootstrap.min.css" %}">
 		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/animate.min.css" %}">
 		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/font-awesome.min.css" %}">
+		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/keen-dashboards.css" %}">
 		<link rel="stylesheet" type="text/css" href="{% static "css/global.css" %}">
 		
 		{# Favicon #}
@@ -40,11 +41,9 @@
 				{% endblock %}
 				
 				{# Page Content Block #}
-				{% comment %}
-				<div class="content_window">
-					{% block window %}{% endblock %}
+				<div class="content">
+					{% block content %}{% endblock %}
 				</div>
-				{% endcomment %}
 			</div>
 			
 		{# Authentication Requests #}
@@ -73,6 +72,7 @@
 			<script type="text/javascript" src="{% static "js/vendor/bootstrap.min.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/vendor/bootstrap-notify.min.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/vendor/bootstrap-show-password.min.js" %}"></script>
+			<script type="text/javascript" src="{% static "js/vendor/bootstrap-waitingfor.min.js" %}"></script>
 			
 			{# Autoload #}
 			<script type="text/javascript" src="{% static "js/lense/prototype.js" %}"></script>

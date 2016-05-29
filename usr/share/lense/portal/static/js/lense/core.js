@@ -1,11 +1,58 @@
 var lense = (function() {
-	var core      = {};
+	var core         = {};
 	
 	// Modules container
-	core.module   = {};
+	core.module      = {};
 	
-	// Includes container
-	core.includes = {};
+	// Constructors / methods / callbacks
+	core.constructor = {};
+	core.method      = {};
+	core.callback    = {};
+	
+	// Current view
+	core.view        = url.param_get('view');
+	
+	/**
+	 * Object Registration
+	 */
+	core.register = {
+		
+		/**
+		 * Register Callback
+		 * 
+		 * Register a method used to handle a SocketIO response.
+		 * 
+		 * @param {n} The name of the callback
+		 * @param {m} The callback method
+		 */	
+		callback: function(n,m) { 
+			core.callback[n] = m;    
+		},
+		
+		/**
+		 * Register Method
+		 * 
+		 * Register a generic method.
+		 * 
+		 * @param {n} The name of the method reference
+		 * @param {m} The method object
+		 */	
+		method: function(n,m) { 
+			core.method[n] = m;
+		},
+		
+		/**
+		 * Register Constructor
+		 * 
+		 * Register a constructor method to be called after bootstrapping.
+		 * 
+		 * @param {n} The name of the constructor
+		 * @param {m} The constructor method
+		 */	
+		constructor: function(n,m) { 
+			core.constructor[n] = m; 
+		},
+	};
 	
 	/**
 	 * Import Module
@@ -25,7 +72,6 @@ var lense = (function() {
 		
 		// Import the module object / store includes
 		core.module[n] = m;
-		core.includes[n] = m;
 	};
 	
 	/**
@@ -36,66 +82,42 @@ var lense = (function() {
 	 * @param {c} Interface modules
 	 */
 	core.bootstrap = function(c) {
-		
-		// Wait for all includes to complete
-		(function() {
-			$.each(core.includes, function(n,i) {
-				(function wait_inner(n) {
-					setTimeout(function() {
-						if (!core.module.hasOwnProperty(n)) {
-							wait_inner(n);
-						} else {
-							core.includes[n] = true;
-						}
-					}, 10);
-				})(n);
-			});
+		$.each(c, function(k,v) {
+			lib  = v.split('.');
+			path = lib[0];
+			name = lib[1];
 			
-			// All included
-			return true;
-		})();
+			// Create a new class instance
+			core.implement(v, true);
+		});
 		
-		// Bootstrap after includes completed
-		(function() {
-			(function wait_inner() {
-				setTimeout(function() {
-					var a = true;
-					$.each(core.includes, function(n,i) {
-						if (i === false) {
-							a = false;
-							return false;
-						}
-					});
-					if (a === true) {
-						$.each(c, function(k,v) {
-							lib  = v.split('.');
-							path = lib[0];
-							name = lib[1];
-							
-							// Create a new class instance
-							core.implement(v, true);
-						});
-					} else {
-						wait_inner();
-					}
-				}, 10)
-			})();
-		})();
+		// Run constructors
+		core._construct();
 	};
 	
 	/**
 	 * Implement Module (Private)
 	 */
 	core._implement = function(n,i) {
+		var mod = (($.isArray(n)) ? n[0]: n);
+		
+		// Parameterized implementation
+		if ($.isArray(n)) {
+			
+			// Filter by view
+			if (('view' in n[1]) && (n[1].view != lense.view)) {
+				return;
+			}
+		}
 		
 		// Could not locate the module
-		if (!core.module.hasOwnProperty(n)) {
-			throw new ModuleNotFound(n);
+		if (!core.module.hasOwnProperty(mod)) {
+			throw new ModuleNotFound(mod);
 		}
 		
 		// Module object / namespace
-		module = new core.module[n]();
-		nspace = n.split('.');
+		module = new core.module[mod]();
+		nspace = mod.split('.');
 		
 		// Initialize the root namespace
 		if (!core.hasOwnProperty(nspace[0])) {
@@ -143,6 +165,23 @@ var lense = (function() {
 		} else {
 			core._implement(n,i);
 		}
+	};
+	
+	/**
+	 * Run Constructors
+	 */
+	core._construct = function() {
+		
+		// Wait for SocketIO connection
+		if ((defined(lense.api)) && (lense.api.status === 'connected')) {
+			$.each(core.constructor, function(n,m) {
+				new m();
+			});
+	        
+	    // Socket still connecting, wait
+	    } else {
+	    	window.setTimeout(core._construct, 20);
+	    }
 	};
 	
 	// Return the global namespace

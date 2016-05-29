@@ -1,0 +1,94 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="chart-wrapper">
+        <div class="chart-title">
+          <div style="overflow:auto;">
+            <button type="button" class="btn btn-danger btn-xs pull-right">Delete</button>
+            <button type="button" class="btn btn-default btn-xs pull-right" style="margin-right:10px;" data-toggle="modal" data-target="#create-user">Create</button>
+          </div>
+        </div>
+        <div class="chart-stage">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>UUID</th>
+              </tr>
+            </thead>
+            <tbody id="users-list">
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-notes"></div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="chart-wrapper">
+        <div class="chart-title">
+          User Details
+        </div>
+        <div class="chart-stage" id="user-details">
+        </div>
+        <div class="chart-notes"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create User Modal -->
+<div id="create-user" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Profile Content -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Create User</h4>
+      </div>
+      <div class="modal-body">
+        <form class="form-horizontal" id="create-user-form">
+		  <div class="form-group" id="create-user-username-group">
+		    <label class="col-sm-4 control-label">Username</label>
+		    <div class="col-sm-8">
+		      <input type="text" class="form-control" name="username" id="create-user-username" placeholder="Username" required aria-describeby="create-user-username-status">
+		      <span id="create-user-username-icon" class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" style="display:none;"></span>
+              <span id="create-user-username-status" class="sr-only" style="display:none;">(error)</span>
+		    </div>
+		  </div>
+		  <div class="form-group" id="create-user-email-group">
+            <label class="col-sm-4 control-label">Email</label>
+            <div class="col-sm-8">
+              <input type="text" class="form-control" name="email" id="create-user-email" placeholder="Email" required aria-describeby="create-user-email-status">
+              <span id="create-user-email-icon" class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" style="display:none;"></span>
+              <span id="create-user-email-status" class="sr-only" style="display:none;">(error)</span>
+            </div>
+          </div>
+          <div class="form-group" id="create-user-password-group">
+            <label class="col-sm-4 control-label">Password</label>
+            <div class="col-sm-8">
+              <input type="password" class="form-control" name="password" id="create-user-password" placeholder="Password" required aria-describeby="create-user-password-status">
+              <span id="create-user-password-icon" class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" style="display:none;"></span>
+              <span id="create-user-password-status" class="sr-only" style="display:none;">(error)</span>
+            </div>
+          </div>
+          <div class="form-group" id="create-user-password-confirm-group">
+            <label class="col-sm-4 control-label">Confirm Password</label>
+            <div class="col-sm-8">
+              <input type="password" class="form-control" name="password_confirm" id="create-user-password-confirm" placeholder="Password" required aria-describeby="create-user-password-confirm-status">
+              <span id="create-user-password-confirm-icon" class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true" style="display:none;"></span>
+              <span id="create-user-password-confirm-status" class="sr-only" style="display:none;">(error)</span>
+            </div>
+          </div>
+		</form>
+		<div class="alert alert-danger" role="alert" style="display:none;" id="create-user-form-feedback"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" id="create-user-form-submit" disabled="disabled">Create</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

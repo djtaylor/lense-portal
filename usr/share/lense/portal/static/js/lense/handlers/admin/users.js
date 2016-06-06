@@ -2,18 +2,30 @@ lense.import('admin.users', function() {
 	var self = this;
 	
 	/**
+	 * Insert User Row
+	 */
+	this.insertUserRow = function(user) {
+		$('#users-list').prepend(
+			'<tr user="' + user.uuid + '">' +
+			'<th scope="row"><input type="checkbox" user="' + user.uuid + '"></th>' +
+			'<th>' + user.username + '</th>' +
+			'<th>' + user.email + '</th>' +
+			'<th>' + user.uuid + '</th>' +
+			'</tr>'
+		);
+	}
+	
+	/**
 	 * Load Users Callback
 	 */
 	lense.register.callback('loadUsers', function(data) {
-		$.each(data, function(i,user) {
-			$('#users-list').prepend(
-				'<tr user="' + user.uuid + '">' +
-				'<th scope="row"><input type="checkbox" user="' + user.uuid + '"></th>' +
-				'<th>' + user.username + '</th>' +
-				'<th>' + user.email + '</th>' +
-				'<th>' + user.uuid + '</th>' +
-				'</tr>');
-		});
+		if ($.isArray(data)) {
+			$.each(data, function(i,user) {
+				self.insertUserRow(user);
+			});
+		} else {
+			self.insertUserRow(data);
+		}
 	});
 	
 	/**

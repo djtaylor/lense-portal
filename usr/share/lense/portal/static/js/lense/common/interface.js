@@ -35,7 +35,7 @@ lense.import('common.interface', function() {
 		
 		// Click logout button
 		$(document).on('click', '#form-logout-button', function() {
-			$.each(lense.api.client.keys, function(i,k) {
+			$.each(lense.api.client.cookies, function(i,k) {
 				Cookies.remove(k);
 			});
 			

@@ -6,9 +6,9 @@ lense.import('tools.interface', function() {
 	 */
 	this.__init__ = function() {
 		
-		// Document ready
-		$(document).ready(function() {
-			
-		});
+		// Load modules
+		lense.implement([
+			['tools.manifests', { view: 'manifests' }]     
+		]);
 	}
 });

@@ -11,7 +11,7 @@ lense.import('admin.interface', function() {
 			['admin.users',    { view: 'users' }],
 			['admin.groups',   { view: 'groups' }],
 			['admin.handlers', { view: 'handlers' }],
-			['admin.acls',     { view: 'acls' }],        
+			['admin.models',   { view: 'models' }]
 		]);
 	}
 });

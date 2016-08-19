@@ -1,9 +1,9 @@
 /**
  * Clone Data
- * 
+ *
  * Clone a variable by parsing and stringifying the value to prevent modification
  * by reference. Creates a completely independent copy.
- * 
+ *
  * @param {d} The data to copy
  */
 function clone(d) {
@@ -11,11 +11,51 @@ function clone(d) {
 }
 
 /**
+ * Variable type check
+ */
+function istype(obj, type) {
+	switch(type) {
+		case 'string':
+		case 'str':
+			return (typeof(obj) == 'string') ? true:false;
+		case 'array':
+		case 'list':
+			return $.isArray(obj);
+		case 'object':
+		case 'dict':
+		  return (obj.constructor == Object) ? true:false;
+		case 'boolean':
+		case 'bool':
+		  return (typeof(obj) == 'boolean') ? true:false;
+		case 'int':
+		case 'integer':
+		case 'num':
+		case 'number':
+		  return (typeof(obj) == 'number') ? true:false;
+		default:
+			return false;
+	}
+}
+
+/**
+ * Extract Keys
+ *
+ * Extract a subset of keys from an object and return a new object.
+ */
+function extract(object, keys) {
+	var _object = {};
+	$.each(keys, function(i,k) {
+		_object[k] = object[k];
+	});
+	return _object;
+}
+
+/**
  * Definition Check
- * 
+ *
  * Simple helper method to check if a variable is defined or not. Checks
  * for null, undefined, false, or an empty string.
- * 
+ *
  * @param {v} The variable to check
  * @return bool
  */
@@ -26,11 +66,57 @@ function defined(v) {
 }
 
 /**
+ * Has Attribute Check
+ */
+function hasattr(obj, key) {
+	if (!defined(obj)) {
+		return false;
+	}
+	return obj.hasOwnProperty(key);
+}
+
+/**
+ * Get Object Attribute
+ */
+function getattr(obj, key, def) {
+
+	// jQuery object
+	if (obj instanceof jQuery) {
+		attrs = {};
+		if (obj.hasOwnProperty('target')) {
+			$.each(obj.target.attributes, function(key, a) {
+				attrs[a.nodeName] = a.value;
+			});
+		} else {
+			$.each(obj[0].attributes, function(key, a) {
+				attrs[a.nodeName] = a.value;
+			});
+		}
+		return getattr(attrs, key, def);
+
+	// JavaScript object
+	} else {
+		if (hasattr(obj, key)) {
+			return obj[key];
+		} else {
+			if (def === undefined) {
+				throw new Error("Object has no key '" + key + "', and no default provided!")
+			}
+			return def;
+		}
+	}
+}
+
+/**
+ * Set Keyword Arguments
+ */
+
+/**
  * Get Element Attributes
- * 
+ *
  * Takes an element object as an argument and returns an object containing attribute
  * names and values.
- * 
+ *
  * @param {e} The element to retrieve attributes for
  */
 function get_attr(e) {
@@ -56,25 +142,25 @@ function get_attr(e) {
  */
 var url = new function() {
 	var self = this;
-	
+
 	/**
 	 * Redirect
 	 */
 	this.redirect = function(path) {
 		window.location.replace('/' + path);
 	}
-	
+
 	/**
 	 * Parse URL
 	 */
 	this.parse = function() {
-		
+
 		// Define persistent and notification URL parameters
 		var url_objects = {
 			"persistent": [ 'view', 'edit'],
 			"notify":     [ 'status', 'body' ]
 		};
-		
+
 		// Object notification parameters
 		url_objects.notify.forEach(function(notify) {
 			var notify_param = self.param_get(notify);
@@ -94,12 +180,12 @@ var url = new function() {
 			}
 		});
 	}
-	
+
 	/**
 	 * Set URL Parameters
-	 * 
+	 *
 	 * Helper method used to set new query parameters in the current URL.
-	 * 
+	 *
 	 * @param {key} The query parameter key
 	 * @param {value} The query parameter value
 	 */
@@ -120,13 +206,13 @@ var url = new function() {
 		var new_url    = base_url + new_params
 		history.pushState(null, null, new_url);
 	}
-	
+
 	/**
 	 * Delete URL Parameters
-	 * 
+	 *
 	 * Helper method used to remove a query parameter from the current URL before pushing
 	 * the new history state.
-	 * 
+	 *
 	 * @param {key} The URL query parameter to remove
 	 */
 	this.param_del = function(key) {
@@ -147,7 +233,7 @@ var url = new function() {
 	    }
 	    history.pushState(null, null, new_url);
 	}
-	
+
 	/**
 	 * Check URL Parameter Existence
 	 */
@@ -155,13 +241,13 @@ var url = new function() {
 		var re = new RegExp('[&\?]{1}' + key, 'g');
 		return (window.location.search.match(re)) ? true : false;
 	}
-	
+
 	/**
 	 * Get URL Parameters
-	 * 
+	 *
 	 * Helper method used to retrieve the value of a specific query parameter from the
 	 * current URL.
-	 * 
+	 *
 	 * @param {name} The name of the query parameter to retrieve the value of
 	 */
 	this.param_get = function(name) {

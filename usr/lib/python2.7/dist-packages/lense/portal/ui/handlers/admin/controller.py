@@ -4,7 +4,7 @@ class HandlerController(BaseHandlerController):
     """
     Portal formula application controller class.
     """
-    views   = ['users', 'groups', 'acls', 'handlers']
+    views   = ['users', 'groups', 'models', 'handlers']
     default = 'admin?view=users'
     
     def __init__(self):
@@ -12,8 +12,8 @@ class HandlerController(BaseHandlerController):
         
         # Load the base handler
         super(HandlerController, self).__init__(
-            views   = ['users', 'groups', 'acls', 'handlers'],
-            default = 'admin?view=users'
+            views   = self.views,
+            default = self.default
         )
     
     def construct(self, **kwargs):

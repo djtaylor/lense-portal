@@ -1,0 +1,45 @@
+<!-- Object Inspection Modal -->
+<div id="object-inspection" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Object Content -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h5 class="modal-title">
+          <div class="object-inspection-title">Object:</div>
+          <div id="object-inspection-uuid"></div>
+        </h5>
+      </div>
+      <div class="modal-body" id="object-inspection-content">
+        <div>
+          <table class="table table-striped table-permissions">
+            <thead>
+              <tr>
+                <th class="table-col-header">Owner</th>
+                <th class="table-col-header">UR</th>
+                <th class="table-col-header">UW</th>
+                <th class="table-col-header">UD</th>
+                <th class="table-col-header">UX</th>
+                <th class="table-col-header">GR</th>
+                <th class="table-col-header">GW</th>
+                <th class="table-col-header">GD</th>
+                <th class="table-col-header">GX</th>
+                <th class="table-col-header">AR</th>
+                <th class="table-col-header">AW</th>
+                <th class="table-col-header">AD</th>
+                <th class="table-col-header">AX</th>
+                <th class="table-col-header">Shared</th>
+              </tr>
+            </thead>
+            <tbody id="object-inspection-permissions">
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

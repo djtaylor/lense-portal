@@ -2,19 +2,31 @@ lense.import('common.interface', function() {
 	var self = this;
 	
 	/**
+	 * Inspect Object Callback
+	 */
+	lense.register.callback('inspectObject', function(data) {
+		lense.common.template.render('#object-inspection-permissions', 'object_permissions', data);
+	});
+	
+	/**
 	 * Initialize Interface
 	 * @constructor
 	 */
 	this.__init__ = function() {
 		
+		// Initialize preferences
+		lense.preferences.init({
+			layout: 'list'
+		});
+		
 		// Load modules
 		lense.implement([
 		    'common.url',
 		    'common.forms',
-		    'common.button',
 		    'common.layout',
-		    'common.validate',
-		    'common.ipaddr',
+		    'common.template',
+		    'common.ace',
+		    'common.object'
 		]);
 		
 		// Document ready
@@ -22,6 +34,9 @@ lense.import('common.interface', function() {
 			
 			// Parse the URL and load any rendered forms
 			lense.common.url.parse();
+			
+			// Layout preference
+			$('.layout-' + lense.preferences.get('layout')).css('display', 'block');
 		});
 		
 		// Bind actions
@@ -32,6 +47,21 @@ lense.import('common.interface', function() {
 	 * Bind Global Actions
 	 */
 	this._bind = function() {
+		
+		// Inspect object
+		$(document).on('click', 'button[inspect]', function() {
+			var uuid = get_attr(this).inspect;
+			$('#object-inspection-uuid').text(uuid);
+			lense.api.request.submit('permissions_get', { 'object_uuid': uuid }, 'inspectObject');
+		});
+		
+		// Change layout
+		$(document).on('click', '.toggle-layout', function() {
+			var layout = get_attr(this).layout;
+			$('.layout-container').css('display', 'none');
+			$('.layout-' + layout).css('display', 'block');
+			lense.preferences.set('layout', layout);
+		});
 		
 		// Click logout button
 		$(document).on('click', '#form-logout-button', function() {

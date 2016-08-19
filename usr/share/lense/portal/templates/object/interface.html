@@ -1,0 +1,75 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="chart-wrapper">
+
+        <!-- Object Header -->
+        <div class="chart-title">
+          <div class="chart-title-expand text-capitalize" id="object-header"></div>
+        </div>
+
+        <!-- Object Controls-->
+        <div class="chart-title">
+          <div class="chart-title-expand" id="object-controls">
+            <!-- Object Creation-->
+            <div class="btn-group" role="group" id="object-controls-create"></div>
+            <!-- Object State -->
+            <div class="pull-right" role="group" id="object-controls-state">
+              <button type="button" class="btn btn-success" id="edit-object">Edit</button>
+              <button type="button" class="btn btn-success" id="save-object" style="display:none;">Save</button>
+              <button type="button" class="btn btn-default" id="view-object-source">View Source</button>
+              <button type="button" class="btn btn-default" id="view-object-grid" style="display:none;">View Grid</button>
+            </div>
+          </div>
+        </div>
+        <div class="chart-stage">
+          <div class="container-fluid" id="object-content">
+            <div class="row">
+              <x-var id="object-data" type="object">
+                <!-- Object Left Pane -->
+                <div class="col-md-3" id="object-content-left" style="display:none;"></div>
+                <!-- Object Content Center -->
+                <div class="col-md-12" id="object-content-center"></div>
+                <!-- Object Right Pane -->
+                <div class="col-md-3" id="object-content-right" style="display:none;"></div>
+              </x-var>
+            </div>
+          </div>
+
+          <!-- Object Source -->
+          <div id="object-source" style="display:none;"></div>
+        </div>
+
+        <!-- Object Footer -->
+        <div class="chart-notes" id="object-footer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Object Modals -->
+  <div id="object-modals">
+
+    <!-- Create Object: Key Prompt -->
+    <div id="object-key" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Define Object Key</h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group form-field">
+              <span class="input-group-addon profile-field-label">Key:</span>
+              <input type="text" class="form-control profile-field-value" name="object-key" value="">
+            </div>
+          </div>
+          <div class="alert alert-danger" id="object-key-error" style="display:none;"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" id="object-key-submit">Create</button>
+            <input type="hidden" id="object-type" value="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

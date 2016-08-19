@@ -20,7 +20,9 @@ lense.import('common.forms', function() {
 	 * @param {v} The value to set
 	 */
 	this.setInputValue = function(f,v) {
-		$(f).val(v).trigger('input');
+		if (($(f).length) && defined(v)) {
+			$(f).val(v.toString()).trigger('input');
+		}
 	}
 	
 	/**

@@ -1,0 +1,28 @@
+{% verbatim %}
+{{#manifestObject data}}
+<div class="grid-stack-item-content">
+  <div class="grid-stack-item-top">
+    <div class="row widget-row">
+      <div class="col-xs-1 col-widget-left">
+        <div class="grid-stack-item-controls">
+          <div class="btn btn-default btn-sm move-widget" grid-id="" widget-id="{{data.id}}">
+            <span class="glyphicon glyphicon-resize-vertical"></span>
+          </div>
+        </div>
+      </div>
+      <div class="col-xs-10 col-widget-center">
+        {{#manifestObjectLabel data.id data.label data.key}}{{/manifestObjectLabel}}
+      </div>
+      <div class="col-xs-1 col-widget-right">
+        <div class="grid-stack-item-controls">
+          <button type="button" class="btn btn-danger btn-sm gridstack-remove-widget" widget-id="{{data.id}}">
+            <span class="glyphicon glyphicon-remove"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="{{id}}-details" class="collapse widget-collapse" widget-id="{{data.id}}"></div>
+</div>
+{{/manifestObject}}
+{% endverbatim %}

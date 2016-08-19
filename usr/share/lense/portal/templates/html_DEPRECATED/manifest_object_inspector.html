@@ -1,0 +1,14 @@
+{% verbatim %}
+  <div class="grid-stack-widget-attrs" widget-id="{{_DATA_.widgetId}}">
+    {{#manifestObjectHeader _DATA_.widgetType}}{{/manifestObjectHeader}}
+    {{#ifeq _DATA_.widgetType "var"}}
+      {{#manifestObjectVar _DATA_}}{{/manifestObjectVar}}
+    {{/ifeq}}
+    {{#ifeq _DATA_.widgetType "params"}}
+      {{#manifestObjectParams _DATA_}}{{/manifestObjectParams}}
+    {{/ifeq}}
+    {{#ifeq _DATA_.widgetType "response"}}
+      {{#manifestObjectResponse _DATA_}}{{/manifestObjectResponse}}
+    {{/ifeq}}
+  </div>
+{% endverbatim %}

@@ -1,29 +1,62 @@
-<div class="container-fluid">
+<div class="container-fluid" id="handlers_overview" style="display:none;">
   <div class="row">
     <div class="col-sm-12">
       <div class="chart-wrapper">
         <div class="chart-title">
-          <div style="overflow:auto;">
-            <button type="button" class="btn btn-danger btn-xs pull-right">Delete</button>
-            <button type="button" class="btn btn-default btn-xs pull-right" style="margin-right:10px;" data-toggle="modal" data-target="#create-handler">Create</button>
+          <div class="chart-title-expand">
+            {% include "core/object_controls.html" %}
           </div>
         </div>
         <div class="chart-stage">
-          <table class="table table-striped">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Name</th>
-                <th>Path</th>
-                <th>Method</th>
-                <th>Protected</th>
-                <th>Enabled</th>
-              </tr>
-            </thead>
-            <tbody id="handlers-list">
-            </tbody>
-          </table>
+        
+          {# Thumbnails Layout #}
+          <div id="handlers_thumbnails" class="layout-thumbnails layout-container row" style="display:none;"></div>
+          
+          {# List Layout #}
+          <div id="handlers_list" class="layout-list layout-container" style="display:none;">
+            <table class="table table-striped">
+              <thead id="handlers_list_headers">
+              </thead>
+              <tbody id="handlers_list_body">
+              </tbody>
+            </table>
+          </div>
         </div>
+        <div class="chart-notes"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container-fluid" id="handlers_detail" style="display:none;">
+  <div class="row">
+    <div class="col-sm-8">
+      <div class="chart-wrapper">
+        <div class="chart-title">
+          <div class="chart-title-expand">
+            <div class="chart-title-txt">Manifest</div>
+            <div class="chart-title-btns">
+              <button type="button" class="btn btn-default btn-xs pull-right chart-title-btn" id="edit-manifest">Edit</button>
+              <button type="button" class="btn btn-success btn-xs pull-right chart-title-btn" id="save-manifest" style="display:none;">Save</button>
+            </div>
+          </div>
+        </div>
+        <div class="chart-stage" id="manifests-editor">
+        </div>
+        <div class="chart-notes"></div>
+      </div>
+    </div>
+    <div class="col-sm-4">
+      <div class="chart-wrapper" id="handler-properties">
+        <div class="chart-title">
+          <div class="chart-title-expand">
+            <div class="chart-title-txt">Properties</div>
+            <div class="chart-title-btns">
+              <button type="button" class="btn btn-default btn-xs pull-right chart-title-btn" id="edit-handler">Edit</button>
+              <button type="button" class="btn btn-success btn-xs pull-right chart-title-btn" id="save-handler" style="display:none;">Save</button>
+            </div>
+          </div>
+        </div>
+        <div id="handler_properties_container"></div>
         <div class="chart-notes"></div>
       </div>
     </div>

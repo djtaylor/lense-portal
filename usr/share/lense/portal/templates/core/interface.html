@@ -1,0 +1,48 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="chart-wrapper">
+        <div class="chart-title">
+          <div class="chart-title-expand">
+            <div class="btn-group" role="group" id="object-create-controls"></div>
+            <div class="chart-title-btns" id="object-state-controls"></div>
+          </div>
+        </div>
+        <div class="grid-stack-content chart-stage">
+          <x-var id="manifest" type="array">
+            <div class="grid-stack" id="manifest-grid"></div>
+          </x-var>
+          <div id="manifest-source" style="display:none;"></div>
+        </div>
+        <div class="chart-notes"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Object Inspector Modals -->
+<div id="object-inspectors"></div>
+
+<!-- Object Key Modal -->
+<div id="object-key" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Object Key</h4>
+      </div>
+      <div class="modal-body">
+        <div class="input-group form-field">
+          <span class="input-group-addon profile-field-label" id="basic-addon3">Key:</span>
+          <input type="text" class="form-control profile-field-value" id="basic-url" name="object-key" aria-describedby="basic-addon3" value="">
+        </div>
+      </div>
+      <div class="alert alert-danger" id="object-key-error" style="display:none;"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" id="gridstack-add-keyed-widget">Create</button>
+        <input type="hidden" id="keyed-widget-type" value="">
+      </div>
+    </div>
+  </div>
+</div>

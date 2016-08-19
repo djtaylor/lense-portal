@@ -4,14 +4,14 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	
+
 		{# Page Title #}
 		<title>{% block title %}{% endblock %}</title>
 		<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-		
+
 		{# Static Content #}
 		{% load staticfiles %}
-		
+
 		{# Global CSS #}
 		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/jquery-ui-1.11.4.css" %}">
 		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/bootstrap-theme.min.css" %}">
@@ -19,75 +19,99 @@
 		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/animate.min.css" %}">
 		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/font-awesome.min.css" %}">
 		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/keen-dashboards.css" %}">
+		<link rel="stylesheet" type="text/css" href="{% static "css/vendor/gridstack.min.css" %}">
 		<link rel="stylesheet" type="text/css" href="{% static "css/global.css" %}">
-		
+
 		{# Favicon #}
 		<link href="{% static "images/favicon.ico" %}" rel="icon" type="image/x-icon" />
-		
+
 		{# Page Specific CSS #}
 		{% block css %}{% endblock %}
 	</head>
 	<body path="{{ REQUEST.path }}">
-		
+
 		{# Authenticated Requests #}
 		{% if USER.is_authenticated %}
-		
+
 			{# Parent Window #}
 			<div class="parent">
-				
+
 				{# Global Navigation Block #}
 				{% block nav %}
 				    {% include "core/navigation.html" %}
 				{% endblock %}
-				
+
 				{# Page Content Block #}
 				<div class="content">
 					{% block content %}{% endblock %}
 				</div>
 			</div>
-			
+
 		{# Authentication Requests #}
 		{% else %}
-		
+
 			{# Window Content #}
 			{% block auth %}{% endblock %}
 		{% endif %}
-		
+
+		{# Handlebars Templates #}
+		<div id="templates">
+		    {% for template in ASSETS.templates %}
+		        <script id="{{ template }}" type="x-template">
+		            {% include "html/"|add:template|add:".html" %}
+		        </script>
+		    {% endfor %}
+		</div>
+
+		{# Modals #}
+		<div id="create-object-modal"></div>
+
+		{# Object Inspection Modal #}
+		{% include "core/inspect.html" %}
+
 		{# JavaScript #}
 		<div id="scripts">
-		
+
 			{# jQuery/Plugins #}
 			<script type="text/javascript" src="{% static "js/vendor/jquery/jquery-2.1.0.min.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/vendor/jquery/jquery-ui-1.11.4.min.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/vendor/jquery/jquery.actual.min.js" %}"></script>
+			<script type="text/javascript" src="{%static "js/vendor/jquery/jquery-ui-touch-punch.min.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/vendor/cookie.js" %}"></script>
-			
+
 			{# SocketIO #}
 			<script type="text/javascript" src="{{ API.endpoint }}/socket.io/socket.io.js"></script>
-			
+
 			{# ACE #}
 			<script type="text/javascript" src="{% static "js/vendor/ace/ace.js" %}"></script>
-			
+
 			{# Bootstrap #}
 			<script type="text/javascript" src="{% static "js/vendor/bootstrap.min.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/vendor/bootstrap-notify.min.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/vendor/bootstrap-show-password.min.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/vendor/bootstrap-waitingfor.min.js" %}"></script>
-			
+
+			{# Handlebars #}
+			<script type="text/javascript" src="{%static "js/vendor/handlebars-4.0.5.min.js" %}"></script>
+
+			{# Lodash / Gridster #}
+			<script type="text/javascript" src="{%static "js/vendor/lodash-4.13.1.min.js" %}"></script>
+			<script type="text/javascript" src="{%static "js/vendor/gridstack.js" %}"></script>
+
 			{# Autoload #}
 			<script type="text/javascript" src="{% static "js/lense/prototype.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/lense/exceptions.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/lense/utils.js" %}"></script>
 			<script type="text/javascript" src="{% static "js/lense/core.js" %}"></script>
-			
+
 			{# Module Includes #}
 			{% for js in ASSETS.js %}
 			    <script type="text/javascript" src="{% static "" %}{{ js }}"></script>
             {% endfor %}
-			
+
 			{# Asset Includes Script #}
 			<script type="text/javascript">{{ ASSETS.INCLUDE|safe }}</script>
-			
+
 			{# Page Specific JavaScript #}
 			{% block js %}{% endblock %}
 		</div>

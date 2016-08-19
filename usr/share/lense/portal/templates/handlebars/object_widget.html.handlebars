@@ -1,0 +1,39 @@
+{% verbatim %}
+  {{#object_widget id type key map}}
+    <div class="grid-stack-item-content">
+      <div class="grid-stack-item-top">
+        <div class="row object-row">
+          <div class="col-xs-1 col-object-left">
+            <div class="grid-stack-item-controls">
+              <div class="btn btn-default btn-sm object-move" object-id="{{id}}">
+                <span class="glyphicon glyphicon-resize-vertical"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-xs-10 col-object-center">
+            {{#object_label id label key}}{{/object_label}}
+          </div>
+          <div class="col-xs-1 col-object-right">
+            <div class="grid-stack-item-controls">
+              <button type="button" class="btn btn-danger btn-sm object-remove" object-id="{{id}}">
+                <span class="glyphicon glyphicon-remove"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="{{id}}-details" class="collapse object-collapse" object-id="{{id}}">
+        <div class="row object-row">
+          <div class="col-xs-1 col-object-left"></div>
+          <div class="col-xs-10 col-object-center">
+            <div class="object-attrs" object-id="{{id}}">
+              <div class="object-attrs-body" object-id="{{id}}"></div>
+              <div style="height:10px;width:100%;"></div>
+            </div>
+          </div>
+          <div class="col-xs-1 col-object-right"></div>
+        </div>
+      </div>
+    </div>
+  {{/object_widget}}
+{% endverbatim %}

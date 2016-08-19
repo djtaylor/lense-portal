@@ -2,29 +2,32 @@
 <nav class="navbar navbar-default navbar-fixed-top">
   <div class="container">
     <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+        <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+      </button>
       <div class="navbar-brand-icon"></div>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li><a href="{{ base_path }}/home">Home</a></li>
+        <li><a class="menu-nav-btn-top" href="{{ base_path }}/home">Home</a></li>
         {% for nav_item in NAV %}
             {% if nav_item.children %}
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ nav_item.parent.name }}<span class="caret"></span></a>
+                <li class="dropdown menu-nav-btn">
+                    <a href="#" class="dropdown-toggle menu-nav-btn-top" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ nav_item.parent.name }}<span class="caret"></span></a>
                     <ul class="dropdown-menu">
                         {% for child in nav_item.children %}
-                            <li><a href="{{ child.link }}">{{ child.name }}</a></li>
+                            <li><a class="menu-nav-btn-child" href="{{ child.link }}"><div class="glyphicon glyphicon-{{ child.icon }} dropdown-icon"></div><div class="dropdown-text">{{ child.name }}</div></a></li>
                         {% endfor %}
                     </ul>
                 </li>
             {% else %}
-                <li><a href="{{ nav_item.link }}">{{ nav_item.name }}</a></li>
+                <li class="menu-nav-btn"><a class="menu-nav-btn-top" href="{{ nav_item.link }}">{{ nav_item.name }}</a></li>
             {% endif %}
 		{% endfor %}
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-          <button type="button" id="socketio-button" class="btn-nav-profile btn btn-default navbar-btn has-spinner" style="margin-right: 10px;" data-toggle="modal" data-target="#socketio">
+          <button type="button" id="socketio-button" class="btn-nav-profile btn btn-default btn-block navbar-btn has-spinner menu-btn" data-toggle="modal" data-target="#socketio">
             <span id="socketio-disconnected" class="disconnected"><i class="fa fa-toggle-off fa-1x fa-fw margin-bottom"></i></span>
             <span id="socketio-connecting" class="spinner"><i class="fa fa-cog fa-spin fa-1x fa-fw margin-bottom"></i></span>
             <span id="socketio-connected" class="connected" style="display:none;"><i class="fa fa-toggle-on fa-1x fa-fw margin-bottom"></i></span>
@@ -32,12 +35,38 @@
           </button>
         </li>
         <li>
-          <button type="button" class="btn-nav-profile btn btn-default navbar-btn" data-toggle="modal" data-target="#profile">Profile</button>
+          <button type="button" id="profile-button" class="btn-nav-profile btn btn-default btn-block navbar-btn menu-btn" data-toggle="modal" data-target="#profile">
+            <span class="glyphicon glyphicon-user"></span>
+            Profile
+          </button>
+        </li>
+        <li>
+          <button type="button" id="notification-button" class="btn-nav-profile btn btn-default btn-block navbar-btn menu-btn" data-toggle="modal" data-target="#notifications">
+            <span class="glyphicon glyphicon-alert" style="opacity:0.5;"></span>
+          </button>
         </li>
       </ul>
-    </div><!--/.nav-collapse -->
-  </div>
+    </div><!--/.navbar-collapse -->
+  </div><!-- /.container -->
 </nav>
+
+<!-- Notifications Modal -->
+<div id="notifications" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Notification Log</h4>
+      </div>
+      <div class="modal-body" id="notication-log">
+        <!-- Notifications -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Profile Modal -->
 <div id="profile" class="modal fade" role="dialog">
@@ -67,7 +96,7 @@
         <button class="btn btn-primary" type="submit" id="form-logout-button">Log Out</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
-      
+
       {# Logout Form #}
       <form id="form-logout" action="/auth" method="post" style="display:none;">
         {% csrf_token %}

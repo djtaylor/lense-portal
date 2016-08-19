@@ -1,0 +1,106 @@
+{% verbatim %}
+  <div class="grid-stack-widget-attrs" widget-id="{{_DATA_.widgetId}}">
+    {{#manifestObjectHeader _DATA_.widgetType}}{{/manifestObjectHeader}}
+    {{#manifestObjectBody _DATA_}}{{/manifestObjectBody}}
+
+    {{#ifeq _DATA_.widgetType "__PARAMS__"}}
+      {{#widget_header _DATA_.widgetType}}{{/widget_header}}
+      <form>
+        <div class="form-group" widget-id="{{_DATA_.widgetId}}">
+          <label for="parameters">Key/Attributes:</label>
+          <div class="btn-group pull-right" role="group" aria-label="...">
+            <button type="button" class="btn btn-default btn-xs btn-add-param" widget-id="{{_DATA_.widgetId}}">
+              <span class="glyphicon glyphicon-plus"></span>
+            </button>
+          </div>
+          <div widget-id="{{_DATA_.widgetId}}" var-type="kwargs"></div>
+        </div>
+      </form>
+    {{/ifeq}}
+    {{#ifeq _DATA_.widgetType "var"}}
+      {{#widget_header _DATA_.widgetType _DATA_.widgetKey}}{{/widget_header}}
+      <form>
+        {{#widget_key _DATA_.widgetType _DATA_.widgetKey}}{{/widget_key}}
+        {{#widget_var_type _DATA_.widgetType _DATA_.widgetKey}}{{/widget_var_type}}
+        {{#widget_var_static _DATA_.widgetKey "true"}}{{/widget_var_static}}
+        {{#widget_var_ref _DATA_.widgetKey "false"}}{{/widget_var_ref}}
+        {{#widget_var_fetch _DATA_.widgetKey "false"}}{{/widget_var_fetch}}
+        <div class="form-group var-type" var-type="call" style="display:none;" widget-id="{{_DATA_.widgetId}}">
+          <x-var type="object" key="var#{{_DATA_.widgetKey}}" inactive>
+          <label for="variable_call">Commons Method:</label>
+          <div class="form-group">
+            <div class="input-group">
+              <div class="input-group-addon">LENSE.</div>
+              <input type="text" class="form-control var-call" id="variable_call" placeholder="attrPath" widget-id="{{_DATA_.widgetId}}">
+              <x-var type="str" key="call" value="input.var-call[widget-id='{{_DATA_.widgetId}}']" inactive></x-var>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-group">
+              <label for="variable_call_args">Args:</label>
+              <select id="variable_call_args_type" class="form-control" widget-id="{{_DATA_.widgetId}}">
+                <option value="ref" selected="selected">Reference</option>
+                <option value="list">List</option>
+              </select>
+            </div>
+            <div class="form-group args-type" widget-id="{{_DATA_.widgetId}}" args-type="ref">
+              <div class="input-group">
+                <div class="input-group-addon">#</div>
+                <input type="text" class="form-control" id="variable_call_args_ref" placeholder="varKey" widget-id="{{_DATA_.widgetId}}">
+              </div>
+            </div>
+            <div class="form-group args-type" widget-id="{{_DATA_.widgetId}}" args-type="list" style="display:none;">
+              <label for="variable_call_kwargs">Values:</label>
+              <div class="btn-group pull-right" role="group" aria-label="...">
+                <button type="button" class="btn btn-default btn-xs btn-add-arg" widget-id="{{_DATA_.widgetId}}">
+                  <span class="glyphicon glyphicon-plus"></span>
+                </button>
+              </div>
+              <div widget-id="{{_DATA_.widgetId}}" var-type="args"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-group">
+
+              <label for="variable_call_kwargs">Kwargs:</label>
+              <select id="variable_call_kwargs_type" class="form-control" widget-id="{{_DATA_.widgetId}}">
+                <option value="ref" selected="selected">Reference</option>
+                <option value="dict">Dictionary</option>
+              </select>
+            </div>
+            <div class="form-group kwargs-type" widget-id="{{_DATA_.widgetId}}" kwargs-type="ref">
+              <div class="input-group">
+                <div class="input-group-addon">#</div>
+                <input type="text" class="form-control" id="variable_call_kwargs_ref" placeholder="varKey" widget-id="{{_DATA_.widgetId}}">
+              </div>
+            </div>
+            <div class="form-group kwargs-type" widget-id="{{_DATA_.widgetId}}" kwargs-type="dict" style="display:none;">
+              <label for="variable_call_kwargs">Key/Values:</label>
+              <div class="btn-group pull-right" role="group" aria-label="...">
+                <button type="button" class="btn btn-default btn-xs btn-add-kwarg" widget-id="{{_DATA_.widgetId}}">
+                  <span class="glyphicon glyphicon-plus"></span>
+                </button>
+              </div>
+              <div widget-id="{{_DATA_.widgetId}}" var-type="kwargs"></div>
+            </div>
+          </div>
+          </x-var>
+        </div>
+      </form>
+    {{/ifeq}}
+    {{#ifeq _DATA_.widgetType "do"}}{{/ifeq}}
+    {{#ifeq _DATA_.widgetType "response"}}
+      <h4>HTTP 200</h4>
+      <form>
+        <div class="form-group">
+          <label for="response_message">Message:</label>
+          <input type="text" class="form-control" id="response_message" value="Request successful">
+        </div>
+        <div class="form-group">
+          <label for="response_data">Data:</label>
+          <textarea class="form-control" id="request_data"></textarea>
+        </div>
+      </form>
+    {{/ifeq}}
+  </div>
+{% endverbatim %}

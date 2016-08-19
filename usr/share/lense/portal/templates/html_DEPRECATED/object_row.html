@@ -1,0 +1,10 @@
+{% verbatim %}
+<tr uuid="{{_DATA_.uuid}}">
+  <th scope="row"><input type="checkbox" uuid="{{_DATA_.uuid}}"></th>
+  <th>{{#title_link _DATA_.uuid _TITLE_}}{{/title_link}}</th>
+  {{#each _DISPLAY_}}
+    <th>{{this}}</th>
+  {{/each}}
+  <th>{{#inspect_link _DATA_.uuid}}{{/inspect_link}}</th>
+</tr>
+{% endverbatim %}

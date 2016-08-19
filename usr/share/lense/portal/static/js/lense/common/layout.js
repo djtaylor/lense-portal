@@ -1,4 +1,5 @@
 lense.import('common.layout', function() {
+	var self = this;
 	
 	/**
 	 * Notifications
@@ -17,6 +18,28 @@ lense.import('common.layout', function() {
 			},
 			delay: 2000
 		});
+	}
+	
+	/**
+	 * Swap Element Visibility
+	 * 
+	 * Wrapper method for toggling visibility between two elements.
+	 */
+	this.swap = function(a,b) {
+		var a_vis = $(a).css('display');
+		var b_vis = $(b).css('display');
+		
+		// A = hidden
+		if (a_vis == 'none') {
+			$(b).css('display', 'none');
+			$(a).css('display', 'block');
+		}
+		
+		// B = hidden
+		if (b_vis == 'none') {
+			$(a).css('display', 'none');
+			$(b).css('display', 'block');
+		}
 	}
 	
 	/**

@@ -6,19 +6,23 @@ class HandlerNavigation(object):
         'children': [
             {
                 "name": "Users",
-                "link": "/admin?view=users"
+                "link": "/admin?view=users",
+                "icon": "user"
             },
             {
                 "name": "Groups",
-                "link": "/admin?view=groups"
+                "link": "/admin?view=groups",
+                "icon": "user"
             },
             {
                 "name": "Handlers",
-                "link": "/admin?view=handlers"
+                "link": "/admin?view=handlers",
+                "icon": "wrench"
             },
             {
-                "name": "ACL",
-                "link": "/admin?view=acls"
+                "name": "Models",
+                "link": "/admin?view=models",
+                "icon": "th"
             }
         ]
     }

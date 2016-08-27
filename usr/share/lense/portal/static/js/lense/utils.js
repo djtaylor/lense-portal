@@ -10,6 +10,17 @@ function clone(d) {
 	return JSON.parse(JSON.stringify(d));
 }
 
+function extend(a,b) {
+	var c = null;
+	$.each(b, function(k,o) {
+		if (hasattr(a, k)) {
+			return true;
+		}
+		a[k] = b[k];
+	});
+	return c;
+}
+
 /**
  * Variable type check
  */
@@ -157,7 +168,7 @@ var url = new function() {
 
 		// Define persistent and notification URL parameters
 		var url_objects = {
-			"persistent": [ 'view', 'edit'],
+			"persistent": [ 'view', 'edit', 'create', 'uuid'],
 			"notify":     [ 'status', 'body' ]
 		};
 
@@ -243,14 +254,12 @@ var url = new function() {
 	}
 
 	/**
-	 * Get URL Parameters
+	 * Get URL parameter
 	 *
-	 * Helper method used to retrieve the value of a specific query parameter from the
-	 * current URL.
-	 *
-	 * @param {name} The name of the query parameter to retrieve the value of
+	 * @param {String} name The name of the query parameter to retrieve the value of
+	 * @param {Mixed} def The default value if no attribute found
 	 */
-	this.param_get = function(name) {
-		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null
+	this.param_get = function(name, def) {
+		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||(defined(def) ? def:null);
 	}
 }

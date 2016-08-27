@@ -1,20 +1,45 @@
-/**
- * API Response
- *
- * Object designed to handle response from the API proxy server.
- */
 lense.import('api.response', function() {
 	var self = this;
 
 	/**
-	 * Default Callback
+	 * Response Object
 	 *
-	 * @param {code} The return code
-	 * @param {data} The response data
+	 @ @param {Object} response The response object
 	 */
-	lense.register.callback('default', function(code,data) {
-		lense.api.response.notify(code, data);
-	});
+	this.Object = function(response) {
+		var inner    = this;
+		var content  = JSON.parse(response.content);
+
+		// Public attributes
+		this.type     = ($.inArray(getattr(response, 'type'), ['success', 'error'])) ? 'default': getattr(response, 'type');
+		this.message  = getattr(content, 'message');
+		this.code     = getattr(response, 'code');
+		this.data     = getattr(content, 'data', null);
+		this.callback = getattr(content, 'callback', null);
+
+		/**
+		 * @constructor
+		 */
+		(function() {
+
+			// Run the callback
+			if (defined(inner.callback)) {
+
+				// Request failed
+				if (inner.code !== 200) {
+					lense.log.api(inner);
+
+				// Request OK
+				} else {
+					lense.callback[inner.callback](inner.data);
+				}
+
+			// No callback, notify
+			} else {
+				lense.log.api(inner);
+			}
+		}());
+	}
 
 	/**
 	 * API Update Callback
@@ -37,30 +62,4 @@ lense.import('api.response', function() {
 		lense.api.server = d.contents;
 		$('input.socketio-server').val(lense.api.server);
 	});
-
-	/**
-	 * Notify
-	 *
-	 * @param {code} The HTTP response code
-	 * @param {data} Any response data
-	 */
-	this.notify = function(code,data) {
-		lense.common.layout.notify(self.getNotifyType(code), 'HTTP ' + code + ': ' + data);
-	}
-
-	/**
-	 * Get Notify Type
-	 *
-	 * @param {code} The HTTP code to check against
-	 */
-	this.getNotifyType = function(code) {
-		switch(code) {
-			case 200:
-				return 'info';
-			case 500:
-				return 'danger';
-			default:
-				return 'warning';
-		}
-	}
 });

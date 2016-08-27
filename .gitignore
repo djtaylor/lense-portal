@@ -4,6 +4,7 @@ test.py[cod]
 build
 dist
 feedback.egg-info
+*_old
 
 # Eclipse
 .project

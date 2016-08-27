@@ -27,3 +27,75 @@ Object.defineProperty(Array.prototype, 'contains', {
 		return (this.indexOf(str) !== -1) ? true: false;
 	}
 });
+
+/**
+ * Ordered object protoype
+ *
+ * @param {Array} orderedData An array of object elements
+ */
+function OrderedObject(orderedData) {
+	var self  = this;
+	self.data = (defined(orderedData) ? orderedData:[]);
+
+	/**
+	 * Return a hash of the ordered object (sorting lost)
+	 */
+	self.hash = function() {
+		var hash = {};
+		self.each(function(k,obj) {
+			hash[k] = obj;
+		});
+		return hash;
+	}
+
+	/**
+	 * Retrieve object by key
+	 *
+	 * @param {String} key The key to find
+	 * @param {Object} opts Any additional options
+	 */
+	self.get = function(key, def) {
+		var retval = def;
+		$.each(self.data, function(i,obj) {
+			if (obj[0] === key) {
+				retval = obj[1];
+			}
+		});
+		return retval;
+	}
+
+	/**
+	 * Delete object by key
+	 *
+	 * @param {String} key The key to delete
+	 */
+	self.del = function(key) {
+		$.each(self.data, function(i,obj) {
+			if (obj[0] === key) {
+				self.data.splice(i, 1);
+				return false;
+			}
+		});
+	}
+
+	/**
+	 * Iterate through object
+	 *
+	 * @param {Function} callback A callback function
+	 */
+	self.each = function(callback) {
+		$.each(self.data, function(i, obj) {
+			return callback(obj[0], obj[1]);
+		});
+	}
+
+	/**
+	 * Append new element to ordered object
+	 *
+	 * @param {String} key The element key
+	 * @param {*} value The element value
+	 */
+	self.append = function(key, value) {
+		self.data.push([ key, value ]);
+	}
+}

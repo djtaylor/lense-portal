@@ -161,6 +161,7 @@ class PortalTemplate(PortalBase):
             self._include_interface('object.interface', exclude=['auth']),
             self._include_interface('api.interface', exclude=['auth']),
             self._include_interface('template.interface', exclude=['auth']),
+            self._include_interface('log.interface', exclude=['auth']),
             self._include_interface('{0}.interface'.format(LENSE.REQUEST.path))
         ];
 

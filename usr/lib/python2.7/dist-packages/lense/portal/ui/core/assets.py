@@ -28,6 +28,11 @@ CORE   = Collection.create({
             'exclude': ['auth'],
             'path': '{0}/template'.format(STATIC.JS),
             'relpath': 'js/lense/template'
+        },
+        'log': {
+            'exclude': ['auth'],
+            'path': '{0}/log'.format(STATIC.JS),
+            'relpath': 'js/lense/log'
         }
     }
 })
@@ -58,7 +63,7 @@ class PortalAssets(object):
             msg
         ))
 
-    def _getHandlebars(self):
+    def _get_HandlebarsAssets(self):
         """
         Retrieve all available Handlebars.js template assets.
         """

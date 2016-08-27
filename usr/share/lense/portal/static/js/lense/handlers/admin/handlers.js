@@ -1,112 +1,109 @@
-lense.import('admin.handlers', function() { 
+lense.import('admin.handlers', function() {
 	var self = this;
-	
-	/**
-	 * Load Handlers Callback
-	 */
-	lense.register.callback('loadHandlers', function(data) {
-		var parents   = ['#handlers_list_body', '#handlers_thumbnails'];
-		var templates = ['object_row', 'object_thumbnail'];
-		
-		// Render handlers
-		lense.common.template.render(parents, templates, data, {
-			callback: waitingDialog.hide,
-			display: ['path', 'method', 'protected', 'enabled'],
-			title: 'name',
-			headers: '#handlers_list_headers'
-		});
-	});
-	
-	/**
-	 * Load Handler Details Callback
-	 */
-	lense.register.callback('loadHandlerDetails', function(data) {
-		lense.common.template.render('#handler_properties_container', 'handler_properties', data, {
-			callback: function() {
-				lense.common.ace.setup('manifests-editor', {
-					data: data.manifest
-				});
-				waitingDialog.hide();
-			}
-		});
-	});
-	
-	/**
-	 * Constructor
-	 */
-	lense.register.constructor('admin.handlers', function() {
-		
-		// Load handler details
-		if (url.param_exists('uuid')) {
-			waitingDialog.show('Loading handler: ' + url.param_get('uuid'));
-			lense.common.layout.fadein('#handlers_detail', function() {
-				lense.api.request.submit('handler_get', { 'uuid': url.param_get('uuid') }, 'loadHandlerDetails');
-			});
-			
-		// Load handlers list
-		} else {
-			waitingDialog.show('Loading handlers...');
-			lense.common.layout.fadein('#handlers_overview', function() {
-				lense.api.request.submit('handler_get', null, 'loadHandlers');
-			});
-			
-			// Create handler modal
-			try {
-				self.createModal();
-			} catch(e) {
-				console.log(e);
-			}
+
+	// Object definition
+	this.object = lense.object.define('handler');
+
+	// Set object options
+	this.object.setOptions({
+		model: 'Handlers',
+		grid: 'manifest',
+		handler: {
+			get: 'handler_get',
+			update: 'handler_update',
+			delete: 'handler_delete'
 		}
 	});
-	
+
+	// Define object template
+	this.object.defineTemplate(new OrderedObject([
+		[ 'name', {
+			label: 'Name',
+			link: true,
+			edit: true,
+		}],
+		[ 'desc', {
+			label: 'Description',
+			edit: true
+		}],
+		[ 'uuid', {
+			label: 'UUID',
+			def: '@lense.uuid4()',
+			list: false
+		}],
+		[ 'path', {
+			label: 'Path',
+			edit: true
+		}],
+		[ 'method', {
+			label: 'Method',
+			type: 'select',
+			options: ['GET', 'PUT', 'POST', 'DELETE'],
+			edit: true
+		}],
+		[ 'enabled', {
+			label: 'Enabled',
+			type: 'bool',
+			edit: true,
+			def: true,
+			map: {
+				'Yes': true,
+				'No': false
+			}
+		}],
+		[ 'protected', {
+			label: 'Protected',
+			type: 'bool',
+			edit: true,
+			def: false,
+			map: {
+				'Yes': true,
+				'No': false
+			}
+		}],
+		[ 'locked', {
+			label: 'Locked',
+			type: 'bool',
+			edit: true,
+			create: false,
+			list: false,
+			map: {
+				'Yes': true,
+				'No': false
+			}
+		}],
+		[ 'locked_by', {
+			label: 'Locked By',
+			list: false
+		}],
+		[ 'manifest': {
+			grid: true,
+			def: []
+		}]
+	]);
+
+	// Object grid center
+	this.object.defineGrid('center', {
+		key: 'manifest',
+		require: [
+			'HandlerVariable',
+			'HandlerAction',
+			'HandlerParameters',
+			'HandlerResponse'
+		]
+	});
+
+	// Object properties right
+	this.object.defineProperties('right', {
+		exclude: ['manifest']
+	}));
+
 	/**
-	 * Create Handler Modal
+	 * @constructor
 	 */
-	this.createModal = function() {
-		lense.common.template.render('#create-object-modal', 'object_create', {
-			type: 'handler',
-			attrs: ['name','desc','path','method','protected','manifest'],
-			handler: 'handler_create',
-			object: 'handler',
-			callback: 'createHandler',
-			fields: [
-			    {
-			    	type: 'text',
-			    	name: 'name',
-			    	required: true,
-			    	label: 'Name'
-			    },
-			    {
-			    	type: 'text',
-			    	name: 'desc',
-			    	required: true,
-			    	label: 'Description'
-			    },
-			    {
-			    	type: 'text',
-			    	name: 'path',
-			    	required: true,
-			    	label: 'Path'
-			    },
-			    {
-			    	type: 'select',
-			    	name: 'method',
-			    	options: ['GET', 'POST', 'PUT', 'DELETE'],
-			    	label: 'Method'
-			    },
-			    {
-			    	type: 'select',
-			    	name: 'protected',
-			    	selected: 'Yes',
-			    	options: {'Yes': 'true', 'No': 'false'},
-			    	label: 'Protected'
-			    },
-			    {
-			    	type: 'textarea',
-			    	name: 'manifest',
-			    	label: 'Manifest'
-			    }
-			]
-		});
-	}
+	lense.register.constructor('admin.models', function() {
+
+		// Bootstrap object
+		self.object.bootstrap();
+	});
 });

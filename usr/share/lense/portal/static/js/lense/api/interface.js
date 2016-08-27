@@ -1,5 +1,5 @@
 lense.import('api.interface', function() {
-	var self = this;
+	var self    = this;
 
 	// Socket status
 	this.status = 'disconnected';
@@ -61,7 +61,6 @@ lense.import('api.interface', function() {
 				self.setSockInfo(false);
 				return true;
 
-
 			// SocketIO connecting
 			case 'connecting':
 				$("#socketio-disconnected").css('display', 'none');
@@ -121,31 +120,8 @@ lense.import('api.interface', function() {
 				self.setSockStatus('connected');
 
 				// API response
-				lense.api.client.io.on('apiResponse', function(d) {
-
-					// Parse the response
-					try {
-
-						// Response OK
-						if (d.code === 200) {
-							content = JSON.parse(d.content);
-
-							// Run the callback
-							try {
-								lense.callback[content.callback](content.data);
-							} catch(e) {
-								lense.notify('warning', e);
-							}
-
-						// Request failed
-						} else {
-							lense.api.response.notify(d.code, d.content);
-						}
-
-					// Failed to parse response
-					} catch(e) {
-						lense.api.response.notify(d.code, d.contents)
-					}
+				lense.api.client.io.on('apiResponse', function(response) {
+					new lense.api.response.Object(response);
 				});
 			})
 		});

@@ -58,7 +58,7 @@
 		<div id="templates">
 		    {% for template in ASSETS.templates %}
 		        <script id="{{ template }}" type="x-template">
-		            {% include "html/"|add:template|add:".html" %}
+		            {% include "handlebars/"|add:template|add:".html.handlebars" %}
 		        </script>
 		    {% endfor %}
 		</div>

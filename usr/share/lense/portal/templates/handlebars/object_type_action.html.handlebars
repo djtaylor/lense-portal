@@ -1,3 +1,45 @@
 {% verbatim %}
-  <p>noop</p>
+<x-var type="object" key="do#{{object.key}}">
+  <form>
+    <div class="form-group">
+      <div class="form-group">
+        {{object_var_input 'str' 'call' object prefix='LENSE.' active=true}}
+      </div>
+      <div class="form-group">
+        <div class="form-group">
+          <div class="input-group btn-group-container">
+            <div class="input-group-addon btn-group-label">Args: </div>
+            {{object_toggler object meta.argTypes 'argtype'}}
+            {{object_var_add object meta.argTypes 'argtype' 'list'}}
+          </div>
+        </div>
+        <div class="form-group">
+          {{object_toggler_group object meta.argTypes 'ref' 'argtype'
+            content=(object_var_input 'str' 'args' object prefix='#')
+          }}
+          {{object_toggler_group object meta.argTypes 'list' 'argtype'
+            content=(object_var_args object)
+          }}
+          <div class="btn-group-hr"></div>
+        </div>
+        <div class="form-group">
+          <div class="input-group btn-group-container">
+            <div class="input-group-addon btn-group-label">Kwargs: </div>
+            {{object_toggler object meta.kwargTypes 'kwargtype'}}
+            {{object_var_add object meta.kwargTypes 'kwargtype' 'dict'}}
+          </div>
+        </div>
+        <div class="form-group">
+          {{object_toggler_group object meta.kwargTypes 'ref' 'kwargtype'
+            content=(object_var_input 'str' 'kwargs' object prefix='#')
+          }}
+          {{object_toggler_group object meta.kwargTypes 'dict' 'kwargtype'
+            content=(object_var_kwargs object)
+          }}
+          <div class="btn-group-hr"></div>
+        </div>
+      </div>
+    </div>
+  </form>
+</x-var>
 {% endverbatim %}

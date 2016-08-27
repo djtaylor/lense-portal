@@ -1,0 +1,64 @@
+{% verbatim %}
+<x-var type="object" key="var#{{object.key}}">
+  <form>
+    <div class="form-group">
+      <div class="input-group btn-group-container">
+        <div class="input-group-addon btn-group-label">Type: </div>
+        {{#data_group object 'object-1' meta.varTypes desc='Variable Type'}}
+          {{data_element}}
+        {{/data_group}}
+
+        {{#object_toggler object meta.varTypes 'vartype' target='object-11'}}
+          {{object_toggler_group object meta.varTypes 'ref' 'vartype'
+            content=(object_var_input 'str' 'ref' object prefix='#')
+          }}
+          {{object_toggler_group object meta.varTypes 'fetch' 'vartype'
+            content=(object_var_input 'str' 'fetch' object prefix='LENSE.')
+          }}
+          {{object_toggler_group object meta.varTypes 'static' 'vartype'
+            content=(object_var_input 'str' 'static' object)
+          }}
+          {{#object_toggler_group object meta.varTypes 'call' 'vartype'}}
+            <div class="form-group">
+              {{object_var_input 'str' 'call' ../object prefix='LENSE.'}}
+            </div>
+            <div class="form-group">
+              <div class="form-group">
+                <div class="input-group btn-group-container">
+                  <div class="input-group-addon btn-group-label">Args: </div>
+                  {{#object_toggler ../object ../meta.argTypes 'argtype' target='object-2'}}
+                    {{object_toggler_group ../object ../meta.argTypes 'ref' 'argtype'
+                      content=(object_var_input 'str' 'args' ../object prefix='#')
+                    }}
+                    {{object_toggler_group ../object ../meta.argTypes 'list' 'argtype'
+                      content=(object_var_args ../object)
+                    }}
+                  {{/object_toggler}}
+                  {{object_var_add ../object ../meta.argTypes 'argtype' 'list'}}
+                </div>
+              </div>
+              <div class="form-group" id="object-2"></div>
+              <div class="form-group">
+                <div class="input-group btn-group-container">
+                  <div class="input-group-addon btn-group-label">Kwargs: </div>
+                  {{#object_toggler ../object ../meta.kwargTypes 'kwargtype' target='object-3'}}
+                    {{object_toggler_group ../../object ../../meta.kwargTypes 'ref' 'kwargtype'
+                      content=(object_var_input 'str' 'kwargs' ../object prefix='#')
+                    }}
+                    {{object_toggler_group ../../object ../../meta.kwargTypes 'dict' 'kwargtype'
+                      content=(object_var_kwargs ../../object)
+                    }}
+                  {{/object_toggler}}
+                  {{object_var_add ../object ../meta.kwargTypes 'kwargtype' 'dict'}}
+                </div>
+              </div>
+              <div class="form-group" id="object-3"></div>
+            </div>
+          {{/object_toggler_group}}
+        {{/object_toggler}}
+      </div>
+    </div>
+    <div class="form-group" id="object-1"></div>
+  </form>
+</x-var>
+{% endverbatim %}

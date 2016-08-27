@@ -9,8 +9,148 @@ var lense = (function() {
 	core.method      = {};
 	core.callback    = {};
 
+	/**
+	 * Raise and show critical error and abort
+	 *
+	 * @param {String} e The error to raise
+	 * @param {Object} Error An alternate exception object (optional)
+	 */
+	core.raise = function(e, exc) {
+
+		// Show the error to the user
+		lense.log.error(e);
+
+		// Raise the exception
+		var exc = (!defined(exc) ? Error:exc);
+		throw new exc(e);
+	}
+
+	/**
+	 * Settings object
+	 *
+	 * @param {Bool} log_enable Log to the console
+	 * @param {Bool} log_debug.0 Log debug messages to the console
+	 * @param {Bool} log_debug.1 Show debug messages in the UI
+	 * @param {Bool} log_info.0 Log info messages to the console
+	 * @param {Bool} log_info.1 Show info messages in the UI
+	 * @param {Bool} show_ui_notifications Global toggle for UI messages
+	 */
+	core.settings    = {
+		log_enable: true,
+		log_debug: [true, false],
+		log_info: [true, true],
+		log_warn: [true, true],
+		log_danger: [true, true],
+		log_api: true,
+		show_ui_notifications: true
+	},
+
 	// Current view
 	core.view        = url.param_get('view');
+
+	// URL management
+	core.url         = new function() {
+		var inner = this;
+
+		/**
+		 * Check if URL contains parameter
+		 *
+		 * @param {String} key The URL key to check
+		 */
+		this.hasParam = function(key) {
+			var re = new RegExp('[&\?]{1}' + key, 'g');
+			return (window.location.search.match(re)) ? true : false;
+		}
+
+		/**
+		 * Get URL parameter
+		 *
+		 * @param {String} key The query key to look for
+		 * @param {*} def A default value to use if no key found
+		 */
+		this.getParam = function(key, def) {
+			return decodeURIComponent((new RegExp('[?|&]' + key + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||def;
+		}
+
+		/**
+		 * Delete URL parameter
+		 *
+		 * @param {String} key The query key to delete
+		 */
+		this.delParam = function(key) {
+			var sourceURL = window.location.href;
+			var new_url   = sourceURL.split("?")[0],
+	        	param,
+	        	params_arr = [],
+	        	queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+		    if (queryString !== "") {
+		        params_arr = queryString.split("&");
+		        for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+		            param = params_arr[i].split("=")[0];
+		            if (param === key) {
+		                params_arr.splice(i, 1);
+		            }
+		        }
+		        new_url = new_url + "?" + params_arr.join("&");
+		    }
+		    history.pushState(null, null, new_url);
+		}
+
+		/**
+		 * Set URL parameter
+		 *
+		 * @param {String} key The query key to set
+		 * @param {String|Boolean} value The parameter value
+		 */
+		this.setParam = function(key, value) {
+			key = encodeURI(key); value = encodeURI(value);
+			var kvp = document.location.search.substr(1).split('&');
+			var i=kvp.length; var x; while(i--) {
+		        x = kvp[i].split('=');
+		        if (x[0]==key) {
+		            x[1] = value;
+		            kvp[i] = x.join('=');
+		            break;
+		        }
+		    }
+			if(i<0) {kvp[kvp.length] = [key,value].join('=');}
+			var base_url   = window.location.href.match(/^[^\#\?]+/)[0];
+			var new_params = '?' + kvp.join('&');
+			var new_url    = base_url + new_params
+			history.pushState(null, null, new_url);
+		}
+
+		/**
+		 * Parse the URL looking for events
+		 */
+		this.parseEvents = function() {
+
+			// Define persistent and notification URL parameters
+			var url_objects = {
+				"persistent": [ 'view', 'edit', 'create', 'uuid'],
+				"notify":     [ 'status', 'body' ]
+			};
+
+			// Object notification parameters
+			url_objects.notify.forEach(function(notify) {
+				var notify_param = inner.getParam(notify);
+				if (notify_param !== null) {
+					var current_url = window.location.pathname;
+					var base_url    = window.location.href.match(/^[^\#\?]+/)[0];
+					var base_sep	= '?'
+					var new_url     = base_url;
+					url_objects.persistent.forEach(function(param_type) {
+						var param_val = inner.getParam(param_type);
+						if (param_val !== null) {
+							new_url = new_url + base_sep + param_type + '=' + param_val;
+						}
+						base_sep = '&';
+					});
+					history.pushState(null, null, new_url);
+				}
+			});
+		}
+	};
 
 	// Generate UUID4
 	core.uuid4 = function() {

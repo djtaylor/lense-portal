@@ -1,6 +1,6 @@
 lense.import('common.template', function() {
 	var self = this;
-	
+
 	/**
 	 * Constructor
 	 * @constructor
@@ -8,26 +8,26 @@ lense.import('common.template', function() {
 	lense.register.constructor('common.template', function() {
 		self.registerHelpers();
 	});
-	
+
 	/**
 	 * Register
 	 */
 	this.register = function(id) {
-		
+
 	}
-	
+
 	/**
 	 * Register Helpers
 	 */
 	this.registerHelpers = function() {
-		
+
 		/**
 		 * Widget Body
 		 */
 		Handlebars.registerHelper('widget_body', function(data, opts) {
-			
+
 		});
-		
+
 		/**
 		 * Widget Object
 		 */
@@ -37,14 +37,14 @@ lense.import('common.template', function() {
 			widget_uuid  = lense.uuid4();
 			widget_attrs = 'widget-id="' + widgetId + '" widget-type="' + widgetType + '" widget-uuid="' + widget_uuid + '"' + widget_key + widget_map;
 			grid_attrs   = 'data-gs-width="12" data-gs-height="1" data-gs-auto-position="true" data-gs-no-resize="true" ';
-			
+
 			// Return the HTML object
 			return new Handlebars.SafeString(
 				'<div class="grid-stack-item" ' + grid_attrs + widget_attrs + '>' +
 				'<x-var type="object">' +
 				opts.fn(this) + '</x-var></div>');
 		});
-		
+
 		/**
 		 * Widget Object Label
 		 */
@@ -55,7 +55,7 @@ lense.import('common.template', function() {
 				'<button type="button" class="btn btn-default btn-sm btn-gridstack-show-details" widget-id="' + widgetId + '" data-toggle="collapse" data-target="#' + widgetId + '-details">' + label + '</button>' +
 				'</div>');
 		});
-		
+
 		/**
 		 * Commons Widget Variable (Fetch Variable)
 		 */
@@ -64,16 +64,16 @@ lense.import('common.template', function() {
 			var display = (active === 'true') ? 'block' : 'none';
 			var state   = (active === 'true') ? '' : ' inactive';
 			return new Handlebars.SafeString(
-				'<div class="form-group var-type" var-type="fetch" widget-id="' + id + '" style="display:' + display + ';">' + 
-				'<label for="variable_reference">Commons Variable:</label>' + 
+				'<div class="form-group var-type" var-type="fetch" widget-id="' + id + '" style="display:' + display + ';">' +
+				'<label for="variable_reference">Commons Variable:</label>' +
 				'<div class="input-group">' +
 				'<div class="input-group-addon">LENSE.</div>' +
 				'<input type="text" class="form-control var-fetch" placeholder="attrPath" widget-id="' + id + '">' +
-				'<x-var type="object" key="var#' + key + '"' + state + '><x-var type="str" key="fetch" prefix="LENSE." value="input.var-fetch[widget-id=\'' + id + '\']"' + state + '></x-var>' + 
+				'<x-var type="object" key="var#' + key + '"' + state + '><x-var type="str" key="fetch" prefix="LENSE." value="input.var-fetch[widget-id=\'' + id + '\']"' + state + '></x-var>' +
 				'</div></div>'
 			);
 		});
-		
+
 		/**
 		 * Reference Widget Variable
 		 */
@@ -82,8 +82,8 @@ lense.import('common.template', function() {
 			var display = (active === 'true') ? 'block' : 'none';
 			var state   = (active === 'true') ? '' : ' inactive';
 			return new Handlebars.SafeString(
-				'<div class="form-group var-type" var-type="ref" widget-id="' + id + '" style="display:' + display + ';">' + 
-				'<label for="variable_reference">Reference:</label>' + 
+				'<div class="form-group var-type" var-type="ref" widget-id="' + id + '" style="display:' + display + ';">' +
+				'<label for="variable_reference">Reference:</label>' +
 				'<div class="input-group">' +
 				'<div class="input-group-addon">#</div>' +
 				'<input type="text" class="form-control var-ref"placeholder="varKey" widget-id="' + id + '">' +
@@ -91,7 +91,7 @@ lense.import('common.template', function() {
 				'</div></div>'
 			);
 		});
-		
+
 		/**
 		 * Static Widget Variable
 		 */
@@ -100,51 +100,51 @@ lense.import('common.template', function() {
 			var display = (active === 'true') ? 'block' : 'none';
 			var state   = (active === 'true') ? '' : ' inactive';
 			return new Handlebars.SafeString(
-				'<div class="form-group var-type" var-type="static" widget-id="' + id + '" style="display:' + display + ';">' + 
-				'<label for="variable_static">Static:</label>' + 
-				'<input type="text" class="form-control var-static" placeholder="Static value..." widget-id="' + id + '">' + 
-				'<x-var type="str" key="var#' + key + '" value="input.var-static[widget-id=\'' + id + '\']"' + state + '>' + 
+				'<div class="form-group var-type" var-type="static" widget-id="' + id + '" style="display:' + display + ';">' +
+				'<label for="variable_static">Static:</label>' +
+				'<input type="text" class="form-control var-static" placeholder="Static value..." widget-id="' + id + '">' +
+				'<x-var type="str" key="var#' + key + '" value="input.var-static[widget-id=\'' + id + '\']"' + state + '>' +
 				'</div>'
 			);
 		});
-		
+
 		/**
 		 * Widget Variable Type
 		 */
 		Handlebars.registerHelper('widget_var_type', function(type, key, selected, opts) {
 			var id = type + '-' + key;
 			var selected = (defined(selected)) ? selected: 'static';
-			
+
 			// Generate options
 			function select_opt(val, label) {
 				return (selected == val) ? '<option value="' + val + '" selected="seleceted">' + label + '</option>': '<option value="' + val + '">' + label + '</option>';
 			}
-			
+
 			// Generate the select block
 			return new Handlebars.SafeString(
-				'<div class="form-group">' + 
+				'<div class="form-group">' +
 				'<label for="variable_type">Type:</label>' +
-				'<select id="variable_type" widget-id="' + id + '" class="form-control">' + 
-				select_opt('static', 'Static') + 
+				'<select id="variable_type" widget-id="' + id + '" class="form-control">' +
+				select_opt('static', 'Static') +
 				select_opt('ref', 'Reference') +
-				select_opt('fetch', 'Commons Variable') + 
+				select_opt('fetch', 'Commons Variable') +
 				select_opt('call', 'Commons Method') +
 				'</select></div>'
 			);
 		});
-		
+
 		/**
 		 * Keyed Widget Value
 		 */
 		Handlebars.registerHelper('widget_key', function(type, key, opts) {
 			var id = type + '-' + key;
 			return new Handlebars.SafeString(
-				'<div class="form-group">' + 
+				'<div class="form-group">' +
 				'<label for="variable_key">Key:</label>' +
 				'<input type="text" class="form-control widget-key-value" widget-type="' + type + '" widget-id="' + id + '" value="' + key + '"></div>'
 			);
 		});
-		
+
 		/**
 		 * Keyed Widget Header
 		 */
@@ -152,7 +152,7 @@ lense.import('common.template', function() {
 			var id = (defined(key)) ? type + '-' + key: type;
 			return new Handlebars.SafeString('<h4 widget-id="' + id + '"></h4>');
 		});
-		
+
 		/**
 		 * If Equals Conditional
 		 */
@@ -179,7 +179,7 @@ lense.import('common.template', function() {
 		 */
 		Handlebars.registerHelper('string_options', function(value, mapping, opts) {
 			options_str = '';
-			for (i = 0; i < mapping.length; i++) { 
+			for (i = 0; i < mapping.length; i++) {
 				if (value == mapping[i]) {
 					options_str = options_str.concat('<option selected="selected">' + value + '</option>');
 				} else {
@@ -187,14 +187,14 @@ lense.import('common.template', function() {
 				}
 			}
 			return new Handlebars.SafeString(options_str);
-		})
+		});
 
 		/**
 		 * Object Title Link
 		 */
 		Handlebars.registerHelper('title_link', function(uuid, title, opts) {
 			return new Handlebars.SafeString('<a href="' +
-				window.location.pathname + 
+				window.location.pathname +
 				'?view=' + url.param_get('view') +
 				'&uuid=' + uuid + '">' + title + '</a>');
 		});
@@ -226,7 +226,7 @@ lense.import('common.template', function() {
 		Handlebars.registerHelper('thumbnail_field', function(key, value) {
 			return new Handlebars.SafeString(
 				'<div class="input-group thumbnail-field">' +
-				'<span class="input-group-addon thumbnail-field-label" id="basic-addon3">' + key + ':</span>' + 
+				'<span class="input-group-addon thumbnail-field-label" id="basic-addon3">' + key + ':</span>' +
 				'<input type="text" class="thumbnail-field-value form-control" id="basic-url" aria-describedby="basic-addon3" value="' + value + '" readonly>' +
 				'</div>'
 			);
@@ -249,7 +249,7 @@ lense.import('common.template', function() {
 			var label    = getattr(attrs, 'label', name);
 			var defval   = getattr(attrs, 'defval', '');
 			switch(type) {
-			
+
 				// Text Input Field
 				case 'text':
 					return new Handlebars.SafeString(
@@ -259,17 +259,17 @@ lense.import('common.template', function() {
 						'</div>'
 					);
 					break;
-					
+
 				// Multiline Text Area Field
 				case 'textarea':
 					return new Handlebars.SafeString(
 						'<div class="input-group form-field">' +
-						'<span class="input-group-addon form-field-label" id="basic-addon3">' + label + ':</span>' + 
+						'<span class="input-group-addon form-field-label" id="basic-addon3">' + label + ':</span>' +
 						'<textarea class="form-control form-field-textarea" name="' + name + '" defval="' + defval + '"></textarea>' +
 						'</div>'
 					);
 					break;
-					
+
 				// Select Group
 				case 'select':
 					var options  = getattr(attrs, 'options');
@@ -297,14 +297,14 @@ lense.import('common.template', function() {
 						'</select></div>'
 					);
 					break;
-					
+
 				// Unsupported
 				default:
 					throw new Exception('Invalid form field type: ' + type);
 			}
 		});
 	}
-	
+
 	/**
 	 * Set Template Internals
 	 */
@@ -320,7 +320,7 @@ lense.import('common.template', function() {
 		_data_['_widgetUUID_'] = lense.uuid4();
 		return _data_;
 	}
-	
+
 	/**
 	 * Compile Template
 	 */
@@ -328,26 +328,26 @@ lense.import('common.template', function() {
 		var compiled = Handlebars.compile($('#' + id).html());
 		return compiled(data);
 	}
-	
+
 	/**
 	 * Render Template (Inner)
 	 */
 	this._render = function(parent, id, data, flush, display, title) {
-		
+
 		// Compile the template
 		var compiled = Handlebars.compile($('#' + id).html());
-		
+
 		// If flushing the container
-		if (flush === true) { 
-			$(parent).empty(); 
+		if (flush === true) {
+			$(parent).empty();
 		}
-		
+
 		// List of elements
 		if ($.isArray(data)) {
 			$.each(data, function(i,item) {
 				$(parent).append(compiled(self._set_data(item, display, title)));
 			});
-			
+
 		// Single element
 		} else {
 			$(parent).append(compiled(self._set_data(data, display, title)));
@@ -357,17 +357,17 @@ lense.import('common.template', function() {
 	 * Table Headers
 	 */
 	this._headers = function(parent, columns, title) {
-		
+
 		// Compile the template
 		var compiled = Handlebars.compile($('#object_row_headers').html());
-		
+
 		// Flush the header container
 		$(parent).empty();
-		
+
 		// Render the headers
 		$(parent).append(compiled(self._set_data(columns, {}, title)));
 	}
-	
+
 	/**
 	 * Render Template
 	 */
@@ -377,31 +377,31 @@ lense.import('common.template', function() {
 		var display  = getattr(options, 'display', {});
 		var title    = getattr(options, 'title', 'name');
 		var headers  = getattr(options, 'headers', null);
-		
+
 		// Table headers
 		if (defined(headers)) {
 			self._headers(headers, display, title);
 		}
-		
+
 		// Array of containers / templates
 		if ((parent instanceof Array) && (id instanceof Array)) {
 			if (!(parent.length === id.length)) {
 				throw new Exception('Parent and template arrays must be the same size!');
 			}
-			
+
 			// Render each parent / template
 			$.each(parent, function(i,p) {
 				self._render(p, id[i], data, flush, display, title);
 			});
-			
+
 		// Single container / template
 		} else {
 			self._render(parent, id, data, flush, display, title);
 		}
-		
+
 		// Is a callback specified
-		if (callback !== false) { 
-			callback(); 
+		if (callback !== false) {
+			callback();
 		}
 	}
 });

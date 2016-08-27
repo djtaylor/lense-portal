@@ -1,3 +1,15 @@
 {% verbatim %}
-  <p>noop</p>
+<x-var type="object" key="__PARAMS__">
+  <div class="form-group">
+    <div class="row object-row object-header-row">
+      <div class="col-xs-5 col-param-header col-param-left">Key</div>
+      <div class="col-xs-1 col-param-header">Required</div>
+      <div class="col-xs-4 col-param-header">Default</div>
+      <div class="col-xs-2 col-param-right">
+        {{object_param_add object}}
+      </div>
+    </div>
+    {{object_params object}}
+  </div>
+</x-var>
 {% endverbatim %}

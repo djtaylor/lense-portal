@@ -1,5 +1,31 @@
 lense.import('object.library', function() {
-	var self = this;
+	var self  = this;
+
+	// Post processor objects
+	this.post = {};
+
+	/**
+	 * Post processing
+	 */
+	this.postProcess = function() {
+
+		// Post processing renderer
+		function inner(target, attrs) {
+			if (defined(attrs.parent) && $(attrs.parent).is(':empty')) {
+				inner(attrs.parent, self.post[attrs.parent]);
+			}
+
+			// Only render if empty
+			if ($(target).is(':empty')) {
+				$(target).html(attrs.html);
+			}
+		}
+
+		// Loop through post process blocks
+		$.each(self.post, function(target,attrs) {
+			inner(target, attrs);
+		});
+	}
 
 	/**
 	 * Base Object
@@ -26,30 +52,6 @@ lense.import('object.library', function() {
 			{
 				flush: false
 			});
-		}
-
-		/**
-		 * Expand object details
-		 *
-		 * @param {Object} grid The gridstack object
-		 * @param {String} id The object ID
-		 */
-		this.resizeDetails = function(grid, id) {
-			var height = $('.object-collapse[object-id="' + id + '"]').actual('height');
-			var ysize  = Math.ceil(height / 40);
-
-			// Resize the widget
-			grid.data('gridstack').resize('.grid-stack-item[object-id="' + id + '"]', null, (ysize == 1) ? 2: ysize);
-		}
-
-		/**
-		 * Collapse object details
-		 *
-		 * @param {Object} grid The gridstack object
-		 * @param {String} id The object ID
-		 */
-		this.collapseDetails = function(grid, id) {
-			grid.data('gridstack').resize('.grid-stack-item[object-id="' + id + '"]', null, 1);
 		}
 
 		/**
@@ -86,106 +88,68 @@ lense.import('object.library', function() {
 						data: data
 					},
 					meta: {
-						varTypes: {
-							list: [
-								{
-									type: 'call',
-									label: 'Lense Method',
-									selector: 'call'
-								},
-								{
-									type: 'fetch',
-									label: 'Lense Variable',
-									selector: 'fetch'
-								},
-								{
-									type: 'static',
-									label: 'Static Value',
-									selector: 'static'
-								},
-								{
-									type: 'ref',
-									label: 'Referenced Value',
-									selector: 'ref'
-								}
-							]
-						},
-						argTypes: {
-							prefix: 'args-',
-							list: [
-								{
-									type: 'ref',
-									prefix: 'args',
-									label: 'Reference',
-									selector: 'args::string'
-								},
-								{
-									type: 'list',
-									prefix: 'args',
-									label: 'List',
-									selector: 'args::array'
-								}
-							]
-						},
-						kwargTypes: {
-							prefix: 'kwargs-',
-							list: [
-								{
-									type: 'ref',
-									prefix: 'kwargs',
-									label: 'Reference',
-									selector: 'kwargs::string'
-								},
-								{
-									type: 'dict',
-									prefix: 'kwargs',
-									label: 'Dictionary',
-									selector: 'kwargs::object'
-								}
-							]
-						}
+						varTypes: [
+							{
+								type: 'call',
+								label: 'Lense Method',
+								selector: 'call'
+							},
+							{
+								type: 'fetch',
+								label: 'Lense Variable',
+								selector: 'fetch'
+							},
+							{
+								type: 'static',
+								label: 'Static Value',
+								selector: 'static'
+							},
+							{
+								type: 'ref',
+								label: 'Referenced Value',
+								selector: 'ref'
+							}
+						],
+						argTypes: [
+							{
+								type: 'ref',
+								label: 'Reference',
+								selector: 'args::string'
+							},
+							{
+								type: 'list',
+								label: 'List',
+								selector: 'args::array'
+							}
+						],
+						kwargTypes: [
+							{
+								type: 'ref',
+								label: 'Reference',
+								selector: 'kwargs::string'
+							},
+							{
+								type: 'dict',
+								label: 'Dictionary',
+								selector: 'kwargs::object'
+							}
+						],
+						rspTypes: [
+							{
+								type: 'ref',
+								label: 'Reference',
+								selector: 'data::string'
+							},
+							{
+								type: 'dict',
+								label: 'Dictionary',
+								selector: 'data::object'
+							}
+						]
 					}
 				}).html());
-
-				// Show object details
-				$(document).on('shown.bs.collapse', '.object-collapse[object-id="' + id + '"]', function() {
-					inner.resizeDetails(grid, id);
-				});
-
-				// Hide widget details
-				$(document).on('hidden.bs.collapse', '.object-collapse[object-id="' + id + '"]', function() {
-					inner.collapseDetails(grid, id);
-				});
-
-				// Toggler groups
-				$(document).on('click', 'button[object-toggle-target]', function() {
-					var target       = getattr($(this), 'object-toggle-target');
-					var group        = getattr($(this), 'object-toggle-group');
-
-					// jQuery selectors
-					var btn_all      = 'button[object-id="' + id + '"][object-toggle-group="' + group + '"]';
-					var btn_selected = 'button[object-id="' + id + '"][object-toggle-group="' + group + '"][object-toggle-target="' + target + '"]';
-					var grp_all      = 'div[object-id="' + id + '"][object-toggle-group="' + group + '"]';
-					var grp_selected = 'div[object-id="' + id + '"][object-toggle-group="' + group + '"][object-toggle-id="' + target + '"]';
-
-					// Only execute if target ID is hidden
-					if ($(grp_selected).css('display') == 'none') {
-
-						// Switch button states
-						$(btn_all).attr('class', 'btn btn-default');
-						$(btn_selected).attr('class', 'btn btn-default active');
-
-						// Toggle groups
-						$(grp_all).css('display', 'none');
-						$(grp_selected).css('display', 'block');
-					}
-
-					// Resize widget
-					inner.resizeDetails(grid, id);
-				});
-
 			} catch(e) {
-				lense.notify('warning', e);
+				lense.log.warn(e);
 			}
 		}
 	}
@@ -206,7 +170,7 @@ lense.import('object.library', function() {
 			case "do":
 			  return self.HandlerAction;
 			default:
-				lense.notify('warning', 'Invalid grid object type: ' + type);
+				lense.log.warn('Invalid grid object type: ' + type);
 				break;
 		}
 	}
@@ -255,129 +219,423 @@ lense.import('object.library', function() {
 	lense.register.constructor('object.library', function() {
 
 		/**
-		 * Object Variable Input
+		 * Add object parameter button
+		 *
+		 * @param {Object} object The object data
 		 */
-		Handlebars.registerHelper('object_var_input', function(xvarType, varType, object, opts) {
-			var uuid  = lense.uuid4();
-			var input = '<input type="text" class="form-control" object-var-type="' + varType + '" object-id="' + object.id + '" uuid="' + uuid + '">';
-			var xvar  = '<x-var type="' + xvarType + '" key="' + varType + '" value="input[uuid=\'' + uuid + '\']"></x-var>';
-
-			// Return the input object
-			return new Handlebars.SafeString(input + xvar);
+		Handlebars.registerHelper('object_param_add', function(object, opts) {
+			return new Handlebars.SafeString(
+				'<div style="overflow:auto;">' +
+				'<div class="btn-group pull-right" role="group" object-id="' + object.id + '">' +
+				'<button type="button" class="btn btn-default" object-var-add="params" object-id="' + object.id + '" update-source disabled edit>' +
+				'<span class="glyphicon glyphicon-plus"></span>' +
+				'</button>' +
+				'</div></div>'
+			);
 		});
 
 		/**
-		 * Object Toggler
+		 * Add object variable argument / keyword argument button
 		 *
-		 * Buttons to toggle between available type groups for an object widget.
-		 *
-		 * @param {String} id The parent object ID
+		 * @param {String} object The object data
 		 * @param {Array} types Available types to toggle between
-		 * @param {Object} data The toggled object data
-		 * @param {String} def The default option to select
-		 * @param {String} gid The group ID
+		 * @param {String} group The group ID
+		 * @param {String} type The object type this should be shown for
 		 */
-		Handlebars.registerHelper('object_toggler', function(id, types, data, def, gid, opts) {
-			var buttons = [];
-			var usedef  = true;
+		Handlebars.registerHelper('object_var_add', function(object, types, group, type, opts) {
 			var prefix  = getattr(types, 'prefix', '');
+			var key     = (hasattr(opts.hash, 'key')) ? ' object-key="' + getattr(opts.hash, 'key') + '"':'';
 
-			// Check if using the default
-			$.each(types.list, function(i, attrs) {
-				var selector = getattr(attrs, 'selector');
-				if ($.isArray(selector)) {
-					if (hasattr(data, selector[0])) {
-						usedef = false;
-					}
-				} else {
-					if (hasattr(data, selector)) {
-						usedef = false;
-					}
-				}
-			});
+			// Generate the button HTML
+			return new Handlebars.SafeString(
+				'<div class="btn-group pull-right" role="group" object-id="' + object.id + '" object-toggle-id="' + prefix + type + '" object-toggle-controls object-toggle-group="' + group + '" style="display:none;">' +
+				'<button type="button" class="btn btn-default" object-var-add="' + type + '" object-id="' + object.id + '"' + key + ' update-source disabled edit>' +
+				'<span class="glyphicon glyphicon-plus"></span>' +
+				'</button>' +
+				'</div>'
+			);
+		});
 
-			// Button generator
-			function makeButton(type, label, selected) {
-				var state = (selected === true || (usedef === true && type == prefix + def)) ? ' active':'';
-				return '<button type="button" class="btn btn-default' + state + '" object-id="' + id + '" object-toggle-target="' + type + '" object-toggle-group="' + gid + '">' + label + '</button>';
+		/**
+		 * Variable argument
+		 *
+		 * @param {String} id The object ID
+		 * @param {String} value The arg value
+		 */
+		Handlebars.registerHelper('object_var_arg', function(id, value, opts) {
+			var value = (defined(value)) ? value:'';
+
+			// Arg / value UUID
+			var arg_uuid   = lense.uuid4();
+			var value_uuid = lense.uuid4();
+
+			// Generate the keyword argument object
+			return new Handlebars.SafeString(
+				'<div class="row object-attr-row" object-id="' + id + '" uuid="' + arg_uuid + '">' +
+				'<div class="col-xs-11 col-object-center col-object">' +
+				'<input type="text" class="form-control object-input" placeholder="value" value="' + value + '" uuid="' + value_uuid + '" update-source disabled edit>' +
+				'</div>' +
+				'<div class="col-xs-1 col-object-attr-right col-object">' +
+				'<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + id + '" uuid="' + arg_uuid + '" update-source disabled edit>' +
+				'<span class="glyphicon glyphicon-remove"></span>' +
+				'</button>' +
+				'</div>' +
+				'<x-var type="str" value="input[uuid=\'' + value_uuid + '\']"></x-var>' +
+				'</div>'
+			);
+		});
+
+		/**
+		 * Variable arguments container
+		 */
+		Handlebars.registerHelper('object_var_args', function(object, opts) {
+			var init_args = [];
+
+			// Generate initial args
+			if (defined(object.data.args) && istype(object.data.args, 'array')) {
+				$.each(object.data.args, function(i, value) {
+					init_args.push(Handlebars.helpers.object_var_arg(object.id, value));
+				});
 			}
 
-			// Process object types
-			$.each(types.list, function(i,attrs) {
-				var type     = getattr(attrs, 'type');
-				var label    = getattr(attrs, 'label');
-				var selector = getattr(attrs, 'selector');
-
-				// Select by value
-				if ($.isArray(selector)) {
-					buttons.push((hasattr(data, selector[0]) && data[selector[0]] == selector[1]) ? makeButton(prefix + type, label, true):makeButton(prefix + type, label, false));
-
-				// Select by attribute existence/type
-				} else {
-
-					// Attribute existence and type
-					if (selector.includes('::')) {
-						var typeMap = selector.split('::');
-
-						// Generate the button
-						buttons.push((hasattr(data, typeMap[0]) && istype(data[typeMap[0]], typeMap[1])) ? makeButton(prefix + type, label, true):makeButton(prefix + type, label, false));
-
-					// Attribute existence only
-					} else {
-						buttons.push((hasattr(data, selector)) ? makeButton(prefix + type, label, true):makeButton(prefix + type, label, false));
-					}
-				}
-			});
-			return new Handlebars.SafeString('<div class="btn-group" role="group" aria-label="DescriptiveText">' + buttons.join('') + '</div>');
+			// Return args container
+			return new Handlebars.SafeString(
+				'<x-var object-id="' + object.id + '" type="array" key="args" inactive>' +
+				init_args.join('') +
+				'</x-var>'
+			);
 		});
 
 		/**
-		 * Object Toggler Group
-		 *
-		 * Group element for an object toggler.
-		 *
-		 * @param {String} id The parent object ID
-		 * @param {Array} types All available toggler types
-		 * @param {Object} data The current object data
-		 * @param {String} current The current object type
-		 * @param {String} gid The toggle group ID
+		 * Variable keyword arguments container
 		 */
-		Handlebars.registerHelper('object_toggler_group', function(id, types, data, current, gid, opts) {
-				var display = 'none';
-				var usedef  = true;
-				var prefix  = getattr(types, 'prefix', '');
+		Handlebars.registerHelper('object_var_kwargs', function(object, opts) {
+			var init_kwargs = [];
+			var dataKey     = getattr(opts.hash, 'dataKey', 'kwargs');
 
-				// Scan available types
-				$.each(types.list, function(i,attrs) {
-					var type     = getattr(attrs, 'type');
-					var label    = getattr(attrs, 'label');
-					var selector = getattr(attrs, 'selector');
-
-					// If checking the current type
-					if (current == type) {
-
-						// Select by value
-						if ($.isArray(selector)) {
-							display = (hasattr(data, selector[0]) && data[selector[0]] == selector[1]) ? 'block':'none';
-
-						// Select by attribute existence
-						} else {
-
-							// Attribute existence and type
-							if (selector.includes('::')) {
-								var typeMap = selector.split('::');
-
-								// Set initial display property
-								display = (hasattr(data, typeMap[0]) && istype(data[typeMap[0]], typeMap[1]) ? 'block':'none');
-
-							// Attribute existence only
-							} else {
-								display = (hasattr(data, selector)) ? 'block':'none';
-							}
-						}
-					}
+			// Generate initial kwargs
+			if (defined(object.data[dataKey]) && istype(object.data[dataKey], 'object')) {
+				$.each(object.data[dataKey], function(key, value) {
+					init_kwargs.push(Handlebars.helpers.object_var_kwarg(object.id, key, value));
 				});
-				return new Handlebars.SafeString('<div object-toggle-id="' + prefix + current + '" object-toggle-group="' + gid + '" object-id="' + id + '" style="display:' + display + ';">' + opts.fn(this) + '</div>');
+			}
+
+			// Return kwargs container
+			return new Handlebars.SafeString(
+				'<x-var object-id="' + object.id + '" type="object" key="' + dataKey + '" inactive>' +
+				init_kwargs.join('') +
+				'</x-var>'
+			);
+		});
+
+		/**
+		 * Variable keyword argument
+		 *
+		 * @param {String} id The object ID
+		 * @param {String} key The kwarg key
+		 * @param {String} value The kwarg value
+		 */
+		Handlebars.registerHelper('object_var_kwarg', function(id, key, value, opts) {
+			return new Handlebars.SafeString(lense.template.html.kwargField(id, ((defined(key)) ? key:''), ((defined(value)) ? value:'')));
+		});
+
+		/**
+		 * Object variable input
+		 *
+		 * @param {String} xvarType The variable type for the x-var entry
+		 * @param {String} varType The variable type for the object data
+		 * @param {Object} object The data object
+		 * @param {String} opts.prefix The data prefix
+		 */
+		Handlebars.registerHelper('object_var_input', function(xvarType, varType, object, opts) {
+			var uuid   = lense.uuid4();
+			var prefix = getattr(opts.hash, 'prefix', false);
+			var style  = ((hasattr(opts.hash, 'style')) ? ' style="' + getattr(opts.hash, 'style') + '"':'');
+			var state  = ((getattr(opts.hash, 'active', false) === true) ? '':' inactive');
+
+			// Extract the value if present
+			var value = (function() {
+				if (istype(object.data[varType], 'str')) {
+					if (defined(prefix)) {
+						return (hasattr(object.data, varType)) ? ' value="' + object.data[varType].replace(prefix, '') + '"':'';
+					} else {
+						return (hasattr(object.data, varType)) ? ' value="' + object.data[varType] + '"':'';
+					}
+				} else {
+					return '';
+				}
+			}());
+
+			// Generate the input field and variable object
+			var prefix_attr = (defined(prefix)) ? ' prefix="' + prefix + '"':'';
+			var input       = '<input type="text" class="form-control" object-var-type="' + varType + '" object-id="' + object.id + '" uuid="' + uuid + '"' + value + ' update-source disabled edit>';
+			var xvar        = '<x-var type="' + xvarType + '" key="' + varType + '" value="input[uuid=\'' + uuid + '\']"' + prefix_attr + state + '></x-var>';
+
+			// Input group
+			if (defined(prefix)) {
+				return new Handlebars.SafeString('<div class="input-group"><div class="input-group-addon">' + prefix + '</div>' + input + xvar + '</div>');
+			} else {
+				return new Handlebars.SafeString('<div class="form-group"' + style + '>' + input + xvar + '</div>');
+			}
+		});
+
+		/**
+		 * Data element
+		 *
+		 * @param {String} type The data element type
+		 */
+		Handlebars.registerHelper('data_element', function(type, opts) {
+			var content = (function() {
+				if (hasattr(opts.hash, 'content')) {
+					return $('<div class="data-element">' + opts.hash.content.string + '</div>')[0].outerHTML
+				}
+				return $('<div class="data-element">' + opts.fn(this) + '</div>')[0].outerHTML;
+			}());
+
+			// Return the data element
+			return new Handlebars.SafeString('<div data-type="' + type + '" data-parent="" data-element="" style="display:none;" selector="' + getattr(opts.hash, 'selector', type) + '">' + content + '</div>');
+		});
+
+		/**
+		 * Data group
+		 *
+		 * @param {Object} object The data object
+		 * @param {String} target The target container for child groups
+		 * @param {Object} types A type map for the data group
+		 */
+		Handlebars.registerHelper('data_group', function(object, target, types, opts) {
+			var inner      = $('<div class="data-group">' + opts.fn(this) + '</div>');
+			var target     = (function() {
+				return '#' + (defined(object.key) ? target + '-' + object.key:target);
+			}());
+			var parent     = (function() {
+				var parentStr = getattr(opts.hash, 'parent', false);
+				if (parentStr) {
+					return '#' + (defined(object.key) ? parentStr + '-' + object.key:parentStr);
+				}
+				return false;
+			}());
+			var label      = (function() {
+				if (hasattr(opts.hash, 'desc')) {
+					return ' aria-label="' + getattr(opts.hash, 'desc') + '"'
+				}
+				return '';
+			}());
+
+			// Data elements / toggle buttons
+			var elements   = [];
+			var buttons    = {};
+
+			// Group UUID
+			var group_uuid = lense.uuid4();
+
+			// Generate toggle buttons
+			$.each(types, function(i,attrs) {
+				buttons[attrs.type] = $(lense.template.html.button(attrs.label, {
+					attrs: {
+						'data-group': group_uuid,
+						'object-id': object.id,
+						'update-source': true,
+						'disabled': true,
+						'edit': true
+					}
+				}));
+			});
+
+			// Process data elements
+			$(inner).find('[data-element]').each(function() {
+				var elem      = $(this);
+				var type      = getattr(elem, 'data-type');
+
+				// Element UUID / selected flag
+				var elem_uuid = lense.uuid4();
+				var selected  = (function() {
+					var selector = getattr(elem, 'selector');
+
+					// Select by object key / type
+					if (selector.includes('#')) {
+						var attrKey  = selector.split('#')[0];
+						var attrType = selector.split('#')[1];
+
+						// Check for key / data type
+						return ((hasattr(object.data, attrKey) && istype(object.data[attrKey], attrType)) ? true:false);
+
+					// Select by object key
+					} else {
+						return ((hasattr(object.data, selector)) ? true:false);
+					}
+				}());
+
+				// Set button UUID
+				buttons[type].attr('data-target', elem_uuid);
+
+				// Set group attributes
+				elem.attr({
+					'data-parent': group_uuid,
+					'data-element': elem_uuid
+				});
+
+				// Element is selected
+				if (selected) {
+
+					// Show the element
+					elem.css('display', 'block');
+
+					// Set the parent button attributes
+					buttons[type].addClass('active');
+				}
+
+				// Store the group element
+				elements.push(elem[0].outerHTML);
+			});
+
+			// Store elements for post processing
+			self.post[target] = {
+				html: elements.join(''),
+				parent: parent
+			};
+
+			// Return group toggler
+			return new Handlebars.SafeString(
+				'<div class="btn-group btn-group-inner" role="group"' + label + '>' +
+				(Object.keys(buttons).map(function(key){return buttons[key][0].outerHTML}).join('')) +
+				'</div>'
+			);
+		});
+
+		/**
+		 * Object parameter
+		 *
+		 * @param {Object} object The object data
+		 * @param {Object} param The parameter data
+		 */
+		Handlebars.registerHelper('object_param', function(object, key, attrs, opts) {
+
+			// UUIDs
+			var param_uuid  = lense.uuid4();
+			var key_uuid    = lense.uuid4();
+			var req_uuid    = lense.uuid4();
+			var def_uuid    = lense.uuid4();
+
+			// Required checked state
+			var req_checked = (attrs[0] === true) ? ' checked':'';
+
+			// Generate parameter HTML
+			return new Handlebars.SafeString(
+				'<x-var type="array" key="@input[uuid=\'' + key_uuid + '\']">' +
+				'<div class="row object-attr-row" object-id="' + object.id + '" uuid="' + param_uuid + '">' +
+				'<div class="col-xs-5 col-object-center col-object">' +
+				'<input type="text" class="form-control object-input" placeholder="value" value="' + key + '" uuid="' + key_uuid + '" update-source disabled edit>' +
+				'</div>' +
+				'<div class="col-xs-1 col-object-center col-object">' +
+				'<input class="col-object-checkbox" type="checkbox"' + req_checked + ' uuid="' + req_uuid + '" update-source disabled edit>' +
+				'<x-var type="bool" value="input[uuid=\'' + req_uuid + '\']"></x-var>' +
+				'</div>' +
+				'<div class="col-xs-5 col-object-center col-object" style="padding-left:15px;">' +
+				'<input type="text" class="form-control object-input" placeholder="none" value="' + ((defined(attrs[1])) ? attrs[1]:'') + '" uuid="' + def_uuid + '" update-source disabled edit>' +
+				'<x-var type="str" value="input[uuid=\'' + def_uuid + '\']" default="null"></x-var>' +
+				'</div>' +
+				'<div class="col-xs-1 col-object-attr-right col-object">' +
+				'<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + object.id + '" uuid="' + param_uuid + '" disabled edit>' +
+				'<span class="glyphicon glyphicon-remove"></span>' +
+				'</button>' +
+				'</div>' +
+				'</div></x-var>'
+			);
+		});
+
+		/**
+		 * Object parameters
+		 *
+		 * @param {Object} object The data object
+		 */
+		Handlebars.registerHelper('object_params', function(object, opts) {
+			if (hasattr(object, 'data') && istype(object.data, 'object')) {
+				var init_params = [];
+
+				// Generate initial parameters
+				$.each(object.data, function(key, attrs) {
+					init_params.push(Handlebars.helpers.object_param(object, key, attrs));
+				});
+
+				// Return kwargs container
+				return new Handlebars.SafeString('<div class="form-group">' + init_params.join('') + '</div>');
+			}
+		});
+
+		/**
+		 * Object Property
+		 *
+		 * @param {object} key The property key
+		 * @param {Object} data The property data
+		 * @param {Object} properties Properties options
+		 */
+		Handlebars.registerHelper('object_property', function(key, data, template, opts) {
+			template.each(function(k, attrs) {
+				if (k === key)
+			});
+
+			var type  = getattr(properties, 'type', 'str');
+			var edit  = (function() {
+				var canEdit = getattr(properties, 'edit', false);
+				return ((canEdit) ? ' edit':'');
+			}());
+			var label = getattr(properties, 'label', key);
+			var uuid  = lense.uuid4();
+			var local = data[key];
+
+			// Generate the object property HTML
+			return new Handlebars.SafeString(
+				'<div class="input-group property-field">' +
+				'<span class="input-group-addon property-field-label">' + label + '</span>' +
+				(function() {
+					switch(type) {
+						case 'str':
+							return new Handlebars.SafeString(
+								'<input type="text" class="form-control property-field-value" value="' + local + '" uuid="' + uuid + '"disabled update-source' + edit + '>' +
+								'<x-var type="str" key="' + key + '" value="input[uuid=\'' + uuid + '\']"></x-var>'
+							);
+						case 'bool':
+							var options = getattr(properties, 'options', [true, false]);
+							return new Handlebars.SafeString(
+								'<select class="form-control property-field-value property-field-dropdown" uuid="' + uuid + '" disabled update-source' + edit + '>' +
+								(function() {
+									var fields = [];
+									$.each([true, false], function(i,state) {
+										opt_value = ((istype(state, 'array')) ? state[0]:state);
+										opt_label = ((istype(state, 'array')) ? state[1]:((opt_value === true) ? 'Yes':'No'));
+										opt_state = ((local === opt_value) ? ' selected="selected"':'');
+										fields.push('<option value="' + opt_value + '"' + opt_state + '>' + opt_label + '</option>');
+									});
+									return fields.join('');
+								}()) +
+								'</select>' +
+								'<x-var type="bool" key="' + key + '" value="select[uuid=\'' + uuid +  '\']"></x-var>'
+							);
+						case 'select':
+							var options = getattr(properties, 'options');
+							return new Handlebars.SafeString(
+								'<select class="form-control property-field-value property-field-dropdown" uuid="' + uuid + '" disabled update-source' + edit + '>' +
+								(function() {
+									var fields = [];
+									$.each(options, function(i,value) {
+										opt_value = ((istype(value, 'array')) ? value[0]:value);
+										opt_label = ((istype(value, 'array')) ? value[1]:opt_value);
+										opt_state = ((local == opt_value) ? ' selected="selected"':'');
+										fields.push('<option value="' + opt_value + '"' + opt_state + '>' + opt_label + '</option>');
+									});
+									return fields.join('');
+								}()) +
+								'</select>' +
+								'<x-var type="str" key="' + key + '" value="select[uuid=\'' + uuid +  '\']"></x-var>'
+							);
+						default:
+							lense.log.warn('Invalid property type: ' + type);
+							return undefined;
+					}
+				}()) +
+				'</div>'
+			);
 		});
 
 		/**
@@ -406,5 +664,84 @@ lense.import('object.library', function() {
  				'<button type="button" class="btn btn-default btn-sm object-show-details text-capitalize" object-id="' + id + '" data-toggle="collapse" data-target="#' + id + '-details">' + label + '</button>' +
  				'</div>');
  		});
+
+		/**
+		 * Object row
+		 *
+		 * @param {Object} object The row object data
+		 * @param {Object} template The object template
+		 */
+		Handlebars.registerHelper('object_row', function(object, template, opts) {
+			return new Handlebars.SafeString(lense.template.html.objectRow(object, {
+				template: template,
+				title_link: window.location.pathname + '?view=' + lense.url.getParam('view') + '&uuid=' + object.uuid + '"'
+			})).string;
+		});
+
+		/**
+		 * Object thumbnail
+		 *
+		 * @param {Object} object The row object data
+		 * @param {Object} properties Visible row properties
+		 * @param {Object} opts Any additional options
+		 */
+		Handlebars.registerHelper('object_thumbnail', function(object, properties, opts, handlebarOpts) {
+			return new Handlebars.SafeString(lense.template.html.objectThumbnail(object, {
+				title_name: object[getattr(opts, 'title')],
+				title_link: window.location.pathname + '?view=' + lense.url.getParam('view') + '&uuid=' + object.uuid + '"',
+				template: template
+			})).string;
+		});
+
+		/**
+		 * Object row headers
+		 *
+		 * @param {Object} template Object template
+		 */
+		Handlebars.registerHelper('object_headers', function(template, opts) {
+			return new Handlebars.SafeString(lense.template.html.objectHeaders(template));
+		});
+
+		/**
+		 * Manage objects
+		 */
+		Handlebars.registerHelper('manage_objects', function(opts) {
+			return new Handlebars.SafeString(
+				lense.template.html.button('Delete', {
+					type: 'danger',
+					modal: 'object-delete'
+				}) +
+				lense.template.html.buttonLink('Create', {
+					params: {
+						view: lense.url.getParam('view'),
+						create: true
+					}
+				})
+			);
+		});
+
+		/**
+		 * Sort options
+		 *
+		 * @param {Object} template The object template
+		 */
+		Handlebars.registerHelper('sort_objects', function(template, opts) {
+			return new Handlebars.SafeString(
+				'<span class="input-group-addon thumbnail-field-label thumbnail-field-label-inline">Sort: </span>' +
+				'<select class="form-control property-field-value property-field-dropdown property-field-inline" object-sort>' +
+				(function() {
+					var options = [lense.template.html.selectOption(null, {
+						label: 'Please select...'
+					})];
+					template.each(function(key, attrs) {
+						if (attrs.list) {
+							options.push(lense.template.html.selectOption(key, { label: getattr(attrs, 'label', key)}));
+						}
+					});
+					return options.join('');
+				}()) +
+				'</select>'
+			);
+		});
 	});
 });

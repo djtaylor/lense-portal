@@ -8,8 +8,30 @@
           <div class="chart-title-expand text-capitalize" id="object-header"></div>
         </div>
 
-        <!-- Object Controls-->
-        <div class="chart-title">
+        <!-- Object List Controls -->
+        <div class="chart-title" style="display:none;" view="list">
+          <div class="chart-title-expand" id="list-controls">
+
+            <!-- Manage Layout -->
+            <div class="btn-group pull-left" role="group" aria-label="Layout Controls">
+              <button type="button" class="btn btn-default" object-toggle-layout="list">
+                <span class="glyphicon glyphicon-list"></span>
+              </button>
+              <button type="button" class="btn btn-default" object-toggle-layout="thumbnails">
+                <span class="glyphicon glyphicon-th-large"></span>
+              </button>
+            </div>
+
+            <!-- Sort Objects -->
+            <div class="input-group thumbnail-field input-group-inline" id="object-sort"></div>
+
+            <!-- Manage Objects -->
+            <div class="btn-group pull-right" role="group" id="object-list-controls"></div>
+          </div>
+        </div>
+
+        <!--Single Object Controls-->
+        <div class="chart-title" style="display:none;" view="object">
           <div class="chart-title-expand" id="object-controls">
             <!-- Object Creation-->
             <div class="btn-group" role="group" id="object-controls-create"></div>
@@ -17,27 +39,47 @@
             <div class="pull-right" role="group" id="object-controls-state">
               <button type="button" class="btn btn-success" id="edit-object">Edit</button>
               <button type="button" class="btn btn-success" id="save-object" style="display:none;">Save</button>
-              <button type="button" class="btn btn-default" id="view-object-source">View Source</button>
-              <button type="button" class="btn btn-default" id="view-object-grid" style="display:none;">View Grid</button>
+              <button type="button" class="btn btn-warning" id="edit-object-cancel" style="display:none;">Cancel</button>
+              <button type="button" class="btn btn-default" btn-toggle="object#source" btn-display="inline-block">View Source</button>
+              <button type="button" class="btn btn-default" btn-toggle="object#grid" btn-display="inline-block" style="display:none;">View Grid</button>
             </div>
           </div>
         </div>
-        <div class="chart-stage">
+
+        <!-- Single Object Content -->
+        <div class="chart-stage" style="display:none;" view="object">
           <div class="container-fluid" id="object-content">
             <div class="row">
               <x-var id="object-data" type="object">
                 <!-- Object Left Pane -->
-                <div class="col-md-3" id="object-content-left" style="display:none;"></div>
+                <div class="col-md-4" id="object-content-left" style="display:none;"></div>
                 <!-- Object Content Center -->
                 <div class="col-md-12" id="object-content-center"></div>
                 <!-- Object Right Pane -->
-                <div class="col-md-3" id="object-content-right" style="display:none;"></div>
+                <div class="col-md-4" id="object-content-right" style="display:none;"></div>
               </x-var>
             </div>
           </div>
 
           <!-- Object Source -->
           <div id="object-source" style="display:none;"></div>
+        </div>
+
+        <!-- Object List Content -->
+        <div class="chart-stage" style="display:none;" view="list">
+
+          <!-- Thumbnails List Layout -->
+          <div id="object-list-thumbnails" class="layout-thumbnails layout-container row" style="display:none;" object-layout="thumbnails"></div>
+
+          <!-- Rows List Layout -->
+          <div id="object-list-rows" class="layout-list layout-container" style="display:none;" object-layout="list">
+            <table class="table table-striped">
+              <thead id="object-rows-headers">
+              </thead>
+              <tbody id="object-rows-body">
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <!-- Object Footer -->
@@ -48,6 +90,26 @@
 
   <!-- Object Modals -->
   <div id="object-modals">
+
+    <!-- Confirm Delete -->
+    <div id="object-delete" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="object-delete-header">Confirm Delete: </h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group form-field">
+              <p>Are you sure you want to delete this object? This action cannot be undone!</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" id="object-delete-submit" uuid="">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- Create Object: Key Prompt -->
     <div id="object-key" class="modal fade" role="dialog">

@@ -1,3 +1,4 @@
+// Core constructor
 var lense = (function() {
 	var core         = {};
 

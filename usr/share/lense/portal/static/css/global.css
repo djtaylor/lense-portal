@@ -7,8 +7,13 @@ html {
   margin-left: 5px;
 }
 
-.profile-field, .property-field, .thumbail-field, .form-field {
+.profile-field, .thumbail-field, .form-field {
   margin: 10px 0 0 0;
+  width: 100%;
+}
+
+.property-field {
+  margin: 0 0 10px 0;
   width: 100%;
 }
 
@@ -24,6 +29,11 @@ html {
 
 .profile-field-value, .property-field-value, .thumbnail-field-value, .form-field-value {
   background-color: #fff !important;
+}
+
+.property-field-value, .property-field-label {
+  font-size: 0.8em;
+  height: 30px;
 }
 
 .form-field-textarea {
@@ -79,6 +89,7 @@ html {
 	font-weight: bold !important;
 	font-size: 1.1em !important;
 	padding-bottom: 7px !important;
+  overflow: auto;
 }
 
 .chart-title-txt {
@@ -96,19 +107,13 @@ html {
 	min-width: 50px;
 }
 
+.chart-title-left {
+  overflow: auto;
+  float: left;
+}
+
 .chart-title-expand {
 	overflow: auto;
-}
-
-.menu-btn {
-
-}
-
-.menu-nav-btn-top {
-
-}
-
-.menu-nav-btn-child {
 }
 
 .navbar-right {
@@ -251,16 +256,20 @@ tbody th {
 	line-height: 27px;
 }
 
-.col-object-center {
-	padding: 0px;
+.col-object-left {
+  padding: 0 15px 0 0;
 }
 
-.col-object-left {
-	padding: 0 10px 0 15px;
+.col-object-center {
+	padding: 0 15px 0 15px;
 }
 
 .col-object-attr-left {
   padding: 0 10px 0 0;
+}
+
+.col-object-attr-left-full {
+  padding: 0 15px 0 0;
 }
 
 .col-object-left-inner {
@@ -395,4 +404,16 @@ tbody th {
   width: 150px !important;
   font-size: 0.8em;
   font-weight: normal;
+}
+
+.object-content-row {
+  margin-top: 5px;
+}
+
+.object-view-controls {
+  margin-top: 2.5px;
+}
+
+.permissions-header {
+  font-size: 0.7em;
 }

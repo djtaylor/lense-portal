@@ -5,7 +5,21 @@
 
         <!-- Object Header -->
         <div class="chart-title">
-          <div class="chart-title-expand text-capitalize" id="object-header"></div>
+          <div class="chart-title-left text-capitalize" id="object-header"></div>
+          <div class="btn-group pull-right object-view-controls" style="display:none;" view="object" role="group" aria-label="Object Views">
+            <button type="button" class="btn btn-default active" btn-group="objectView" btn-target="grid">
+              <span class="glyphicon glyphicon-list"></span>
+              Grid
+            </button>
+            <button type="button" class="btn btn-default" btn-group="objectView" btn-target="source">
+              <span class="glyphicon glyphicon-console"></span>
+              Source
+            </button>
+            <button type="button" class="btn btn-default" btn-group="objectView" btn-target="permissions">
+              <span class="glyphicon glyphicon-lock"></span>
+              Permissions
+            </button>
+          </div>
         </div>
 
         <!-- Object List Controls -->
@@ -40,16 +54,14 @@
               <button type="button" class="btn btn-success" id="edit-object">Edit</button>
               <button type="button" class="btn btn-success" id="save-object" style="display:none;">Save</button>
               <button type="button" class="btn btn-warning" id="edit-object-cancel" style="display:none;">Cancel</button>
-              <button type="button" class="btn btn-default" btn-toggle="object#source" btn-display="inline-block">View Source</button>
-              <button type="button" class="btn btn-default" btn-toggle="object#grid" btn-display="inline-block" style="display:none;">View Grid</button>
             </div>
           </div>
         </div>
 
         <!-- Single Object Content -->
         <div class="chart-stage" style="display:none;" view="object">
-          <div class="container-fluid" id="object-content">
-            <div class="row">
+          <div class="container-fluid" id="object-content" btn-group="objectView" btn-toggle="grid">
+            <div class="row object-content-row">
               <x-var id="object-data" type="object">
                 <!-- Object Left Pane -->
                 <div class="col-md-4" id="object-content-left" style="display:none;"></div>
@@ -61,8 +73,36 @@
             </div>
           </div>
 
+          <!-- Object Permissions -->
+          <div style="display:none;" btn-group="objectView" btn-toggle="permissions">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th class="permissions-header">Owner</th>
+                  <th class="permissions-header">User Read</th>
+                  <th class="permissions-header">User Write</th>
+                  <th class="permissions-header">User Delete</th>
+                  <th class="permissions-header">User Exec</th>
+                  <th class="permissions-header">Group Read</th>
+                  <th class="permissions-header">Group Write</th>
+                  <th class="permissions-header">Group Delete</th>
+                  <th class="permissions-header">Group Exec</th>
+                  <th class="permissions-header">All Read</th>
+                  <th class="permissions-header">All Write</th>
+                  <th class="permissions-header">All Delete</th>
+                  <th class="permissions-header">All Exec</th>
+                  <th class="permissions-header">Shared</th>
+                </tr>
+              </thead>
+              <tbody id="object-permissions">
+              </tbody>
+            </table>
+          </div>
+
           <!-- Object Source -->
-          <div id="object-source" style="display:none;"></div>
+          <div style="display:none;" btn-group="objectView" btn-toggle="source">
+            <div id="object-source"></div>
+          </div>
         </div>
 
         <!-- Object List Content -->

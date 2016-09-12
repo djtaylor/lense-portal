@@ -1,5 +1,5 @@
 lense.import('admin.handlers', function() {
-	var self = this;
+	var self    = this;
 
 	// Object definition
 	this.object = lense.object.define('handler');
@@ -21,10 +21,12 @@ lense.import('admin.handlers', function() {
 			label: 'Name',
 			link: true,
 			edit: true,
+			list: true
 		}],
 		[ 'desc', {
 			label: 'Description',
-			edit: true
+			edit: true,
+			list: false
 		}],
 		[ 'uuid', {
 			label: 'UUID',
@@ -33,19 +35,22 @@ lense.import('admin.handlers', function() {
 		}],
 		[ 'path', {
 			label: 'Path',
-			edit: true
+			edit: true,
+			list: true
 		}],
 		[ 'method', {
 			label: 'Method',
 			type: 'select',
 			options: ['GET', 'PUT', 'POST', 'DELETE'],
-			edit: true
+			edit: true,
+			list: true
 		}],
 		[ 'enabled', {
 			label: 'Enabled',
 			type: 'bool',
 			edit: true,
 			def: true,
+			list: true,
 			map: {
 				'Yes': true,
 				'No': false
@@ -56,6 +61,7 @@ lense.import('admin.handlers', function() {
 			type: 'bool',
 			edit: true,
 			def: false,
+			list: true,
 			map: {
 				'Yes': true,
 				'No': false
@@ -66,7 +72,7 @@ lense.import('admin.handlers', function() {
 			type: 'bool',
 			edit: true,
 			create: false,
-			list: false,
+			list: true,
 			map: {
 				'Yes': true,
 				'No': false
@@ -76,14 +82,22 @@ lense.import('admin.handlers', function() {
 			label: 'Locked By',
 			list: false
 		}],
-		[ 'manifest': {
-			grid: true,
+		[ 'allow_anon', {
+			label: 'Anonymous',
+			edit: true,
+			type: 'bool',
+			map: {
+				'Yes': true,
+				'No': false
+			}
+		}],
+		[ 'manifest', {
 			def: []
 		}]
-	]);
+	]));
 
 	// Object grid center
-	this.object.defineGrid('center', {
+	this.object.defineGrid('content-center', {
 		key: 'manifest',
 		require: [
 			'HandlerVariable',
@@ -94,9 +108,9 @@ lense.import('admin.handlers', function() {
 	});
 
 	// Object properties right
-	this.object.defineProperties('right', {
-		exclude: ['manifest']
-	}));
+	this.object.defineProperties('content-right', {
+		exclude: ['manifest', 'locked_by']
+	});
 
 	/**
 	 * @constructor

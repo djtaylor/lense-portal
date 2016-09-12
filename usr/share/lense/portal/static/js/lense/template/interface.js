@@ -28,6 +28,8 @@ lense.import('template.interface', function() {
 	function tr(attrs, inner) { return div(attrs, inner, 'tr'); }
 	function th(attrs, inner) { return div(attrs, inner, 'th'); }
 	function span(attrs, inner) { return div(attrs, inner, 'span'); }
+	function label(attrs, inner) { return div(attrs, inner, 'label'); }
+	function button(attrs, inner) { return div(attrs, inner, 'button'); }
 
 	/**
 	 * Initialize Interface
@@ -76,6 +78,115 @@ lense.import('template.interface', function() {
 
 		// Return the compiler object
 		return compiler
+	}
+
+	/**
+	 * Set Template Internals
+	 */
+	this._set_data = function(data, display, title) {
+		var _data_             = {};
+		_data_['_DATA_']       = data;
+		_data_['_DISPLAY_']    = extract(data, display);
+		_data_['_TITLE_']      = getattr(data, title, title);
+		_data_['_PATH_']       = window.location.pathname;
+		_data_['_METHODS_']    = ["GET", "POST", "PUT", "DELETE"];
+		_data_['_VIEW_']       = lense.url.getParam('view');
+		_data_['_UUID_']       = lense.url.getParam('uuid');
+		_data_['_widgetUUID_'] = lense.uuid4();
+		return _data_;
+	}
+
+	/**
+	 * Render template worker
+	 *
+	 * @param {String} parent The parent container
+	 * @param {String} id The template ID
+	 * @param {Object} data Template data
+	 * @param {Boolean} flush Clear the parent container or not
+	 * @param {String} display The display attribute
+	 * @param {String} title The title string
+	 */
+	this._render = function(parent, id, data, flush, display, title) {
+
+		// Compile the template
+		var compiled = Handlebars.compile($('#' + id).html());
+
+		// If flushing the container
+		if (flush === true) {
+			$(parent).empty();
+		}
+
+		// List of elements
+		if ($.isArray(data)) {
+			$.each(data, function(i,item) {
+				$(parent).append(compiled(self._set_data(item, display, title)));
+			});
+
+		// Single element
+		} else {
+			$(parent).append(compiled(self._set_data(data, display, title)));
+		}
+	}
+
+	/**
+	 * Table headers
+	 *
+	 * @param {String} parent The parent container
+	 * @param {Object} columns Header columns
+	 * @param {String} title The title string
+	 */
+	this._headers = function(parent, columns, title) {
+
+		// Compile the template
+		var compiled = Handlebars.compile($('#object_row_headers').html());
+
+		// Flush the header container
+		$(parent).empty();
+
+		// Render the headers
+		$(parent).append(compiled(self._set_data(columns, {}, title)));
+	}
+
+	/**
+	 * Render template
+	 *
+	 * @param {String} parent The parent container
+	 * @param {String} id The template ID
+	 * @param {Object} data The template data
+	 * @param {Object} options Any additional options
+	 */
+	this.render = function(parent, id, data, options) {
+		var callback = getattr(options, 'callback', false);
+		var flush    = getattr(options, 'flush', true);
+		var display  = getattr(options, 'display', {});
+		var title    = getattr(options, 'title', 'name');
+		var headers  = getattr(options, 'headers', null);
+
+		// Table headers
+		if (defined(headers)) {
+			self._headers(headers, display, title);
+		}
+
+		// Array of containers / templates
+		if ((parent instanceof Array) && (id instanceof Array)) {
+			if (!(parent.length === id.length)) {
+				throw new Exception('Parent and template arrays must be the same size!');
+			}
+
+			// Render each parent / template
+			$.each(parent, function(i,p) {
+				self._render(p, id[i], data, flush, display, title);
+			});
+
+		// Single container / template
+		} else {
+			self._render(parent, id, data, flush, display, title);
+		}
+
+		// Is a callback specified
+		if (callback !== false) {
+			callback();
+		}
 	}
 
 	/**
@@ -151,7 +262,7 @@ lense.import('template.interface', function() {
 				})];
 
 				// Construct columns
-				template.each(function(k, attrs) {
+				template.each(function(key, attrs) {
 					if (attrs.list) {
 						columns.push((function() {
 							if (getattr(attrs, 'link', false)) {
@@ -177,6 +288,36 @@ lense.import('template.interface', function() {
 				});
 				return columns.join('');
 			});
+		},
+		boolToggle: function(opts) {
+			var checked = (getattr(opts, 'selected', false) ? ' checked':'');
+			var size    = getattr(opts, 'size', 'normal');
+			var uuid    = (hasattr(opts, 'uuid') ? ' uuid="' + getattr(opts, 'uuid') + '"':'');
+
+			// Option labels
+			var label_true  = getattr(opts, 'label_true', 'Yes');
+			var label_false = getattr(opts, 'label_false', 'No');
+
+			// Return the toggle switch
+			return '<input type="checkbox" data-toggle="toggle" data-size="' + size + '" data-on="' + label_true + '" data-off="' + label_false + '"' + uuid + checked + ' update-source edit disabled>';
+		},
+		argField: function(oid, value) {
+			var uuid = {
+				'element': lense.uuid4(),
+				'value': lense.uuid4()
+			};
+
+			// Parent div
+			return div({ 'class': 'row object-attr-row', 'object-id': oid, 'uuid': uuid.element }, function() {
+				return div({ 'class': 'col-xs-11 col-object-attr-left-full col-object' }, function() {
+					return '<input type="text" class="form-control object-input" placeholder="value" value="' + value + '" uuid="' + uuid.value + '" update-source disabled edit>';
+				}) +
+				div({ 'class': 'col-xs-1 col-object-attr-right col-object' }, function() {
+					return button({ 'class': 'btn btn-danger btn-remove-object-attr', 'type': 'button', 'object-id': oid, 'uuid': uuid.element, 'update-source': true, 'disabled': true, 'edit': 'true'}, function() {
+						return span({ 'class': 'glyphicon glyphicon-remove' });
+					})
+				})
+			}) + '<x-var type="str" value="input[uuid=\'' + uuid.value + '\']"></x-var>';
 		},
 		kwargField: function(oid, key, value) {
 			var uuid = {
@@ -234,27 +375,29 @@ lense.import('template.interface', function() {
 
 					// Generate property fields
 					template.each(function(key, attrs) {
-						thumbnailContent.push(div({ class: 'input-group thumbnail-field' }, function() {
-							var fieldContent = [];
-							var fieldLabel   = getattr(attrs, 'label', key);
-							var fieldValue   = (function() {
-								var map = getattr(attrs, 'map', false);
-								if (map) {
-									var retval = null;
-									$.each(map, function(label, value) {
-										if (value === object[key]) {
-											retval = label;
-										}
-									});
-									return retval;
-								} else {
-									return (($.inArray(object[key], [null, undefined, '']) > -1) ? '':object[key]);
-								}
-							}());
-							fieldContent.push('<span class="input-group-addon thumbnail-field-label">' + fieldLabel + '</span>');
-							fieldContent.push('<input type="text" class="thumbnail-field-value form-control" value="' + fieldValue + '" readonly>');
-							return fieldContent.join('');
-						}));
+						if (attrs.list) {
+							thumbnailContent.push(div({ class: 'input-group thumbnail-field' }, function() {
+								var fieldContent = [];
+								var fieldLabel   = getattr(attrs, 'label', key);
+								var fieldValue   = (function() {
+									var map = getattr(attrs, 'map', false);
+									if (map) {
+										var retval = null;
+										$.each(map, function(label, value) {
+											if (value === object[key]) {
+												retval = label;
+											}
+										});
+										return retval;
+									} else {
+										return (($.inArray(object[key], [null, undefined, '']) > -1) ? '':object[key]);
+									}
+								}());
+								fieldContent.push('<span class="input-group-addon thumbnail-field-label">' + fieldLabel + '</span>');
+								fieldContent.push('<input type="text" class="thumbnail-field-value form-control" value="' + fieldValue + '" readonly>');
+								return fieldContent.join('');
+							}));
+						}
 					});
 
 					// Return the contents

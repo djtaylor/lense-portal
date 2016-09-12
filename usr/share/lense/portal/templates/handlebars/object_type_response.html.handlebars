@@ -10,11 +10,13 @@
     <div class="form-group">
       <div class="input-group btn-group-container">
         <div class="input-group-addon btn-group-label">Data: </div>
-        {{#data_group object 'response-data' meta.rspTypes desc='Response Data Type'}}
+        {{#data_group object 'response-data' meta.rspTypes
+          desc='Response Data Type'
+          append=(data_element 'dict' content=(object_arg_add 'kwarg' object dataKey='data') selector='data#dict')
+        }}
           {{data_element 'ref'  content=(object_var_input 'str' 'data' object prefix='#') selector='data#str'}}
-          {{data_element 'dict' content=(object_var_kwargs object) dataKey='data' selector='data#dict'}}
+          {{data_element 'dict' content=(object_kwargs object dataKey='data') selector='data#dict'}}
         {{/data_group}}
-        {{object_var_add object meta.rspTypes 'rsptype' 'dict' key='data'}}
       </div>
     </div>
   </div>

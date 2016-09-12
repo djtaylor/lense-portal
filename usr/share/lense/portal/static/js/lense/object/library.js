@@ -1,18 +1,16 @@
 lense.import('object.library', function() {
 	var self  = this;
 
-	// Post processor objects
-	this.post = {};
+	// Render processor storage
+	this.store = {};
 
 	/**
-	 * Post processing
+	 * Post object creation rendering
 	 */
-	this.postProcess = function() {
-
-		// Post processing renderer
-		function inner(target, attrs) {
+	this.render = function() {
+		function renderWorker(target, attrs) {
 			if (defined(attrs.parent) && $(attrs.parent).is(':empty')) {
-				inner(attrs.parent, self.post[attrs.parent]);
+				renderWorker(attrs.parent, self.store[attrs.parent]);
 			}
 
 			// Only render if empty
@@ -22,9 +20,12 @@ lense.import('object.library', function() {
 		}
 
 		// Loop through post process blocks
-		$.each(self.post, function(target,attrs) {
-			inner(target, attrs);
+		$.each(self.store, function(target,attrs) {
+			renderWorker(target, attrs);
 		});
+
+		// Bootstrap toggle
+		$('[data-toggle="toggle"]').bootstrapToggle();
 	}
 
 	/**
@@ -44,7 +45,7 @@ lense.import('object.library', function() {
 		this.setup = function() {
 
 			// New object button
-			lense.common.template.render('#object-controls-create', 'object_create_button', {
+			lense.template.render('#object-controls-create', 'object_create_button', {
 				type: inner.type,
 				label: inner.label,
 				keyed: inner.keyed,
@@ -219,37 +220,18 @@ lense.import('object.library', function() {
 	lense.register.constructor('object.library', function() {
 
 		/**
-		 * Add object parameter button
+		 * Button for adding a new argument variable
 		 *
-		 * @param {Object} object The object data
+		 * @param {String} type The argument type
+		 * @param {Object} object The data object
 		 */
-		Handlebars.registerHelper('object_param_add', function(object, opts) {
+		Handlebars.registerHelper('object_arg_add', function(type, object, opts) {
+			var dataKey = getattr(opts.hash, 'dataKey', ((type === 'kwarg') ? 'kwargs':'args'));
+
+			// Generate the argument button
 			return new Handlebars.SafeString(
-				'<div style="overflow:auto;">' +
 				'<div class="btn-group pull-right" role="group" object-id="' + object.id + '">' +
-				'<button type="button" class="btn btn-default" object-var-add="params" object-id="' + object.id + '" update-source disabled edit>' +
-				'<span class="glyphicon glyphicon-plus"></span>' +
-				'</button>' +
-				'</div></div>'
-			);
-		});
-
-		/**
-		 * Add object variable argument / keyword argument button
-		 *
-		 * @param {String} object The object data
-		 * @param {Array} types Available types to toggle between
-		 * @param {String} group The group ID
-		 * @param {String} type The object type this should be shown for
-		 */
-		Handlebars.registerHelper('object_var_add', function(object, types, group, type, opts) {
-			var prefix  = getattr(types, 'prefix', '');
-			var key     = (hasattr(opts.hash, 'key')) ? ' object-key="' + getattr(opts.hash, 'key') + '"':'';
-
-			// Generate the button HTML
-			return new Handlebars.SafeString(
-				'<div class="btn-group pull-right" role="group" object-id="' + object.id + '" object-toggle-id="' + prefix + type + '" object-toggle-controls object-toggle-group="' + group + '" style="display:none;">' +
-				'<button type="button" class="btn btn-default" object-var-add="' + type + '" object-id="' + object.id + '"' + key + ' update-source disabled edit>' +
+				'<button type="button" class="btn btn-default" object-arg-add="' + type + '" object-id="' + object.id + '" data-key="' + dataKey + '" update-source disabled edit>' +
 				'<span class="glyphicon glyphicon-plus"></span>' +
 				'</button>' +
 				'</div>'
@@ -257,51 +239,50 @@ lense.import('object.library', function() {
 		});
 
 		/**
-		 * Variable argument
+		 * Object argument
 		 *
+		 * @param {String} type The argument type: arg, kwarg
 		 * @param {String} id The object ID
-		 * @param {String} value The arg value
+		 * @param {Object} map Object key/value mapping
 		 */
-		Handlebars.registerHelper('object_var_arg', function(id, value, opts) {
-			var value = (defined(value)) ? value:'';
+		Handlebars.registerHelper('object_arg', function(type, id, map, opts) {
 
-			// Arg / value UUID
-			var arg_uuid   = lense.uuid4();
-			var value_uuid = lense.uuid4();
+			// Generated HTML
+			var html;
 
-			// Generate the keyword argument object
-			return new Handlebars.SafeString(
-				'<div class="row object-attr-row" object-id="' + id + '" uuid="' + arg_uuid + '">' +
-				'<div class="col-xs-11 col-object-center col-object">' +
-				'<input type="text" class="form-control object-input" placeholder="value" value="' + value + '" uuid="' + value_uuid + '" update-source disabled edit>' +
-				'</div>' +
-				'<div class="col-xs-1 col-object-attr-right col-object">' +
-				'<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + id + '" uuid="' + arg_uuid + '" update-source disabled edit>' +
-				'<span class="glyphicon glyphicon-remove"></span>' +
-				'</button>' +
-				'</div>' +
-				'<x-var type="str" value="input[uuid=\'' + value_uuid + '\']"></x-var>' +
-				'</div>'
-			);
+			// Process based on type
+			switch(type) {
+				case "arg":
+					html = lense.template.html.argField(id, getattr(map, 'value', ''));
+					break;
+				case "kwarg":
+					html = lense.template.html.kwargField(id, getattr(map, 'key', ''), getattr(map, 'value', ''));
+					break;
+				default:
+					lense.raise('Invalid argument type: ' + type);
+			}
+
+			// Return the argument element
+			return new Handlebars.SafeString(html);
 		});
 
 		/**
 		 * Variable arguments container
 		 */
-		Handlebars.registerHelper('object_var_args', function(object, opts) {
-			var init_args = [];
+		Handlebars.registerHelper('object_args', function(object, opts) {
+			var args = [];
 
 			// Generate initial args
 			if (defined(object.data.args) && istype(object.data.args, 'array')) {
 				$.each(object.data.args, function(i, value) {
-					init_args.push(Handlebars.helpers.object_var_arg(object.id, value));
+					args.push(Handlebars.helpers.object_arg('arg', object.id, { 'value': value }));
 				});
 			}
 
 			// Return args container
 			return new Handlebars.SafeString(
-				'<x-var object-id="' + object.id + '" type="array" key="args" inactive>' +
-				init_args.join('') +
+				'<x-var object-id="' + object.id + '" type="array" key="args">' +
+				args.join('') +
 				'</x-var>'
 			);
 		});
@@ -309,34 +290,23 @@ lense.import('object.library', function() {
 		/**
 		 * Variable keyword arguments container
 		 */
-		Handlebars.registerHelper('object_var_kwargs', function(object, opts) {
-			var init_kwargs = [];
-			var dataKey     = getattr(opts.hash, 'dataKey', 'kwargs');
+		Handlebars.registerHelper('object_kwargs', function(object, opts) {
+			var kwargs  = [];
+			var dataKey = getattr(opts.hash, 'dataKey', 'kwargs');
 
 			// Generate initial kwargs
 			if (defined(object.data[dataKey]) && istype(object.data[dataKey], 'object')) {
 				$.each(object.data[dataKey], function(key, value) {
-					init_kwargs.push(Handlebars.helpers.object_var_kwarg(object.id, key, value));
+					kwargs.push(Handlebars.helpers.object_arg('kwarg', object.id, { 'key': key, 'value': value }));
 				});
 			}
 
 			// Return kwargs container
 			return new Handlebars.SafeString(
-				'<x-var object-id="' + object.id + '" type="object" key="' + dataKey + '" inactive>' +
-				init_kwargs.join('') +
+				'<x-var object-id="' + object.id + '" type="object" key="' + dataKey + '">' +
+				kwargs.join('') +
 				'</x-var>'
 			);
-		});
-
-		/**
-		 * Variable keyword argument
-		 *
-		 * @param {String} id The object ID
-		 * @param {String} key The kwarg key
-		 * @param {String} value The kwarg value
-		 */
-		Handlebars.registerHelper('object_var_kwarg', function(id, key, value, opts) {
-			return new Handlebars.SafeString(lense.template.html.kwargField(id, ((defined(key)) ? key:''), ((defined(value)) ? value:'')));
 		});
 
 		/**
@@ -351,7 +321,6 @@ lense.import('object.library', function() {
 			var uuid   = lense.uuid4();
 			var prefix = getattr(opts.hash, 'prefix', false);
 			var style  = ((hasattr(opts.hash, 'style')) ? ' style="' + getattr(opts.hash, 'style') + '"':'');
-			var state  = ((getattr(opts.hash, 'active', false) === true) ? '':' inactive');
 
 			// Extract the value if present
 			var value = (function() {
@@ -369,7 +338,7 @@ lense.import('object.library', function() {
 			// Generate the input field and variable object
 			var prefix_attr = (defined(prefix)) ? ' prefix="' + prefix + '"':'';
 			var input       = '<input type="text" class="form-control" object-var-type="' + varType + '" object-id="' + object.id + '" uuid="' + uuid + '"' + value + ' update-source disabled edit>';
-			var xvar        = '<x-var type="' + xvarType + '" key="' + varType + '" value="input[uuid=\'' + uuid + '\']"' + prefix_attr + state + '></x-var>';
+			var xvar        = '<x-var type="' + xvarType + '" key="' + varType + '" value="input[uuid=\'' + uuid + '\']"' + prefix_attr + '></x-var>';
 
 			// Input group
 			if (defined(prefix)) {
@@ -393,7 +362,7 @@ lense.import('object.library', function() {
 			}());
 
 			// Return the data element
-			return new Handlebars.SafeString('<div data-type="' + type + '" data-parent="" data-element="" style="display:none;" selector="' + getattr(opts.hash, 'selector', type) + '">' + content + '</div>');
+			return new Handlebars.SafeString('<div data-type="' + type + '" data-parent="" data-element="" style="display:none;" data-selector="' + getattr(opts.hash, 'selector', type) + '">' + content + '</div>');
 		});
 
 		/**
@@ -405,6 +374,7 @@ lense.import('object.library', function() {
 		 */
 		Handlebars.registerHelper('data_group', function(object, target, types, opts) {
 			var inner      = $('<div class="data-group">' + opts.fn(this) + '</div>');
+			var append     = (hasattr(opts.hash, 'append') ? opts.hash.append.string:false)
 			var target     = (function() {
 				return '#' + (defined(object.key) ? target + '-' + object.key:target);
 			}());
@@ -417,14 +387,20 @@ lense.import('object.library', function() {
 			}());
 			var label      = (function() {
 				if (hasattr(opts.hash, 'desc')) {
-					return ' aria-label="' + getattr(opts.hash, 'desc') + '"'
+					return ' aria-label="' + getattr(opts.hash, 'desc') + '"';
 				}
 				return '';
 			}());
 
+			// UUIDs by data type
+			var type_uuids = {};
+
 			// Data elements / toggle buttons
 			var elements   = [];
 			var buttons    = {};
+
+			// Group controls container
+			var controls   = {};
 
 			// Group UUID
 			var group_uuid = lense.uuid4();
@@ -442,23 +418,36 @@ lense.import('object.library', function() {
 				}));
 			});
 
+			// Data storage
+			var data_store = {
+				'inner': [],
+				'append': ''
+			};
+
 			// Process data elements
-			$(inner).find('[data-element]').each(function() {
-				var elem      = $(this);
+			function process_element(elem, loc) {
+				var loc       = (defined(loc) ? loc:'inner');
 				var type      = getattr(elem, 'data-type');
 
 				// Element UUID / selected flag
-				var elem_uuid = lense.uuid4();
+				var elem_uuid = (function() {
+					if (hasattr(type_uuids, type)) {
+						return type_uuids[type];
+					}
+					type_uuids[type] = lense.uuid4();
+					return type_uuids[type];
+				}());
+
+				// Is the element selected
 				var selected  = (function() {
-					var selector = getattr(elem, 'selector');
+					var selector = getattr(elem, 'data-selector');
 
 					// Select by object key / type
 					if (selector.includes('#')) {
-						var attrKey  = selector.split('#')[0];
-						var attrType = selector.split('#')[1];
+						var attr = selector.split('#');
 
 						// Check for key / data type
-						return ((hasattr(object.data, attrKey) && istype(object.data[attrKey], attrType)) ? true:false);
+						return ((hasattr(object.data, attr[0]) && istype(object.data[attr[0]], attr[1])) ? true:false);
 
 					// Select by object key
 					} else {
@@ -467,7 +456,9 @@ lense.import('object.library', function() {
 				}());
 
 				// Set button UUID
-				buttons[type].attr('data-target', elem_uuid);
+				if (hasattr(buttons, type)) {
+					buttons[type].attr('data-target', elem_uuid);
+				}
 
 				// Set group attributes
 				elem.attr({
@@ -475,31 +466,78 @@ lense.import('object.library', function() {
 					'data-element': elem_uuid
 				});
 
+				// Variable state
+				var state = (selected ? '':' inactive');
+
 				// Element is selected
 				if (selected) {
-
-					// Show the element
 					elem.css('display', 'block');
-
-					// Set the parent button attributes
 					buttons[type].addClass('active');
 				}
 
-				// Store the group element
-				elements.push(elem[0].outerHTML);
+				// Process the location
+				switch(loc) {
+					case "inner":
+						data_store[loc].push('<x-var type="meta" data-parent="' + group_uuid + '" data-element="' + elem_uuid + '"' + state + '>' + elem[0].outerHTML + '</x-var>');
+						break;
+					case "append":
+						data_store[loc] = '<div class="btn-group pull-right" role="group" object-id="' + object.id + '">' + elem[0].outerHTML + '</div>';
+						break;
+					default:
+						lense.raise('Invalid element location: ' + loc);
+				}
+			}
+
+			// Process inner data elements
+			$(inner).find('[data-element]').each(function() {
+				process_element($(this));
 			});
 
+			// Any extra HTML to append inside the button group
+			if (defined(append)) { process_element($(append), 'append'); }
+
 			// Store elements for post processing
-			self.post[target] = {
-				html: elements.join(''),
+			self.store[target] = {
+				html: data_store.inner.join(''),
 				parent: parent
 			};
 
 			// Return group toggler
 			return new Handlebars.SafeString(
 				'<div class="btn-group btn-group-inner" role="group"' + label + '>' +
-				(Object.keys(buttons).map(function(key){return buttons[key][0].outerHTML}).join('')) +
-				'</div>'
+				(function() {
+					var btnsHTML = [];
+					$.each(buttons, function(type, btnHTML) {
+						btnsHTML.push(btnHTML[0].outerHTML);
+					});
+					return btnsHTML.join('');
+				}()) +
+				'</div>' + (defined(data_store.append) ? data_store.append:'')
+			);
+		});
+
+		/**
+		 * Object perissions row
+		 */
+		Handlebars.registerHelper('object_permissions', function(object) {
+			var size = 'mini';
+			return new Handlebars.SafeString(
+				'<tr>' +
+				'<th>' + object.owner + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.user_read, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.user_write, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.user_delete, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.user_exec, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.group_read, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.group_write, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.group_delete, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.group_exec, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.all_read, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.all_write, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.all_delete, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.all_exec, 'size': size }) + '</th>' +
+				'<th>' + lense.template.html.boolToggle({ 'uuid': lense.uuid4(), 'selected': object.share, 'size': size }) + '</th>' +
+				'</tr>'
 			);
 		});
 
@@ -509,7 +547,7 @@ lense.import('object.library', function() {
 		 * @param {Object} object The object data
 		 * @param {Object} param The parameter data
 		 */
-		Handlebars.registerHelper('object_param', function(object, key, attrs, opts) {
+		Handlebars.registerHelper('object_param', function(oid, key, attrs, opts) {
 
 			// UUIDs
 			var param_uuid  = lense.uuid4();
@@ -523,20 +561,23 @@ lense.import('object.library', function() {
 			// Generate parameter HTML
 			return new Handlebars.SafeString(
 				'<x-var type="array" key="@input[uuid=\'' + key_uuid + '\']">' +
-				'<div class="row object-attr-row" object-id="' + object.id + '" uuid="' + param_uuid + '">' +
-				'<div class="col-xs-5 col-object-center col-object">' +
+				'<div class="row object-attr-row" object-id="' + oid + '" uuid="' + param_uuid + '">' +
+				'<div class="col-xs-5 col-object-left col-object">' +
 				'<input type="text" class="form-control object-input" placeholder="value" value="' + key + '" uuid="' + key_uuid + '" update-source disabled edit>' +
 				'</div>' +
-				'<div class="col-xs-1 col-object-center col-object">' +
-				'<input class="col-object-checkbox" type="checkbox"' + req_checked + ' uuid="' + req_uuid + '" update-source disabled edit>' +
-				'<x-var type="bool" value="input[uuid=\'' + req_uuid + '\']"></x-var>' +
-				'</div>' +
-				'<div class="col-xs-5 col-object-center col-object" style="padding-left:15px;">' +
+				'<div class="col-xs-4 col-object-center col-object">' +
 				'<input type="text" class="form-control object-input" placeholder="none" value="' + ((defined(attrs[1])) ? attrs[1]:'') + '" uuid="' + def_uuid + '" update-source disabled edit>' +
 				'<x-var type="str" value="input[uuid=\'' + def_uuid + '\']" default="null"></x-var>' +
 				'</div>' +
+				'<div class="col-xs-2 col-object-center col-object">' +
+				lense.template.html.boolToggle({
+					'uuid': req_uuid,
+					'selected': (defined(attrs[0]) ? attrs[0]:false)
+				}) +
+				'<x-var type="bool" value="input[uuid=\'' + req_uuid + '\']"></x-var>' +
+				'</div>' +
 				'<div class="col-xs-1 col-object-attr-right col-object">' +
-				'<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + object.id + '" uuid="' + param_uuid + '" disabled edit>' +
+				'<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + oid + '" uuid="' + param_uuid + '" disabled edit>' +
 				'<span class="glyphicon glyphicon-remove"></span>' +
 				'</button>' +
 				'</div>' +
@@ -555,11 +596,11 @@ lense.import('object.library', function() {
 
 				// Generate initial parameters
 				$.each(object.data, function(key, attrs) {
-					init_params.push(Handlebars.helpers.object_param(object, key, attrs));
+					init_params.push(Handlebars.helpers.object_param(object.id, key, attrs));
 				});
 
 				// Return kwargs container
-				return new Handlebars.SafeString('<div class="form-group">' + init_params.join('') + '</div>');
+				return new Handlebars.SafeString('<div class="form-group"><x-var type="object" key="__PARAMS__">' + init_params.join('') + '</x-var></div>');
 			}
 		});
 
@@ -568,21 +609,16 @@ lense.import('object.library', function() {
 		 *
 		 * @param {object} key The property key
 		 * @param {Object} data The property data
-		 * @param {Object} properties Properties options
+		 * @param {Object} template Properties template
 		 */
 		Handlebars.registerHelper('object_property', function(key, data, template, opts) {
-			template.each(function(k, attrs) {
-				if (k === key)
-			});
-
-			var type  = getattr(properties, 'type', 'str');
+			var type  = getattr(template, 'type', 'str');
 			var edit  = (function() {
-				var canEdit = getattr(properties, 'edit', false);
+				var canEdit = getattr(template, 'edit', false);
 				return ((canEdit) ? ' edit':'');
 			}());
-			var label = getattr(properties, 'label', key);
+			var label = getattr(template, 'label', key);
 			var uuid  = lense.uuid4();
-			var local = data[key];
 
 			// Generate the object property HTML
 			return new Handlebars.SafeString(
@@ -592,11 +628,11 @@ lense.import('object.library', function() {
 					switch(type) {
 						case 'str':
 							return new Handlebars.SafeString(
-								'<input type="text" class="form-control property-field-value" value="' + local + '" uuid="' + uuid + '"disabled update-source' + edit + '>' +
+								'<input type="text" class="form-control property-field-value" value="' + data + '" uuid="' + uuid + '"disabled update-source' + edit + '>' +
 								'<x-var type="str" key="' + key + '" value="input[uuid=\'' + uuid + '\']"></x-var>'
 							);
 						case 'bool':
-							var options = getattr(properties, 'options', [true, false]);
+							var options = getattr(template, 'options', [true, false]);
 							return new Handlebars.SafeString(
 								'<select class="form-control property-field-value property-field-dropdown" uuid="' + uuid + '" disabled update-source' + edit + '>' +
 								(function() {
@@ -604,7 +640,7 @@ lense.import('object.library', function() {
 									$.each([true, false], function(i,state) {
 										opt_value = ((istype(state, 'array')) ? state[0]:state);
 										opt_label = ((istype(state, 'array')) ? state[1]:((opt_value === true) ? 'Yes':'No'));
-										opt_state = ((local === opt_value) ? ' selected="selected"':'');
+										opt_state = ((data === opt_value) ? ' selected="selected"':'');
 										fields.push('<option value="' + opt_value + '"' + opt_state + '>' + opt_label + '</option>');
 									});
 									return fields.join('');
@@ -613,7 +649,7 @@ lense.import('object.library', function() {
 								'<x-var type="bool" key="' + key + '" value="select[uuid=\'' + uuid +  '\']"></x-var>'
 							);
 						case 'select':
-							var options = getattr(properties, 'options');
+							var options = getattr(template, 'options');
 							return new Handlebars.SafeString(
 								'<select class="form-control property-field-value property-field-dropdown" uuid="' + uuid + '" disabled update-source' + edit + '>' +
 								(function() {
@@ -621,7 +657,7 @@ lense.import('object.library', function() {
 									$.each(options, function(i,value) {
 										opt_value = ((istype(value, 'array')) ? value[0]:value);
 										opt_label = ((istype(value, 'array')) ? value[1]:opt_value);
-										opt_state = ((local == opt_value) ? ' selected="selected"':'');
+										opt_state = ((data == opt_value) ? ' selected="selected"':'');
 										fields.push('<option value="' + opt_value + '"' + opt_state + '>' + opt_label + '</option>');
 									});
 									return fields.join('');
@@ -682,12 +718,17 @@ lense.import('object.library', function() {
 		 * Object thumbnail
 		 *
 		 * @param {Object} object The row object data
-		 * @param {Object} properties Visible row properties
-		 * @param {Object} opts Any additional options
+		 * @param {Object} template Object template
 		 */
-		Handlebars.registerHelper('object_thumbnail', function(object, properties, opts, handlebarOpts) {
+		Handlebars.registerHelper('object_thumbnail', function(object, template, opts) {
+			var title_attr = null;
+			template.each(function(k,obj) {
+				if (getattr(obj, 'link', false) === true) {
+					title_attr = k;
+				}
+			});
 			return new Handlebars.SafeString(lense.template.html.objectThumbnail(object, {
-				title_name: object[getattr(opts, 'title')],
+				title_name: getattr(object, title_attr, object.uuid),
 				title_link: window.location.pathname + '?view=' + lense.url.getParam('view') + '&uuid=' + object.uuid + '"',
 				template: template
 			})).string;

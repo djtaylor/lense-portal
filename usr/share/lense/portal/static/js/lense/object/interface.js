@@ -1,7 +1,7 @@
 lense.import('object.interface', function() {
 	var self     = this;
 
-	// Objects / source containers
+	// Objects / grid containers
 	this.objects = {};
 
 	/**
@@ -12,11 +12,6 @@ lense.import('object.interface', function() {
 		lense.implement([
 		    'object.library'
 		]);
-
-		// Custom x-var selector
-		$.expr[':'].activeVar = function(a) {
-			return $(a).is(':hidden') && $(a).css('display') != 'none';
-		};
 
 		// Object key modal shown
 		$(document).on('shown.bs.modal', '#object-key', function() {
@@ -62,227 +57,6 @@ lense.import('object.interface', function() {
 	}
 
 	/**
-	 * Check if variable is inactive
-	 *
-	 * @param {Object} e The jQuery element selector
-	 */
-	this.isInactive = function(e) {
-		return ((getattr(e, 'inactive', false) === false) ? false:true);
-	}
-
-	/**
-	 * Get variable type
-	 *
-	 * @param {Object} e The jQuery element selector
-	 */
-	this.getType = function(e) {
-		var type = getattr(e, 'type');
-		if ($.inArray(type, ['str', 'int', 'bool', 'array', 'object']) == -1) {
-			throw new Error('Invalid variable type: ' + type);
-		}
-		return type;
-	}
-
-	/**
-	 * Get default value attribute
-	 */
-	this.getDefault = function(e) {
-		var def = getattr(e, 'default', false);
-		if (def !== false) {
-			switch(def) {
-				case "null":
-					return null;
-				case "false":
-					return false;
-				case "true":
-					return true;
-				default:
-					return def;
-			}
-		} else {
-			return undefined;
-		}
-	}
-
-	/**
-	 * Get variable value
-	 *
-	 * @param {Object} e The jQuery element selector
-	 */
-	this.getValue = function(e) {
-		var is_static = e.attr('static');
-		var type      = getattr(e, 'type');
-		var prefix    = getattr(e, 'prefix', '');
-		var suffix    = getattr(e, 'suffix', '');
-		var value     = (function() {
-			if (type === 'bool') {
-				return ($(getattr(e, 'value')).is(':checked')) ? true:false;
-			} else if (typeof is_static !== typeof undefined && is_static !== false) {
-				return getattr(e, 'value');
-			} else {
-				return $(getattr(e, 'value')).val();
-			}
-		}());
-
-		// Return value
-		if (type === 'bool') {
-			return value;
-		} else {
-			return (defined(value)) ? prefix + value + suffix:false;
-		}
-	}
-
-	/**
-	 * Walk through data structure
-	 *
-	 * @param {Object} parent The parent element
-	 * @param {Object} ref The referenced data object to construct
-	 */
-	this.constructData = function(parent, ref) {
-		$.each(parent.children(), function(i,e) {
-			var elem = $(e);
-			if (elem.is('x-var')) {
-				var type = self.getType(elem);
-				var def  = self.getDefault(elem);
-				var key  = (function() {
-					var keyval = getattr(elem, 'key', false);
-
-					// No key found
-					if (keyval === false) {
-						return false;
-					} else {
-
-						// Dynamic key value
-						if (keyval.startsWith('@')) {
-							return $(keyval.slice(1)).val();
-
-						// Static key value
-						} else {
-							return keyval;
-						}
-					}
-				}());
-
-				// Element is inactive
-				if (self.isInactive(elem)) {
-					return true;
-				}
-
-				// Parent data is array
-				if ($.isArray(ref)) {
-					if (key !== false) {
-						throw new Error('Parent array cannot contain keyed element');
-					}
-
-					// Childless elements
-					if ($.inArray(type, ['str', 'int', 'bool']) !== -1) {
-						var value = self.getValue(elem);
-
-						// Not defined and default present
-						if (!defined(value) && def !== undefined) {
-							value = def;
-						}
-
-						// Boolean value
-						if (type == 'bool') {
-							ref.push(value);
-
-						// Other value
-						} else {
-							if (value !== false) {
-								ref.push(value);
-							}
-						}
-					} else {
-						ref.push(((type === 'array') ? []: {}));
-						self.constructData(elem, ref[ref.length - 1]);
-					}
-
-				// Assume object
-				} else {
-					if (key === false) {
-						throw new Error('Parent object cannot contain un-keyed element')
-					}
-
-					// Key already defined
-					if (key in ref) {
-						throw new Error('Parent object contains duplicate key: ' + key);
-					}
-
-					// Childless elements
-					if ($.inArray(type, ['str', 'int', 'bool']) !== -1) {
-						var value = self.getValue(elem);
-
-						// Not defined and default present
-						if (!defined(value) && def !== undefined) {
-							value = def;
-						}
-
-						// Boolean value
-						if (type == 'bool') {
-							ref[key] = value;
-
-						// Other value
-						} else {
-							if (value !== false) {
-								ref[key] = value;
-							}
-						}
-					} else {
-						ref[key] = ((type === 'array') ? []: {});
-						self.constructData(elem, ref[key]);
-					}
-				}
-			} else {
-				self.constructData(elem, ref);
-			}
-		});
-	}
-
-	/**
-	 * Collect object data
-	 *
-	 * @param {String} id The ID of the parent variable object
-	 */
-	this.collectData = function() {
-		var top   = $('x-var[id="object-data"]');
-		var type  = self.getType(top);
-		var data  = (function() {
-			switch(type) {
-				case 'str':
-				case 'bool':
-				case 'int':
-					return self.getValue(top);
-					break;
-				case 'array':
-					return [];
-					break;
-				case 'object':
-					return {};
-					break;
-				default:
-					return null;
-			}
-		})();
-
-		// Top level element has no children
-		if ($.inArray(type, ['str', 'int', 'bool']) !== -1) {
-			return data;
-		}
-
-		// Construct data object
-		try {
-			self.constructData(top, data);
-		} catch(e) {
-			lense.log.warn(e);
-			return undefined;
-		}
-
-		// Return data
-		return data;
-	}
-
-	/**
 	 * Base interface object
 	 *
 	 * @param {String} id A unique interface ID, i.e., data, object, source
@@ -299,6 +73,40 @@ lense.import('object.interface', function() {
 	}
 
 	/**
+	 * Permissions interface
+	 *
+	 * @param {Object} data The permissions data
+	 */
+	function PermissionsInterface(data) {
+		var local    = new BaseInterface('permissions', this);
+
+		// Local data
+		local.object = clone(data);
+
+		/**
+		 * Render a single permissions row
+		 */
+		local.render = function(permissions) {
+			$('#object-permissions').append(Handlebars.helpers.object_permissions(permissions).string);
+		}
+
+		/**
+		 * Construct permissions interface
+		 */
+		local.construct = function() {
+			if ($.isArray(local.object)) {
+				$.each(local.object, function(i,permissions) {
+					local.render(permissions);
+				});
+			} else {
+				local.render(local.object);
+			}
+		}
+
+		return local;
+	}
+
+	/**
 	 * Data interface
 	 *
 	 * @param {Object} data The data object
@@ -310,10 +118,235 @@ lense.import('object.interface', function() {
 		local.object = clone(data);
 
 		/**
-		 * Return a hash of data
+		 * Check if variable is inactive
+		 *
+		 * @param {Object} e The jQuery element selector
 		 */
-		local.hash = function() {
-			return local.object;
+		local.isInactive = function(e) {
+			return ((getattr(e, 'inactive', false) === false) ? false:true);
+		}
+
+		/**
+		 * Get variable type
+		 *
+		 * @param {Object} e The jQuery element selector
+		 */
+		local.getType = function(e) {
+			var type = getattr(e, 'type');
+			if ($.inArray(type, ['str', 'int', 'bool', 'array', 'object', 'meta']) == -1) {
+				throw new Error('Invalid variable type: ' + type);
+			}
+			return type;
+		}
+
+		/**
+		 * Get default value attribute
+		 */
+		local.getDefault = function(e) {
+			var def = getattr(e, 'default', false);
+			if (def !== false) {
+				switch(def) {
+					case "null":
+						return null;
+					case "false":
+						return false;
+					case "true":
+						return true;
+					default:
+						return def;
+				}
+			} else {
+				return undefined;
+			}
+		}
+
+		/**
+		 * Get variable value
+		 *
+		 * @param {Object} e The jQuery element selector
+		 */
+		local.getValue = function(e) {
+			var is_static = e.attr('static');
+			var type      = getattr(e, 'type');
+			var prefix    = getattr(e, 'prefix', '');
+			var suffix    = getattr(e, 'suffix', '');
+			var value     = (function() {
+				if (type === 'bool') {
+					return ($(getattr(e, 'value')).is(':checked')) ? true:false;
+				} else if (typeof is_static !== typeof undefined && is_static !== false) {
+					return getattr(e, 'value');
+				} else {
+					return $(getattr(e, 'value')).val();
+				}
+			}());
+
+			// Return value
+			if (type === 'bool') {
+				return value;
+			} else {
+				return (defined(value)) ? prefix + value + suffix:false;
+			}
+		}
+
+		/**
+		 * Walk through data structure
+		 *
+		 * @param {Object} parent The parent element
+		 * @param {Object} ref The referenced data object to construct
+		 */
+		local.construct = function(parent, ref) {
+			$.each(parent.children(), function(i,e) {
+				var elem = $(e);
+				if (elem.is('x-var')) {
+
+					// Get variable attributes
+					var type   = local.getType(elem);
+					var def    = local.getDefault(elem);
+					var active = (elem.is('[inactive]') ? false:true);
+					var key    = (function() {
+						var keyval = getattr(elem, 'key', false);
+
+						// No key found
+						if (keyval === false) {
+							return false;
+						} else {
+
+							// Dynamic key value
+							if (keyval.startsWith('@')) {
+								return $(keyval.slice(1)).val();
+
+							// Static key value
+							} else {
+								return keyval;
+							}
+						}
+					}());
+
+					// Is the element active or not
+					if (!active) {
+						return true;
+					}
+
+					// Variables with data-element attribute are no parse elements
+					if (hasattr(elem, 'data-element')) {
+						local.construct(elem, ref);
+
+					// Other data types
+					} else {
+
+						// Parent data is array
+						if ($.isArray(ref)) {
+							if (key !== false) {
+								throw new Error('Parent array cannot contain keyed element');
+							}
+
+							// Childless elements
+							if ($.inArray(type, ['str', 'int', 'bool']) !== -1) {
+								var value = local.getValue(elem);
+
+								// Not defined and default present
+								if (!defined(value) && def !== undefined) {
+									value = def;
+								}
+
+								// Boolean value
+								if (type == 'bool') {
+									ref.push(value);
+
+								// Other value
+								} else {
+									if (value !== false) {
+										ref.push(value);
+									}
+								}
+							} else {
+								ref.push(((type === 'array') ? []: {}));
+								local.construct(elem, ref[ref.length - 1]);
+							}
+
+						// Assume object
+						} else {
+							if (key === false) {
+								throw new Error('Parent object cannot contain un-keyed element')
+							}
+
+							// Key already defined
+							if (key in ref) {
+								throw new Error('Parent object contains duplicate key: ' + key);
+							}
+
+							// Childless elements
+							if ($.inArray(type, ['str', 'int', 'bool']) !== -1) {
+								var value = local.getValue(elem);
+
+								// Not defined and default present
+								if (!defined(value) && def !== undefined) {
+									value = def;
+								}
+
+								// Boolean value
+								if (type == 'bool') {
+									ref[key] = value;
+
+								// Other value
+								} else {
+									if (value !== false) {
+										ref[key] = value;
+									}
+								}
+							} else {
+								ref[key] = ((type === 'array') ? []: {});
+								local.construct(elem, ref[key]);
+							}
+						}
+					}
+				} else {
+					local.construct(elem, ref);
+				}
+			});
+		}
+
+		/**
+		 * Collect object data
+		 *
+		 * @param {String} id The ID of the parent variable object
+		 */
+		local.collect = function() {
+			var top   = $('x-var[id="object-data"]');
+			var type  = local.getType(top);
+			var data  = (function() {
+				switch(type) {
+					case 'str':
+					case 'bool':
+					case 'int':
+						return local.getValue(top);
+						break;
+					case 'array':
+						return [];
+						break;
+					case 'object':
+						return {};
+						break;
+					default:
+						return null;
+				}
+			})();
+
+			// Top level element has no children
+			if ($.inArray(type, ['str', 'int', 'bool']) !== -1) {
+				return data;
+			}
+
+			// Construct data object
+			try {
+				local.construct(top, data);
+			} catch(e) {
+				lense.log.warn(e);
+				return undefined;
+			}
+
+			// Return data
+			return data;
 		}
 
 		/**
@@ -338,11 +371,6 @@ lense.import('object.interface', function() {
 			} else {
 				return getattr(local.object, selector, def);
 			}
-
-			if (istype(local.object, 'array')) {
-
-			}
-			return getattr(local.object, key, def)
 		}
 
 		/**
@@ -351,19 +379,9 @@ lense.import('object.interface', function() {
 		 * @param {Function} callback The iteration callback
 		 */
 		local.each = function(callback) {
-
-			// Array of objects
-			if (istype(local.object, 'array')) {
-				$.each(local.object, function(i,obj) {
-					return callback(i,obj);
-				});
-
-			// Single object
-			} else {
-				$.each(local.object, function(k,obj) {
-					return callback(k,obj);
-				});
-			}
+			$.each(local.object, function(k,obj) {
+				return callback(k,obj);
+			});
 		}
 
 		// Return the data interface
@@ -380,14 +398,11 @@ lense.import('object.interface', function() {
 		var local = new BaseInterface('source', this);
 
 		// Define the editor
-		local.editStartor = ace.edit('object-source');
+		local.editor = ace.edit('object-source');
 
 		// Theme / mode
 		local.editor.setTheme(getattr(opts, 'theme', 'ace/theme/chrome'));
 		local.editor.getSession().setMode(getattr(opts, 'mode', 'ace/mode/json'));
-
-		// Read only (editing not supported)
-		local.editor.setReadOnly(getattr(opts, 'readOnly', true));
 
 		// Autosize editor window
 		local.editor.$blockScrolling = Infinity;
@@ -399,6 +414,9 @@ lense.import('object.interface', function() {
 		if (defined(data)) {
 			local.editor.setValue(JSON.stringify(data, undefined, 2), -1);
 		}
+
+		// Read only (editing not supported)
+		local.editor.setReadOnly(getattr(opts, 'readOnly', true));
 
 		/**
 		 * Update source code
@@ -414,6 +432,144 @@ lense.import('object.interface', function() {
 	}
 
 	/**
+	 * Grid objects interface. Use for managing multiple Gridstack objects
+	 */
+	function GridInterface() {
+		var local = new BaseInterface('grid', this);
+
+		// Available grid objects / current grid object
+		local.grids = {};
+
+		/**
+		 * Define a new self-contained grid object
+		 *
+		 * @param {String} key The grid key
+		 * @param {Object} opts Any additional options
+		 */
+		function GridObject(key, opts) {
+			var local  = this;
+			local.key  = key;
+			local.opts = opts;
+			local.id   = 'grid-' + key;
+			local.data = getattr(opts, 'data', false);
+
+			// Local grid object
+			local.grid;
+
+			/**
+			 * Construct the current grid
+			 */
+			local.construct = function(data) {
+
+				// Create the grid container
+				$('#object-' + getattr(local.opts, 'pos')).html(
+					'<x-var type="array" key="' + local.key + '" grid-key="' + local.key + '">' +
+					'<div class="grid-stack" id="' + local.id + '"></div>' +
+					'</x-var>'
+				);
+
+				// Setup Gridstack
+				local.grid = $('#' + local.id);
+				local.grid.gridstack({
+					cellHeight: 40,
+							verticalMargin: 10,
+							draggable: {
+									handle: getattr(opts, 'drag_handle', '.object-move')
+							}
+				});
+
+				// Set to static unless editing
+				local.grid.data('gridstack').setStatic(true);
+
+				// Grid data should be defined
+				if (!defined(data)) {
+					lense.log.debug('Skipping grid "' + local.key + '" construction, data not defined...');
+					return false;
+				}
+
+				// Data must be an array
+				if ($.isArray(data)) {
+					$.each(data, function(i,o) {
+						$.each(o, function(item,attrs) {
+
+							// Get grid type and key (optional)
+							var item_type = (item.indexOf('#') >= 0) ? item.split('#')[0]:item;
+							var item_key  = (item.indexOf('#') >= 0) ? item.split('#')[1]:null;
+
+							// Create the grid object
+							lense.object.library.mapType(item_type).create(local.grid, item_key, attrs);
+						});
+					});
+				} else {
+					lense.log.warn('Grid data must be an array!');
+				}
+			}
+		}
+
+		/**
+		 * Retrieve grid object by object ID
+		 *
+		 * @param {String} oid The grid object ID
+		 */
+		local.oid = function(oid) {
+			var key = $('[object-id="' + oid + '"]').closest('x-var[grid-key]').attr('grid-key');
+			return local.get(key);
+		}
+
+		/**
+		 * Access grid as data key
+		 *
+		 * @param {String} key The grid key
+		 */
+		local.as = function(key) {
+			if (!hasattr(local.grids, key)) {
+				lense.raise('Cannot use "' + key + '" grid, not found!');
+			}
+			return local.grids[key];
+		}
+
+		/**
+		 * Iterate through grids
+		 *
+		 * @param {Function} callback The loop callback
+		 */
+		local.each = function(callback) {
+			$.each(local.grids, function(k, grid) {
+				return callback(k, grid);
+			});
+		}
+
+		/**
+		 * Get grid object
+		 *
+		 * @param {String} key The grid key
+		 */
+		local.get = function(key) {
+			if (!hasattr(local.grids, key)) {
+				lense.raise('Cannot use "' + key + '" grid, not found!');
+			}
+			return local.grids[key].grid;
+		}
+
+		/**
+		 * Define a new grid
+		 *
+		 * @param {String} key The grid key / data point
+		 * @param {Object} opts Any additional options
+		 */
+		local.define = function(key, opts) {
+			var id = 'grid-' + key;
+			if (hasattr(local.grids, key)) {
+				lense.raise('Cannot redefine grid: ' + key + '!');
+			}
+			local.grids[key] = new GridObject(key, opts);
+		}
+
+		// Return the grid interface
+		return local;
+	}
+
+	/**
 	 * Object Interface
 	 *
 	 * @param {String} uuid The object UUID
@@ -424,7 +580,11 @@ lense.import('object.interface', function() {
 		var inner = this;
 
 		// Options / grids / properties
-		local.opts, local.grids, local.template, local.properties, local.source, local.data;
+		local.opts, local.template, local.source, local.data;
+		local.properties = {};
+
+		// Grid interface
+		local.grid   = new GridInterface();
 
 		// UUID and type
 		local.uuid   = uuid;
@@ -436,7 +596,6 @@ lense.import('object.interface', function() {
 			if (create && local.uuid) {
 				lense.raise('UUID and create parameters not compatible!');
 			}
-			return create;
 		}());
 
 		// Edit flag and checks
@@ -445,10 +604,9 @@ lense.import('object.interface', function() {
 			if (edit && local.create) {
 				lense.raise('Create and edit parameters not compatible!');
 			}
-			if (!defined(local.uuid)) {
-				lense.raise('Cannot edit with selecting an object!');
+			if (edit && !defined(local.uuid)) {
+				lense.raise('Cannot edit without selecting an object!');
 			}
-			return edit;
 		}());
 
 		// Set the view
@@ -494,7 +652,7 @@ lense.import('object.interface', function() {
 			// Including specific attributes
 			if (include) {
 				local.template.each(function(k,v) {
-					if ($.inArray(k, include)) {
+					if (include.contains(k)) {
 						render.append(k,v);
 					}
 				});
@@ -503,10 +661,15 @@ lense.import('object.interface', function() {
 			// Excluding specific attributes
 			if (exclude) {
 				local.template.each(function(k,v) {
-					if (!$.inArray(k, exclude)) {
+					if (!exclude.contains(k)) {
 						render.append(k,v);
 					}
 				});
+			}
+
+			// Show all properties
+			if (!include && !exclude) {
+				render = local.template;
 			}
 
 			// Store the properties
@@ -520,26 +683,24 @@ lense.import('object.interface', function() {
 		 * @param {String} key The grid parent data key
 		 * @param {Array} require A list of grid object templates to require
 		 */
-		this.defineGrid = function(pos, opts) {
-			var gridOpts = local.template.get(key);
+		local.defineGrid = function(pos, opts) {
+			var key      = getattr(opts, 'key');
+			var template = local.template.get(key);
 
 			// Key must be in template
-			if (!defined(gridOpts)) {
+			if (!defined(template)) {
 				lense.raise('Grid key "' + key + '" not found in object template!');
 			}
 
-			// Key must set grid=true
-			if (!getattr(gridOpts, 'grid', false)) {
-				lense.raise('Grid key "' + key + '" must have "grid" attribute set to: true!');
-			}
-
 			// Grid object types
-			$.each(getattr(opts, 'require', []), function(i,t) {
+			$.each(getattr(opts, 'require'), function(i,t) {
 				getattr(lense.object.library, t).setup();
 			});
 
 			// Store the grid key
-			local.grids[pos] = getattr(opts, 'key');
+			local.grid.define(key, {
+				pos: pos
+			});
 		}
 
 		/**
@@ -553,19 +714,22 @@ lense.import('object.interface', function() {
 			});
 
 			// Toggle button states
-			$(document).on('click', 'button[btn-toggle*="#"]', function() {
-				var view   = $(this).attr('view');
-				var group  = view.split('#')[0];
-				var target = view.split('#')[1];
-				$.each($('button[btn-toggle*="' + group +'#"]'), function(i,e) {
-					var elem = e;
-					elem.css('display', (function() {
-						if (elem.css('display') === 'none') {
-							return getattr(elem, 'btn-display', 'block');
-						}
-						return 'none';
-					}()));
-				});
+			$(document).on('click', 'button[btn-target]', function() {
+				var elem    = $(this);
+				var group   = getattr(elem, 'btn-group');
+				var target  = getattr(elem, 'btn-target');
+
+				// Ignore clicking the active button
+				if (!elem.hasClass('active')) {
+
+					// Switch button states
+					$('button[btn-group="' + group + '"]').removeClass('active');
+					$('button[btn-group="' + group + '"][btn-target="' + target + '"]').addClass('active');
+
+					// Toggle content
+					$('div[btn-group="' + group + '"]').css('display', 'none');
+					$('div[btn-group="' + group + '"][btn-toggle="' + target + '"]').css('display', 'block');
+				}
 			});
 		}
 
@@ -607,14 +771,14 @@ lense.import('object.interface', function() {
 		local._bind = function() {
 
 			// Update source
-			$.each(['input', 'blur', 'change', 'select'], function(i,e) {
+			$.each(['input', 'blur', 'change', 'select', 'focus', 'focusout', 'focusin'], function(i,e) {
 				$(document).on(e, '[update-source]', function() {
-					var data = self.collectData();
+					var data = local.data.collect();
 					if (!defined(data)) {
 						lense.log.debug('Failed to update source: data undefined');
 						return false;
 					}
-					self.source.update(data);
+					local.source.update(data);
 				});
 			});
 
@@ -626,7 +790,7 @@ lense.import('object.interface', function() {
 
 			// Save object
 			$(document).on('click', '#save-object', function() {
-				console.log(lense.object.collectData('object-data'));
+				console.log(local.data.collect());
 			});
 
 			// Cancel edit
@@ -639,35 +803,61 @@ lense.import('object.interface', function() {
 				self.setLayout(getattr($(this), 'object-toggle-layout'));
 			});
 
-			// Disable the selected group
-			$(document).on('click', 'button.active[object-toggle-target]', function() {
+			// Add data element
+			$(document).on('click', 'button[data-add]', function() {
+				var elem    = $(this);
+				var oid     = getattr(elem, 'object-id');
 
+				// Type of data to add
+				var addType = getattr(elem, 'data-add');
+
+				// Process based on data type to add
+				switch(addType) {
+					case "arg":
+						var argType = getattr(elem, 'data-argtype');
+
+						// Process based on argument type
+						switch(argType) {
+							case "arg":
+							case "kwarg":
+							default:
+								lense.log.warn('Cannot add argument, invalid argument type: ' + argType)
+						}
+						break;
+
+					// Invalid data point type
+					default:
+						lense.log.warn('Cannot add data point, invalid type: ' + addType);
+				}
 			});
 
 			// Add argument
-			$(document).on('click', 'button[object-var-add="list"]', function() {
-				var oid  = getattr($(this), 'object-id');
-				var html = $(Handlebars.helpers.object_var_arg(oid, null).string).find('[disabled]').removeAttr('disabled');
-				var elem = $('x-var[object-id="' + oid + '"][key="args"]');
+			$(document).on('click', 'button[object-arg-add]', function() {
+				var elem = $(this);
+				var oid  = getattr(elem, 'object-id');
+				var type = getattr(elem, 'object-arg-add');
+				var key  = getattr(elem, 'data-key');
+				var html = null;
 
-				// Add a new argument
-				elem.append(html[0].outerHTML);
+				// Process argument type
+				switch(type) {
+					case "arg":
+					case "kwarg":
+						html = $(Handlebars.helpers.object_arg(type, oid, { 'key': null, 'value': null }).string);
+						break;
+					case "param":
+					  html = $(Handlebars.helpers.object_param(oid, '', [null, false]).string);
+						break;
+					default:
+						lense.raise('Cannot add invalid argument type: ' + type);
+				}
 
-				// Resize details
-				local.resizeDetails(oid);
-			});
+				console.log(html);
 
-			// Add keyword argument
-			$(document).on('click', 'button[object-var-add="dict"]', function() {
-				var oid  = getattr($(this), 'object-id');
-				var key  = getattr($(this), 'object-key', 'kwargs');
-				var html = $(Handlebars.helpers.object_var_kwarg(oid, null, null).string).find('[disabled]').removeAttr('disabled');
-				var elem = $('x-var[object-id="' + oid + '"][key="' + key + '"]');
+				// Target container
+				$('x-var[object-id="' + oid + '"][key="' + key + '"]').append(html);
 
-				// Add a new keyword argument
-				elem.append(html[0].outerHTML);
-
-				// Resize details
+				// Resize widget
 				local.resizeDetails(oid);
 			});
 
@@ -700,20 +890,22 @@ lense.import('object.interface', function() {
 				// All group objects
 				var all      = {
 					buttons: $('button[data-group="' + group + '"]'),
-					children: $('div[data-parent="' + group + '"]')
+					children: $('div[data-parent="' + group + '"]'),
+					xvar: $('x-var[data-parent="' + group + '"]')
 				};
 
 				// Selected objects
 				var selected = {
 					button: $('button[data-group="' + group + '"][data-target="' + target + '"]'),
-					children: $('div[data-parent="' + group + '"][data-element="' + target + '"]')
+					children: $('div[data-parent="' + group + '"][data-element="' + target + '"]'),
+					xvar: $('x-var[data-parent="' + group + '"][data-element="' + target + '"]')
 				};
 
 				// Disable group
 				if ($(this).hasClass('active')) {
 					selected.button.removeClass('active');
 					selected.children.css('display', 'none');
-					selected.children.find('x-var').attr('inactive', '');
+					selected.xvar.attr('inactive', '');
 
 				// Switch groups
 				} else {
@@ -721,12 +913,12 @@ lense.import('object.interface', function() {
 					// Disable all buttons / children
 					all.buttons.removeClass('active');
 					all.children.css('display', 'none');
-					all.children.find('x-var').attr('inactive', '');
+					all.xvar.attr('inactive', '');
 
 					// Enable selected button / children
 					selected.button.addClass('active');
 					selected.children.css('display', 'block');
-					selected.children.find('x-var').removeAttr('inactive');
+					selected.xvar.removeAttr('inactive');
 				}
 
 				// Resize widget
@@ -734,7 +926,7 @@ lense.import('object.interface', function() {
 
 				// Update source
 				if (hasattr($(this), 'update-source')) {
-					local.source.update(lense.object.collectData('object-data'));
+					local.source.update(local.data.collect());
 				}
 			});
 		}
@@ -744,98 +936,45 @@ lense.import('object.interface', function() {
 		 *
 		 * @param {String} id The object ID
 		 */
-		local.resizeDetails = function(id) {
-			var height = $('.object-collapse[object-id="' + id + '"]').actual('height');
+		local.resizeDetails = function(oid) {
+			var height = $('.object-collapse[object-id="' + oid + '"]').actual('height');
 			var ysize  = Math.ceil(height / 40);
 
 			// Resize the widget
-			local.grid.data('gridstack').resize('.grid-stack-item[object-id="' + id + '"]', null, (ysize == 1) ? 2: ysize);
+			local.grid.oid(oid).data('gridstack').resize('.grid-stack-item[object-id="' + oid + '"]', null, (ysize == 1) ? 2: ysize);
 		}
 
 		/**
 		 * Collapse object details
 		 *
-		 * @param {String} id The object ID
+		 * @param {String} oid The object ID
 		 */
-		local.collapseDetails = function(id) {
-			local.grid.data('gridstack').resize('.grid-stack-item[object-id="' + id + '"]', null, 1);
+		local.collapseDetails = function(oid) {
+			local.grid.oid(oid).data('gridstack').resize('.grid-stack-item[object-id="' + oid + '"]', null, 1);
 		}
 
 		/**
-		 * Set source data.
+		 * Construct a grid from source data.
 		 *
-		 * @param {Object} data The object source data
-		 * @param {Object} options Any additional options
-		 * @param {Array} options.filter Attributes to filter from source data
+		 * @param {String} key The grid key
+		 * @param {Object} data Grid data
 		 */
-		local.setData = function(data, options) {
-			var filter  = getattr(options, 'filter', []);
-			self.data   = new DataInterface(id, data);
-			self.source = new SourceInterface(id, (function() {
-				var copy = clone(self.data.object);
-				$.each(filter, function(i,key) {
-					delete copy[key];
-				});
-				return copy;
-			}()));
-		}
-
-		/**
-		 * Create a new grid object.
-		 *
-		 * @param {String} id The grid ID
-		 * @param {String} type The grid object type
-		 * @param {String} key The grid object key
-		 * @param {Object} attrs The grid object attributes
-		 */
-		local.createGridObject = function(id, type, key, attrs) {
-			try {
-				lense.object.library.mapType(type).create(local.grid, key, attrs);
-			} catch (e) {
-				lense.log.warn(e);
-			}
-		}
-
-		/**
-		 * Convert source object to grid layout.
-		 *
-		 * @param {String} id The grid ID
-		 * @param {Object} data Grid data objects
-		 */
-		local.sourceToGrid = function(id, data) {
+		local.constructGrid = function(key, data) {
 			if ($.isArray(data)) {
 				$.each(data, function(i,o) {
 					$.each(o, function(item,attrs) {
-						var type = (item.indexOf('#') >= 0) ? item.split('#')[0]:item;
-						var key  = (item.indexOf('#') >= 0) ? item.split('#')[1]:null;
-						local.createGridObject(id, type, key, attrs);
+
+						// Get grid type and key (optional)
+						var item_type = (item.indexOf('#') >= 0) ? item.split('#')[0]:item;
+						var item_key  = (item.indexOf('#') >= 0) ? item.split('#')[1]:null;
+
+						// Create the grid object
+						lense.object.library.mapType(item_type).create(local.grid.as(key), item_key, attrs);
 					});
 				});
 			} else {
 				lense.log.warn('Grid data must be an array!');
 			}
-		}
-
-		/**
-		 * Bootstrap grid editor
-		 *
-		 * @param {String} pos The grid position
-		 * @param {String} key The grid key
-		 * @param {Object} data Grid data
-		 */
-		local.bootstrapGrid = function(pos, key, data) {
-			var id = 'grid-' + key;
-
-			// Create the grid container
-			$('#object-' + loc).html(
-				'<x-var type="array" key="' + key + '">' +
-				'<div id="' + id + '"></div>' +
-				'</x-var>'
-			);
-
-			// Define the grid
-			var grid = $('#' + id);
-
 		}
 
 		/**
@@ -884,7 +1023,7 @@ lense.import('object.interface', function() {
 							 var extract = getattr(opts, 'extract', false);
 
 							 // Convert source to grid
-							 local.sourceToGrid(id, (extract !== false) ? data[extract]:data);
+							 local.constructGrid(id, (extract !== false) ? data[extract]:data);
 						 }
 
 						 // Remove widget
@@ -929,6 +1068,22 @@ lense.import('object.interface', function() {
 		 * Bootstrap the object header
 		 */
 		local.bootstrapHeader = function() {
+			return '<h4>' + local.type + (function() {
+				if (defined(local.uuid)) {
+					var title = local.uuid;
+					local.template.each(function(k,obj) {
+						if (hasattr(obj, 'link') && obj.link === true) {
+							title = local.data.get(k);
+						}
+					});
+					return '::' + title;
+				} else if (local.create) {
+					return '::create';
+				} else {
+					return 's';
+				}
+			}()) + '</h4>';
+
 			if (defined(local.uuid)) {
 				return '<h4>' + local.type + '::' + local.uuid + '</h4>';
 			} else if (local.create) {
@@ -943,8 +1098,8 @@ lense.import('object.interface', function() {
 		 */
 		local.bootstrapThumbnails = function () {
 			var thumbnails = [];
-			$.each(local.data.hash(), function(i,object) {
-				thumbnails.push(Handlebars.helpers.object_thumbnail(object, properties, opts));
+			$.each(local.data.object, function(i,object) {
+				thumbnails.push(Handlebars.helpers.object_thumbnail(object, local.template));
 			});
 			return thumbnails.join('');
 		}
@@ -964,8 +1119,9 @@ lense.import('object.interface', function() {
 			// Render headers
 			$('#object-rows-headers').html(headers.string);
 
-			// Return rows
-			return rows.join('');
+			// Render rows
+			$('#object-rows-body').html(rows.join(''));
+			return '';
 		}
 
 		/**
@@ -981,13 +1137,13 @@ lense.import('object.interface', function() {
 			}
 
 			// Check visibility
-			function visible() {
-				return ($('#object-' + pos).css('display') == 'none') ? false:true;
+			function visible(loc) {
+				return ($('#object-' + loc).css('display') == 'none') ? false:true;
 			}
 
 			// Size content columns
 			function sizeColumns() {
-				$('#object-' + loc).css('display', 'inline-block');
+				$('#object-' + pos).css('display', 'inline-block');
 				var isVisible = [];
 				$.each(['content-left', 'content-center', 'content-right'], function(i,current) {
 					if (current != 'content-center') {
@@ -996,7 +1152,7 @@ lense.import('object.interface', function() {
 				});
 
 				// Resize center column
-				$('#object-content-center').attr('class', 'col-md-' + (12 - (isVisible.length * 4).toString());
+				$('#object-content-center').attr('class', ('col-md-' + (12 - (isVisible.length * 4)).toString()));
 			}
 
 			// Process location
@@ -1007,10 +1163,11 @@ lense.import('object.interface', function() {
 					sizeColumns(pos);
 				case "header":
 				case "list-controls":
-				case "rows-body":
+				case "list-rows":
 				case "list-thumbnails":
 				case "footer":
 				case "controls-create":
+				case "sort":
 				 return worker
 				 break;
 				default:
@@ -1042,11 +1199,11 @@ lense.import('object.interface', function() {
 				case "object":
 
 					// Construct source view
-					local.source = new SourceInterface(local.data.hash());
+					local.source = new SourceInterface(local.data.object);
 
 					// Construct grids
-					$.each(local.grids, function(pos, attrs) {
-						local.render(pos)(local.bootstrapGrid(pos, attrs.key, data[attrs.key]));
+					local.grid.each(function(key, grid) {
+						local.render(grid.opts.pos)(grid.construct(local.data.get(key)));
 					});
 
 					// Construct properties
@@ -1058,7 +1215,33 @@ lense.import('object.interface', function() {
 				default:
 					lense.raise('Cannot construct interface, invalid view: ' + view);
 			}
+
+			// Bind events
+			local._bind();
+
+			// Post processing rendering
+			lense.object.library.render();
 		}
+
+		/**
+		 * Callback for object permissions
+		 */
+		lense.register.callback('permissionsResponse', function(data) {
+
+			// New permissions object
+			local.permissions = new PermissionsInterface(data);
+
+			// Construct permissions
+			local.permissions.construct();
+
+			// Construct the view now for a single object
+			local.construct();
+
+			// If editing
+			if (lense.url.hasParam('edit')) {
+				local.editStart();
+			}
+		});
 
 		 /**
 		  * Callback for response data
@@ -1068,8 +1251,15 @@ lense.import('object.interface', function() {
 			// Setup the data interface
 			local.data = new DataInterface(data);
 
-		  // Construct the view
-			local.construct();
+			// Get permissions if viewing a single object
+			if (defined(local.uuid)) {
+					lense.api.request.submit('permissions_get', { 'object_uuid': local.uuid }, 'permissionsResponse');
+			}
+
+		  // Construct the view now if viewing a list of objects
+			if (!defined(local.uuid)) {
+				local.construct();
+			}
 		});
 
 		 /**
@@ -1079,13 +1269,18 @@ lense.import('object.interface', function() {
 
  			// Creating an object
  			if (local.create) {
- 				return lense.callback['objectResponse'](local.properties.hash());
+ 				return lense.callback['objectResponse'](local.template.object);
  			}
 
  			// Get objects and pass to callback
- 			lense.api.request.submit(getattr(local.opts.handler, 'get'), {
- 				uuid: local.uuid,
- 			}, 'objectResponse')
+ 			lense.api.request.submit(getattr(local.opts.handler, 'get'), (function() {
+				if (defined(local.uuid)) {
+					return {
+		 				uuid: local.uuid,
+		 			};
+				}
+				return null;
+			}()), 'objectResponse');
  		}
 
 		// Return object interface
@@ -1110,85 +1305,7 @@ lense.import('object.interface', function() {
 		}
 
 		// Store / return the object
-		self.objects[id] = object;
-		return object;
+		self.objects[uuid] = object;
+		return self.objects[uuid];
 	}
-});
-
-// Register object list constructor method
-self.object.constructList(function(data) {
-
-	// Object header
-	self.object.render('header');
-
-	// List controls
-	self.object.render('list-controls')(properties);
-
-	// List objects (rows)
-	self.object.render('rows-body')(self.object.defineRows(data, properties));
-
-	// List objects (thumbnails)
-	self.object.render('list-thumbnails')(self.object.defineThumbnails(data, properties, {
-		title: 'name'
-	}));
-});
-
-// Register single object constructor method
-self.object.constructObject(function(data) {
-
-	// Object source data
-	self.object.setData(data, {
-		filter: ['id']
-	});
-
-	// Object header
-	self.object.render('header');
-
-	// Handler manifest
-	self.object.renderGrid('content-center')('manifest', data, {
-		extract: 'manifest'
-	});
-
-	// Handler properties
-	self.object.render('content-right')(self.object.defineProperties(data, {
-		name: {
-			edit: true
-		},
-		uuid: {
-			label: 'UUID'
-		},
-		desc: {
-			edit: true,
-			label: 'Description'
-		},
-		path: {
-			edit: true
-		},
-		method: {
-			type: 'select',
-			options: ['GET', 'PUT', 'POST', 'DELETE'],
-			edit: true
-		},
-		enabled: {
-			type: 'bool',
-			edit: true
-		},
-		protected: {
-			type: 'bool',
-			edit: true
-		},
-		allow_anon: {
-			type: 'bool',
-			label: 'Anonymous Requests',
-			edit: true
-		},
-		locked: {
-			type: 'bool',
-			edit: true
-		},
-		locked_by: {
-			type: 'str',
-			label: 'Locked By'
-		}
-	}));
 });

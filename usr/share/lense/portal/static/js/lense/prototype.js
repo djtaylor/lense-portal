@@ -32,13 +32,28 @@ Object.defineProperty(Array.prototype, 'contains', {
  * Ordered object protoype
  *
  * @param {Array} orderedData An array of object elements
+ * @returns {OrderedObject}
  */
 function OrderedObject(orderedData) {
 	var self  = this;
 	self.data = (defined(orderedData) ? orderedData:[]);
 
+	// orderedData must be an array
+	if (!istype(self.data, 'array')) {
+		lense.raise('Ordered data object must be constructed with an Array!');
+	}
+
+	// Check the list format
+	$.each(self.data, function(i,obj) {
+		if (!istype(obj, 'array') || !obj.length === 2 || !istype(obj[0], 'str')) {
+			lense.raise('Ordered data [' + i + '] must be an array of arrays: \'[ ["key1", obj1],["key2", obj2] ]\'!');
+		}
+	});
+
 	/**
 	 * Return a hash of the ordered object (sorting lost)
+	 *
+	 * @return {Object}
 	 */
 	self.hash = function() {
 		var hash = {};
@@ -53,6 +68,7 @@ function OrderedObject(orderedData) {
 	 *
 	 * @param {String} key The key to find
 	 * @param {Object} opts Any additional options
+	 * @returns {*}
 	 */
 	self.get = function(key, def) {
 		var retval = def;
@@ -82,6 +98,7 @@ function OrderedObject(orderedData) {
 	 * Iterate through object
 	 *
 	 * @param {Function} callback A callback function
+	 * @returns {Function}
 	 */
 	self.each = function(callback) {
 		$.each(self.data, function(i, obj) {

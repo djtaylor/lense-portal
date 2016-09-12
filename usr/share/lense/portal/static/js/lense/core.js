@@ -19,7 +19,16 @@ var lense = (function() {
 	core.raise = function(e, exc) {
 
 		// Show the error to the user
-		lense.log.error(e);
+		$.notify({
+			message: e,
+		},{
+			type: 'danger',
+			placement: {
+				from: "bottom",
+				align: "right"
+			},
+			delay: 2000
+		});
 
 		// Raise the exception
 		var exc = (!defined(exc) ? Error:exc);
@@ -104,6 +113,7 @@ var lense = (function() {
 		 * @param {String|Boolean} value The parameter value
 		 */
 		this.setParam = function(key, value) {
+			var isBool = istype(value, 'bool');
 			key = encodeURI(key); value = encodeURI(value);
 			var kvp = document.location.search.substr(1).split('&');
 			var i=kvp.length; var x; while(i--) {
@@ -114,7 +124,12 @@ var lense = (function() {
 		            break;
 		        }
 		    }
-			if(i<0) {kvp[kvp.length] = [key,value].join('=');}
+			if(i<0) {kvp[kvp.length] = (function() {
+				if (isBool) {
+					return key;
+				}
+				return [key,value].join('=');
+			}());}
 			var base_url   = window.location.href.match(/^[^\#\?]+/)[0];
 			var new_params = '?' + kvp.join('&');
 			var new_url    = base_url + new_params

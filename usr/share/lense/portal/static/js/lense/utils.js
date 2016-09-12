@@ -83,7 +83,25 @@ function hasattr(obj, key) {
 	if (!defined(obj)) {
 		return false;
 	}
-	return obj.hasOwnProperty(key);
+
+	// jQuery object
+	if (obj instanceof jQuery) {
+		attrs = {};
+		if (obj.hasOwnProperty('target')) {
+			$.each(obj.target.attributes, function(key, a) {
+				attrs[a.nodeName] = a.value;
+			});
+		} else {
+			$.each(obj[0].attributes, function(key, a) {
+				attrs[a.nodeName] = a.value;
+			});
+		}
+		return hasattr(attrs, key);
+
+	// Javascript object
+	} else {
+		return obj.hasOwnProperty(key);
+	}
 }
 
 /**

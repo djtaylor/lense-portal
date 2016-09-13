@@ -497,7 +497,10 @@ lense.import('object.interface', function() {
 							var item_key  = (item.indexOf('#') >= 0) ? item.split('#')[1]:null;
 
 							// Create the grid object
-							lense.object.library.mapType(item_type).create(local.grid, item_key, attrs);
+							lense.object.library.mapType(item_type).create(local.grid, {
+								key: item_key,
+								data: attrs
+							});
 						});
 					});
 				} else {
@@ -694,7 +697,7 @@ lense.import('object.interface', function() {
 
 			// Grid object types
 			$.each(getattr(opts, 'require'), function(i,t) {
-				getattr(lense.object.library, t).setup();
+				getattr(lense.object.library, t).setup(key);
 			});
 
 			// Store the grid key
@@ -852,8 +855,6 @@ lense.import('object.interface', function() {
 						lense.raise('Cannot add invalid argument type: ' + type);
 				}
 
-				console.log(html);
-
 				// Target container
 				$('x-var[object-id="' + oid + '"][key="' + key + '"]').append(html);
 
@@ -879,6 +880,54 @@ lense.import('object.interface', function() {
 			$(document).on('hidden.bs.collapse', '.object-collapse', function() {
 				var oid = getattr($(this), 'object-id');
 				local.collapseDetails(oid);
+			});
+
+			// Add object widget
+			$(document).on('click', 'button.btn-create-object', function() {
+				var elem = $(this);
+				var type = getattr(elem, 'object-type');
+				var grid = getattr(elem, 'grid-key');
+
+				// Ignore for keyed objects (create via modal)
+				if (!hasattr(elem, 'object-keyed')) {
+					lense.object.library.mapType(type).create(local.grid.get(grid), {
+						disabled: false
+					});
+				} else {
+
+					// Update modal hidden attributes
+					$('#object-type').val(type);
+					$('#object-grid').val(grid);
+				}
+			});
+
+			// Add keyed object widget
+			$(document).on('click', 'button#object-key-submit', function() {
+				var type = $('#object-type').val();
+				var grid = $('#object-grid').val();
+				var key  = $('input[name="object-key"]').val();
+
+				// Create the element
+				try {
+					lense.object.library.mapType(type).create(local.grid.get(grid), {
+						key: key,
+						disabled: false
+					});
+
+					// Hide the modal
+					$('#object-key').modal('hide');
+
+					// Reset the key input
+					$('input[name="object-key"]').val('');
+
+					// Reset modal hidden inputs
+					$('#object-type').val('');
+					$('#object-grid').val('');
+
+				// Error creating object widget
+				} catch (e) {
+					lense.raise('Failed to create object: ' + e);
+				}
 			});
 
 			// Data groups
@@ -969,7 +1018,10 @@ lense.import('object.interface', function() {
 						var item_key  = (item.indexOf('#') >= 0) ? item.split('#')[1]:null;
 
 						// Create the grid object
-						lense.object.library.mapType(item_type).create(local.grid.as(key), item_key, attrs);
+						lense.object.library.mapType(item_type).create(local.grid.get(key), {
+							key: item_key,
+							data: attrs
+						});
 					});
 				});
 			} else {

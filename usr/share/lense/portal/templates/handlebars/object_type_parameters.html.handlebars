@@ -1,11 +1,13 @@
 {% verbatim %}
 <div class="form-group">
   <div class="row object-row object-header-row">
-    <div class="col-xs-5 col-param-header col-param-left">Key</div>
-    <div class="col-xs-4 col-param-header">Default</div>
+    <div class="col-xs-3 col-param-header col-param-left">Key</div>
+    <div class="col-xs-2 col-param-header">Default</div>
     <div class="col-xs-2 col-param-header">Required</div>
+    <div class="col-xs-2 col-param-header">Type</div>
+    <div class="col-xs-2 col-param-header">Validate</div>
     <div class="col-xs-1 col-param-right">
-      {{object_arg_add 'param' object dataKey='__PARAMS__'}}
+      {{object_arg_add 'param' object dataKey='params'}}
     </div>
   </div>
   {{object_params object}}

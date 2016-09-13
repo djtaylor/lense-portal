@@ -42,13 +42,14 @@ lense.import('object.library', function() {
 		this.map      = getattr(opts, 'map', false);
 
 		// Object setup method
-		this.setup = function() {
+		this.setup = function(gridKey) {
 
 			// New object button
 			lense.template.render('#object-controls-create', 'object_create_button', {
 				type: inner.type,
 				label: inner.label,
 				keyed: inner.keyed,
+				gridKey: gridKey
 			},
 			{
 				flush: false
@@ -62,9 +63,35 @@ lense.import('object.library', function() {
 		 * @param {String} key An optional object key
 		 * @param {Object} data The object data
 		 */
-		this.create = function(grid, key, data) {
+		this.create = function(grid, opts) {
 			try {
-				var id = (defined(key)) ? inner.type + '-' + key: inner.type;
+				var key      = getattr(opts, 'key', null);
+				var data     = getattr(opts, 'data', {});
+				var disabled = getattr(opts, 'disabled', true);
+				var id       = defined(key) ? inner.type + '-' + key: inner.type;
+				var body     = $('.object-attrs-body[object-id="' + id + '"]');
+
+				console.log('key: ' + key);
+				console.log('data: ' + JSON.stringify(data));
+				console.log('disabled: ' + disabled);
+				console.log('id: ' + id);
+
+				// Keyed widgets
+				if (defined(key)) {
+
+					// Keys must be unique
+					if ($('div.grid-stack-item[object-id="' + inner.type + '-' + key + '"]').length > 0) {
+						throw new Error('Cannot add object type "' + inner.type + '#' + key + '", key already defined!');
+					}
+
+				// Unkeyed widgets
+				} else {
+
+					// Must be unique
+					if ($('div.grid-stack-item[object-id="' + inner.type + '"]').length > 0) {
+						throw new Error('Cannot add object type "' + inner.type + '", already defined!');
+					}
+				}
 
 				// Create the parent object widget
 				var widget = lense.template.compile('object_widget', {
@@ -79,7 +106,7 @@ lense.import('object.library', function() {
 				grid.data('gridstack').addWidget(widget);
 
 				// Create object details
-				$('.object-attrs-body[object-id="' + id + '"]').append(lense.template.compile(inner.template, {
+				body.append(lense.template.compile(inner.template, {
 					object: {
 						id: id,
 						key: key,
@@ -149,6 +176,11 @@ lense.import('object.library', function() {
 						]
 					}
 				}).html());
+
+				// If enabling elements
+				if (disabled === false) {
+					body.find('[disabled]').removeAttr('disabled');
+				}
 			} catch(e) {
 				lense.log.warn(e);
 			}
@@ -164,7 +196,7 @@ lense.import('object.library', function() {
 		switch(type) {
 			case "var":
 			  return self.HandlerVariable;
-			case "__PARAMS__":
+			case "params":
 			  return self.HandlerParameters;
 		  case "response":
 			  return self.HandlerResponse;
@@ -192,7 +224,6 @@ lense.import('object.library', function() {
 	this.HandlerParameters = new BaseObject({
 		type: 'params',
 		label: 'parameters',
-		map: '__PARAMS__',
 		template: 'object_type_parameters'
 	});
 
@@ -554,27 +585,57 @@ lense.import('object.library', function() {
 			var key_uuid    = lense.uuid4();
 			var req_uuid    = lense.uuid4();
 			var def_uuid    = lense.uuid4();
+			var typ_uuid    = lense.uuid4();
+			var val_uuid    = lense.uuid4();
 
 			// Required checked state
 			var req_checked = (attrs[0] === true) ? ' checked':'';
 
 			// Generate parameter HTML
 			return new Handlebars.SafeString(
-				'<x-var type="array" key="@input[uuid=\'' + key_uuid + '\']">' +
+				'<x-var type="object" key="@input[uuid=\'' + key_uuid + '\']">' +
 				'<div class="row object-attr-row" object-id="' + oid + '" uuid="' + param_uuid + '">' +
-				'<div class="col-xs-5 col-object-left col-object">' +
+				'<div class="col-xs-3 col-object-left col-object">' +
 				'<input type="text" class="form-control object-input" placeholder="value" value="' + key + '" uuid="' + key_uuid + '" update-source disabled edit>' +
 				'</div>' +
-				'<div class="col-xs-4 col-object-center col-object">' +
+				'<div class="col-xs-2 col-object-center col-object">' +
 				'<input type="text" class="form-control object-input" placeholder="none" value="' + ((defined(attrs[1])) ? attrs[1]:'') + '" uuid="' + def_uuid + '" update-source disabled edit>' +
-				'<x-var type="str" value="input[uuid=\'' + def_uuid + '\']" default="null"></x-var>' +
+				'<x-var type="str" key="default" value="input[uuid=\'' + def_uuid + '\']" default="null"></x-var>' +
 				'</div>' +
 				'<div class="col-xs-2 col-object-center col-object">' +
 				lense.template.html.boolToggle({
 					'uuid': req_uuid,
-					'selected': (defined(attrs[0]) ? attrs[0]:false)
+					'selected': (defined(attrs.required) ? attrs.required:false)
 				}) +
-				'<x-var type="bool" value="input[uuid=\'' + req_uuid + '\']"></x-var>' +
+				'<x-var type="bool" key="required" value="select[uuid=\'' + req_uuid + '\']"></x-var>' +
+				'</div>' +
+				'<div class="col-xs-2 col-object-center col-object">' +
+				lense.template.html.dropdown({
+					'uuid': typ_uuid,
+					'options': {
+						'str': 'String',
+						'bool': 'Boolean',
+						'int': 'Number',
+						'list': 'List',
+						'dict': 'Dictionary'
+					},
+					'selected': (defined(attrs.type) ? attrs.type:null)
+				}) +
+				'<x-var type="bool" key="type" value="select[uuid=\'' + req_uuid + '\']"></x-var>' +
+				'</div>' +
+				'<div class="col-xs-2 col-object-center col-object">' +
+				lense.template.html.dropdown({
+					'uuid': val_uuid,
+					'options': {
+						'uuid': 'UUID4',
+						'name': 'Name String',
+						'path': 'Request Path',
+						'method': 'Request Method',
+						'email': 'Email Address'
+					},
+					'selected': (defined(attrs.validate) ? attrs.validate:null)
+				}) +
+				'<x-var type="bool" key="validate" value="select[uuid=\'' + req_uuid + '\']"></x-var>' +
 				'</div>' +
 				'<div class="col-xs-1 col-object-attr-right col-object">' +
 				'<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + oid + '" uuid="' + param_uuid + '" disabled edit>' +
@@ -600,7 +661,7 @@ lense.import('object.library', function() {
 				});
 
 				// Return kwargs container
-				return new Handlebars.SafeString('<div class="form-group"><x-var type="object" key="__PARAMS__">' + init_params.join('') + '</x-var></div>');
+				return new Handlebars.SafeString('<div class="form-group"><x-var type="object" key="params">' + init_params.join('') + '</x-var></div>');
 			}
 		});
 

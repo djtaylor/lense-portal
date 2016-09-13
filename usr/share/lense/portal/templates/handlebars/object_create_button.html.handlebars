@@ -1,11 +1,11 @@
 {% verbatim %}
   {{#if _DATA_.keyed}}
-    <button type="button" class="btn btn-default btn-create-object text-capitalize" object-type="{{_DATA_.type}}" object-label="{{_DATA_.label}}" data-toggle="modal" data-target="#object-key" object-keyed disabled edit>
+    <button type="button" class="btn btn-default btn-create-object text-capitalize" object-type="{{_DATA_.type}}" object-label="{{_DATA_.label}}" grid-key="{{_DATA_.gridKey}}" data-toggle="modal" data-target="#object-key" object-keyed disabled edit>
       <span class="glyphicon glyphicon-plus"></span>
       {{_DATA_.label}}
     </button>
   {{else}}
-  <button type="button" class="btn btn-default btn-create-object text-capitalize" object-type="{{_DATA_.type}}" object-label="{{_DATA_.label}}" disabled edit>
+  <button type="button" class="btn btn-default btn-create-object text-capitalize" object-type="{{_DATA_.type}}" object-label="{{_DATA_.label}}" grid-key="{{_DATA_.gridKey}}" disabled edit>
     <span class="glyphicon glyphicon-plus"></span>
     {{_DATA_.label}}
   </button>

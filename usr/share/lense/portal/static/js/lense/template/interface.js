@@ -201,6 +201,27 @@ lense.import('template.interface', function() {
 			var state = ((getattr(opts, 'current', '') === value) ? ' selected="selected"':'');
 			return '<option value="' + value + '"' + state + '>' + label + '</option>';
 		},
+		dropdown: function(opts) {
+			var uuid     = getattr(opts, 'uuid');
+			var selected = getattr(opts, 'selected');
+			var options  = getattr(opts, 'options');
+			return '<select class="form-control" uuid="' + uuid + '">' + (function() {
+				var fields = [(function() {
+					if (!defined(selected)) {
+						return '<option value="" selected="selected">N/A</option>';
+					}
+					return '<option value="">N/A</option>'
+				}())];
+				$.each(options, function(key,label) {
+					if (key === selected) {
+						fields.push('<option value="' + key + '" selected="selected">' + label + '</option>');
+					} else {
+						fields.push('<option value="' + key + '">' + label + '</option>');
+					}
+				});
+				return fields.join('');
+			}()) + '</select>';
+		},
 		button: function(label, opts) {
 			var type  = getattr(opts, 'type', 'default');
 			var attrs = (function() {

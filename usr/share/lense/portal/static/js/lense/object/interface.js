@@ -271,7 +271,7 @@ lense.import('object.interface', function() {
 							}
 
 							// Key already defined
-							if (key in ref) {
+							if (hasattr(ref, key)) {
 								throw new Error('Parent object contains duplicate key: ' + key);
 							}
 
@@ -472,14 +472,16 @@ lense.import('object.interface', function() {
 				local.grid = $('#' + local.id);
 				local.grid.gridstack({
 					cellHeight: 40,
-							verticalMargin: 10,
-							draggable: {
-									handle: getattr(opts, 'drag_handle', '.object-move')
-							}
+					verticalMargin: 10,
+					draggable: {
+						handle: '.object-move'
+					}
 				});
 
 				// Set to static unless editing
-				local.grid.data('gridstack').setStatic(true);
+				if (!lense.url.hasParam('edit')) {
+					local.grid.data('gridstack').setStatic(true);
+				}
 
 				// Grid data should be defined
 				if (!defined(data)) {
@@ -566,6 +568,15 @@ lense.import('object.interface', function() {
 				lense.raise('Cannot redefine grid: ' + key + '!');
 			}
 			local.grids[key] = new GridObject(key, opts);
+		}
+
+		/**
+		 * Remove a grid object
+		 *
+		 * @param {String} oid The object ID
+		 */
+		local.remove = function(oid) {
+			local.oid(oid).data('gridstack').removeWidget($('.grid-stack-item[object-id="' + oid + '"]'));
 		}
 
 		// Return the grid interface
@@ -737,24 +748,6 @@ lense.import('object.interface', function() {
 		}
 
 		/**
-		 * Set object constructor method
-		 *
-		 * @param {Object} func The constructor method
-		 */
-		local.constructObject = function(func) {
-			local.construct.object = func;
-		}
-
-		/**
-		 * Set object list constructor method
-		 *
-		 * @param {Object} func The constructor method
-		 */
-		local.constructList = function(func) {
-			local.construct.list = func;
-		}
-
-		/**
 		 * Edit state start
 		 */
 		local.editStart = function() {
@@ -787,8 +780,7 @@ lense.import('object.interface', function() {
 
 			// Edit object
 			$(document).on('click', '#edit-object', function() {
-				lense.url.setParam('edit', true);
-				local.editStart();
+				window.location.href = window.location.pathname + '?view=' + lense.url.getParam('view') + '&uuid=' + lense.url.getParam('uuid') + '&edit';
 			});
 
 			// Save object
@@ -804,6 +796,11 @@ lense.import('object.interface', function() {
 			// Change list layout
 			$(document).on('click', 'button[object-toggle-layout]', function() {
 				self.setLayout(getattr($(this), 'object-toggle-layout'));
+			});
+
+			// Remove object
+			$(document).on('click', '.object-remove', function() {
+				local.grid.remove(getattr($(this), 'object-id'));
 			});
 
 			// Add data element
@@ -846,7 +843,7 @@ lense.import('object.interface', function() {
 				switch(type) {
 					case "arg":
 					case "kwarg":
-						html = $(Handlebars.helpers.object_arg(type, oid, { 'key': null, 'value': null }).string);
+						html = $(Handlebars.helpers.object_arg(type, oid, { 'key': null, 'value': null, 'disabled': false}).string);
 						break;
 					case "param":
 					  html = $(Handlebars.helpers.object_param(oid, '', [null, false]).string);
@@ -866,7 +863,10 @@ lense.import('object.interface', function() {
 			$(document).on('click', '.btn-remove-object-attr', function() {
 				var uuid = getattr($(this), 'uuid');
 				var oid  = getattr($(this), 'object-id');
-				$('.object-attr-row[uuid="' + uuid + '"]').remove();
+				$('.object-attr-row[uuid="' + uuid + '"]').closest('x-var').remove();
+
+				// Update source
+				local.source.update(local.data.collect());
 				local.resizeDetails(oid);
 			});
 
@@ -893,6 +893,7 @@ lense.import('object.interface', function() {
 					lense.object.library.mapType(type).create(local.grid.get(grid), {
 						disabled: false
 					});
+					lense.object.library.render({ disabled: false });
 				} else {
 
 					// Update modal hidden attributes
@@ -913,6 +914,7 @@ lense.import('object.interface', function() {
 						key: key,
 						disabled: false
 					});
+					lense.object.library.render({ disabled: false });
 
 					// Hide the modal
 					$('#object-key').modal('hide');
@@ -1001,93 +1003,6 @@ lense.import('object.interface', function() {
 		local.collapseDetails = function(oid) {
 			local.grid.oid(oid).data('gridstack').resize('.grid-stack-item[object-id="' + oid + '"]', null, 1);
 		}
-
-		/**
-		 * Construct a grid from source data.
-		 *
-		 * @param {String} key The grid key
-		 * @param {Object} data Grid data
-		 */
-		local.constructGrid = function(key, data) {
-			if ($.isArray(data)) {
-				$.each(data, function(i,o) {
-					$.each(o, function(item,attrs) {
-
-						// Get grid type and key (optional)
-						var item_type = (item.indexOf('#') >= 0) ? item.split('#')[0]:item;
-						var item_key  = (item.indexOf('#') >= 0) ? item.split('#')[1]:null;
-
-						// Create the grid object
-						lense.object.library.mapType(item_type).create(local.grid.get(key), {
-							key: item_key,
-							data: attrs
-						});
-					});
-				});
-			} else {
-				lense.log.warn('Grid data must be an array!');
-			}
-		}
-
-		/**
-		 * Render a grid editor.
-		 *
-		 * @param {String} loc The grid location
-		 * @returns {Function}
-		 */
-		 local.renderGrid = function(loc) {
-			 switch(loc) {
-				 case "content-left":
-				 case "content-right":
-				 case "content-center":
-				 	 return function(id, data, opts) {
-
-						 // Grid already defined
-						 if (defined(local.grid)) {
-							 lense.log.warn('Can only define one grid per object!');
-							 return false;
-						 }
-
-						 // Create the grid container / source editor
-						 $('#object-' + loc).html(
-							 '<x-var type="array" key="' + id + '">' +
-							 '<div class="grid-stack" object-grid="' + id + '"></div>' +
-							 '</x-var>'
-						 );
-
-						 // Define the grid
-						 local.grid = $('div[object-grid="' + id + '"]');
-
-						 // Setup the grid
-						 local.grid.gridstack({
-							 cellHeight: 40,
-									 verticalMargin: 10,
-									 draggable: {
-											 handle: '.object-move'
-									 }
-						 });
-
-						 // Set to static unless editing
-						 local.grid.data('gridstack').setStatic(true);
-
-						 // Render data
-						 if (defined(data)) {
-							 var extract = getattr(opts, 'extract', false);
-
-							 // Convert source to grid
-							 local.constructGrid(id, (extract !== false) ? data[extract]:data);
-						 }
-
-						 // Remove widget
-			 			$(document).on('click', '.object-remove', function(i,e) {
-							local.grid.data('gridstack').removeWidget('div[object-id="' + getattr($(this), 'object-id') + '"]');
-			 			});
-					 }
-				 	 break;
-				 default:
-					 lense.log.warn('Invalid layout location: ' + loc);
-			 }
-		 }
 
 		/**
 		 * Bootstrap property fields
@@ -1268,11 +1183,11 @@ lense.import('object.interface', function() {
 					lense.raise('Cannot construct interface, invalid view: ' + view);
 			}
 
-			// Bind events
-			local._bind();
-
 			// Post processing rendering
 			lense.object.library.render();
+
+			// Bind events
+			local._bind();
 		}
 
 		/**

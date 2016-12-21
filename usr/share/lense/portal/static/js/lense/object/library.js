@@ -6,8 +6,13 @@ lense.import('object.library', function() {
 
 	/**
 	 * Post object creation rendering
+	 *
+	 * @param {Object} opts Any additional rendering options
 	 */
-	this.render = function() {
+	this.render = function(opts) {
+		var disabled = getattr(opts, 'disabled', true);
+
+		// Render worker
 		function renderWorker(target, attrs) {
 			if (defined(attrs.parent) && $(attrs.parent).is(':empty')) {
 				renderWorker(attrs.parent, self.store[attrs.parent]);
@@ -16,6 +21,11 @@ lense.import('object.library', function() {
 			// Only render if empty
 			if ($(target).is(':empty')) {
 				$(target).html(attrs.html);
+
+				// If enabling elements
+				if (disabled === false) {
+					$(target).find('[disabled]').removeAttr('disabled');
+				}
 			}
 		}
 
@@ -69,12 +79,6 @@ lense.import('object.library', function() {
 				var data     = getattr(opts, 'data', {});
 				var disabled = getattr(opts, 'disabled', true);
 				var id       = defined(key) ? inner.type + '-' + key: inner.type;
-				var body     = $('.object-attrs-body[object-id="' + id + '"]');
-
-				console.log('key: ' + key);
-				console.log('data: ' + JSON.stringify(data));
-				console.log('disabled: ' + disabled);
-				console.log('id: ' + id);
 
 				// Keyed widgets
 				if (defined(key)) {
@@ -98,12 +102,15 @@ lense.import('object.library', function() {
 					id: id,
 					key: key,
 					type: inner.type,
-					label: inner.label,
-					map: inner.map
+					label: inner.label
 				}).html();
 
 				// Create the widget
 				grid.data('gridstack').addWidget(widget);
+
+				// Parent grid object and grid body
+				var parent = $('.grid-stack-item[object-id="' + id + '"]');
+				var body   = $('.object-attrs-body[object-id="' + id + '"]');
 
 				// Create object details
 				body.append(lense.template.compile(inner.template, {
@@ -112,7 +119,6 @@ lense.import('object.library', function() {
 						key: key,
 						type: inner.type,
 						label: inner.label,
-						map: inner.map,
 						data: data
 					},
 					meta: {
@@ -179,7 +185,7 @@ lense.import('object.library', function() {
 
 				// If enabling elements
 				if (disabled === false) {
-					body.find('[disabled]').removeAttr('disabled');
+					parent.find('[disabled]').removeAttr('disabled');
 				}
 			} catch(e) {
 				lense.log.warn(e);
@@ -257,7 +263,7 @@ lense.import('object.library', function() {
 		 * @param {Object} object The data object
 		 */
 		Handlebars.registerHelper('object_arg_add', function(type, object, opts) {
-			var dataKey = getattr(opts.hash, 'dataKey', ((type === 'kwarg') ? 'kwargs':'args'));
+			var dataKey  = getattr(opts.hash, 'dataKey', ((type === 'kwarg') ? 'kwargs':'args'));
 
 			// Generate the argument button
 			return new Handlebars.SafeString(
@@ -273,10 +279,11 @@ lense.import('object.library', function() {
 		 * Object argument
 		 *
 		 * @param {String} type The argument type: arg, kwarg
-		 * @param {String} id The object ID
-		 * @param {Object} map Object key/value mapping
+		 * @param {String} oid The object ID
+		 * @param {Object} opts Any additional options
 		 */
-		Handlebars.registerHelper('object_arg', function(type, id, map, opts) {
+		Handlebars.registerHelper('object_arg', function(type, oid, opts) {
+			var disabled = getattr(opts, 'disabled', true);
 
 			// Generated HTML
 			var html;
@@ -284,10 +291,10 @@ lense.import('object.library', function() {
 			// Process based on type
 			switch(type) {
 				case "arg":
-					html = lense.template.html.argField(id, getattr(map, 'value', ''));
+					html = lense.template.html.argField(oid, getattr(opts, 'value', ''), disabled);
 					break;
 				case "kwarg":
-					html = lense.template.html.kwargField(id, getattr(map, 'key', ''), getattr(map, 'value', ''));
+					html = lense.template.html.kwargField(oid, getattr(opts, 'key', ''), getattr(opts, 'value', ''), disabled);
 					break;
 				default:
 					lense.raise('Invalid argument type: ' + type);
@@ -575,6 +582,7 @@ lense.import('object.library', function() {
 		/**
 		 * Object parameter
 		 *
+		 *
 		 * @param {Object} object The object data
 		 * @param {Object} param The parameter data
 		 */
@@ -590,6 +598,7 @@ lense.import('object.library', function() {
 
 			// Required checked state
 			var req_checked = (attrs[0] === true) ? ' checked':'';
+			var disabled = getattr(opts, 'disabled', true);
 
 			// Generate parameter HTML
 			return new Handlebars.SafeString(
@@ -605,7 +614,8 @@ lense.import('object.library', function() {
 				'<div class="col-xs-2 col-object-center col-object">' +
 				lense.template.html.boolToggle({
 					'uuid': req_uuid,
-					'selected': (defined(attrs.required) ? attrs.required:false)
+					'selected': (defined(attrs.required) ? attrs.required:false),
+					'disabled': disabled
 				}) +
 				'<x-var type="bool" key="required" value="select[uuid=\'' + req_uuid + '\']"></x-var>' +
 				'</div>' +
@@ -619,9 +629,10 @@ lense.import('object.library', function() {
 						'list': 'List',
 						'dict': 'Dictionary'
 					},
-					'selected': (defined(attrs.type) ? attrs.type:null)
+					'selected': (defined(attrs.type) ? attrs.type:null),
+					'disabled': disabled
 				}) +
-				'<x-var type="bool" key="type" value="select[uuid=\'' + req_uuid + '\']"></x-var>' +
+				'<x-var type="bool" key="type" value="select[uuid=\'' + typ_uuid + '\']"></x-var>' +
 				'</div>' +
 				'<div class="col-xs-2 col-object-center col-object">' +
 				lense.template.html.dropdown({
@@ -633,9 +644,10 @@ lense.import('object.library', function() {
 						'method': 'Request Method',
 						'email': 'Email Address'
 					},
-					'selected': (defined(attrs.validate) ? attrs.validate:null)
+					'selected': (defined(attrs.validate) ? attrs.validate:null),
+					'disabled': disabled
 				}) +
-				'<x-var type="bool" key="validate" value="select[uuid=\'' + req_uuid + '\']"></x-var>' +
+				'<x-var type="bool" key="validate" value="select[uuid=\'' + val_uuid + '\']"></x-var>' +
 				'</div>' +
 				'<div class="col-xs-1 col-object-attr-right col-object">' +
 				'<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + oid + '" uuid="' + param_uuid + '" disabled edit>' +
@@ -655,9 +667,14 @@ lense.import('object.library', function() {
 			if (hasattr(object, 'data') && istype(object.data, 'object')) {
 				var init_params = [];
 
+				// Parameter options
+				var paramOpts = {
+					'disabled': (lense.url.hasParam('edit') ? false:true)
+				};
+
 				// Generate initial parameters
 				$.each(object.data, function(key, attrs) {
-					init_params.push(Handlebars.helpers.object_param(object.id, key, attrs));
+					init_params.push(Handlebars.helpers.object_param(object.id, key, attrs, paramOpts));
 				});
 
 				// Return kwargs container

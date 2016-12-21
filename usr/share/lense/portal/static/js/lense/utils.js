@@ -62,13 +62,10 @@ function extract(object, keys) {
 }
 
 /**
- * Definition Check
+ * Is a variable defined or not
  *
- * Simple helper method to check if a variable is defined or not. Checks
- * for null, undefined, false, or an empty string.
- *
- * @param {v} The variable to check
- * @return bool
+ * @param {*} v The value to check
+ * @return {Boolean} defined
  */
 function defined(v) {
 	if (v === null || v === undefined || v === false || v == '' || v == {} || v == []) {

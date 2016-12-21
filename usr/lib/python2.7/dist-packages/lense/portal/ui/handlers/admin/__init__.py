@@ -18,12 +18,6 @@ class HandlerNavigation(object):
                 "name": "Handlers",
                 "link": "/admin?view=handlers",
                 "icon": "wrench"
-            },
-            {
-                "name": "Models",
-                "link": "/admin?view=models",
-                "icon": "th"
             }
         ]
     }
-    

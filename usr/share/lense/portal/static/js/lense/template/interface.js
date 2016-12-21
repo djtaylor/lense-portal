@@ -13,6 +13,9 @@ lense.import('template.interface', function() {
 		var attrs = (function() {
 			var attrs_str = '';
 			$.each(attrs, function(k,v) {
+				if (v === false) {
+					return true;
+				}
 				attrs_str += ' ' + ((v === true) ? k:k + '="' + v + '"');
 			});
 			return attrs_str;
@@ -205,7 +208,8 @@ lense.import('template.interface', function() {
 			var uuid     = getattr(opts, 'uuid');
 			var selected = getattr(opts, 'selected');
 			var options  = getattr(opts, 'options');
-			return '<select class="form-control" uuid="' + uuid + '">' + (function() {
+			var disabled = getattr(opts, 'disabled', true);
+			return '<select class="form-control" uuid="' + uuid + '" ' + (disabled ? ' disabled':'') + ' update-source edit>' + (function() {
 				var fields = [(function() {
 					if (!defined(selected)) {
 						return '<option value="" selected="selected">N/A</option>';
@@ -311,41 +315,48 @@ lense.import('template.interface', function() {
 			});
 		},
 		boolToggle: function(opts) {
-			var checked = (getattr(opts, 'selected', false) ? ' checked':'');
-			var size    = getattr(opts, 'size', 'normal');
-			var uuid    = (hasattr(opts, 'uuid') ? ' uuid="' + getattr(opts, 'uuid') + '"':'');
+			var checked  = (getattr(opts, 'selected', false) ? ' checked':'');
+			var size     = getattr(opts, 'size', 'normal');
+			var uuid     = (hasattr(opts, 'uuid') ? ' uuid="' + getattr(opts, 'uuid') + '"':'');
+			var disabled = getattr(opts, 'disabled', true) ? ' disabled':'';
 
 			// Option labels
 			var label_true  = getattr(opts, 'label_true', 'Yes');
 			var label_false = getattr(opts, 'label_false', 'No');
 
 			// Return the toggle switch
-			return '<input type="checkbox" data-toggle="toggle" data-size="' + size + '" data-on="' + label_true + '" data-off="' + label_false + '"' + uuid + checked + ' update-source edit disabled>';
+			return '<input type="checkbox" data-toggle="toggle" data-size="' + size + '" data-on="' + label_true + '" data-off="' + label_false + '"' + uuid + checked + ' update-source edit' + disabled + '>';
 		},
-		argField: function(oid, value) {
+		argField: function(oid, value, disabled) {
 			var uuid = {
 				'element': lense.uuid4(),
 				'value': lense.uuid4()
 			};
 
+			// Disabled string
+			var disabledStr = disabled ? ' disabled':'';
+
 			// Parent div
 			return div({ 'class': 'row object-attr-row', 'object-id': oid, 'uuid': uuid.element }, function() {
 				return div({ 'class': 'col-xs-11 col-object-attr-left-full col-object' }, function() {
-					return '<input type="text" class="form-control object-input" placeholder="value" value="' + value + '" uuid="' + uuid.value + '" update-source disabled edit>';
+					return '<input type="text" class="form-control object-input" placeholder="value" value="' + (defined(value) ? value:'') + '" uuid="' + uuid.value + '" update-source' + disabledStr + ' edit>';
 				}) +
 				div({ 'class': 'col-xs-1 col-object-attr-right col-object' }, function() {
-					return button({ 'class': 'btn btn-danger btn-remove-object-attr', 'type': 'button', 'object-id': oid, 'uuid': uuid.element, 'update-source': true, 'disabled': true, 'edit': 'true'}, function() {
+					return button({ 'class': 'btn btn-danger btn-remove-object-attr', 'type': 'button', 'object-id': oid, 'uuid': uuid.element, 'update-source': true, 'disabled': disabled, 'edit': 'true'}, function() {
 						return span({ 'class': 'glyphicon glyphicon-remove' });
 					})
 				})
 			}) + '<x-var type="str" value="input[uuid=\'' + uuid.value + '\']"></x-var>';
 		},
-		kwargField: function(oid, key, value) {
+		kwargField: function(oid, key, value, disabled) {
 			var uuid = {
 				'element': lense.uuid4(),
 				'key': lense.uuid4(),
 				'value': lense.uuid4()
 			};
+
+			// Disabled string
+			var disabledStr = disabled ? ' disabled':'';
 
 			// Parent div
 			return div({ 'class': 'row object-attr-row', 'object-id': oid, 'uuid': uuid.element }, function() {
@@ -353,17 +364,17 @@ lense.import('template.interface', function() {
 
 				// Kwarg key field
 				objects.push(div({ 'class': 'col-xs-2 col-object-attr-left col-object' }, function() {
-					return '<input type="text" class="form-control object-input object-kwarg-input" placeholder="key" value="' + key + '" uuid="' + uuid.key + '" update-source disabled edit>';
+					return '<input type="text" class="form-control object-input object-kwarg-input" placeholder="key" value="' + (defined(key) ? key:'') + '" uuid="' + uuid.key + '" update-source' + disabledStr + ' edit>';
 				}));
 
 				// Kwarg value field
 				objects.push(div({ 'class': 'col-xs-9 col-object-center col-object' }, function() {
-					return '<input type="text" class="form-control object-input" placeholder="value" value="' + value + '" uuid="' + uuid.value + '" update-source disabled edit>';
+					return '<input type="text" class="form-control object-input" placeholder="value" value="' + (defined(value) ? value:'') + '" uuid="' + uuid.value + '" update-source' + disabledStr + ' edit>';
 				}));
 
 				// Remove kwarg button
 				objects.push(div({ 'class': 'col-xs-1 col-object-attr-right col-object' }, function() {
-					return '<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + oid + '" uuid="' + uuid.element + '" update-source disabled edit>' +
+					return '<button type="button" class="btn btn-danger btn-remove-object-attr" object-id="' + oid + '" uuid="' + uuid.element + '" update-source' + disabledStr + ' edit>' +
 					'<span class="glyphicon glyphicon-remove"></span>' +
 					'</button>';
 				}));

@@ -5,6 +5,9 @@ var lense = (function() {
 	// Modules container
 	core.module      = {};
 
+	// Pre-bootstrap modules
+	core.modulePre   = {};
+
 	// Constructors / methods / callbacks
 	core.constructor = {};
 	core.method      = {};
@@ -299,24 +302,23 @@ var lense = (function() {
 	 * Import an included module into the Lense namespace. This assumes that the parent
 	 * namespace has already been initialized.
 	 *
-	 * @param {n} The name of the module
-	 * @param {m} The module contents
-	 * @param {c} The module constructor method
+	 * @param {String} n The name of the module
+	 * @param {Object} m The module contents
+	 * @param {Bool} p Run in the pre-bootstrap phase
 	 */
-	core.import = function(n,m,c) {
+	core.import = function(n,m,p) {
 
 		// Module names must be unique
 		if (n in core.module) {
 			throw new ModuleDefined(n);
 		}
 
-		// Load the constructor
-		if (defined(c)) {
-			core.register.constructor(n,c);
-		}
-
 		// Import the module object / store includes
-		core.module[n] = m;
+		if (p === true) {
+			core.modulePre[n] = m;
+		} else {
+			core.module[n] = m;
+		}
 	};
 
 	/**

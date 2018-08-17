@@ -4,6 +4,15 @@ lense.import('object.interface', function() {
 	// Objects / grid containers
 	this.objects = {};
 
+	// Boolean flags to wait for data to load
+	this.loaded  = {};
+
+	// Access the current primary object
+	this.primary = null;
+	this.current = function() {
+		return this.objects[self.primary];
+	}
+
 	/**
 	 * Initialize Interface
 	 * @constructor
@@ -35,6 +44,33 @@ lense.import('object.interface', function() {
 
 		// Layout preference
 		self.setLayout(lense.preferences.get('layout', 'list'));
+	}
+
+	/**
+	 * Wait for external data to load
+	 */
+	this.waitFor = function(key,submit) {
+		self.loaded[key] = false;
+		submit();
+	}
+
+	/**
+	 * Blocking method to wait for all external calls to complete
+	 */
+	this.wait = function(callback) {
+		var complete = true;
+		$.each(self.loaded, function(k,v) {
+			if (v === false) {
+				complete = false;
+			}
+		});
+		if (complete === true) {
+			if (defined(callback)) {
+				callback();
+			}
+		} else {
+			setTimeout(self.wait, 100, callback);
+		}
 	}
 
 	/**
@@ -111,11 +147,13 @@ lense.import('object.interface', function() {
 	 *
 	 * @param {Object} data The data object
 	 */
-	function DataInterface(data) {
-		var local    = new BaseInterface('data', this);
+	function DataInterface(data,key) {
+		console.log('Creating new data interface from: ' + data);
+		var local    = new BaseInterface('data' + (defined(key) ? '.' + key:''), this);
 
-		// Local data
-		local.object = clone(data);
+		// Local data / additional data objects
+		local.object  = clone(data);
+		local.objects = {};
 
 		/**
 		 * Check if variable is inactive
@@ -124,6 +162,27 @@ lense.import('object.interface', function() {
 		 */
 		local.isInactive = function(e) {
 			return ((getattr(e, 'inactive', false) === false) ? false:true);
+		}
+
+		/**
+		 * Store additional data interfaces
+		 */
+		local.define = function(k,d) {
+			local.objects[k] = new DataInterface(d,k);
+		}
+
+		/**
+		 * Access a specific data object by key
+		 */
+		local.as = function(k) {
+			return local.objects[k];
+		}
+
+		/**
+		 * Return the raw data value
+		 */
+		local.value = function() {
+			return local.object;
 		}
 
 		/**
@@ -596,6 +655,7 @@ lense.import('object.interface', function() {
 		// Options / grids / properties
 		local.opts, local.template, local.source, local.data;
 		local.properties = {};
+		local.groups     = {};
 
 		// Grid interface
 		local.grid   = new GridInterface();
@@ -645,6 +705,32 @@ lense.import('object.interface', function() {
 				lense.raise('Object template must be an instance of "OrderedObject"!');
 			}
 			local.template = template;
+		}
+
+		/**
+		 * Define an object grouping
+		 *
+		 * @param {String} pos The position to render
+		 * @param {Object} filter The goups rendering properties
+		 */
+		local.defineGroup = function(pos, properties) {
+			var members   = getattr(properties, 'members');
+			var available = getattr(properties, 'available');
+			var fields    = getattr(properties, 'fields');
+			var title     = getattr(properties, 'title', 'Members');
+
+			// If members object is an array, and you need to map values
+			// to keys in available members as an object.
+			var map       = getattr(properties, 'map', false);
+
+			// Store rendering properties
+			local.groups[pos] = {
+				'members': members,
+				'available': available,
+				'title': title,
+				'fields': fields,
+				'map': map
+			};
 		}
 
 		/**
@@ -1018,6 +1104,26 @@ lense.import('object.interface', function() {
 		}
 
 		/**
+		 * Bootstrap group fields
+		 *
+		 * @param {Object} template The template to use for this position
+		 */
+		local.bootstrapGroups = function(attrs) {
+			return Handlebars.helpers.object_group(attrs.title, {
+				'members': local.data.get(attrs.members),
+				'available': (function() {
+					if (attrs.available.contains('.')) {
+						return local.data.as(attrs.available.split('.')[1]).value();
+					} else {
+						return local.data.value();
+					}
+				})(),
+				'fields': attrs.fields,
+				'map': attrs.map
+			}).string;
+		}
+
+		/**
 		 * Bootstrap list controls
 		 */
 		local.bootstrapListControls = function() {
@@ -1178,6 +1284,11 @@ lense.import('object.interface', function() {
 						local.render(pos)(local.bootstrapProperties(attrs));
 					});
 
+					// Construct groups
+					$.each(local.groups, function(pos, attrs) {
+						local.render(pos)(local.bootstrapGroups(attrs));
+					});
+
 					break;
 				default:
 					lense.raise('Cannot construct interface, invalid view: ' + view);
@@ -1210,6 +1321,14 @@ lense.import('object.interface', function() {
 			}
 		});
 
+		/**
+		 * Callback for supplementary data
+		 */
+		lense.register.callback('dataResponse', function(key,data) {
+			local.data.define(key, data);
+			self.loaded[key] = true;
+		});
+
 		 /**
 		  * Callback for response data
 			*/
@@ -1227,27 +1346,54 @@ lense.import('object.interface', function() {
 			if (!defined(local.uuid)) {
 				local.construct();
 			}
+
+			// Set the complete flag
+			self.loaded['object'] = true;
 		});
 
 		 /**
  		 * Bootstrap the object
  		 */
- 		local.bootstrap = function() {
+ 		local.bootstrap = function(options) {
+			var data = getattr(options, 'data', false);
 
  			// Creating an object
  			if (local.create) {
  				return lense.callback['objectResponse'](local.template.object);
  			}
 
- 			// Get objects and pass to callback
- 			lense.api.request.submit(getattr(local.opts.handler, 'get'), (function() {
-				if (defined(local.uuid)) {
-					return {
-		 				uuid: local.uuid,
-		 			};
+ 			// Retrieve the primary object
+			self.waitFor('object', function() {
+				lense.api.request.submit(getattr(local.opts.handler, 'get'), (function() {
+					if (defined(local.uuid)) {
+						return {
+			 				uuid: local.uuid,
+			 			};
+					}
+					return null;
+				}()), 'objectResponse');
+			});
+
+			// Wait to fetch the primary object
+			self.wait(function() {
+
+				// If retrieving secondary data
+				if (data) {
+					$.each(data, function(k,h) {
+						self.waitFor(k, function() {
+							lense.api.request.submit(h, null, 'dataResponse+' + k);
+						});
+					});
+
+					// Wait for secondary data
+					self.wait(function() {
+						// Something to do after secondary data loaded
+					});
 				}
-				return null;
-			}()), 'objectResponse');
+			});
+
+			// Run the constructor
+			local.construct();
  		}
 
 		// Return object interface
@@ -1265,6 +1411,9 @@ lense.import('object.interface', function() {
 	this.define = function(type, uuid) {
 		var uuid   = (!defined(uuid) ? lense.url.getParam('uuid', false):uuid);
 		var object = new ObjectInterface(uuid, type);
+
+		// Store the primary UUID
+		self.primary = uuid;
 
 		// Initialize the object
 		if (hasattr(object, '__init__')) {

@@ -840,6 +840,75 @@ lense.import('object.library', function() {
 		});
 
 		/**
+		 * Group members container
+		 */
+		Handlebars.registerHelper('object_group', function(title, attrs, opts) {
+			return new Handlebars.SafeString(
+				'<x-var object-id="object-data" type="array" key="members"><div class="row row-header">' +
+				'<div class="col-xs-10 col-object col-object-title">' + title + '</div>' +
+				'<div class="col-xs-2 col-object">' +
+				'<button type="button" class="btn btn-default pull-right"><span class="glyphicon glyphicon-plus"></span></button>' +
+				'</div></div>' +
+				'<table class="table table-striped">' +
+				'<thead><tr>' + (function() {
+					var headers = [];
+					$.each(attrs.fields, function(i,f) {
+						headers.push('<th class="member-header">' + f + '</th>');
+					});
+					return headers.join('');
+				}()) +
+				'</tr></thead>' +
+				'<tbody>' + (function() {
+					var rows = [];
+
+					// Map group members to rows
+					$.each(attrs.members, function(i,member) {
+						var row = [];
+						$.each(attrs.fields, function(i,f) {
+							if (attrs.map !== false) {
+								$.each(attrs.available, function(ai,av) {
+
+									// Members as string
+									if (istype(member, 'str')) {
+										if (member == av[attrs.map]) {
+											row.push('<td>' + getattr(av, f) + '</td>');
+										}
+									}
+
+									// Members as hash/object
+									if (istype(member, 'object')) {
+										if (member[attrs.map] == av[attrs.map]) {
+											row.push('<td>' + getattr(av, f) + '</td>');
+										}
+									}
+								});
+							} else {
+								row.push('<td>' + getattr(member, f) + '</td>');
+							}
+						});
+						rows.push(row.join(''));
+					});
+
+					// Return group rows
+					return rows.join('');
+				}()) + '</tbody></table>' +
+				'</x-var>'
+			);
+		});
+
+		/**
+		 * Group member object
+		 */
+		Handlebars.registerHelper('object_group_member', function(template, opts) {
+			return new Handlebars.SafeString('<div class="row">' +
+				'<div class="col-xs-3 col-object"><input type="checkbox"></div>' +
+				'<div class="col-xs-9 col-object></div>' +
+				'<x-var type="str"></x-var>' +
+				'</div>'
+			);
+		});
+
+		/**
 		 * Sort options
 		 *
 		 * @param {Object} template The object template

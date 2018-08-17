@@ -89,11 +89,11 @@ lense.import('api.client', function() {
 
 		// Join success
 		self.io.on('joined', function(d) {
-			lense.api.cache.handlers = d.handlers;
-			lense.api.cache.server   = d.server;
+			lense.api.handlers = d.handlers;
+			lense.api.server   = d.server;
 
 			// Update client parameters
-			$('input.socketio-server').val(lense.api.cache.server);
+			$('input.socketio-server').val(lense.api.server);
 		});
 
 		// Handle closed connections

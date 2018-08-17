@@ -2,7 +2,12 @@ lense.import('api.interface', function() {
 	var self    = this;
 
 	// Socket status
-	this.status = 'disconnected';
+	this.status   = 'disconnected';
+
+	// API server / handlers / request support
+	this.server   = null;
+	this.handlers = null;
+	this.support  = null;
 
 	/**
 	 * Initialize APIInterface
@@ -14,8 +19,7 @@ lense.import('api.interface', function() {
 		lense.implement([
 			'api.client',
 			'api.request',
-			'api.response',
-			'api.cache',
+			'api.response'
 		]);
 
 		// Open the API connection
@@ -30,7 +34,7 @@ lense.import('api.interface', function() {
 	this.setSockInfo = function(connected) {
 		var endpoint = ((connected === true) ? lense.api.client.params.endpoint: '');
 		var room     = ((connected === true) ? lense.api.client.room: '');
-		var server   = ((connected === true) ? lense.api.cache.server: '');
+		var server   = ((connected === true) ? lense.api.server: '');
 		var status   = ((connected === true) ? 'connected': 'disconnected');
 
 		// Update the client information
@@ -98,9 +102,6 @@ lense.import('api.interface', function() {
 
 			// Listen for responses / messages
 			self.listen();
-
-			// Build the cache
-			lense.api.cache.construct();
 		});
 	}
 
@@ -126,4 +127,4 @@ lense.import('api.interface', function() {
 			})
 		});
 	}
-});
+}, 0);

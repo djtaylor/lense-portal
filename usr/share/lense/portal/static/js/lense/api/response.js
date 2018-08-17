@@ -31,7 +31,14 @@ lense.import('api.response', function() {
 
 				// Request OK
 				} else {
-					lense.callback[inner.callback](inner.data);
+
+					// Callback uses a key argument
+					if (inner.callback.contains('+')) {
+						var attrs = inner.callback.split('+');
+						lense.callback[attrs[0]](attrs[1], inner.data);
+					} else {
+						lense.callback[inner.callback](inner.data);
+					}
 				}
 
 			// No callback, notify
@@ -52,7 +59,7 @@ lense.import('api.response', function() {
 	 * API Support Callback
 	 */
 	lense.register.callback('getAPISupport', function(d) {
-		lense.api.cache.support = d.contents;
+		lense.api.support = d.contents;
 	});
 
 	/**

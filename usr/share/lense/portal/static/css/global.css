@@ -417,3 +417,17 @@ tbody th {
 .permissions-header {
   font-size: 0.7em;
 }
+
+.row-header {
+
+}
+
+.col-object-title {
+  line-height: 34px;
+  font-weight: bold;
+}
+
+.member-header {
+  text-transform: capitalize;
+  font-size: 0.9em;
+}

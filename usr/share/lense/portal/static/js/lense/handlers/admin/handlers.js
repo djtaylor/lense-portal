@@ -115,7 +115,7 @@ lense.import('admin.handlers', function() {
 	/**
 	 * @constructor
 	 */
-	lense.register.constructor('admin.models', function() {
+	lense.register.constructor('admin.handlers', function() {
 
 		// Bootstrap object
 		self.object.bootstrap();

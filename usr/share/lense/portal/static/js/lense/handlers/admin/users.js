@@ -1,64 +1,84 @@
-lense.import('admin.users', function() { 
-	var self = this;
-	
-	/**
-	 * Insert User Row
-	 */
-	this.insertUserRow = function(user) {
-		$('#users-list').prepend(
-			'<tr user="' + user.uuid + '">' +
-			'<th scope="row"><input type="checkbox" user="' + user.uuid + '"></th>' +
-			'<th>' + user.username + '</th>' +
-			'<th>' + user.email + '</th>' +
-			'<th>' + user.uuid + '</th>' +
-			'</tr>'
-		);
-	}
-	
-	/**
-	 * Load Users Callback
-	 */
-	lense.register.callback('loadUsers', function(data) {
-		if ($.isArray(data)) {
-			$.each(data, function(i,user) {
-				self.insertUserRow(user);
-			});
-		} else {
-			self.insertUserRow(data);
+lense.import('admin.users', function() {
+	var self    = this;
+
+	// Object definition
+	this.object = lense.object.define('user');
+
+	// Set object options
+	this.object.setOptions({
+		model: 'Users',
+		handler: {
+			get: 'user_get',
+			update: 'user_update',
+			delete: 'user_delete'
 		}
 	});
-	
+
+	// Define object template
+	this.object.defineTemplate(new OrderedObject([
+		[ 'username', {
+			label: 'Username',
+			link: true,
+			edit: true,
+			list: true
+		}],
+		[ 'first_name', {
+			label: 'First Name',
+			edit: true,
+			list: true
+		}],
+		[ 'last_name', {
+			label: 'Last Name',
+			edit: true,
+			list: true
+		}],
+		[ 'email', {
+			label: 'Email',
+			edit: true,
+			list: true
+		}],
+		[ 'uuid', {
+			label: 'UUID',
+			def: '@lense.uuid4()',
+			list: false
+		}],
+		[ 'from_ldap', {
+			label: 'LDAP',
+			type: 'bool',
+			edit: false,
+			def: false,
+			list: true,
+			map: {
+				'Yes': true,
+				'No': false
+			}
+		}]
+	]));
+
+	// User properties
+	this.object.defineProperties('content-center', {
+		exclude: ['date_joined']
+	});
+
+	// User's groups
+	this.object.defineGroup('content-right', {
+		members: 'groups',
+		title: 'Groups',
+		map: 'uuid',
+		available: 'data.groups',
+		fields: ['name', 'desc']
+	});
+
 	/**
-	 * Constructor
+	 * @constructor
 	 */
 	lense.register.constructor('admin.users', function() {
-		
-		// Load users
-		lense.api.request.submit('user_get', null, 'loadUsers');
-		
-		// Bind events
-		self.bind();
-	});
-	
-	/**
-	 * Create User
-	 */
-	this.createUser = function() {
-		lense.common.forms.validate('#create-user-form');
-		
-		// Hide the modal and show the waiting dialog
-		//$('#create-user').modal('hide');
-		//waitingDialog.show('Creating user...');
-	}
-	
-	/**
-	 * Bind Events
-	 */
-	this.bind = function() {
-		
-		// Create user
-		$(document).on('click', '#create-user-button', function() {
-			self.createUser();
+
+		// Bootstrap object
+		self.object.bootstrap({
+			data: {
+				groups: 'group_get'
+			}
 		});
-	}
+	});
 });

@@ -1,0 +1,22 @@
+{% verbatim %}
+<div id="create-object" type="{{_DATA_.type}}" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Create: {{_DATA_.type}}</h4>
+      </div>
+      <div class="modal-body">
+        {{#each _DATA_.fields}}
+          {{#form_field this}}{{/form_field}}
+        {{/each}}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="create-object-cancel">Cancel</button>
+        <button type="button" class="btn btn-success" id="create-object-submit">Submit</button>
+      </div>
+    </div>
+  </div>
+  <div id="create-object-request" style="display:none;" attrs="{{#join _DATA_.attrs}}{{/join}}" handler="{{_DATA_.handler}}" object="{{_DATA_.object}}" callback="{{_DATA_.callback}}"></div>
+</div>
+{% endverbatim %}

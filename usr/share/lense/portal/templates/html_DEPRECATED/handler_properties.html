@@ -1,0 +1,54 @@
+{% verbatim %}
+	<div class="chart-stage">
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Name:</span>
+	    <input type="text" class="form-control property-field-value" id="handler-name" aria-describedby="basic-addon3" value="{{name}}" readonly>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">UUID:</span>
+	    <input type="text" class="form-control property-field-value" id="handler-uuid" aria-describedby="basic-addon3" value="{{uuid}}" readonly>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Description:</span>
+	    <input type="text" class="form-control property-field-value" id="handler-desc" aria-describedby="basic-addon3" value="{{desc}}" readonly>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Path:</span>
+	    <input type="text" class="form-control property-field-value" id="handler-path" aria-describedby="basic-addon3" value="{{path}}" readonly>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Method:</span>
+	    <select class="form-control property-field-value property-field-dropdown" id="handler-method" aria-describedby="basic-addon3" disabled>
+	      {{#string_options method _METHODS_}}{{/string_options}}
+	    </select>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Protected:</span>
+	    <select class="form-control property-field-value property-field-dropdown" id="handler-protected" aria-describedby="basic-addon3" disabled>
+	      {{#boolean_options protected}}{{/boolean_options}}
+	    </select>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Enabled:</span>
+	    <select class="form-control property-field-value property-field-dropdown" id="handler-enabled" aria-describedby="basic-addon3" disabled>
+	      {{#boolean_options enabled}}{{/boolean_options}}
+	    </select>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Anonymous:</span>
+	    <select class="form-control property-field-value property-field-dropdown" id="handler-allow_anon" aria-describedby="basic-addon3" disabled>
+	      {{#boolean_options allow_anon}}{{/boolean_options}}
+	    </select>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Locked:</span>
+	    <select class="form-control property-field-value property-field-dropdown" id="handler-locked" aria-describedby="basic-addon3" disabled>
+	      {{#boolean_options locked}}{{/boolean_options}}
+	    </select>
+	  </div>
+	  <div class="input-group property-field">
+	    <span class="input-group-addon property-field-label" id="basic-addon3">Locked By:</span>
+	    <input type="text" class="form-control property-field-value" id="handler-locked_by" aria-describedby="basic-addon3" value="{{locked_by}}" readonly>
+	  </div>
+	</div>
+{% endverbatim %}

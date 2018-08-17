@@ -1,0 +1,58 @@
+{% verbatim %}
+<x-var type="object" key="var#{{object.key}}">
+  <form>
+    <div class="form-group">
+      <div class="input-group btn-group-container">
+        <div class="input-group-addon btn-group-label">Type: </div>
+        {{#data_group object 'variable-type' meta.varTypes desc='Variable Type'}}
+          {{data_element 'ref'    content=(object_var_input 'str' 'ref' object prefix='#')}}
+          {{data_element 'fetch'  content=(object_var_input 'str' 'fetch' object prefix='LENSE.')}}
+          {{data_element 'static' content=(object_var_input 'str' 'static' object)}}
+          {{#data_element 'call'}}
+            <div class="form-group">
+              {{object_var_input 'str' 'call' ../object prefix='LENSE.'}}
+            </div>
+            <div class="form-group">
+              <div class="form-group">
+                <div class="input-group btn-group-container">
+                  <div class="input-group-addon btn-group-label">Args: </div>
+                  {{#data_group ../object 'variable-type-args' ../meta.argTypes
+                    desc='Positional Arguments'
+                    parent='variable-type'
+                    append=(data_element 'list' content=(object_arg_add 'arg' ../object) selector='args#array')
+                  }}
+                    {{data_element 'ref'
+                      content=(object_var_input 'str' 'args' ../object prefix='#')
+                      selector='args#str'
+                    }}
+                    {{data_element 'list'
+                      content=(object_args ../object)
+                      selector='args#array'
+                    }}
+                  {{/data_group}}
+                </div>
+              </div>
+              <div class="form-group" id="variable-type-args-{{../object.key}}"></div>
+              <div class="form-group">
+                <div class="input-group btn-group-container">
+                  <div class="input-group-addon btn-group-label">Kwargs: </div>
+                  {{#data_group ../object 'variable-type-kwargs' ../meta.kwargTypes
+                    desc='Keyword Arguments'
+                    parent='variable-type'
+                    append=(data_element 'dict' content=(object_arg_add 'kwarg' ../object) selector='kwargs#dict')
+                  }}
+                    {{data_element 'ref'  content=(object_var_input 'str' 'kwargs' ../object prefix='#') selector='kwargs#str'}}
+                    {{data_element 'dict' content=(object_kwargs ../object) selector='kwargs#dict'}}
+                  {{/data_group}}
+                </div>
+              </div>
+              <div class="form-group" id="variable-type-kwargs-{{../object.key}}"></div>
+            </div>
+          {{/data_element}}
+        {{/data_group}}
+      </div>
+    </div>
+    <div class="form-group" id="variable-type-{{object.key}}"></div>
+  </form>
+</x-var>
+{% endverbatim %}

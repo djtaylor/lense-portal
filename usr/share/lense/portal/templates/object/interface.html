@@ -1,0 +1,178 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="chart-wrapper">
+
+        <!-- Object Header -->
+        <div class="chart-title">
+          <div class="chart-title-left text-capitalize" id="object-header"></div>
+          <div class="btn-group pull-right object-view-controls" style="display:none;" view="object" role="group" aria-label="Object Views">
+            <button type="button" class="btn btn-default active" btn-group="objectView" btn-target="grid">
+              <span class="glyphicon glyphicon-list"></span>
+              Grid
+            </button>
+            <button type="button" class="btn btn-default" btn-group="objectView" btn-target="source">
+              <span class="glyphicon glyphicon-console"></span>
+              Source
+            </button>
+            <button type="button" class="btn btn-default" btn-group="objectView" btn-target="permissions">
+              <span class="glyphicon glyphicon-lock"></span>
+              Permissions
+            </button>
+          </div>
+        </div>
+
+        <!-- Object List Controls -->
+        <div class="chart-title" style="display:none;" view="list">
+          <div class="chart-title-expand" id="list-controls">
+
+            <!-- Manage Layout -->
+            <div class="btn-group pull-left" role="group" aria-label="Layout Controls">
+              <button type="button" class="btn btn-default" object-toggle-layout="list">
+                <span class="glyphicon glyphicon-list"></span>
+              </button>
+              <button type="button" class="btn btn-default" object-toggle-layout="thumbnails">
+                <span class="glyphicon glyphicon-th-large"></span>
+              </button>
+            </div>
+
+            <!-- Sort Objects -->
+            <div class="input-group thumbnail-field input-group-inline" id="object-sort"></div>
+
+            <!-- Manage Objects -->
+            <div class="btn-group pull-right" role="group" id="object-list-controls"></div>
+          </div>
+        </div>
+
+        <!--Single Object Controls-->
+        <div class="chart-title" style="display:none;" view="object">
+          <div class="chart-title-expand" id="object-controls">
+            <!-- Object Creation-->
+            <div class="btn-group" role="group" id="object-controls-create"></div>
+            <!-- Object State -->
+            <div class="pull-right" role="group" id="object-controls-state">
+              <button type="button" class="btn btn-success" id="edit-object">Edit</button>
+              <button type="button" class="btn btn-success" id="save-object" style="display:none;">Save</button>
+              <button type="button" class="btn btn-warning" id="edit-object-cancel" style="display:none;">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Single Object Content -->
+        <div class="chart-stage" style="display:none;" view="object">
+          <div class="container-fluid" id="object-content" btn-group="objectView" btn-toggle="grid">
+            <div class="row object-content-row">
+              <x-var id="object-data" type="object">
+                <!-- Object Left Pane -->
+                <div class="col-md-4" id="object-content-left" style="display:none;"></div>
+                <!-- Object Content Center -->
+                <div class="col-md-12" id="object-content-center"></div>
+                <!-- Object Right Pane -->
+                <div class="col-md-4" id="object-content-right" style="display:none;"></div>
+              </x-var>
+            </div>
+          </div>
+
+          <!-- Object Permissions -->
+          <div style="display:none;" btn-group="objectView" btn-toggle="permissions">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th class="permissions-header">Owner</th>
+                  <th class="permissions-header">User Read</th>
+                  <th class="permissions-header">User Write</th>
+                  <th class="permissions-header">User Delete</th>
+                  <th class="permissions-header">User Exec</th>
+                  <th class="permissions-header">Group Read</th>
+                  <th class="permissions-header">Group Write</th>
+                  <th class="permissions-header">Group Delete</th>
+                  <th class="permissions-header">Group Exec</th>
+                  <th class="permissions-header">All Read</th>
+                  <th class="permissions-header">All Write</th>
+                  <th class="permissions-header">All Delete</th>
+                  <th class="permissions-header">All Exec</th>
+                  <th class="permissions-header">Shared</th>
+                </tr>
+              </thead>
+              <tbody id="object-permissions">
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Object Source -->
+          <div style="display:none;" btn-group="objectView" btn-toggle="source">
+            <div id="object-source"></div>
+          </div>
+        </div>
+
+        <!-- Object List Content -->
+        <div class="chart-stage" style="display:none;" view="list">
+
+          <!-- Thumbnails List Layout -->
+          <div id="object-list-thumbnails" class="layout-thumbnails layout-container row" style="display:none;" object-layout="thumbnails"></div>
+
+          <!-- Rows List Layout -->
+          <div id="object-list-rows" class="layout-list layout-container" style="display:none;" object-layout="list">
+            <table class="table table-striped">
+              <thead id="object-rows-headers">
+              </thead>
+              <tbody id="object-rows-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Object Footer -->
+        <div class="chart-notes" id="object-footer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Object Modals -->
+  <div id="object-modals">
+
+    <!-- Confirm Delete -->
+    <div id="object-delete" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title" id="object-delete-header">Confirm Delete: </h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group form-field">
+              <p>Are you sure you want to delete this object? This action cannot be undone!</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" id="object-delete-submit" uuid="">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Object: Key Prompt -->
+    <div id="object-key" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Define Object Key</h4>
+          </div>
+          <div class="modal-body">
+            <div class="input-group form-field">
+              <span class="input-group-addon profile-field-label">Key:</span>
+              <input type="text" class="form-control profile-field-value" name="object-key" value="">
+            </div>
+          </div>
+          <div class="alert alert-danger" id="object-key-error" style="display:none;"></div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" id="object-key-submit">Create</button>
+            <input type="hidden" id="object-type" value="">
+            <input type="hidden" id="object-grid" value="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

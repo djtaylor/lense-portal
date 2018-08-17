@@ -1,0 +1,138 @@
+<!-- Navigation -->
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false">
+        <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+      </button>
+      <div class="navbar-brand-icon"></div>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li><a class="menu-nav-btn-top" href="{{ base_path }}/home">Home</a></li>
+        {% for nav_item in NAV %}
+            {% if nav_item.children %}
+                <li class="dropdown menu-nav-btn">
+                    <a href="#" class="dropdown-toggle menu-nav-btn-top" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ nav_item.parent.name }}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        {% for child in nav_item.children %}
+                            <li><a class="menu-nav-btn-child" href="{{ child.link }}"><div class="glyphicon glyphicon-{{ child.icon }} dropdown-icon"></div><div class="dropdown-text">{{ child.name }}</div></a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% else %}
+                <li class="menu-nav-btn"><a class="menu-nav-btn-top" href="{{ nav_item.link }}">{{ nav_item.name }}</a></li>
+            {% endif %}
+		{% endfor %}
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+          <button type="button" id="socketio-button" class="btn-nav-profile btn btn-default btn-block navbar-btn has-spinner menu-btn" data-toggle="modal" data-target="#socketio">
+            <span id="socketio-disconnected" class="disconnected"><i class="fa fa-toggle-off fa-1x fa-fw margin-bottom"></i></span>
+            <span id="socketio-connecting" class="spinner"><i class="fa fa-cog fa-spin fa-1x fa-fw margin-bottom"></i></span>
+            <span id="socketio-connected" class="connected" style="display:none;"><i class="fa fa-toggle-on fa-1x fa-fw margin-bottom"></i></span>
+            SocketIO
+          </button>
+        </li>
+        <li>
+          <button type="button" id="profile-button" class="btn-nav-profile btn btn-default btn-block navbar-btn menu-btn" data-toggle="modal" data-target="#profile">
+            <span class="glyphicon glyphicon-user"></span>
+            Profile
+          </button>
+        </li>
+        <li>
+          <button type="button" id="notification-button" class="btn-nav-profile btn btn-default btn-block navbar-btn menu-btn" data-toggle="modal" data-target="#notifications">
+            <span class="glyphicon glyphicon-alert" style="opacity:0.5;"></span>
+          </button>
+        </li>
+      </ul>
+    </div><!--/.navbar-collapse -->
+  </div><!-- /.container -->
+</nav>
+
+<!-- Notifications Modal -->
+<div id="notifications" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Notification Log</h4>
+      </div>
+      <div class="modal-body" id="notification-log">
+        <!-- Notifications -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Profile Content -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Profile: {{ USER.name }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="input-group profile-field">
+		  <span class="input-group-addon profile-field-label" id="basic-addon3">Username:</span>
+		  <input type="text" class="form-control profile-field-value" id="basic-url" aria-describedby="basic-addon3" value="{{ USER.name }}" readonly>
+		</div>
+        <div class="input-group profile-field">
+          <span class="input-group-addon profile-field-label" id="basic-addon3">Email:</span>
+          <input type="text" class="form-control profile-field-value" id="basic-url" aria-describedby="basic-addon3" value="{{ USER.email }}" readonly>
+        </div>
+        <div class="input-group profile-field">
+          <span class="input-group-addon profile-field-label" id="basic-addon3">API Key:</span>
+          <input type="password" class="form-control profile-field-value" id="basic-url" aria-describedby="basic-addon3" value="{{ API.key }}" data-toggle="password" readonly>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" type="submit" id="form-logout-button">Log Out</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+
+      {# Logout Form #}
+      <form id="form-logout" action="/auth" method="post" style="display:none;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="logout" />
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- SocketIO Modal -->
+<div id="socketio" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Profile Content -->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">SocketIO</h4>
+      </div>
+      <div class="modal-body">
+        <div class="input-group profile-field">
+          <span class="input-group-addon profile-field-label" id="basic-addon3">Endpoint:</span>
+          <input type="text" class="form-control profile-field-value socketio-endpoint" id="basic-url" aria-describedby="basic-addon3" value="" readonly>
+        </div>
+        <div class="input-group profile-field">
+          <span class="input-group-addon profile-field-label" id="basic-addon3">Room:</span>
+          <input type="text" class="form-control profile-field-value socketio-room" id="basic-url" aria-describedby="basic-addon3" value="" readonly>
+        </div>
+        <div class="input-group profile-field">
+          <span class="input-group-addon profile-field-label" id="basic-addon3">Server:</span>
+          <input type="text" class="form-control profile-field-value socketio-server" id="basic-url" aria-describedby="basic-addon3" value="" readonly>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

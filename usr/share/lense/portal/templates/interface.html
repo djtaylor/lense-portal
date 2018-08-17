@@ -1,0 +1,29 @@
+{# Base Template #}
+{% extends "base.html" %}
+
+{# Static Files #}
+{% load staticfiles %}
+
+{# Page Title #}
+{% block title %}{{ page.title }}{% endblock %}
+
+{# CSS #}
+{% block css %}
+	{% with "css/"|add:page.css as css %}
+		<link rel="stylesheet" type="text/css" href="{% static css %}">
+	{% endwith %}
+{% endblock %}
+
+{# Page Content #}
+{% if USER.is_authenticated %}
+	{% block content %}
+		{% include page.interface %}
+	{% endblock %}
+{% endif %}
+
+{# Authentication Content #}
+{% if not USER.is_authenticated %}
+	{% block auth %}
+	    {% include page.interface %}
+	{% endblock %}
+{% endif %}
